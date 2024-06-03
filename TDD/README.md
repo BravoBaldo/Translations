@@ -1,8 +1,9 @@
+translations from https://github.com/grzesiek-galezowski/tdd-ebook
+
 # Status
 	In progress
 # ToDo:
-	Contact the author!
-	A first reading!
+	A first reading/revision!
 	Spaces/pages reduction
 	footnotes
 	"alert warning note"
