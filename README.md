@@ -16,3 +16,6 @@
 
 ### Linux
 *  [Bash Guide for Beginners](https://tldp.org/LDP/Bash-Beginners-Guide/html/index.html)
+
+### TinyML
+*  [TinyML Made Easy by Marcelo Rovai](https://github.com/Mjrovai/TinyML_Made_Easy_NiclaV_eBook.git)
