@@ -1,0 +1,388 @@
+---
+bibliography: ml_systems.bib
+---
+
+# Sistemi di ML {#sec-ml_systems}
+
+::: {.content-visible when-format="html"}
+Risorse: [Slide](#sec-ml-systems-resource), [Video](#sec-ml-systems-resource), [Esercizi](#sec-ml-systems-resource), [Laboratori](#sec-ml-systems-resource)
+:::
+
+![_DALL·E 3 Prompt: Illustrazione in formato rettangolare che raffigura la fusione di sistemi embedded con IA Embedded. La metà sinistra dell'immagine ritrae i tradizionali sistemi embedded, inclusi microcontrollori e processori, in modo dettagliato e preciso. La metà destra mostra il mondo dell'intelligenza artificiale, con rappresentazioni astratte di modelli di machine learning, neuroni e flusso di dati. Le due metà sono nettamente separate, sottolineando il significato individuale della tecnologia embedded e dell'IA, ma si uniscono in armonia al centro._](images/png/cover_ml_systems.png)
+
+I sistemi di Machine Learning(ML), costruiti sulle fondamenta dei sistemi di elaborazione, hanno il potenziale per trasformare il nostro mondo. Questi sistemi, con i loro ruoli specializzati e le capacità di elaborazione in tempo reale, rappresentano un punto di incontro critico in cui dati e elaborazione si incontrano su scala micro. Sono specificamente progettati per ottimizzare le prestazioni, l'uso di energia e l'efficienza spaziale, fattori chiave essenziali per l'implementazione di successo dei sistemi di ML.
+
+Man mano che questo capitolo procede, esploreremo il mondo complesso e affascinante dei sistemi embedded. Acquisiremo informazioni sulla loro progettazione strutturale e sulle caratteristiche operative e comprenderemo il loro ruolo chiave nel potenziare le applicazioni ML. A partire dalle basi delle unità microcontrollore, esamineremo le interfacce e le periferiche che ne migliorano le funzionalità. Questo capitolo è progettato per essere una guida completa che chiarisce gli aspetti sfumati dei sistemi embedded all'interno del framework dei sistemi ML.
+
+::: {.callout-tip}
+
+## Obiettivi dell'Apprendimento
+
+* Acquisire una conoscenza completa dei sistemi ML, incluse le loro definizioni, architettura e linguaggi di programmazione.
+
+* Esplorare i principi di progettazione e operativi dei sistemi ML, incluso l'uso di un microprocessore, la gestione della memoria, l'integrazione System-on-chip (SoC) e lo sviluppo e l'implementazione di modelli di machine learning [apprendimento automatico].
+
+* Esaminare le interfacce, la gestione dell'alimentazione e le caratteristiche operative in tempo reale essenziali per sistemi ML efficienti insieme a considerazioni su efficienza energetica, affidabilità e sicurezza.
+
+* Esaminare le distinzioni, i vantaggi, le problematiche e i casi d'uso per Cloud ML, Edge ML e TinyML, sottolineando la selezione dell'approccio di apprendimento automatico appropriato in base alle esigenze specifiche dell'applicazione e al panorama in evoluzione dei sistemi embedded nel machine learning.
+
+:::
+
+## Introduzione
+
+Il ML si sta evolvendo rapidamente, con nuovi paradigmi che plasmano il modo in cui i modelli vengono sviluppati, addestrati e implementati. Uno di questi paradigmi è l'apprendimento automatico embedded, che sta vivendo un'innovazione significativa guidata dalla proliferazione di sensori intelligenti, dispositivi edge e microcontrollori. Il machine learning embedded si riferisce all'integrazione di algoritmi di apprendimento automatico nell'hardware di un dispositivo, consentendo l'elaborazione e l'analisi dei dati in tempo reale senza fare affidamento sulla connettività cloud. Questo capitolo esplora il panorama dell'apprendimento automatico embedded, coprendo gli approcci chiave di Cloud ML, Edge ML e TinyML (@fig-cloud-edge-tinyml-comparison).
+
+![Cloud vs. Edge vs. TinyML: Lo Spettro dell'Intelligenza Distribuita. Fonte: ABI Research -- TinyML.](images/png/cloud-edge-tiny.png){#fig-cloud-edge-tinyml-comparison}
+
+L'apprendimento automatico è iniziato con Cloud ML, dove potenti server nel cloud venivano utilizzati per addestrare ed eseguire grandi modelli di machine learning. Tuttavia, con l'aumento della necessità di elaborazione in tempo reale e a bassa latenza, è emerso l'Edge ML, avvicinando le capacità di inferenza alla fonte dei dati su dispositivi edge come gli smartphone. L'ultimo sviluppo in questa progressione è TinyML, che consente ai modelli ML di funzionare su microcontrollori con risorse estremamente limitate e piccoli sistemi embedded. TinyML consente l'inferenza sul dispositivo senza fare affidamento sulla connettività al cloud o all'edge, aprendo nuove possibilità per dispositivi intelligenti alimentati a batteria.
+
+@fig-vMLsizes mostra le principali differenze tra Cloud ML, Edge ML e TinyML in termini di hardware, latenza, connettività, requisiti di alimentazione e complessità del modello. Questa significativa disparità nelle risorse disponibili pone delle sfide quando si tenta di distribuire modelli di deep learning su microcontrollori, poiché questi modelli spesso richiedono memoria e storage sostanziali. Ad esempio, modelli di deep learning ampiamente utilizzati come ResNet-50 superano i limiti di risorse dei microcontrollori di un fattore di circa 100, mentre modelli più efficienti come MobileNet-V2 superano comunque questi vincoli di un fattore di circa 20. Anche se quantizzato per utilizzare interi a 8 bit (int8) per un utilizzo di memoria ridotto, MobileNetV2 richiede più di 5 volte la memoria solitamente disponibile su un microcontrollore, rendendo difficile adattare il modello a questi dispositivi minuscoli.
+
+![Dalle GPU cloud ai microcontrollori: Navigazione nel panorama della memoria e dell'archiviazione tra dispositivi di elaborazione. Fonte: [@lin2023tiny]](./images/jpg/cloud_mobile_tiny_sizes.jpg){#fig-vMLsizes}
+
+## Cloud ML
+
+Cloud ML sfrutta potenti server nel cloud per il training e l'esecuzione di modelli ML complessi e di grandi dimensioni e si basa sulla connettività Internet.
+
+### Caratteristiche
+
+**Definizione di Cloud ML**
+
+Il Cloud Machine Learning (Cloud ML) è un sottocampo del machine learning che sfrutta la potenza e la scalabilità dell'infrastruttura di cloud computing per sviluppare, addestrare e distribuire modelli di machine learning. Utilizzando le vaste risorse computazionali disponibili nel cloud, Cloud ML consente la gestione efficiente di set di dati su larga scala e algoritmi di machine learning complessi.
+
+**Infrastruttura Centralizzata**
+
+Una delle caratteristiche principali di Cloud ML è la sua infrastruttura centralizzata. I provider di servizi cloud offrono una piattaforma virtuale composta da server ad alta capacità, soluzioni di storage espansive e architetture di rete robuste, tutte ospitate in data center distribuiti in tutto il mondo (@fig-cloudml-example). Questa configurazione centralizzata consente la messa in comune e la gestione efficiente delle risorse computazionali, semplificando la scalabilità dei progetti di machine learning in base alle esigenze.
+
+**Elaborazione Dati Scalabile e Addestramento dei Modelli**
+
+Il Cloud ML eccelle nella sua capacità di elaborare e analizzare enormi volumi di dati. L'infrastruttura centralizzata è progettata per gestire calcoli complessi e attività di [model training](../training/training.qmd) che richiedono una notevole potenza di calcolo. Sfruttando la scalabilità del cloud, i modelli di apprendimento automatico possono essere addestrati su grandi quantità di dati, con conseguente miglioramento delle capacità di apprendimento e delle prestazioni predittive.
+
+**Deployment Flessibile e Accessibilità**
+
+Un altro vantaggio di Cloud ML è la flessibilità che offre in termini di deployment [distribuzione] e accessibilità. Una volta che un modello di machine learning è stato addestrato e convalidato, può essere facilmente distribuito e reso accessibile agli utenti tramite servizi basati su cloud. Ciò consente un'integrazione perfetta delle funzionalità di apprendimento automatico in varie applicazioni e servizi, indipendentemente dalla posizione o dal dispositivo dell'utente.
+
+**Collaborazione e Condivisione delle Risorse**
+
+Il Cloud ML promuove la collaborazione e la condivisione delle risorse tra team e organizzazioni. La natura centralizzata dell'infrastruttura cloud consente a più utenti di accedere e lavorare contemporaneamente sugli stessi progetti di apprendimento automatico. Questo approccio collaborativo facilita la condivisione delle conoscenze, accelera il processo di sviluppo e ottimizza l'utilizzo delle risorse.
+
+**Efficacia dei Costi e Scalabilità**
+
+Sfruttando il modello di prezzo "pay-as-you-go" offerto dai provider di servizi cloud, Cloud ML consente alle organizzazioni di evitare i costi iniziali associati alla creazione e alla manutenzione della propria infrastruttura di machine learning. La capacità di aumentare o diminuire le risorse in base alla domanda garantisce economicità e flessibilità nella gestione dei progetti di apprendimento automatico.
+
+Il Cloud ML ha rivoluzionato il modo in cui ci si approccia all'apprendimento automatico, rendendolo più accessibile, scalabile ed efficiente. Ha aperto nuove possibilità per le organizzazioni di sfruttare la potenza dell'apprendimento automatico senza la necessità di investimenti significativi in hardware e infrastruttura.
+
+![Data center Cloud TPU presso Google. Fonte: [Google.](https://blog.google/technology/ai/google-gemini-ai/#scalable-efficient)](images/png/cloud_ml_tpu.png){#fig-cloudml-example}
+
+### Vantaggi
+
+Il Cloud ML offre diversi vantaggi significativi che lo rendono una scelta potente per i progetti di apprendimento automatico:
+
+**Immensa Potenza di Calcolo**
+
+Uno dei principali vantaggi del Cloud ML è la sua capacità di fornire vaste risorse di calcolo. L'infrastruttura cloud è progettata per gestire algoritmi complessi ed elaborare grandi set di dati in modo efficiente. Ciò è particolarmente vantaggioso per i modelli di apprendimento automatico che richiedono una notevole potenza di calcolo, come reti di deep learning o modelli addestrati su enormi set di dati. Sfruttando le capacità di calcolo del cloud, le organizzazioni possono superare i limiti delle configurazioni hardware locali e ridimensionare i loro progetti di apprendimento automatico per soddisfare requisiti esigenti.
+
+**Scalabilità Dinamica**
+
+Il Cloud ML offre scalabilità dinamica, consentendo alle organizzazioni di adattarsi facilmente alle mutevoli esigenze di calcolo. Man mano che il volume dei dati aumenta o la complessità dei modelli di apprendimento automatico aumenta, l'infrastruttura cloud può essere ridimensionata senza problemi verso l'alto o verso il basso per adattarsi a questi cambiamenti. Questa flessibilità garantisce prestazioni costanti e consente alle organizzazioni di gestire carichi di lavoro variabili senza la necessità di ingenti investimenti hardware. Col Cloud ML, le risorse possono essere allocate su richiesta, fornendo una soluzione conveniente ed efficiente per la gestione di progetti di machine learning.
+
+**Accesso a Strumenti e Algoritmi Avanzati**
+
+Le piattaforme Cloud ML forniscono accesso a un'ampia gamma di strumenti e algoritmi avanzati specificamente progettati per l'apprendimento automatico. Questi strumenti spesso includono librerie, framework e API predefiniti che semplificano lo sviluppo e l'implementazione di modelli di apprendimento automatico. Gli sviluppatori possono sfruttare queste risorse per accelerare la creazione, il training e l'ottimizzazione di modelli sofisticati. Utilizzando gli ultimi progressi negli algoritmi e nelle tecniche di apprendimento automatico, le organizzazioni possono rimanere all'avanguardia dell'innovazione e ottenere risultati migliori nei loro progetti di apprendimento automatico.
+
+**Ambiente Collaborativo**
+
+Il Cloud ML promuove un ambiente collaborativo che consente ai team di lavorare insieme senza problemi. La natura centralizzata dell'infrastruttura cloud consente a più utenti di accedere e contribuire agli stessi progetti di apprendimento automatico contemporaneamente. Questo approccio collaborativo facilita la condivisione delle conoscenze, promuove la collaborazione interfunzionale e accelera lo sviluppo e l'iterazione dei modelli di apprendimento automatico. I team possono condividere facilmente codice, set di dati e risultati, consentendo una collaborazione efficiente e guidando l'innovazione in tutta l'organizzazione.
+
+**Efficacia in Termini di Costi**
+
+L'adozione del Cloud ML può essere una soluzione conveniente per le organizzazioni, soprattutto rispetto alla creazione e alla manutenzione di un'infrastruttura di apprendimento automatico in sede. I provider di servizi cloud offrono modelli di prezzo flessibili, come piani pay-as-you-go o basati su abbonamento, consentendo alle organizzazioni di pagare solo per le risorse che consumano. Ciò elimina la necessità di investimenti di capitale iniziali in hardware e infrastruttura, riducendo il costo complessivo dell'implementazione di progetti di apprendimento automatico. Inoltre, la scalabilità di Cloud ML garantisce che le organizzazioni possano ottimizzare l'utilizzo delle risorse ed evitare l'eccesso di provisioning [fornitura], migliorando ulteriormente l'efficienza in termini di costi.
+
+I vantaggi di Cloud ML, tra cui l'immensa potenza di calcolo, la scalabilità dinamica, l'accesso a strumenti e algoritmi avanzati, l'ambiente collaborativo e la convenienza, lo rendono una scelta interessante per le organizzazioni che desiderano sfruttare il potenziale del machine learning. Sfruttando le capacità del cloud, le organizzazioni possono accelerare le proprie iniziative di machine learning, guidare l'innovazione e ottenere un vantaggio competitivo nell'attuale panorama basato sui dati.
+
+### Sfide
+
+Sebbene il Cloud ML offra numerosi vantaggi, presenta anche alcune sfide che le organizzazioni devono considerare:
+
+**Problemi di Latenza**
+
+Una delle principali sfide del Cloud ML è il potenziale di problemi della latenza, in particolare nelle applicazioni che richiedono risposte in tempo reale. Poiché i dati devono essere inviati dall'origine dei dati ai server cloud centralizzati per l'elaborazione e quindi di nuovo all'applicazione, potrebbero verificarsi ritardi dovuti alla trasmissione in rete. Questa latenza può rappresentare un notevole svantaggio in scenari sensibili al fattore tempo, come veicoli autonomi, rilevamento delle frodi in tempo reale o sistemi di controllo industriale, in cui è fondamentale prendere decisioni immediate. Gli sviluppatori devono progettare attentamente i propri sistemi per ridurre al minimo la latenza e garantire tempi di risposta accettabili.
+
+**Problemi di Sicurezza e Privacy dei Dati**
+
+La centralizzazione dell'elaborazione e dell'archiviazione dei dati nel cloud può sollevare preoccupazioni sulla privacy e sulla sicurezza dei dati. Quando i dati sensibili vengono trasmessi e archiviati in data center remoti, diventano vulnerabili a potenziali attacchi informatici e accessi non autorizzati. I data center cloud possono diventare obiettivi interessanti per gli hacker che cercano di sfruttare le vulnerabilità e ottenere l'accesso a informazioni preziose. Le organizzazioni devono investire in misure di sicurezza robuste, come crittografia, controlli di accesso e monitoraggio continuo, per proteggere i propri dati nel cloud. Anche la conformità alle normative sulla privacy dei dati, come GDPR o HIPAA, diventa una considerazione critica quando si gestiscono dati sensibili nel cloud.
+
+**Considerazioni sui Costi**
+
+Con l'aumento delle esigenze di elaborazione dei dati, i costi associati all'utilizzo dei servizi cloud possono aumentare. Mentre il Cloud ML offre scalabilità e flessibilità, le organizzazioni che gestiscono grandi volumi di dati potrebbero dover affrontare costi crescenti man mano che consumano più risorse cloud. Il modello di prezzo pay-as-you-go dei servizi cloud implica che i costi possono aumentare rapidamente, soprattutto per attività ad alta intensità di elaborazione come l'addestramento e l'inferenza dei modelli. Le organizzazioni devono monitorare e ottimizzare attentamente l'utilizzo del cloud per garantirne la convenienza. Potrebbero dover prendere in considerazione strategie come la compressione dei dati, la progettazione efficiente degli algoritmi e l'ottimizzazione dell'allocazione delle risorse per ridurre al minimo i costi pur ottenendo le prestazioni desiderate.
+
+**Dipendenza dalla Connettività Internet**
+
+Il Cloud ML si basa su una connettività Internet stabile e affidabile per funzionare in modo efficace. Poiché i dati devono essere trasmessi da e verso il cloud, eventuali interruzioni o limitazioni nella connettività di rete possono influire sulle prestazioni e sulla disponibilità del sistema di apprendimento automatico. Questa dipendenza dalla connettività Internet può rappresentare un problema in scenari in cui l'accesso alla rete è limitato, inaffidabile o costoso. Le organizzazioni devono garantire un'infrastruttura di rete solida e considerare meccanismi di "failover" o capacità offline per mitigare l'impatto dei problemi di connettività.
+
+**Vendor Lock-In**
+
+Quando si adotta il Cloud ML, le organizzazioni spesso diventano dipendenti dagli strumenti, dalle API e dai servizi specifici forniti dal fornitore cloud prescelto. Questo vendor lock-in [blocco da fornitore] può rendere difficile cambiare fornitore o migrare verso piattaforme diverse in futuro. Le organizzazioni possono affrontare sfide in termini di portabilità, interoperabilità e costi quando prendono in considerazione un cambiamento nel loro fornitore di Cloud ML. È importante valutare attentamente le offerte del fornitore, considerare obiettivi strategici a lungo termine e pianificare potenziali scenari di migrazione per ridurre al minimo i rischi associati al vendor lock-in.
+
+Affrontare queste sfide richiede un'attenta pianificazione, progettazione architettonica e strategie di mitigazione del rischio. Le organizzazioni devono soppesare i vantaggi del Cloud ML rispetto ai potenziali problemi e prendere decisioni informate in base ai loro requisiti specifici, alla sensibilità dei dati e agli obiettivi aziendali. Affrontando proattivamente queste sfide, le organizzazioni possono sfruttare efficacemente la potenza del Cloud ML garantendo al contempo la privacy dei dati, la sicurezza, l'economicità e l'affidabilità complessiva del sistema.
+
+### Casi d'Uso di Esempio
+
+Il Cloud ML ha trovato ampia adozione in vari domini, rivoluzionando il modo in cui le aziende operano e gli utenti interagiscono con la tecnologia. Esploriamo alcuni esempi notevoli del Cloud ML in azione:
+
+**Assistenti Virtuali**
+
+Il Cloud ML svolge un ruolo cruciale nel potenziamento di assistenti virtuali come Siri e Alexa. Questi sistemi sfruttano le immense capacità computazionali del cloud per elaborare e analizzare gli input vocali in tempo reale. Sfruttando la potenza dell'elaborazione del linguaggio naturale e degli algoritmi di apprendimento automatico, gli assistenti virtuali possono comprendere le domande degli utenti, estrarre informazioni rilevanti e generare risposte intelligenti e personalizzate. La scalabilità e la potenza di elaborazione del cloud consentono a questi assistenti di gestire un vasto numero di interazioni utente contemporaneamente, offrendo un'esperienza utente fluida e reattiva.
+
+**Sistemi di Raccomandazione Commerciali**
+
+Il Cloud ML costituisce la spina dorsale dei sistemi di raccomandazione avanzati utilizzati da piattaforme come Netflix e Amazon. Questi sistemi sfruttano la capacità del cloud di elaborare e analizzare enormi set di dati per scoprire modelli, preferenze e comportamenti degli utenti. Sfruttando il filtraggio collaborativo e altre tecniche di apprendimento automatico, i sistemi di raccomandazione possono offrire contenuti personalizzati o suggerimenti di prodotti su misura per gli interessi di ciascun utente. La scalabilità del cloud consente a questi sistemi di aggiornare e perfezionare continuamente le proprie raccomandazioni in base alla quantità sempre crescente di dati utente, migliorandneo il coinvolgimento e la soddisfazione.
+
+**Rilevamento delle Frodi**
+
+Nel settore finanziario, il Cloud ML ha rivoluzionato i sistemi di rilevamento delle frodi. Sfruttando la potenza di calcolo del cloud, questi sistemi possono analizzare grandi quantità di dati transazionali in tempo reale per identificare potenziali attività fraudolente. Gli algoritmi di apprendimento automatico addestrati su modelli di frode storici possono rilevare anomalie e comportamenti sospetti, consentendo agli istituti finanziari di adottare misure proattive per prevenire le frodi e ridurre al minimo le perdite finanziarie. La capacità del cloud di elaborare e archiviare grandi volumi di dati lo rende una piattaforma ideale per implementare sistemi di rilevamento delle frodi robusti e scalabili.
+
+**Esperienze Utente Personalizzate**
+
+Il Cloud ML è profondamente integrato nelle nostre esperienze online, plasmando il modo in cui interagiamo con le piattaforme digitali. Dagli annunci personalizzati sui feed dei social media alle funzionalità di testo predittivo nei servizi di posta elettronica, il Cloud ML alimenta algoritmi intelligenti che migliorano il coinvolgimento e la praticità dell'utente. Consente ai siti di e-commerce di consigliare prodotti in base alla cronologia di navigazione e acquisto di un utente, ottimizza i motori di ricerca per fornire risultati accurati e pertinenti e automatizza il tagging e la categorizzazione delle foto su piattaforme come Facebook. Sfruttando le risorse di calcolo del cloud, questi sistemi possono apprendere e adattarsi continuamente alle preferenze dell'utente, offrendo un'esperienza utente più intuitiva e personalizzata.
+
+**Sicurezza e Rilevamento delle Anomalie**
+
+Il Cloud ML svolge un ruolo nel rafforzare la sicurezza dell'utente alimentando i sistemi di rilevamento delle anomalie. Questi sistemi monitorano costantemente le attività dell'utente e i log di sistema per identificare pattern insoliti o comportamenti sospetti. Analizzando grandi quantità di dati in tempo reale, gli algoritmi Cloud ML possono rilevare potenziali minacce informatiche, come tentativi di accesso non autorizzati, infezioni da malware o violazioni dei dati. La scalabilità e la potenza di elaborazione del cloud consentono a questi sistemi di gestire la crescente complessità e il volume dei dati di sicurezza, fornendo un approccio proattivo per proteggere utenti e sistemi da potenziali minacce.
+
+## Edge ML
+
+### Caratteristiche
+
+**Definizione di Edge ML**
+
+L'Edge Machine Learning (Edge ML) esegue algoritmi di apprendimento automatico direttamente sui dispositivi endpoint o più vicini al luogo in cui vengono generati i dati anziché affidarsi a server cloud centralizzati. Questo approccio mira ad avvicinare il calcolo alla fonte dei dati, riducendo la necessità di inviare grandi volumi di dati sulle reti, spesso con conseguente riduzione della latenza e miglioramento della privacy dei dati.
+
+**Elaborazione Dati Decentralizzata**
+
+In Edge ML, l'elaborazione dei dati avviene in modo decentralizzato. Invece di inviare dati a server remoti, i dati vengono elaborati localmente su dispositivi come smartphone, tablet o dispositivi Internet of Things (IoT) (@fig-edgeml-example). Questa elaborazione locale consente ai dispositivi di prendere decisioni rapide in base ai dati che raccolgono senza affidarsi pesantemente alle risorse di un server centrale. Questa decentralizzazione è particolarmente importante nelle applicazioni in tempo reale in cui anche un leggero ritardo può avere conseguenze significative.
+
+**Archiviazione e Calcolo dei Dati Locali**
+
+L'archiviazione e il calcolo dei dati locali sono caratteristiche chiave di Edge ML. Questa configurazione garantisce che i dati possano essere archiviati e analizzati direttamente sui dispositivi, mantenendo così la privacy dei dati e riducendo la necessità di una connettività Internet costante. Inoltre, questo spesso porta a un calcolo più efficiente, poiché i dati non devono percorrere lunghe distanze e i calcoli vengono eseguiti con una comprensione più consapevole del contesto locale, che a volte può portare ad analisi più approfondite.
+
+![Esempi di Edge ML. Fonte: Edge Impulse.](images/jpg/edge_ml_iot.jpg){#fig-edgeml-example}
+
+### Vantaggi
+
+**Latenza Ridotta**
+
+Uno dei principali vantaggi di Edge ML è la significativa riduzione della latenza rispetto al Cloud ML. Questa ridotta latenza può essere un vantaggio fondamentale in situazioni in cui i millisecondi contano, come nei veicoli autonomi, dove un rapido processo decisionale può fare la differenza tra sicurezza e incidente.
+
+**Privacy dei Dati Migliorata**
+
+Edge ML offre anche una migliore privacy dei dati, poiché i dati vengono principalmente archiviati ed elaborati localmente. Ciò riduce al minimo il rischio di violazioni dei dati, più comuni nelle soluzioni di archiviazione dati centralizzate. Le informazioni sensibili possono essere mantenute più sicure, poiché non vengono inviate su reti che potrebbero essere intercettate.
+
+**Minore Utilizzo della Larghezza di Banda**
+
+Operare più vicino alla fonte dei dati significa che meno dati devono essere inviati sulle reti, riducendo l'utilizzo della larghezza di banda. Ciò può comportare risparmi sui costi e guadagni di efficienza, soprattutto in ambienti in cui la larghezza di banda è limitata o costosa.
+
+### Sfide
+
+**Risorse di Calcolo Limitate Rispetto al Cloud ML**
+
+Tuttavia, Edge ML presenta le sue sfide. Una delle principali preoccupazioni sono le risorse di calcolo limitate rispetto alle soluzioni basate su cloud. I dispositivi endpoint possono avere una potenza di elaborazione o una capacità di archiviazione diverse rispetto ai server cloud, limitando la complessità dei modelli di apprendimento automatico che possono essere distribuiti.
+
+**Complessità nella Gestione dei Nodi Edge**
+
+La gestione di una rete di nodi Edge può introdurre complessità, soprattutto per quanto riguarda coordinamento, aggiornamenti e manutenzione. Garantire che tutti i nodi funzionino senza problemi e siano aggiornati con gli algoritmi e i protocolli di sicurezza più recenti può essere una sfida logistica.
+
+**Problemi di Sicurezza nei Nodi Edge**
+
+Sebbene Edge ML offra una maggiore privacy dei dati, i nodi Edge possono talvolta essere più vulnerabili ad attacchi fisici e informatici. Sviluppare protocolli di sicurezza affidabili che proteggano i dati su ogni nodo senza compromettere l'efficienza del sistema, resta una sfida significativa nell'implementazione di soluzioni Edge ML.
+
+### Casi d'Uso di Esempio
+
+Edge ML ha molte applicazioni, dai veicoli autonomi e dalle case intelligenti all'IoT industriale. Questi esempi sono stati scelti per evidenziare scenari in cui l'elaborazione dei dati in tempo reale, la latenza ridotta e la privacy migliorata non sono solo vantaggiose, ma spesso fondamentali per il funzionamento e il successo di queste tecnologie. Dimostrano il ruolo che Edge ML può svolgere nel guidare i progressi in vari settori, promuovendo l'innovazione e aprendo la strada a sistemi più intelligenti, reattivi e adattabili.
+
+**Veicoli Autonomi**
+
+I veicoli autonomi sono un esempio lampante del potenziale di Edge ML. Questi veicoli si affidano in larga misura all'elaborazione dei dati in tempo reale per navigare e prendere decisioni. I modelli di apprendimento automatico localizzati aiutano ad analizzare rapidamente i dati da vari sensori per prendere decisioni di guida immediate, garantendo sicurezza e funzionamento regolare.
+
+**Case ed Edifici Intelligenti**
+
+Edge ML svolge un ruolo cruciale nella gestione efficiente di vari sistemi in case ed edifici intelligenti, dall'illuminazione e dal riscaldamento alla sicurezza. Elaborando i dati localmente, questi sistemi possono funzionare in modo più reattivo e armonioso con le abitudini e le preferenze degli occupanti, creando un ambiente di vita più confortevole.
+
+**IoT industriale**
+
+L'Internet of Things (IoT) industriale sfrutta Edge ML per monitorare e controllare processi industriali complessi. Qui, i modelli di apprendimento automatico possono analizzare i dati da numerosi sensori in tempo reale, consentendo la manutenzione predittiva, ottimizzando le operazioni e migliorando le misure di sicurezza. Questa rivoluziona l'automazione e l'efficienza industriale.
+
+L'applicabilità di Edge ML è vasta e non si limita a questi esempi. Vari altri settori, tra cui sanità, agricoltura e pianificazione urbana, stanno esplorando e integrando l'Edge ML per sviluppare soluzioni innovative che rispondono alle esigenze e alle sfide del mondo reale, annunciando una nuova era di sistemi intelligenti e interconnessi.
+
+## Tiny ML
+
+### Caratteristiche
+
+**Definizione di TinyML**
+
+TinyML si colloca all'incrocio tra sistemi embedded e apprendimento automatico, rappresentando un campo in rapida crescita che porta algoritmi intelligenti direttamente a microcontrollori e sensori minuscoli. Questi microcontrollori operano con gravi limitazioni di risorse, in particolare per quanto riguarda memoria, archiviazione e potenza di calcolo (vedere un esempio di kit TinyML in @fig-tinyml-example).
+
+**Machine Learning On-Device**
+
+In TinyML, l'attenzione è rivolta all'apprendimento automatico sul dispositivo. Ciò significa che i modelli di apprendimento automatico vengono distribuiti e addestrati sul dispositivo, eliminando la necessità di server esterni o infrastrutture cloud. Ciò consente a TinyML di abilitare un processo decisionale intelligente proprio dove vengono generati i dati, rendendo possibili approfondimenti e azioni in tempo reale, anche in contesti in cui la connettività è limitata o non disponibile.
+
+**Ambienti a Basso Consumo Energetico e con Risorse Limitate**
+
+TinyML eccelle in contesti a basso consumo energetico e con risorse limitate. Questi ambienti richiedono soluzioni altamente ottimizzate che funzionino entro le risorse disponibili. TinyML soddisfa questa esigenza tramite algoritmi e modelli specializzati progettati per offrire prestazioni decenti consumando energia minima, garantendo così periodi operativi prolungati, anche nei dispositivi alimentati a batteria.
+
+![Esempi di kit di dispositivi TinyML. Fonte: [Widening Access to Applied Machine Learning with TinyML.](https://arxiv.org/pdf/2106.04008.pdf)](images/jpg/tiny_ml.jpg){#fig-tinyml-example}
+
+:::{#exr-tinyml .callout-caution collapse="true"}
+
+### TinyML con Arduino
+
+Prepararsi a portare l'apprendimento automatico sui dispositivi più piccoli! Nel mondo dell'apprendimento automatico embedded, TinyML è il luogo in cui i vincoli di risorse incontrano l'ingegnosità. Questo notebook Colab guiderà nella creazione di un modello di riconoscimento dei gesti progettato su una scheda Arduino. Si imparerà come addestrare una piccola ma efficace rete neurale, ottimizzarla per un utilizzo minimo di memoria e distribuirla al proprio microcontrollore. Se si è entusiasti di rendere più intelligenti gli oggetti di uso quotidiano, è qui che si inizia!
+
+[![](https://colab.research.google.com/assets/colab-badge.png)](https://colab.research.google.com/github/arduino/ArduinoTensorFlowLiteTutorials/blob/master/GestureToEmoji/arduino_tinyml_workshop.ipynb)
+
+:::
+
+### Vantaggi
+
+**Latenza Estremamente Bassa**
+
+Uno dei vantaggi più importanti di TinyML è la sua capacità di offrire una latenza estremamente bassa. Poiché il calcolo avviene direttamente sul dispositivo, il tempo necessario per inviare dati a server esterni e ricevere una risposta viene eliminato. Ciò è fondamentale nelle applicazioni che richiedono un processo decisionale immediato, consentendo risposte rapide a condizioni mutevoli.
+
+**Elevata Sicurezza dei Dati**
+
+TinyML migliora intrinsecamente la sicurezza dei dati. Poiché l'elaborazione e l'analisi dei dati avvengono sul dispositivo, il rischio di intercettazione dei dati durante la trasmissione viene praticamente eliminato. Questo approccio localizzato alla gestione dei dati garantisce che le informazioni sensibili rimangano sul dispositivo, rafforzando la sicurezza dei dati dell'utente.
+
+**Efficienza Energetica**
+
+TinyML opera all'interno di un framework efficiente dal punto di vista energetico, una necessità dati i suoi ambienti con risorse limitate. Utilizzando algoritmi snelli e metodi di calcolo ottimizzati, TinyML garantisce che i dispositivi possano eseguire attività complesse senza esaurire rapidamente la durata della batteria, il che lo rende un'opzione sostenibile per le distribuzioni a lungo termine.
+
+### Sfide
+
+**Capacità di Calcolo Limitate**
+
+Tuttavia, il passaggio a TinyML comporta una serie di ostacoli. La limitazione principale sono le capacità di calcolo limitate dei dispositivi. La necessità di operare entro tali limiti implica che i modelli distribuiti debbano essere semplificati, il che potrebbe influire sull'accuratezza e la complessità delle soluzioni.
+
+**Ciclo di Sviluppo Complesso**
+
+TinyML introduce anche un ciclo di sviluppo complicato. La creazione di modelli leggeri ed efficaci richiede una profonda comprensione dei principi di apprendimento automatico e competenza nei sistemi embedded. Questa complessità richiede un approccio di sviluppo collaborativo, in cui la competenza multi-dominio è essenziale per il successo.
+
+**Ottimizzazione e Compressione del Modello**
+
+Una sfida centrale in TinyML è l'ottimizzazione e la compressione del modello. La creazione di modelli di machine learning in grado di operare efficacemente all'interno della memoria limitata e della potenza di calcolo dei microcontrollori richiede approcci innovativi alla progettazione del modello. Gli sviluppatori si trovano spesso ad affrontare la sfida di trovare un delicato equilibrio e ottimizzare i modelli per mantenere l'efficacia, pur rispettando rigidi vincoli di risorse.
+
+### Casi d'Uso di Esempio
+
+**Dispositivi Indossabili**
+
+Nei dispositivi indossabili, TinyML apre le porte a gadget più intelligenti e reattivi. Dai fitness tracker che offrono feedback in tempo reale sugli allenamenti agli occhiali intelligenti che elaborano dati visivi al volo, TinyML trasforma il modo in cui interagiamo con la tecnologia indossabile, offrendo esperienze personalizzate direttamente dal dispositivo.
+
+**Manutenzione Predittiva**
+
+Negli ambienti industriali, TinyML svolge un ruolo significativo nella manutenzione predittiva. Implementando algoritmi TinyML su sensori che monitorano lo stato di salute delle apparecchiature, le aziende possono identificare preventivamente potenziali problemi, riducendo i tempi di inattività e prevenendo costosi guasti. L'analisi dei dati in loco garantisce risposte rapide, impedendo potenzialmente a piccoli problemi di diventare problemi gravi.
+
+**Rilevamento delle Anomalie**
+
+TinyML può essere impiegato per creare modelli di rilevamento delle anomalie che identificano pattern di dati insoliti. Ad esempio, una fabbrica intelligente potrebbe usare TinyML per monitorare i processi industriali e individuare anomalie, aiutando a prevenire incidenti e migliorare la qualità del prodotto. Allo stesso modo, un'azienda di sicurezza potrebbe usare TinyML per monitorare il traffico di rete per modelli insoliti, aiutando a rilevare e prevenire attacchi informatici. TinyML potrebbe monitorare i dati dei pazienti per anomalie nell'assistenza sanitaria, aiutando a rilevare precocemente le malattie e a migliorare il trattamento dei pazienti.
+
+**Monitoraggio Ambientale**
+
+Nel monitoraggio ambientale, TinyML consente l'analisi dei dati in tempo reale da vari sensori distribuiti sul campo. Questi potrebbero spaziare dal monitoraggio della qualità dell'aria in città al tracciamento della fauna selvatica nelle aree protette. Tramite TinyML, i dati possono essere elaborati localmente, consentendo risposte rapide alle mutevoli condizioni e fornendo una comprensione adeguata dei modelli ambientali, cruciale per un processo decisionale informato.
+
+In sintesi, TinyML funge da pioniere nell'evoluzione dell'apprendimento automatico, promuovendo l'innovazione in vari campi portando l'intelligenza direttamente nell'Edge. Il suo potenziale di trasformare la nostra interazione con la tecnologia e il mondo è immenso, promettendo un futuro in cui i dispositivi sono connessi, intelligenti e capaci di prendere decisioni e rispondere in tempo reale.
+
+## Confronto
+
+Fino a questo punto, abbiamo esplorato singolarmente ciascuna delle diverse varianti di ML. Ora, mettiamole insieme per una visione completa. @tbl-big_vs_tiny offre un'analisi comparativa di Cloud ML, Edge ML e TinyML basata su varie caratteristiche e aspetti. Questo confronto mira a fornire una chiara prospettiva sui vantaggi unici e sui fattori distintivi, aiutando a prendere decisioni informate in base alle esigenze e ai vincoli specifici di una determinata applicazione o progetto.
+
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Aspetto                      | Cloud ML                                                     | Edge ML                                                               | TinyML                                                           |
++:=============================+:=============================================================+:======================================================================+:=================================================================+
+| Ubicazione dell'elaborazione | Server centralizzati (Data Center)                           | Dispositivi locali (più vicini alle fonti di dati)                    | Sul dispositivo (microcontrollori, sistemi embedded)             | 
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Latenza                      | Alta (dipende dalla connettività Internet)                   | Moderata (latenza ridotta rispetto a Cloud ML)                        | Bassa (elaborazione immediata senza ritardo di rete)             |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Privacy dei dati             | Moderata (dati trasmessi tramite reti)                       | Alta (i dati rimangono sulle reti locali)                             | Molto alta (dati elaborati sul dispositivo, non trasmessi)       |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Potenza di calcolo           | Alta (usa una potente infrastruttura del data center)        | Moderata (utilizza le capacità del dispositivo locale)                | Bassa (limitata alla potenza del sistema embedded )              |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Consumo energetico           | Alto (i data center consumano molta energia)                 | Moderato (meno dei data center, più di TinyML)                        | Basso (alta efficienza energetica, progettato per bassi consumi) |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Scalabilità                  | Alto (facile da scalare con risorse server aggiuntive)       | Moderato (dipende dalle capacità del dispositivo locale)              | Basso (limitato dalle risorse hardware del dispositivo)          |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Costo                        | Alto (costi ricorrenti per l'uso del server, manutenzione)   | Variabile (dipende dalla complessità della configurazione locale)     | Basso (principalmente costi iniziali per i componenti hardware)  |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Connettività                 | Alto (richiede una connettività Internet stabile)            | Basso (può funzionare con connettività intermittente)                 | Molto basso (può funzionare senza alcuna connettività di rete)   |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Elaborazione in tempo reale  | Moderata (può essere influenzata dalla latenza di rete)      | Alta (capace di elaborazione in tempo reale localmente)               | Molto alta (elaborazione immediata con latenza minima)           |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Esempi di applicazione       | Analisi di Big Data, Assistenti virtuali                     | Veicoli autonomi, Case intelligenti                                   | Dispositivi indossabili, Reti di sensori                         |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+| Complessità                  | Da moderata ad alta (richiede conoscenza del cloud computing)| Moderata (richiede conoscenza della configurazione della rete locale) | Da moderata ad alta (richiede competenza nei sistemi embedded)   |
++------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------+------------------------------------------------------------------+
+
+
+: Confronto degli aspetti delle funzionalità tra Cloud ML, Edge ML e TinyML. {#tbl-big_vs_tiny .hover .striped}
+
+## Conclusione
+
+In questo capitolo, abbiamo offerto una panoramica in evoluzione dell'apprendimento automatico, che copre i paradigmi cloud, edge e tiny ML. L'apprendimento automatico basato su cloud sfrutta le immense risorse computazionali delle piattaforme cloud per abilitare modelli potenti e accurati, ma presenta delle limitazioni, tra cui problemi di latenza e privacy. Edge ML mitiga queste limitazioni portando l'inferenza direttamente sui dispositivi edge, offrendo una latenza inferiore e ridotte esigenze di connettività. TinyML va oltre, miniaturizzando i modelli ML per eseguirli direttamente su dispositivi con risorse altamente limitate, aprendo una nuova categoria di applicazioni intelligenti.
+
+Ogni approccio ha i suoi compromessi, tra cui complessità del modello, latenza, privacy e costi dell'hardware. Nel tempo, prevediamo la convergenza di questi approcci ML embedded, con la pre-formazione cloud che facilita implementazioni edge e tiny ML più sofisticate. Progressi come l'apprendimento federato e l'apprendimento "on-device" consentiranno ai dispositivi embedded di perfezionare i propri modelli imparando dai dati del mondo reale.
+
+Il panorama ML embedded si sta evolvendo rapidamente ed è pronto a consentire applicazioni intelligenti su un ampio spettro di dispositivi e casi d'uso. Questo capitolo funge da "istantanea" dello stato attuale del ML embedded. Man mano che algoritmi, hardware e connettività continuano a migliorare, possiamo aspettarci che i dispositivi embedded di tutte le dimensioni diventino sempre più capaci, sbloccando nuove applicazioni trasformative per l'intelligenza artificiale.
+
+## Risorse {#sec-ml-systems-resource}
+
+Ecco un elenco curato di risorse per supportare studenti e insegnanti nei loro percorsi di apprendimento e insegnamento. Stiamo lavorando costantemente per espandere questa raccolta e presto aggiungeremo nuovi esercizi.
+
+:::{.callout-note collapse="false"}
+
+#### Slide
+
+Queste slide sono uno strumento prezioso per gli insegnanti per tenere lezioni e per gli studenti per rivedere il materiale secondo il proprio ritmo. Incoraggiamo studenti e docenti a sfruttare queste slide per migliorare la loro comprensione e facilitare un trasferimento efficace delle conoscenze.
+
+* [Embedded Systems Overview.](https://docs.google.com/presentation/d/1Lgrn7bddHYxyrOmk0JfSVmEBimRePqI7WSliUKRPK9E/edit?resourcekey=0-c5JvfDeqHIdV9A5RMAMAyw#slide=id.g94db9f9f78_0_8)
+
+* [Embedded Computer Hardware.](https://docs.google.com/presentation/d/1hDCFcOrZ08kZPhY4DA3gVikGUo47HwNyvqNrLW-t-Tg/edit?resourcekey=0-J6ix5AYvZMGbFFOa7ae4Hw#slide=id.g94db9f9f78_0_8)
+
+* [Embedded I/O.](https://docs.google.com/presentation/d/1rnWh9XC6iCKSx_hQd4xq2iIDlpc-GkBQw_GjzlP5mQc/edit#slide=id.g94db9f9f78_0_8)
+
+* [Embedded systems software.](https://docs.google.com/presentation/d/1TApZn9xxPWCRY-D-soJ8YOSsfysnccR5UjOyspzeTuU/edit?resourcekey=0-BRWIyCKPLNQFnIfG0fJJ9A#slide=id.g94db9f9f78_0_8)
+
+* [Embedded ML software.](https://docs.google.com/presentation/d/17wgAfoF24Rcx7uPrbau0c8FyzXIUWbe48qGGBOXXT-g/edit?resourcekey=0-Uv29DvmF7gYzKdOoRtn0vw#slide=id.g94db9f9f78_0_8)
+
+* [Embedded Inference.](https://docs.google.com/presentation/d/1FOUQ9dbe3l_qTa2AnroSbOz0ykuCz5cbTNO77tvFxEs/edit?usp=drive_link)
+
+* [TinyML on Microcontrollers.](https://docs.google.com/presentation/d/1jwAZz3UOoJTR8PY6Wa34FxijpoDc9gBM/edit?usp=drive_link&ouid=102419556060649178683&rtpof=true&sd=true)
+
+* TinyML as a Service (TinyMLaaS):
+   * [TinyMLaaS: Introduction.](https://docs.google.com/presentation/d/1O7bxb36SnexfDI3iE_p0C8JI_VYXAL8cyAx3JKDfeUo/edit?usp=drive_link)
+
+   * [TinyMLaaS: Design Overview.](https://docs.google.com/presentation/d/1ZUUHtTbKlzeTwVteQMSztscQmdmMxT1A24pBKSys7g0/edit#slide=id.g94db9f9f78_0_2)
+
+:::
+
+:::{.callout-important collapse="false"}
+
+#### Video
+
+* _Prossimamente._
+:::
+
+:::{.callout-caution collapse="false"}
+
+#### Esercizi
+
+Per rafforzare i concetti trattati in questo capitolo, abbiamo curato una serie di esercizi che sfidano gli studenti ad applicare le proprie conoscenze e ad approfondire la propria comprensione.
+
+* _Prossimamente._
+:::
+
+:::{.callout-warning collapse="false"}
+
+#### Laboratori
+
+Oltre agli esercizi, offriamo una serie di laboratori pratici che consentono agli studenti di acquisire esperienza pratica con le tecnologie di intelligenza artificiale embedded. Questi laboratori forniscono una guida passo dopo passo, consentendo agli studenti di sviluppare le proprie competenze in un ambiente strutturato e di supporto. Siamo lieti di annunciare che presto saranno disponibili nuovi laboratori, che arricchiranno ulteriormente l'esperienza di apprendimento.
+
+* _Prossimamente._
+:::
