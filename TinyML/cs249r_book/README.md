@@ -2,13 +2,12 @@ Italian translations of [cs249r_book](https://github.com/harvard-edge/cs249r_boo
 
 # Status
 *	Translation In progress.
-*	Waiting Author agreement
 
 # ToDo:
-*	How to change name of "_quarto.yml" or insert language specific commands/variables
-*	How to change name of "index.qmd"
-*	How to apply native localization
+*	Apply some form of localization
 *	How to have pdf in A4 format (European)
+*	Apply localization to pdf too
+
 
 # Batch:
 ```
@@ -31,7 +30,10 @@ copy "..\cs249r_book_it\contents\workflow\workflow_it.qmd"                  ".\c
 copy "..\cs249r_book_it\contents\data_engineering\data_engineering_it.qmd"  ".\contents\data_engineering\"
 copy "..\cs249r_book_it\contents\frameworks\frameworks_it.qmd"              ".\contents\frameworks\"
 copy "..\cs249r_book_it\contents\training\training_it.qmd"                  ".\contents\training\"
-copy "..\cs249r_book_it\contents\efficient_ai\efficient_ai_it.qmd"          ".\contents\efficient_ai\"
+copy "..\cs249r_book_it\contents\efficient_ai\efficient_ai.it.qmd"          ".\contents\efficient_ai\"
+copy "..\cs249r_book_it\contents\optimizations\optimizations.it.qmd"        ".\contents\optimizations\"
+copy "..\cs249r_book_it\contents\hw_acceleration\hw_acceleration.it.qmd"    ".\contents\hw_acceleration\"
+copy "..\cs249r_book_it\contents\benchmarking\benchmarking.it.qmd"          ".\contents\benchmarking\"
 ...
 quarto render	
 ```

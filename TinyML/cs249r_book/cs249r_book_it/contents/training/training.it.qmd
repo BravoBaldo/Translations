@@ -2,7 +2,7 @@
 bibliography: training.bib
 ---
 
-# AI Training {#sec-ai_training}
+# Addestramento dell'IA {#sec-ai_training}
 
 ::: {.content-visible when-format="html"}
 Risorse: [Slide](#sec-ai-training-resource), [Video](#sec-ai-frameworks-resource), [Esercizi](#sec-ai-training-resource), [Laboratori](#sec-ai-training-resource)
@@ -36,7 +36,7 @@ Il training è fondamentale per sviluppare sistemi di IA accurati e utili utiliz
 
 ## Introduzione
 
-Il training è fondamentale per sviluppare sistemi di intelligenza artificiale accurati e utili tramite il machine learning. Il training mira a creare un modello di apprendimento automatico che possa generalizzare a dati nuovi e invisibili anziché memorizzare gli esempi dell'addestramento. Ciò avviene inserendo dati di training in algoritmi che apprendono pattern da questi esempi regolando i parametri interni.
+Il training è fondamentale per sviluppare sistemi di intelligenza artificiale accurati e utili tramite il machine learning. Il training mira a creare un modello di apprendimento automatico che possa generalizzare a dati nuovi e mai visti anziché memorizzare gli esempi dell'addestramento. Ciò avviene inserendo dati di training in algoritmi che apprendono pattern da questi esempi regolando i parametri interni.
 
 Gli algoritmi riducono al minimo una "funzione loss" [perdita], che confronta le loro previsioni sui dati di training con le etichette o le soluzioni note, guidando l'apprendimento. Un training efficace richiede spesso set di dati rappresentativi di alta qualità sufficientemente grandi da catturare la variabilità nei casi d'uso del mondo reale.
 
@@ -163,7 +163,7 @@ La perdita totale nell'intero set di dati, $L_{full}$, viene quindi calcolata co
 
 ### Addestramento di Reti Neurali con Discesa del Gradiente
 
-Ora che possiamo misurare quanto bene la nostra rete si adatta ai dati di training, possiamo ottimizzare i pesi della rete neurale per ridurre al minimo questa perdita. In questo contesto, stiamo denotando $W_i$ come pesi per ogni strato $i$ nella rete. Ad alto livello, modifichiamo i parametri delle matrici a valori reali $W_i$ per ridurre al minimo la funzione di perdita $L_{full}$. Nel complesso, il nostro obiettivo matematico è
+Ora che possiamo misurare quanto bene la nostra rete si adatta ai dati di training, possiamo ottimizzare i pesi della rete neurale per ridurre al minimo questa perdita. In questo contesto, stiamo denotando $W_i$ come pesi per ogni layer $i$ nella rete. Ad alto livello, modifichiamo i parametri delle matrici a valori reali $W_i$ per ridurre al minimo la funzione di perdita $L_{full}$. Nel complesso, il nostro obiettivo matematico è
 
 > Obiettivo dell'Addestramento della Rete Neurale
 > $$
@@ -346,7 +346,7 @@ Il set di validazione valuta il modello durante l'addestramento, in genere dopo 
 
 #### Set di Test
 
-Il set di test agisce come un dataset completamente invisibile e che il modello non ha visto durante l'addestramento. Viene utilizzato per fornire una valutazione imparziale del modello addestrato finale. In genere, il 20% dei dati è riservato ai test. Mantenere un set di test "hold-out" [esterno] è fondamentale per ottenere una stima accurata di come il modello addestrato si comporterebbe su dati non ancora visti del mondo reale. La mancanza di dati dal set di test deve essere evitata a tutti i costi.
+Il set di test agisce come un dataset che il modello non ha visto durante l'addestramento. Viene utilizzato per fornire una valutazione imparziale del modello addestrato finale. In genere, il 20% dei dati è riservato ai test. Mantenere un set di test "hold-out" [esterno] è fondamentale per ottenere una stima accurata di come il modello addestrato si comporterebbe su dati non ancora visti del mondo reale. La mancanza di dati dal set di test deve essere evitata a tutti i costi.
 
 Le proporzioni relative dei set di training, validazione e test possono variare in base alle dimensioni dei dati e all'applicazione. Tuttavia, seguire le linee guida generali per una suddivisione 60/20/20 è un buon punto di partenza. Un'attenta suddivisione dei dati garantisce che i modelli siano adeguatamente addestrati, ottimizzati e valutati per ottenere le prestazioni migliori.
 
@@ -938,7 +938,7 @@ Il campionamento dei pesi iniziali da una distribuzione uniforme o normale centr
 
 Come proposto da @kaiming2015delving, questa tecnica di inizializzazione è adattata alle funzioni di attivazione ReLU (Rectified Linear Unit). Le ReLU introducono il problema del neurone morente in cui le unità rimangono bloccate e producono solo 0 se inizialmente ricevono forti input negativi. Ciò rallenta e ostacola l'addestramento.
 
-"He" supera questo problema campionando i pesi da una distribuzione con un set di varianza basato solo sul numero di input per layer, ignorando gli output. Ciò mantiene i segnali in arrivo sufficientemente piccoli da attivare le ReLU nel loro regime lineare dall'inizio, evitando unità morte. Per uno strato con 1024 input, la formula varianza = 2/1024 = 0.002 mantiene la maggior parte dei pesi concentrati strettamente attorno a 0.
+"He" supera questo problema campionando i pesi da una distribuzione con un set di varianza basato solo sul numero di input per layer, ignorando gli output. Ciò mantiene i segnali in arrivo sufficientemente piccoli da attivare le ReLU nel loro regime lineare dall'inizio, evitando unità morte. Per un layer con 1024 input, la formula varianza = 2/1024 = 0.002 mantiene la maggior parte dei pesi concentrati strettamente attorno a 0.
 
 Questa inizializzazione specializzata consente alle reti ReLU di convergere in modo efficiente fin dall'inizio. La scelta tra Xavier e He deve corrispondere alla funzione di attivazione della rete prevista.
 
@@ -1094,7 +1094,7 @@ I passaggi precedenti vengono ripetuti per diverse iterazioni o fino alla conver
 
 Prendiamo un esempio specifico. Abbiamo 256 dimensioni di batch e 8 GPU; ogni GPU riceverà un micro-batch di 32 campioni. I loro passaggi forward e backward calcolano perdite e gradienti solo in base ai 32 campioni locali. I gradienti vengono aggregati tra i dispositivi con un server dei parametri o una libreria di comunicazioni collettiva per ottenere il gradiente effettivo per il batch globale. Gli aggiornamenti dei pesi avvengono indipendentemente su ogni GPU in base a questi gradienti. Dopo un numero configurato di iterazioni, i pesi aggiornati si sincronizzano e si equalizzano tra i dispositivi prima di passare alle iterazioni successive.
 
-Il parallelismo dei dati è efficace quando il modello è grande e il set di dati è sostanziale, poiché consente l'elaborazione parallela di diverse parti dei dati. È ampiamente utilizzato in framework e librerie di deep learning che supportano la formazione distribuita, come TensorFlow e PyTorch. Tuttavia, per garantire una parallelizzazione efficiente, è necessario prestare attenzione a gestire problemi come l sovraccarico della comunicazione, bilanciamento del carico e sincronizzazione.
+Il parallelismo dei dati è efficace quando il modello è grande e il set di dati è sostanziale, poiché consente l'elaborazione parallela di diverse parti dei dati. È ampiamente utilizzato in framework e librerie di deep learning che supportano il training distribuito, come TensorFlow e PyTorch. Tuttavia, per garantire una parallelizzazione efficiente, è necessario prestare attenzione a gestire problemi come l sovraccarico della comunicazione, bilanciamento del carico e sincronizzazione.
 
 ### Parallelismo del Modello
 
@@ -1123,7 +1123,7 @@ Riassumendo, @tbl-parallelism illustra alcune delle caratteristiche chiave per c
 +:============================+:==============================================================+:=============================================+
 | Definizione                 | Distribuisce i dati tra i dispositivi con repliche            | Distribuisce il modello tra i dispositivi    |
 +-----------------------------+---------------------------------------------------------------+----------------------------------------------+
-| Obiettivo                   | Accelera il training tramite il ridimensionamento del calcolo | Abilita una formazione del modello più ampia |
+| Obiettivo                   | Accelera il training tramite il ridimensionamento del calcolo | Abilita un training del modello più ampio    |
 +-----------------------------+---------------------------------------------------------------+----------------------------------------------+
 | Metodo di Ridimensionamento | Dispositivi/workers in scala                                  | Dimensioni modello in scala                  |
 +-----------------------------+---------------------------------------------------------------+----------------------------------------------+

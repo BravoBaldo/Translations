@@ -212,7 +212,7 @@ PyTorch e TensorFlow si sono affermati come leader nel settore. Entrambi i frame
 
 Dopo aver introdotto i popolari framework di machine learning e aver fornito un confronto di alto livello, questa sezione presenterà le funzionalità principali che formano la struttura di questi framework. Tratterà la struttura speciale chiamata tensori, che questi framework utilizzano per gestire più facilmente dati multidimensionali complessi. Si vedrà anche come questi framework rappresentano diversi tipi di architetture di reti neurali e le loro operazioni richieste tramite grafi computazionali. Inoltre, si vedrà come offrono strumenti che rendono lo sviluppo di modelli di machine learning più astratto ed efficiente, come caricatori di dati, algoritmi di ottimizzazione delle perdite implementate, tecniche di differenziazione efficienti e la capacità di accelerare il processo di training su acceleratori hardware.
 
-### Strutture dati Tensori
+### Strutture Dati Tensoriali {#sec-tensor-data-structures}
 
 Per comprendere i tensori, partiamo dai concetti familiari dell'algebra lineare. Come mostrato in @fig-tensor-data-structure, i vettori possono essere rappresentati come una pila di numeri in un array unidimensionale. Le matrici seguono la stessa idea e si possono pensare a loro come a molti vettori impilati l'uno sull'altro, rendendoli bidimensionali. I tensori di dimensioni superiori funzionano allo stesso modo. Un tensore tridimensionale è semplicemente un insieme di matrici impilate l'una sull'altra in una direzione aggiuntiva. Pertanto, vettori e matrici possono essere considerati casi speciali di tensori con dimensioni 1D e 2D, rispettivamente.
 
@@ -302,7 +302,7 @@ Questa differenziazione automatica è una potente funzionalità dei tensori in f
 
 I grafi computazionali sono una componente chiave di framework di deep learning come TensorFlow e PyTorch. Ci consentono di esprimere architetture di reti neurali complesse in modo efficiente e differenziato. Un grafo computazionale è costituito da un grafo aciclico diretto (directed acyclic graph, DAG) in cui ogni nodo rappresenta un'operazione o una variabile e gli spigoli rappresentano le dipendenze dei dati tra di essi.
 
-È importante differenziare i grafi computazionali dai diagrammi di reti neurali, come quelli per i perceptron multistrato (multilayer perceptrons, MLP), che rappresentano nodi e layer. I diagrammi di reti neurali, come illustrato nel [Capitolo 3](../dl_primer/dl_primer.qmd), visualizzano l'architettura e il flusso di dati attraverso nodi e strati, fornendo una comprensione intuitiva della struttura del modello. Al contrario, i grafi computazionali forniscono una rappresentazione di basso livello delle operazioni matematiche sottostanti e delle dipendenze dei dati necessarie per implementare e addestrare queste reti.
+È importante differenziare i grafi computazionali dai diagrammi di reti neurali, come quelli per i perceptron multistrato (multilayer perceptrons, MLP), che rappresentano nodi e layer. I diagrammi di reti neurali, come illustrato nel [Capitolo 3](../dl_primer/dl_primer.qmd), visualizzano l'architettura e il flusso di dati attraverso nodi e layer, fornendo una comprensione intuitiva della struttura del modello. Al contrario, i grafi computazionali forniscono una rappresentazione di basso livello delle operazioni matematiche sottostanti e delle dipendenze dei dati necessarie per implementare e addestrare queste reti.
 
 Ad esempio, un nodo potrebbe rappresentare un'operazione di moltiplicazione di matrici, prendendo due matrici di input (o tensori) e producendo una matrice di output (o tensore). Per visualizzarlo, si consideri il semplice esempio in @fig-computational-graph. Il grafo aciclico orientato sopra calcola $z = x \times y$, dove ogni variabile è composta solo da numeri.
 
@@ -320,7 +320,7 @@ Alcuni livelli comuni che i grafi computazionali potrebbero implementare includo
 
 * I layer definiscono modelli di calcolo fissi. I tensori scorrono tra i livelli durante l'esecuzione.
 
-* I layers vengono utilizzati indirettamente durante la creazione di modelli. I tensori scorrono tra i livelli durante l'esecuzione.
+* I layer vengono utilizzati indirettamente durante la creazione di modelli. I tensori scorrono tra i livelli durante l'esecuzione.
 
 Quindi, mentre i tensori sono una struttura dati fondamentale che i layer consumano e producono, i layer hanno funzionalità aggiuntive per definire operazioni parametrizzate e addestramento. Mentre un layer configura le operazioni tensoriali in background, il layer rimane distinto dagli oggetti tensoriali. L'astrazione del layer rende la creazione e l'addestramento di reti neurali molto più intuitive. Questa astrazione consente agli sviluppatori di creare modelli impilando insieme questi layer senza implementare la logica del layer. Ad esempio, la chiamata di `tf.keras.layers.Conv2D` in TensorFlow crea un layer convoluzionale. Il framework gestisce il calcolo delle convoluzioni, la gestione dei parametri, ecc. Ciò semplifica lo sviluppo del modello, consentendo agli sviluppatori di concentrarsi sull'architettura anziché sulle implementazioni di basso livello. Le astrazioni dei layer utilizzano implementazioni altamente ottimizzate per le prestazioni. Consentono inoltre la portabilità, poiché la stessa architettura può essere eseguita su backend hardware diversi come GPU e TPU.
 
@@ -374,12 +374,23 @@ y = torch.matmul(x, weights) + biases
 
 L'esempio sopra non ha fasi separate di compilazione/build/esecuzione. Le operazioni definiscono ed eseguono immediatamente. Con i grafi dinamici, la definizione è intrecciata con l'esecuzione, fornendo un flusso di lavoro più intuitivo e interattivo. Tuttavia, lo svantaggio è che c'è meno potenziale di ottimizzazione poiché il framework vede solo il grafo mentre viene creato.
 
-Di recente, la distinzione si è offuscata poiché i framework adottano entrambe le modalità. TensorFlow 2.0 passa automaticamente alla modalità di grafo dinamico, consentendo agli utenti di lavorare con quelli statici quando necessario. La dichiarazione dinamica offre flessibilità e facilità d'uso, rendendo i framework più intuitivi, mentre i grafi statici forniscono vantaggi di ottimizzazione a scapito dell'interattività. Il framework ideale bilancia questi approcci. Ecco una tabella che confronta i pro e i contro dei grafi di esecuzione statici e dinamici:
+Di recente, la distinzione si è offuscata poiché i framework adottano entrambe le modalità. TensorFlow 2.0 passa automaticamente alla modalità di grafo dinamico, consentendo agli utenti di lavorare con quelli statici quando necessario. La dichiarazione dinamica offre flessibilità e facilità d'uso, rendendo i framework più intuitivi, mentre i grafi statici forniscono vantaggi di ottimizzazione a scapito dell'interattività. Il framework ideale bilancia questi approcci. @tbl-exec-graph confronta i pro e i contro dei grafi di esecuzione statici e dinamici:
 
-| Esecuzione Grafo | Pro | Contro |
-| --- | --- | --- |
-| Statico (Declare-then-execute) | Abilita le ottimizzazioni del grafo visualizzando il modello completo in anticipo<br/>Può esportare e distribuire grafi congelati<br/>Il grafico è impacchettato indipendentemente dal codice | Meno flessibile per la ricerca e l'iterazione<br/>Le modifiche richiedono la ricostruzione del grafico<br/>L'esecuzione ha fasi di compilazione ed esecuzione separate |
-| Dinamico (Define-by-run) | Stile imperativo intuitivo come il codice Python<br/>Interlaccia la creazione del grafo con l'esecuzione<br/>Grafi facili da modificare<br/>Il debug si adatta perfettamente al flusso di lavoro | Più difficile da ottimizzare senza un grafo completo<br/>Possibili rallentamenti dovuti alla creazione di grafi durante l'esecuzione<br/>Potrebbe richiedere più memoria |
++--------------------------------+----------------------------------------------------------------+--------------------------------------------------------------------------+
+| Grafo di esecuzione            | Pro                                                            | Contro                                                                   |
++:===============================+:===============================================================+:=========================================================================+
+| Statico (Declare-then-execute) | - Abilita le ottimizzazioni del grafo visualizzando il modello | - Meno flessibile per la ricerca e l'iterazione                          |
+|                                |   completo in anticipo                                         | - Le modifiche richiedono la ricostruzione del grafo                     |
+|                                | - Può esportare e distribuire grafici congelati                | - L'esecuzione ha fasi di compilazione ed esecuzione separate            |
+|                                | - Il grafo è impacchettato indipendentemente dal codice        |                                                                          |
++--------------------------------+----------------------------------------------------------------+--------------------------------------------------------------------------+
+| Dinamico (Define-by-run)       | - Stile imperativo intuitivo come il codice Python             | - Più difficile da ottimizzare senza un grafo completo                   |
+|                                | - Alterna la creazione del grafo con l'esecuzione              | - Possibili rallentamenti dalla creazione del grafo durante l'esecuzione |
+|                                | - Facile da modificare i grafi                                 | - Può richiedere più memoria                                             |
+|                                | - Il debug si adatta perfettamente al flusso di lavoro         |                                                                          |
++--------------------------------+----------------------------------------------------------------+--------------------------------------------------------------------------+
+
+: Confronto tra Grafi di Esecuzione Statici (Declare-then-execute) e Dinamici (Define-by-run), evidenziandone i rispettivi pro e contro. {#tbl-exec-graph .striped .hover}
 
 ### Tool della Pipeline dei Dati
 
@@ -496,7 +507,7 @@ Oggi, le GPU NVIDIA dominano il training, supportate da librerie software come [
 
 ## Funzionalità Avanzate {#sec-ai_frameworks-advanced}
 
-Oltre a fornire gli strumenti essenziali per il training di modelli di apprendimento automatico, i framework offrono anche funzionalità avanzate. Queste funzionalità includono la distribuzione del training su diverse piattaforme hardware, la facile messa a punto di grandi modelli pre-addestratie la facilitazione del "federated learning". L'implementazione di queste funzionalità in modo indipendente sarebbe altamente complessa e richiederebbe molte risorse, ma i framework semplificano questi processi, rendendo le tecniche avanzate di apprendimento automatico più accessibili.
+Oltre a fornire gli strumenti essenziali per il training di modelli di apprendimento automatico, i framework offrono anche funzionalità avanzate. Queste funzionalità includono la distribuzione del training su diverse piattaforme hardware, la facile messa a punto di grandi modelli pre-addestrati e l'esemplificazione del "federated learning". L'implementazione di queste funzionalità in modo indipendente sarebbe altamente complessa e richiederebbe molte risorse, ma i framework semplificano questi processi, rendendo le tecniche avanzate di apprendimento automatico più accessibili.
 
 ### Training distribuito
 
@@ -634,7 +645,7 @@ L'infrastruttura per supportare i flussi di lavoro di sviluppo dei modelli chiav
 
 #### Nessun Benchmark Standard
 
-Senza benchmark unificati, non esisteva un modo standard per valutare e confrontare le capacità di diverse piattaforme hardware di fornitori come NVIDIA, Arm e Ambiq Micro.. Le valutazioni esistenti si basavano su benchmark proprietari pensati per mostrare i punti di forza di specifici chip. Ciò rendeva impossibile misurare i miglioramenti hardware in modo oggettivo, imparziale e imparziale. Il capitolo [Benchmarking AI](../benchmarking/benchmarking. cmd) tratta questo argomento in modo più dettagliato.
+Senza benchmark unificati, non esisteva un modo standard per valutare e confrontare le capacità di diverse piattaforme hardware di fornitori come NVIDIA, Arm e Ambiq Micro.. Le valutazioni esistenti si basavano su benchmark proprietari pensati per mostrare i punti di forza di specifici chip. Ciò rendeva impossibile misurare i miglioramenti hardware in modo oggettivo, imparziale e imparziale. Il capitolo [Benchmarking AI](../benchmarking/benchmarking.qmd) affronta questo argomento in modo più dettagliato.
 
 #### Test Minimi del Mondo Reale
 
