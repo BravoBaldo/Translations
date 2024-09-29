@@ -1,0 +1,236 @@
+# Setup {.unnumbered}
+
+![*DALL·E prompt - Disegno in stile cartone animato anni '50 di una scheda XIAO ESP32S3 con un modulo telecamera distintivo, come mostrato nell'immagine fornita. La scheda è posizionata su un classico tavolo da laboratorio con vari sensori, tra cui un microfono. Dietro la scheda, uno schermo di computer vintage visualizza l'IDE Arduino in colori tenui, con codice incentrato sulle configurazioni dei pin LED e inferenza di apprendimento automatico per i comandi vocali. Il Serial Monitor sull'IDE mostra output che rilevano comandi vocali come 'yes' e 'no'. La scena fonde il fascino retrò dei laboratori di metà secolo con l'elettronica moderna.*](./images/jpeg/xiao_setup.jpg)
+
+## Introduzione
+
+[XIAO ESP32S3 Sense](https://www.seeedstudio.com/XIAO-ESP32S3-Sense-p-5639.html) è la scheda di sviluppo conveniente di Seeed Studio, che integra un sensore della fotocamera, un microfono digitale e il supporto per schede SD. Combinando la potenza di elaborazione ML embedded e la capacità fotografica, questa scheda di sviluppo è un ottimo strumento per iniziare con TinyML (IA vocale e visiva).
+
+![](./images/png/xiao.png)
+
+**Caratteristiche Principali di XIAO ESP32S3 Sense**
+
+- **Potente Scheda MCU**: Incorpora il chip del processore Xtensa dual-core ESP32S3 a 32 bit che funziona fino a 240 MHz, più porte di sviluppo montate, supporto per Arduino/MicroPython
+- **Funzionalità Avanzate**: Sensore della fotocamera OV2640 staccabile per una risoluzione di 1600 * 1200, compatibile con il sensore della fotocamera OV5640, integra un microfono digitale aggiuntivo
+- **Progetto di Alimentazione Elaborato**: La capacità di gestione della carica della batteria al litio offre quattro modelli di consumo energetico, che consentono la modalità di "deep sleep" [sospensione profonda] con un consumo energetico basso fino a 14μA
+- **Grande Memoria per più Possibilità**: Offre 8 MB di PSRAM e 8 MB di FLASH, supportando uno slot per schede SD di memoria FAT esterno da 32 GB
+- **Prestazioni RF Eccezionali**: Supporta la comunicazione wireless duale Wi-Fi e BLE a 2,4 GHz, supporta la comunicazione remota a 100m+ se connesso all'antenna U.FL
+- **Design Compatto delle Dimensioni di un Pollice**: 21 x 17,5 mm, adotta il fattore di forma classico di XIAO, adatto per progetti con spazio limitato come i dispositivi indossabili
+
+![](./images/png/xiao_pins.png)
+
+Di seguito è riportato il pinout generale della scheda:
+
+![](./images/png/xiao_esp32c3_sense_pin-out.png)
+
+> Per maggiori dettagli, fare riferimento alla pagina Seeed Studio WiKi: <br />
+> <https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/>
+
+## Installazione di XIAO ESP32S3 Sense su Arduino IDE
+
+Su Arduino IDE, si va su **File > Preferences** e si inserisce l'URL:
+
+[*https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json*](https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json)
+
+nel campo ==> **Additional Boards Manager URLs**
+
+![](./images/png/board_manag.png)
+
+Poi si apre il gestore delle schede. Si va su **Tools** > **Board** > **Boards Manager...** e immettendo *esp32.* Selezionare e installare il pacchetto più aggiornato e stabile (evitare le versioni *alpha*) :
+
+![](./images/png/board_manag2.png)
+
+> ⚠️ **Attenzione**
+>
+> Le versioni Alpha (ad esempio, 3.x-alpha) non funzionano correttamente con XIAO ed Edge Impulse. Utilizzare invece l'ultima versione stabile (ad esempio, 2.0.11).
+
+Su **Tools**, selezionare la Board (**XIAO ESP32S3**):
+
+![](./images/png/tools_board.png)
+
+Ultimo ma non meno importante, scegliere la **Porta** a cui è collegato l'ESP32S3.
+
+Ecco fatto! Il dispositivo dovrebbe funzionare. Facciamo qualche test.
+
+## Test della scheda con BLINK
+
+XIAO ESP32S3 Sense ha un LED integrato che è collegato a GPIO21. Quindi, si può eseguire lo sketch Blink così com'è (utilizzando la costante Arduino `LED_BUILTIN`) o modificando di conseguenza lo sketch Blink:
+
+```cpp
+#define LED_BUILT_IN 21 
+
+void setup() {
+  pinMode(LED_BUILT_IN, OUTPUT); // Set the pin as output
+}
+
+// Remember that the pin work with inverted logic
+// LOW to Turn on and HIGH to turn off
+void loop() {
+  digitalWrite(LED_BUILT_IN, LOW); //Turn on
+  delay (1000); //Wait 1 sec
+  digitalWrite(LED_BUILT_IN, HIGH); //Turn off
+  delay (1000); //Wait 1 sec
+}
+```
+
+> Notare che i pin funzionano con logica invertita: BASSO per accendere e ALTO per spegnere.
+
+![](./images/png/blink.png)
+
+## Collegamento del Modulo Sense (Scheda di Espansione)
+
+Quando viene acquistata, la scheda di espansione è separata da quella principale, ma installarla è molto semplice. Si deve allineare il connettore sulla scheda di espansione col connettore B2B sullo XIAO ESP32S3, premerlo con forza e quando si sente un "clic", l'installazione è completa.
+
+Come commentato nell'introduzione, la scheda di espansione, o la parte "sense" del dispositivo, ha una fotocamera OV2640 da 1600x1200, uno slot per schede SD e un microfono digitale.
+
+## Test del Microfono
+
+Cominciamo con il rilevamento del suono. Si va nei [progetti GitHub](https://github.com/Mjrovai/XIAO-ESP32S3-Sense) e si scarica lo sketch: [XIAOEsp2s3_Mic_Test](https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/Mic_Test/XiaoEsp32s3_Mic_Test) poi lo si esegue sull'IDE Arduino:
+
+![](./images/png/sound_test.png)
+
+Quando si produce un suono, è possibile verificarlo sul Serial Plotter.
+
+**Salvare il suono registrato (file audio .wav) su una scheda microSD.**
+
+Ora, il lettore di schede SD integrato può salvare file audio .wav. Per farlo, dobbiamo abilitare la PSRAM XIAO.
+
+> ESP32-S3 ha solo poche centinaia di kilobyte di RAM interna sul chip MCU. Questo può essere insufficiente per alcuni scopi, quindi fino a 16 MB di PSRAM esterna (RAM pseudo-statica) possono essere collegati al chip flash SPI. La memoria esterna è incorporata nella mappa di memoria e, con alcune restrizioni, è utilizzabile allo stesso modo della RAM dati interna.
+
+Per iniziare, inserire la scheda SD su XIAO come mostrato nella foto qui sotto (la scheda SD deve essere formattata in **FAT32**).
+
+![](./images/png/sdcard.png)
+
+- Scaricare lo sketch [Wav_Record](https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/Mic_Test/Wav_Record), che si può trovare su GitHub.
+- Per eseguire il codice (Wav Record), è necessario utilizzare la funzione PSRAM del chip ESP-32, quindi la si deve attivare prima di caricare: Tools\>PSRAM: "OPI PSRAM"\>OPI PSRAM
+
+![](./images/png/psram.png)
+
+- Eseguire il codice `Wav_Record.ino`
+- Questo programma viene eseguito solo una volta dopo che l'utente accende il monitor seriale. Registra per 20 secondi e salva il file su una scheda microSD come "arduino_rec.wav."
+- Quando "." viene emesso ogni 1 secondo nel monitor seriale, l'esecuzione del programma è terminata e si può riprodurre il file audio registrato con l'aiuto di un lettore di schede.
+
+![](./images/png/rec.png)
+
+La qualità del suono è eccellente!
+
+> La spiegazione di come funziona il codice va oltre lo scopo di questo tutorial, ma c'è un'eccellente descrizione sulla pagina [wiki](https://wiki.seeedstudio.com/xiao_esp32s3_sense_mic#save-recorded-sound-to-microsd-card).
+
+## Test della Fotocamera
+
+Per testare la fotocamera, si deve scaricare la cartella [take_photos_command](https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/take_photos_command) da GitHub. La cartella contiene lo sketch (.ino) e due file .h con i dettagli della fotocamera.
+
+- Eseguire il codice: `take_photos_command.ino`. Aprire il Serial Monitor e inviare il comando `capture` per catturare e salvare l'immagine sulla scheda SD:
+
+> Verificare che `[Both NL & CR]` sia selezionato sul Serial Monitor.
+
+![](./images/png/pic_capture.png)
+
+Ecco un esempio di una foto scattata:
+
+![](./images/png/image_test.png)
+
+## Test del WiFi
+
+Uno dei punti di forza di XIAO ESP32S3 è la sua capacità WiFi. Quindi, testiamo la sua radio eseguendo la scansione delle reti Wi-Fi attorno ad essa. Lo si può fare eseguendo uno degli esempi di codice sulla scheda.
+
+Si va su Arduino IDE Examples e si cerca **WiFI ==\> WiFIScan**
+
+Si dovrebbero vedere le reti Wi-Fi (SSID e RSSI) nel raggio d'azione del dispositivo sul monitor seriale. Ecco cosa abbiamo ottenuto in laboratorio:
+
+![](./images/png/wifi.png)
+
+**Un Semplice Server WiFi (accensione/spegnimento del LED)**
+
+Testiamo la capacità del dispositivo di comportarsi come un server WiFi. Ospiteremo una semplice pagina sul dispositivo che invia comandi per accendere e spegnere il LED integrato di XIAO.
+
+Come prima, si va su GitHub per scaricare la cartella usando lo sketch [SimpleWiFiServer](https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/SimpleWiFiServer).
+
+Prima di eseguire lo sketch, si devono inserire le credenziali di rete:
+
+```cpp
+const char* ssid     = "Your credentials here";
+const char* password = "Your credentials here";
+```
+
+Si può monitorare il funzionamento del server con Serial Monitor.
+
+![](./images/png/wifi-2.png)
+
+Prendere l'indirizzo IP e inserirlo nel browser:
+
+![](./images/png/app.png)
+
+Si vedrà una pagina con link che possono accendere e spegnere il LED integrato del XIAO.
+
+**Streaming video sul Web**
+
+Ora che sappiamo che si possono inviare comandi dalla pagina Web al dispositivo, facciamo il contrario. Prendiamo l'immagine catturata dalla telecamera e la trasmettiamo in streaming su una pagina Web:
+
+Scaricare da GitHub la [cartella](https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/Streeming_Video) che contiene il codice: XIAO-ESP32S3-Streeming_Video.ino.
+
+> Ricordarsi che la cartella contiene il file .ino e un paio di file .h necessari per gestire la telecamera.
+
+Inserire le credenziali ed eseguire lo sketch. Sul monitor seriale, si può trovare l'indirizzo della pagina da inserire nel browser:
+
+![](./images/png/wifi3.png)
+
+Apri la pagina sul browser (attendere qualche secondo per avviare lo streaming). Tutto qui.
+
+![](./images/png/image_web.png)
+
+Mettere in streaming ciò che la telecamera "vede" può essere importante quando la si posiziona per catturare un set di dati per un progetto ML (ad esempio, usando il codice "take_phots_commands.ino".
+
+Naturalmente, possiamo fare entrambe le cose contemporaneamente: mostrare ciò che la telecamera vede sulla pagina e inviare un comando per catturare e salvare l'immagine sulla scheda SD. Per questo, si può usare il codice Camera_HTTP_Server_STA, scaricabile da GitHub.
+
+![](./images/png/app2.png)
+
+Il programma eseguirà le seguenti attività:
+
+- Imposta la fotocamera in modalità di output JPEG.
+- Crea una pagina Web (ad esempio ==\> <http://192.168.4.119//>). L'indirizzo corretto verrà visualizzato sul Serial Monitor.
+- Se server.on ("/capture", HTTP_GET, serverCapture), il programma scatta una foto e la invia al Web.
+- È possibile ruotare l'immagine sulla pagina Web utilizzando il pulsante \[ROTATE\]
+- Il comando \[CAPTURE\] visualizzerà solo l'anteprima dell'immagine sulla pagina Web, mostrandone le dimensioni sul Serial Monitor
+- Il comando `[SAVE]` salverà un'immagine sulla scheda SD e la mostrerà sul browser.
+- Le immagini salvate seguiranno una denominazione sequenziale (image1.jpg, image2.jpg.
+
+![](./images/png/terminal.png)
+
+> Questo programma può catturare un set di dati di immagini con un progetto di classificazione delle immagini.
+
+Esaminate il codice; sarà più facile capire come funziona la fotocamera. Questo codice è stato sviluppato sulla base del fantastico tutorial di Rui Santos [ESP32-CAM Take Photo and Display in Web Server](https://randomnerdtutorials.com/esp32-cam-take-photo-display-web-server/), che invito tutti a visitare.
+
+**Uso di CameraWebServer**
+
+Nell'IDE Arduino, si va su `File > Examples > ESP32 > Camera` e si seleziona `CameraWebServer`
+
+Si devono anche commentare tutti i modelli di fotocamere, eccetto i pin del modello XIAO:
+
+`#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM`
+
+Non dimenticare `Tools` per abilitare la PSRAM.
+
+Inserire le credenziali wifi e caricare il codice sul dispositivo:
+
+![](./images/jpeg/webCap1.jpg)
+
+Se il codice viene eseguito correttamente, si vedrà l'indirizzo sul monitor seriale:
+
+![](./images/jpeg/serial_monitor.png)
+
+Copiare l'indirizzo sul browser e attendere che la pagina venga caricata. Selezionare la risoluzione della telecamera (ad esempio, QVGA) e selezionare `[START STREAM]`. Attendi qualche secondo/minuto, a seconda della connessione. Utilizzando il pulsante `[Save]`, si può salvare un'immagine nell'area download del computer.
+
+![](./images/jpeg/img_cap.jpg)
+
+Ecco fatto! Si possono salvare le immagini direttamente sul computer per usarle nei progetti.
+
+## Conclusione
+
+The XIAO ESP32S3 Sense è flessibile, economico e facile da programmare. Con 8 MB di RAM, la memoria non è un problema e il dispositivo può gestire molte attività di post-elaborazione, inclusa la comunicazione.
+
+L'ultima versione del codice si trova nel repository GitHub: [XIAO-ESP32S3-Sense.](https://github.com/Mjrovai/XIAO-ESP32S3-Sense)
+
+## Risorse
+
+- [XIAO ESP32S3 Code](https://github.com/Mjrovai/XIAO-ESP32S3-Sense)

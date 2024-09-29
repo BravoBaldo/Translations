@@ -1,0 +1,581 @@
+# Setup {.unnumbered}
+
+![*DALL·E prompt - Un ambiente di laboratorio di elettronica ispirato agli anni '50, con uno stile cartoon. Il laboratorio dovrebbe avere apparecchiature vintage, grandi oscilloscopi, vecchie radio a valvole e grandi computer squadrati. La scheda Raspberry Pi 5 è esposta in modo prominente, mostrata accuratamente nelle sue dimensioni reali, simile a una carta di credito, su un banco da lavoro. La scheda Pi è circondata da classici strumenti da laboratorio come un saldatore, resistenze e fili. La scena generale dovrebbe essere vivace, con colori esagerati e dettagli giocosi caratteristici di un cartone animato. Non dovrebbero essere inclusi loghi o testo.*](images/jpeg/rasp_setup_portada.jpg)
+
+Questo capitolo guiderà attraverso la configurazione dei modelli Raspberry Pi Zero 2 W (*Raspi-Zero*) e Raspberry Pi 5 (*Raspi-5*). Tratteremo la configurazione hardware, l'installazione del sistema operativo, la configurazione iniziale e i test.
+
+> Le istruzioni generali per *Rasp-5* si applicano anche alle versioni più vecchie di Raspberry Pi, come Rasp-3 e Raspi-4.
+
+## Introduzione
+
+Il Raspberry Pi è un potente e versatile computer a scheda singola che è diventato uno strumento essenziale per gli ingegneri di varie discipline. Sviluppati dalla [Raspberry Pi Foundation](https://www.raspberrypi.org/), questi dispositivi compatti offrono una combinazione unica di convenienza, potenza di calcolo e ampie capacità GPIO (General Purpose Input/Output), rendendoli ideali per la prototipazione, lo sviluppo di sistemi embedded e progetti di ingegneria avanzata.
+
+### Caratteristiche Principali
+
+1. **Potenza di Calcolo**: Nonostante le dimensioni ridotte, Raspberry Pi offre notevoli capacità di elaborazione, con gli ultimi modelli dotati di processori ARM multi-core e fino a 8 GB di RAM.
+
+2. **Interfaccia GPIO**: L'header GPIO a 40 pin consente l'interazione diretta con sensori, attuatori e altri componenti elettronici, facilitando i progetti di integrazione hardware-software.
+
+3. **Ampia Connettività**: Wi-Fi, Bluetooth, Ethernet e più porte USB integrate consentono diversi progetti di comunicazione e networking.
+
+4. **Accesso Hardware di Basso Livello**: Raspberry Pi fornisce accesso a interfacce come I2C, SPI e UART, consentendo un controllo dettagliato e la comunicazione con dispositivi esterni.
+
+5. **Capacità in Tempo Reale**: Con una configurazione appropriata, Raspberry Pi può essere utilizzato per applicazioni soft in tempo reale, rendendolo adatto per sistemi di controllo e attività di elaborazione del segnale.
+
+6. **Efficienza Energetica**: Il basso consumo energetico consente progetti alimentati a batteria e a basso consumo energetico, in particolare in modelli come Pi Zero.
+
+### Modelli Raspberry Pi (trattati in questo libro)
+
+1. **Raspberry Pi Zero 2 W** (*Raspi-Zero*):
+   - Ideale per: sistemi embedded compatti
+   - Specifiche principali: CPU single-core da 1 GHz (ARM Cortex-A53), 512 MB di RAM, consumo energetico minimo
+
+2. **Raspberry Pi 5** (*Raspi-5*):
+   - Ideale per: applicazioni più esigenti come edge computing, computer vision e applicazioni edgeAI, inclusi LLM.
+   - Specifiche principali: CPU quad-core da 2,4 GHz (ARM Cortex A-76), fino a 8 GB di RAM, interfaccia PCIe per espansioni
+
+### Applicazioni di Ingegneria
+
+1. **Progettazione di Sistemi Embedded**: Sviluppo e prototipi di sistemi embedded per applicazioni reali.
+
+2. **IoT e Dispositivi in Rete**: Creazione di dispositivi interconnessi ed esplorazione di protocolli come MQTT, CoAP e HTTP/HTTPS.
+
+3. **Sistemi di Controllo**: Implementazione di loop di controllo feedback, controller PID e interfaccia per attuatori.
+
+4. **Visione Artificiale e IA**: Utilizzo di librerie come OpenCV e TensorFlow Lite per l'elaborazione delle immagini e l'apprendimento automatico in edge.
+
+5. **Acquisizione e Analisi dei Dati**: Raccolta dati dei sensori, analisi in tempo reale e creazione di sistemi di registrazione dei dati.
+
+6. **Robotica**: Creazione di controller per robot, algoritmi di pianificazione del movimento e interfaccie con driver di motori.
+
+7. **Elaborazione del Segnale**: Analisi del segnale in tempo reale, filtraggio e applicazioni DSP.
+
+8. **Sicurezza di Rete**: Imposta VPN, firewall ed esplora i test di penetrazione della rete.
+
+Questo tutorial guiderà nell'impostazione dei modelli Raspberry Pi più comuni, consentendo di iniziare rapidamente il progetto di apprendimento automatico. Tratteremo la configurazione hardware, l'installazione del sistema operativo e la configurazione iniziale, concentrandoci sulla preparazione del Pi per le applicazioni di apprendimento automatico.
+
+## Panoramica Hardware
+
+### Raspberry Pi Zero 2W
+
+![](images/jpeg/zero-hardware.jpg)
+
+- **Processore**: CPU Arm Cortex-A53 quad-core a 64 bit da 1 GHz
+- **RAM**: SDRAM da 512 MB
+- **Wireless**: LAN wireless 802.11 b/g/n da 2,4 GHz, Bluetooth 4.2, BLE
+- **Porte**: Mini HDMI, micro USB OTG, connettore per fotocamera CSI-2
+- **Alimentazione**: 5 V tramite porta micro USB
+
+### Raspberry Pi 5
+
+![](images/jpeg/r5-hardware.jpg)
+
+- **Processore**:
+   - Pi 5: CPU Arm Cortex-A76 quad-core a 64 bit @ 2,4 GHz
+   - Pi 4: SoC Cortex-A72 quad-core (ARM v8) a 64 bit @ 1,5 GHz
+- **RAM**: opzioni da 2 GB, 4 GB o 8 GB (8 GB consigliati per attività di IA)
+- **Wireless**: Wireless 802.11ac dual-band, Bluetooth 5.0
+- **Porte**: 2 porte micro HDMI, 2 porte USB 3.0, 2 porte USB 2.0, porta fotocamera CSI, porta display DSI
+- **Alimentazione**: 5 V CC tramite connettore USB-C (3 A)
+
+## Installazione del Sistema Operativo
+
+### Il sistema operativo (SO)
+
+Un sistema operativo (SO) è un software fondamentale che gestisce le risorse hardware e software del computer, fornendo servizi standard per i programmi per computer. È il software principale che gira su un computer, fungendo da intermediario tra hardware e software applicativo. Il SO gestisce la memoria, i processi, i driver dei dispositivi, i file e i protocolli di sicurezza del computer.
+
+1. **Funzioni chiave**:
+   - Gestione dei processi: Assegnazione del tempo della CPU a diversi programmi
+   - Gestione della memoria: Assegnazione e liberazione della memoria in base alle necessità
+   - Gestione del file system: Organizzazione e monitoraggio di file e directory
+   - Gestione dei dispositivi: Comunicazione con dispositivi hardware collegati
+   - Interfaccia utente: Fornitura di un modo per gli utenti di interagire con il computer
+2. **Componenti**:
+   - Kernel: Il nucleo del sistema operativo che gestisce le risorse hardware
+   - Shell: L'interfaccia utente per interagire con il sistema operativo
+   - File system: Organizzazione e gestione dell'archiviazione dei dati
+   - Device driver: Software che consente al sistema operativo di comunicare con l'hardware
+
+Il Raspberry Pi esegue una versione specializzata di Linux progettata per sistemi embedded. Questo sistema operativo, in genere una variante di Debian chiamata Raspberry Pi OS (in precedenza Raspbian), è ottimizzato per l'architettura basata su ARM del Pi e per le risorse limitate.
+
+> L'ultima versione di Raspberry Pi OS è basata su [Debian Bookworm](https://www.raspberrypi.com/news/bookworm-the-new-version-of-raspberry-pi-os/).
+
+**Caratteristiche principali**:
+
+1. Leggero: Progettato per funzionare in modo efficiente sull'hardware del Pi.
+2. Versatile: Supporta un'ampia gamma di applicazioni e linguaggi di programmazione.
+3. Open source: Consente la personalizzazione e i miglioramenti guidati dalla comunità.
+4. Supporto GPIO: Consente l'interazione con sensori e altri hardware tramite i pin del Pi.
+5. Aggiornamenti regolari: Costantemente migliorato per prestazioni e sicurezza.
+
+Embedded Linux sul Raspberry Pi fornisce un sistema operativo completo in un pacchetto compatto, rendendolo ideale per progetti che vanno da semplici dispositivi IoT ad applicazioni di apprendimento automatico edge più complesse. La sua compatibilità con gli strumenti e le librerie Linux standard lo rende una potente piattaforma per lo sviluppo e la sperimentazione.
+
+### Installazione
+
+Per usare Raspberry Pi, avremo bisogno di un sistema operativo. Di default, Raspberry Pi verifica la presenza di un sistema operativo su qualsiasi scheda SD inserita nello slot, quindi dovremmo installare un sistema operativo usando [Raspberry Pi Imager.](https://www.raspberrypi.com/software/)
+
+*Raspberry Pi Imager* è uno strumento per scaricare e scrivere immagini su *macOS*, *Windows* e *Linux*. Include molte immagini di sistemi operativi popolari per Raspberry Pi. Useremo Imager anche per preconfigurare credenziali e impostazioni di accesso remoto.
+
+Seguire i passaggi per installare il sistema operativo nel Raspi.
+
+1. [Scaricare](https://www.raspberrypi.com/software/) e installare Raspberry Pi Imager sul computer.
+2. Inserire una scheda microSD nel computer (si consiglia una scheda SD da 32 GB).
+3. Aprire Raspberry Pi Imager e selezionare il modello di Raspberry Pi.
+4. Scegliere il sistema operativo appropriato:
+   - **For Raspi-Zero**: Ad esempio, si può selezionare:
+      `Raspberry Pi OS Lite (64-bit)`.
+
+   ![img](images/png/zero-burn.png)
+
+   > Grazie alla sua SDRAM ridotta (512 MB), il sistema operativo consigliato per Rasp Zero è la versione a 32 bit. Tuttavia, per eseguire alcuni modelli di apprendimento automatico, come YOLOv8 di Ultralitics, dovremmo usare la versione a 64 bit. Sebbene Raspi-Zero possa eseguire un *desktop*, sceglieremo la versione LITE (senza Desktop) per ridurre la RAM necessaria per il normale funzionamento.
+
+   - Per **Raspi-5**: possiamo selezionare la versione completa a 64 bit, che include un desktop:
+      `Raspberry Pi OS (64-bit)`
+
+   ![](images/png/r5-burn.png)
+5. Selezionare la scheda microSD come dispositivo di archiviazione.
+6. Cliccare su `Next` e poi sull'icona dell'`ingranaggio` per accedere alle opzioni avanzate.
+7. Impostare *hostname*, *nome utente e password* di Raspi, configurare il *WiFi* e *abilitare SSH* (molto importante!)
+
+![](images/jpeg/setup.jpg)
+
+8. Scrivere l'immagine sulla scheda microSD.
+
+> Negli esempi qui, useremo nomi host diversi: raspi, raspi-5, raspi-Zero, ecc. Lo si deve sostituire con quello in uso.
+
+### Configurazione Iniziale
+
+1. Inserire la scheda microSD nel Raspberry Pi.
+2. Collegare l'alimentazione per avviare il Raspberry Pi.
+3. Attendere il completamento del processo di boot iniziale (potrebbero volerci alcuni minuti).
+
+> I comandi Linux più comuni da usare con Raspi si trovano [qui](https://www.jwdittrich.people.ysu.edu/raspberrypi/UsefulRaspberryPiCommands.pdf) o [qui](https://www.codecademy.com/learn/learn-raspberry-pi/modules/raspberry-pi-command-line-module/cheatsheet).
+
+## Accesso Remoto
+
+### Accesso SSH
+
+Il modo più semplice per interagire con Rasp-Zero è tramite SSH ("Headless"). Si può usare un terminale (MAC/Linux), [PuTTy (](https://www.putty.org/)Windows) o qualsiasi altro.
+
+1. Trovare l'indirizzo IP del Raspberry Pi (ad esempio, controllando il router).
+
+2. Sul computer, aprire un terminale e connettersi tramite SSH:
+   ```bash
+   ssh username@[raspberry_pi_ip_address]
+   ```
+   In alternativa, se non si ha l'indirizzo IP, si può provare quanto segue:
+   ```bash
+   ssh username@hostname.local
+   ```
+   per esempio, `ssh mjrovai@rpi-5.local` , `ssh mjrovai@raspi.local` , ecc.
+
+   ![img](images/png/ssh.png)
+
+   Quando si vede il prompt:
+   
+
+   ```bash
+   mjrovai@rpi-5:~ $
+   ```
+
+   Significa che si sta interagendo da remoto con il Raspi.
+   È una buona norma aggiornare/migliorare il sistema regolarmente. Per questo, si deve eseguire:
+
+   ```bash
+   sudo apt-get update
+   sudo apt upgrade
+   ```
+   Si deve confermare l'indirizzo IP Raspi. Sul terminale, si può usare:
+   ```bash
+   hostname -I
+   ```
+
+![](images/png/pasted_graphic_11_ILcmyOYU7X.png)
+
+
+### Per spegnere il Raspi tramite terminale:
+
+Per spegnere il Raspberry Pi, ci sono idee migliori che staccare semplicemente il cavo di alimentazione. Questo perché il Raspi potrebbe ancora scrivere dati sulla scheda SD, nel qual caso il semplice spegnimento potrebbe causare la perdita di dati o, peggio ancora, una scheda SD danneggiata.
+
+Per uno spegnimento di sicurezza, usare la riga di comando:
+
+```bash
+sudo shutdown -h now
+```
+
+> Per evitare possibili perdite di dati e danneggiamenti della scheda SD, prima di rimuovere l'alimentazione, si deve attendere qualche secondo dopo lo spegnimento affinché il LED del Raspberry Pi smetta di lampeggiare e si spenga. Una volta che il LED si spegne, è sicuro spegnere.
+
+### Trasferire file tra il Raspi e un computer
+
+Il trasferimento di file tra il Raspi e il nostro computer principale può essere effettuato tramite una chiavetta USB, direttamente sul terminale (con scp) o un programma FTP sulla rete.
+
+#### Utilizzo del Protocollo Secure Copy Protocol (`scp`):
+
+##### Copiare i file sul Raspberry Pi
+
+Creiamo un file di testo sul nostro computer, ad esempio, `test.txt`.
+
+![](images/png/test_txt.png)
+
+> Si può usare qualsiasi editor di testo. Nello stesso terminale, un'opzione è `nano`.
+
+Per copiare il file `test.txt` dal personal computer alla cartella home di un utente sul Raspberry Pi, si esegue il seguente comando dalla directory contenente `test.txt`, sostituendo il segnaposto `<username>` con il nome utente che si usa per accedere al Raspberry Pi e il segnaposto `<pi_ip_address>` con l'indirizzo IP del Raspberry Pi:
+
+```bash
+$ scp test.txt <username>@<pi_ip_address>:~/
+```
+
+> Notare che `~/`  significa che sposteremo il file nella ROOT del Raspi. Si può scegliere qualsiasi cartella nel Raspi. Ma si deve creare la cartella prima di eseguire `scp`, poiché `scp` non lo fa automaticamente.
+
+Ad esempio, trasferiamo il file `test.txt` nella ROOT dell'Raspi-zero, che ha un IP di `192.168.4.210`:
+
+```bash
+scp test.txt mjrovai@192.168.4.210:~/
+```
+
+![](images/png/transfer_file.png)
+
+Abbiamo usato un profilo diverso per differenziare i terminali. L'azione di cui sopra avviene **sul computer**. Ora, andiamo sul Raspi (utilizzando SSH) e controlliamo se il file è lì:
+
+![](images/png/list_archives.png)
+
+##### Copiare i file dal Raspberry Pi
+
+Per copiare un file chiamato `test.txt` dalla directory home di un utente su un Raspberry Pi alla directory corrente su un altro computer, si esegue il seguente comando **sul computer host**:
+
+```bash
+$ scp <username>@<pi_ip_address>:myfile.txt .
+```
+
+Per esempio:
+
+Sul Raspi, creiamo una copia del file con un altro nome:
+
+```bash
+cp test.txt test_2.txt
+```
+
+E sul computer host (in questo caso, un Mac)
+
+```bash
+scp mjrovai@192.168.4.210:test_2.txt .
+```
+
+![](images/png/tranfer-text-mac.png)
+
+#### Trasferimento di file tramite FTP
+
+È anche possibile trasferire file tramite FTP, come [FileZilla FTP Client](https://filezilla-project.org/download.php?type=client). Seguire le istruzioni, installare il programma per il proprio sistema operativo desktop e usare l'indirizzo IP Raspi come `Host`. Per esempio:
+
+```bash
+sftp://192.168.4.210
+```
+
+e inserire `nome utente e password` di Raspi . Premendo `Quickconnect` si apriranno due finestre, una per il desktop del computer host (destra) e un'altra per il Raspi (sinistra).
+
+![](images/png/filezila.png)
+
+## Aumentare la memoria SWAP
+
+Utilizzando `htop`, un visualizzatore di processi interattivo multipiattaforma, si possono facilmente monitorare, in tempo reale, le risorse in esecuzione sul Raspi, come l'elenco dei processi, le CPU in esecuzione e la memoria utilizzata.  Per lanciare `hop`, si immette il vomando sul terminale:
+
+```bash
+htop
+```
+
+![](images/png/htop.png)
+
+Per quanto riguarda la memoria, tra i dispositivi della famiglia Raspberry Pi, il Raspi-Zero ha la quantità più piccola di SRAM (500 MB), rispetto a una selezione da 2 GB a 8 GB sui Raspi 4 o 5. Per qualsiasi Raspi, è possibile aumentare la memoria disponibile per il sistema con "Swap". La memoria di swap, nota anche come spazio di swap, è una tecnica utilizzata nei sistemi operativi dei computer per archiviare temporaneamente i dati dalla RAM (Random Access Memory) sulla scheda SD quando la RAM fisica è completamente utilizzata. Ciò consente al sistema operativo (SO) di continuare a funzionare anche quando la RAM è piena, il che può prevenire crash o rallentamenti del sistema.
+
+La memoria di swap avvantaggia i dispositivi con RAM limitata, come il Raspi-Zero. Aumentare lo swap può aiutare a eseguire applicazioni o processi più impegnativi, ma è essenziale bilanciare questo con il potenziale impatto sulle prestazioni dell'accesso frequente al disco.
+
+Per default, la memoria SWAP (Swp) di Rapi-Zero è di soli 100 MB, il che è molto poco per l'esecuzione di alcune applicazioni di apprendimento automatico più complesse ed esigenti (ad esempio, YOLO). Aumentiamola a 2 MB:
+
+Per prima cosa, si disattiva lo swap-file:
+
+```bash
+sudo dphys-swapfile swapoff
+```
+
+Poi, si deve aprire e modificare il file `/etc/dphys-swapfile`. Per farlo, useremo nano:
+
+```bash
+sudo nano /etc/dphys-swapfile
+```
+
+Cercare la variabile **CONF_SWAPSIZE** (il valore predefinito è 200) e aggiornarla a **2000**:
+
+```bash
+CONF_SWAPSIZE=2000
+```
+
+E salvare il file.
+
+Quindi, attivare di nuovo lo swapfile e riavviare Rasp-zero:
+
+```bash
+sudo dphys-swapfile setup
+sudo dphys-swapfile swapon
+sudo reboot
+```
+
+Quando il dispositivo viene riavviato (so deve entrare di nuovo con SSH), ci si accorgerà che il valore massimo della memoria di swap mostrato in alto è ora qualcosa come 2 GB (nel nostro caso, 1.95 GB).
+
+> Per mantenere in esecuzione *htop*, si deve aprire un'altra finestra del terminale per interagire continuamente con il Raspi.
+
+## Installazione di una Fotocamera
+
+Il Raspi è un dispositivo eccellente per applicazioni di visione artificiale; è necessaria una fotocamera. Possiamo installare una webcam USB standard sulla porta micro-USB utilizzando un adattatore USB OTG (Raspi-Zero e Rasp-5) o un modulo fotocamera collegato alla porta Raspi CSI (Camera Serial Interface).
+
+> Le webcam USB hanno generalmente una qualità inferiore rispetto ai moduli fotocamera che si collegano alla porta CSI. Inoltre, non possono essere controllate utilizzando i comandi `raspistill` e `raspivid` nel terminale o il pacchetto di registrazione `picamera` in Python. Tuttavia, potrebbero esserci dei motivi per collegare una telecamera USB al Raspberry Pi, ad esempio perché è molto più facile configurare più telecamere con un singolo Raspberry Pi, cavi lunghi o semplicemente perché si ha una telecamera del genere a portata di mano.
+
+### Installazione di una Webcam USB
+
+1. Spegnere il Raspi:
+
+```bash
+sudo shutdown -h no
+```
+
+2. Collegare la webcam USB (modulo telecamera USB 30fps,1280x720) al Raspi (in questo esempio, si usa il Raspi-Zero, ma le istruzioni funzionano per tutti i Raspi).
+
+![](images/jpeg/usb-cam-2.jpg)
+
+
+
+3. Riaccendere ed eseguire SSH
+3. Per verificare che la fotocamera USB è riconosciuta, eseguire:
+
+```bash
+lsusb
+```
+
+Si dovrebbe vedere la fotocamera elencata nell'output.
+
+![](images/png/USB-CAM-2.png)
+
+5. Per scattare una foto di prova con la fotocamera USB, si usa:
+
+```bash
+fswebcam test_image.jpg
+```
+
+Questo salverà un'immagine denominata "test_image.jpg" nella directory corrente.
+
+![](images/png/image-test.png)
+
+6. Dato che stiamo usando SSH per connetterci al Rapsi, dobbiamo trasferire l'immagine al computer principale in modo da poterla visualizzare. Possiamo usare FileZilla o SCP per questo:
+
+Si apre un terminale **sul computer host** e si esegue:
+
+```bash
+scp mjrovai@raspi-zero.local:~/test_image.jpg .
+```
+
+> Sostituire "mjrovai" col nome utente e "raspi-zero" con il nome host di Pi.
+
+![](images/png/cam-2_test.png)
+
+
+
+7. Se la qualità dell'immagine non è soddisfacente, si possono regolare varie impostazioni; ad esempio, definire una risoluzione adatta a YOLO (640x640):
+
+```bash
+fswebcam -r 640x640 --no-banner test_image_yolo.jpg
+```
+
+Questo cattura un'immagine ad alta risoluzione senza il banner di default.
+
+![](images/png/usb-cam-test-2.png)
+
+Si può anche usare una normale webcam USB:
+
+![](images/jpeg/usb_camera.jpg)
+
+Verificandola con `lsusb`
+
+![](images/png/usb-cam-test.png)
+
+#### Streaming Video
+
+Per lo streaming video (che richiede più risorse), possiamo installare e usare mjpg-streamer:
+
+Per prima cosa, si installa Git:
+
+```bash
+sudo apt install git
+```
+
+Ora, dovremmo installare le dipendenze necessarie per mjpg-streamer, clonare il repository e procedere con l'installazione:
+
+```bash
+sudo apt install cmake libjpeg62-turbo-dev
+git clone https://github.com/jacksonliam/mjpg-streamer.git
+cd mjpg-streamer/mjpg-streamer-experimental
+make
+sudo make install
+```
+
+Quindi avviare lo streaming con:
+
+```bash
+mjpg_streamer -i "input_uvc.so" -o "output_http.so -w ./www"
+```
+
+Possiamo poi accedere allo streaming aprendo un browser Web e andando su:
+
+`http://<your_pi_ip_address>:8080`.
+ In questo caso: http://192.168.4.210:8080
+
+Dovremmo vedere una pagina web con opzioni per visualizzare lo stream. Cliccare suk che dice "Stream" o provare ad accedere a:
+
+```bash
+http://<raspberry_pi_ip_address>:8080/?action=stream
+```
+
+![](images/png/streem.png)
+
+### Installazione di un Modulo Fotocamera sulla porta CSI
+
+Ora ci sono diversi moduli fotocamera Raspberry Pi. Il modello originale da 5 megapixel è stato [rilasciato](https://www.raspberrypi.com/news/camera-board-available-for-sale/) nel 2013, seguito da un [8-megapixel Camera Module 2](https://www.raspberrypi.com/products/camera-module-v2/) che è stato rilasciato nel 2016. L'ultimo modello di fotocamera è il [12-megapixel Camera Module 3](https://www.raspberrypi.com/documentation/accessories/camera.html), rilasciato nel 2023.
+
+La fotocamera originale da 5 MP (**Arducam OV5647**) non è più disponibile da Raspberry Pi, ma può essere trovata da diversi fornitori alternativi. Di seguito è riportato un esempio di tale fotocamera su un Raspi-Zero.
+
+![](images/jpeg/rasp-zero-with-cam.jpg)
+
+Ecco un altro esempio di un modulo fotocamera v2, dotato di un sensore **Sony IMX219** da 8 megapixel:
+
+![](images/png/raspi-5-cam.png)
+
+Qualsiasi modulo fotocamera funzionerà sul Raspberry Pi, ma per questo è necessario aggiornare il file `configuration.txt`:
+
+```bash
+sudo nano /boot/firmware/config.txt
+```
+
+In fondo al file, ad esempio, per usare la fotocamera Arducam OV5647 da 5 MP, si deve aggiungere la riga:
+
+```bash
+dtoverlay=ov5647,cam0
+```
+
+Oppure per il modulo v2, che ha la fotocamera Sony IMX219 da 8 MP:
+
+```bash
+dtoverlay=imx219,cam0
+```
+
+Salvare il file (CTRL+O [INVIO] CRTL+X) e riavviare il Raspi:
+
+```bash
+Sudo reboot
+```
+
+Dopo l'avvio, si può vedere se la fotocamera è elencata:
+
+```bash
+libcamera-hello --list-cameras
+```
+
+![](images/jpeg/list_cams_raspi-zero.jpg)
+
+![](images/png/list_cams_raspi-5.png)
+
+> [libcamera](https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera) è una libreria software open source che supporta i sistemi di telecamere direttamente dal sistema operativo Linux sui processori Arm. Riduce al minimo il codice proprietario in esecuzione sulla GPU Broadcom.
+
+Catturiamo un'immagine jpeg con una risoluzione di 640 x 480 per il test e salviamola in un file denominato `test_cli_camera.jpg`
+
+```bash
+rpicam-jpeg --output test_cli_camera.jpg --width 640 --height 480
+```
+
+se vogliamo vedere il file salvato, dovremmo usare `ls -f`, che elenca tutto il contenuto della directory corrente in formato lungo. Come prima, possiamo usare scp per visualizzare l'immagine:
+
+![](images/png/test_camera_raspi-5.png)
+
+
+
+## Esecuzione del desktop Raspi da remoto
+
+Sebbene abbiamo interagito principalmente con il Raspberry Pi utilizzando comandi del terminale tramite SSH, possiamo accedere all'intero ambiente desktop grafico da remoto se abbiamo installato il sistema operativo Raspberry Pi completo (ad esempio, `Raspberry Pi OS (64-bit)`. Questo può essere particolarmente utile per le attività che traggono vantaggio da un'interfaccia visuale. Per abilitare questa funzionalità, dobbiamo configurare un server VNC (Virtual Network Computing) sul Raspberry Pi. Ecco come fare:
+
+1. Abilitare il server VNC:
+   - Connettersi al Raspberry Pi tramite SSH.
+   - Esegui lo strumento di configurazione Raspberry Pi immettendo:
+      ```bash
+      sudo raspi-config
+      ```
+   - Andare su `Interface Options` utilizzando i tasti freccia.
+
+   ![](images/png/vnc-1.png)
+
+   - Selezionare `VNC` e `Yes` per abilitare server VNC.
+
+   ![](images/png/vnc-2.png)
+
+   - Uscire dallo strumento di configurazione, salvando le modifiche quando richiesto.
+
+   ![](images/png/vnc-3.png)
+
+2. Installare un VNC Viewer sul computer:
+   - Scaricare e installare un'applicazione di visualizzazione VNC sul computer principale. Le opzioni più diffuse includono RealVNC Viewer, TightVNC o VNC Viewer di RealVNC. Installeremo [VNC Viewer](https://www.realvnc.com/en/connect/download/viewer) di RealVNC.
+
+3. Una volta installato, si deve confermare l'indirizzo IP Raspi. Ad esempio, sul terminale, si può usare:
+
+   ```bash
+   hostname -I
+   ```
+
+   ![](images/png/vnc-4.png)
+
+4. Connettersi al Raspberry Pi:
+   - Aprire l'applicazione di visualizzazione VNC.
+
+   ![](images/png/vnc-5.png)
+
+   - Inserire l'indirizzo IP e il nome host del Raspberry Pi.
+   - Quando richiesto, inserire il nome utente e la password del Raspberry Pi.
+
+   ![](images/png/vnc-7.png)
+
+5. Il Raspberry Pi 5 Desktop dovrebbe apparire sul monitor del computer.
+
+   ![](images/png/vnc-8.png)
+
+6. Regolare le Impostazioni dello Schermo (se necessario):
+
+   - Una volta connessi, regolare la risoluzione dello schermo per una visualizzazione ottimale. Questo può essere fatto tramite le impostazioni desktop del Raspberry Pi o modificando il file config.txt.
+   - Facciamolo tramite le impostazioni desktop. Raggiungere il menù (l'icona Raspberry nell'angolo in alto a sinistra) e selezionare la migliore definizione dello schermo per il proprio monitor:
+
+![](images/png/vnc-9.png)
+
+## Aggiornamento e Installazione del Software
+
+1. Aggiorna il sistema:
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
+2. Installare il software essenziale:
+   ```bash
+   sudo apt install python3-pip -y
+   ```
+3. Abilita pip per i progetti Python:
+   ```bash
+   sudo rm /usr/lib/python3.11/EXTERNALLY-MANAGED
+   ```
+
+## Considerazioni Specifiche del Modello
+
+### Raspberry Pi Zero
+- Potenza di elaborazione limitata, ideale per progetti leggeri
+- Utilizza la configurazione headless (SSH) per risparmiare risorse.
+- Valutare l'aumento dello spazio di swap per attività che richiedono molta memoria.
+
+### Raspberry Pi 4 o 5
+
+- Adatto per progetti più impegnativi, tra cui IA e apprendimento automatico.
+- Può eseguire senza problemi l'intero ambiente desktop.
+- Per Pi 5, valutare l'utilizzo di un dissipatore attivo per la gestione della temperatura durante attività intensive.
+
+Ricordarsi di adattare i requisiti del progetto in base allo specifico modello di Raspberry Pi in uso. Il Pi Zero è ideale per progetti a basso consumo energetico e con limiti di spazio, mentre i modelli Pi 4/5 sono più adatti per attività che richiedono un utilizzo intensivo di risorse di calcolo.
+

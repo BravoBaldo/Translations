@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Setup – Machine Learning Systems</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../">
+<link href="../../../../contents/labs/raspi/image_classification/image_classification.it.html" rel="next">
+<link href="../../../../contents/labs/raspi/raspi.it.html" rel="prev">
+<link href="../../../../favicon.png" rel="icon" type="image/png">
+<script src="../../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "~",
+    "/"
+  ],
+  "language": {
+    "search-no-results-text": "Nessun risultato",
+    "search-matching-documents-text": "documenti trovati",
+    "search-copy-link-title": "Copiare il link nella ricerca",
+    "search-hide-matches-text": "Nascondere i risultati aggiuntivi",
+    "search-more-match-text": "ci sono altri risultati in questo documento",
+    "search-more-matches-text": "ulteriori risultati in questo documento",
+    "search-clear-button-title": "Pulire",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancellare",
+    "search-submit-button-title": "Inviare",
+    "search-label": "Ricerca"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-M21L0CBCVN"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-M21L0CBCVN', { 'anonymize_ip': true});
+</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-M21L0CBCVN"></script>
+
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../../index.html">
+    <span class="navbar-title">Machine Learning Systems</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-wide tools-end">
+    <a href="https://github.com/harvard-edge/cs249r_book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="../../../../Machine-Learning-Systems.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Attiva/disattiva la modalità oscura"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Attiva/disattiva la modalità lettore">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Attiva/disattiva la barra laterale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../contents/labs/raspi/raspi.it.html">Raspberry Pi</a></li><li class="breadcrumb-item"><a href="../../../../contents/labs/raspi/setup/setup.it.html">Setup</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Attiva/disattiva la barra laterale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Ricerca" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+  <div id="quarto-announcement" data-announcement-id="2d6cdf6fc58f1105ce2a5c5c28a11153" class="alert alert-info hidden"><i class="bi bi-star-half quarto-announcement-icon"></i><div class="quarto-announcement-content">
+<p>🌟 Aiutaci a raggiungere 1.000 stelle GitHub! 🌟 Per ogni 25 stelle, Arduino e SEEED doneranno una NiclaVision o una XIAO ESP32S3 per l’istruzione sull’intelligenza artificiale. <a href="https://github.com/harvard-edge/cs249r_book">Cliccare qui per una ⭐</a></p>
+</div></div>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Ricerca"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">PREFAZIONE</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefazione</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/dedication.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dedica</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/acknowledgements/acknowledgements.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ringraziamenti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/contributors.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Collaboratori e Ringraziamenti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/copyright.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Copyright</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/about.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Informazioni sul Libro</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">PARTE PRINCIPALE</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Nozioni Fondamentali</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/introduction/introduction.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduzione</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/ml_systems/ml_systems.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Sistemi di ML</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/dl_primer/dl_primer.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Avvio al Deep Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Workflow</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/workflow/workflow.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Workflow dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/data_engineering/data_engineering.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data Engineering</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/frameworks/frameworks.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Framework di IA</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Training</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/training/training.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Addestramento dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/efficient_ai/efficient_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">IA Efficiente</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/optimizations/optimizations.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Ottimizzazioni dei Modelli</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/hw_acceleration/hw_acceleration.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Accelerazione IA</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Deployment</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/benchmarking/benchmarking.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Benchmarking dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/ondevice_learning/ondevice_learning.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Apprendimento On-Device</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/ops/ops.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Operazioni di ML</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Argomenti Avanzati</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/privacy_security/privacy_security.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Sicurezza e Privacy</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/responsible_ai/responsible_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">IA Responsabile</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/sustainable_ai/sustainable_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">IA Sostenibile</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/robust_ai/robust_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">IA Robusta</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/generative_ai/generative_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">IA Generativa</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Impatto Sociale</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/ai_for_good/ai_for_good.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">AI for Good</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Chiusura</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/conclusion/conclusion.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Conclusione</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
+ <span class="menu-text">LABS</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/labs.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Panoramica</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/getting_started.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Guida Introduttiva</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../contents/labs/arduino/nicla_vision/nicla_vision.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Nicla Vision</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/arduino/nicla_vision/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/arduino/nicla_vision/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/arduino/nicla_vision/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/arduino/nicla_vision/kws/kws.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keyword Spotting (KWS)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/arduino/nicla_vision/motion_classification/motion_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione del Movimento e Rilevamento delle Anomalie</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../contents/labs/seeed/xiao_esp32s3/xiao_esp32s3.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">XIAO ESP32S3</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/seeed/xiao_esp32s3/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/seeed/xiao_esp32s3/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/seeed/xiao_esp32s3/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/seeed/xiao_esp32s3/kws/kws.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keyword Spotting (KWS)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/seeed/xiao_esp32s3/motion_classification/motion_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione del Movimento e Rilevamento delle Anomalie</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../contents/labs/raspi/raspi.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Raspberry Pi</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/raspi/setup/setup.it.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/raspi/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/raspi/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/raspi/llm/llm.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Small Language Models (SLM)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../contents/labs/shared/shared.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab Condivisi</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/shared/kws_feature_eng/kws_feature_eng.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">KWS Feature Engineering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/labs/shared/dsp_spectral_features_block/dsp_spectral_features_block.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Blocco delle Feature Spettrali DSP</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="true">
+ <span class="menu-text">RIFERIMENTI</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../references.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Riferimenti</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/tools.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Tool</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/zoo_datasets.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Dataset</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/zoo_models.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Model Zoo</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/learning_resources.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Risorse</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/community.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Le Community</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../contents/case_studies.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Casi di Studio</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Indice</h2>
+   
+  <ul>
+  <li><a href="#introduzione" id="toc-introduzione" class="nav-link active" data-scroll-target="#introduzione">Introduzione</a>
+  <ul>
+  <li><a href="#caratteristiche-principali" id="toc-caratteristiche-principali" class="nav-link" data-scroll-target="#caratteristiche-principali">Caratteristiche Principali</a></li>
+  <li><a href="#modelli-raspberry-pi-trattati-in-questo-libro" id="toc-modelli-raspberry-pi-trattati-in-questo-libro" class="nav-link" data-scroll-target="#modelli-raspberry-pi-trattati-in-questo-libro">Modelli Raspberry Pi (trattati in questo libro)</a></li>
+  <li><a href="#applicazioni-di-ingegneria" id="toc-applicazioni-di-ingegneria" class="nav-link" data-scroll-target="#applicazioni-di-ingegneria">Applicazioni di Ingegneria</a></li>
+  </ul></li>
+  <li><a href="#panoramica-hardware" id="toc-panoramica-hardware" class="nav-link" data-scroll-target="#panoramica-hardware">Panoramica Hardware</a>
+  <ul>
+  <li><a href="#raspberry-pi-zero-2w" id="toc-raspberry-pi-zero-2w" class="nav-link" data-scroll-target="#raspberry-pi-zero-2w">Raspberry Pi Zero 2W</a></li>
+  <li><a href="#raspberry-pi-5" id="toc-raspberry-pi-5" class="nav-link" data-scroll-target="#raspberry-pi-5">Raspberry Pi 5</a></li>
+  </ul></li>
+  <li><a href="#installazione-del-sistema-operativo" id="toc-installazione-del-sistema-operativo" class="nav-link" data-scroll-target="#installazione-del-sistema-operativo">Installazione del Sistema Operativo</a>
+  <ul>
+  <li><a href="#il-sistema-operativo-so" id="toc-il-sistema-operativo-so" class="nav-link" data-scroll-target="#il-sistema-operativo-so">Il sistema operativo (SO)</a></li>
+  <li><a href="#installazione" id="toc-installazione" class="nav-link" data-scroll-target="#installazione">Installazione</a></li>
+  <li><a href="#configurazione-iniziale" id="toc-configurazione-iniziale" class="nav-link" data-scroll-target="#configurazione-iniziale">Configurazione Iniziale</a></li>
+  </ul></li>
+  <li><a href="#accesso-remoto" id="toc-accesso-remoto" class="nav-link" data-scroll-target="#accesso-remoto">Accesso Remoto</a>
+  <ul>
+  <li><a href="#accesso-ssh" id="toc-accesso-ssh" class="nav-link" data-scroll-target="#accesso-ssh">Accesso SSH</a></li>
+  <li><a href="#per-spegnere-il-raspi-tramite-terminale" id="toc-per-spegnere-il-raspi-tramite-terminale" class="nav-link" data-scroll-target="#per-spegnere-il-raspi-tramite-terminale">Per spegnere il Raspi tramite terminale:</a></li>
+  <li><a href="#trasferire-file-tra-il-raspi-e-un-computer" id="toc-trasferire-file-tra-il-raspi-e-un-computer" class="nav-link" data-scroll-target="#trasferire-file-tra-il-raspi-e-un-computer">Trasferire file tra il Raspi e un computer</a>
+  <ul class="collapse">
+  <li><a href="#utilizzo-del-protocollo-secure-copy-protocol-scp" id="toc-utilizzo-del-protocollo-secure-copy-protocol-scp" class="nav-link" data-scroll-target="#utilizzo-del-protocollo-secure-copy-protocol-scp">Utilizzo del Protocollo Secure Copy Protocol (<code>scp</code>):</a></li>
+  <li><a href="#trasferimento-di-file-tramite-ftp" id="toc-trasferimento-di-file-tramite-ftp" class="nav-link" data-scroll-target="#trasferimento-di-file-tramite-ftp">Trasferimento di file tramite FTP</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#aumentare-la-memoria-swap" id="toc-aumentare-la-memoria-swap" class="nav-link" data-scroll-target="#aumentare-la-memoria-swap">Aumentare la memoria SWAP</a></li>
+  <li><a href="#installazione-di-una-fotocamera" id="toc-installazione-di-una-fotocamera" class="nav-link" data-scroll-target="#installazione-di-una-fotocamera">Installazione di una Fotocamera</a>
+  <ul>
+  <li><a href="#installazione-di-una-webcam-usb" id="toc-installazione-di-una-webcam-usb" class="nav-link" data-scroll-target="#installazione-di-una-webcam-usb">Installazione di una Webcam USB</a>
+  <ul class="collapse">
+  <li><a href="#streaming-video" id="toc-streaming-video" class="nav-link" data-scroll-target="#streaming-video">Streaming Video</a></li>
+  </ul></li>
+  <li><a href="#installazione-di-un-modulo-fotocamera-sulla-porta-csi" id="toc-installazione-di-un-modulo-fotocamera-sulla-porta-csi" class="nav-link" data-scroll-target="#installazione-di-un-modulo-fotocamera-sulla-porta-csi">Installazione di un Modulo Fotocamera sulla porta CSI</a></li>
+  </ul></li>
+  <li><a href="#esecuzione-del-desktop-raspi-da-remoto" id="toc-esecuzione-del-desktop-raspi-da-remoto" class="nav-link" data-scroll-target="#esecuzione-del-desktop-raspi-da-remoto">Esecuzione del desktop Raspi da remoto</a></li>
+  <li><a href="#aggiornamento-e-installazione-del-software" id="toc-aggiornamento-e-installazione-del-software" class="nav-link" data-scroll-target="#aggiornamento-e-installazione-del-software">Aggiornamento e Installazione del Software</a></li>
+  <li><a href="#considerazioni-specifiche-del-modello" id="toc-considerazioni-specifiche-del-modello" class="nav-link" data-scroll-target="#considerazioni-specifiche-del-modello">Considerazioni Specifiche del Modello</a>
+  <ul>
+  <li><a href="#raspberry-pi-zero" id="toc-raspberry-pi-zero" class="nav-link" data-scroll-target="#raspberry-pi-zero">Raspberry Pi Zero</a></li>
+  <li><a href="#raspberry-pi-4-o-5" id="toc-raspberry-pi-4-o-5" class="nav-link" data-scroll-target="#raspberry-pi-4-o-5">Raspberry Pi 4 o 5</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/harvard-edge/cs249r_book/edit/dev/contents/labs/raspi/setup/setup.it.qmd" class="toc-action"><i class="bi bi-github"></i>Modifica questa pagina</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/issues/new" class="toc-action"><i class="bi empty"></i>Segnala un problema</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/blob/dev/contents/labs/raspi/setup/setup.it.qmd" class="toc-action"><i class="bi empty"></i>Mostra il codice</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../contents/labs/raspi/raspi.it.html">Raspberry Pi</a></li><li class="breadcrumb-item"><a href="../../../../contents/labs/raspi/setup/setup.it.html">Setup</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Setup</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/jpeg/rasp_setup_portada.jpg" class="img-fluid figure-img"></p>
+<figcaption><em>DALL·E prompt - Un ambiente di laboratorio di elettronica ispirato agli anni ’50, con uno stile cartoon. Il laboratorio dovrebbe avere apparecchiature vintage, grandi oscilloscopi, vecchie radio a valvole e grandi computer squadrati. La scheda Raspberry Pi 5 è esposta in modo prominente, mostrata accuratamente nelle sue dimensioni reali, simile a una carta di credito, su un banco da lavoro. La scheda Pi è circondata da classici strumenti da laboratorio come un saldatore, resistenze e fili. La scena generale dovrebbe essere vivace, con colori esagerati e dettagli giocosi caratteristici di un cartone animato. Non dovrebbero essere inclusi loghi o testo.</em></figcaption>
+</figure>
+</div>
+<p>Questo capitolo guiderà attraverso la configurazione dei modelli Raspberry Pi Zero 2 W (<em>Raspi-Zero</em>) e Raspberry Pi 5 (<em>Raspi-5</em>). Tratteremo la configurazione hardware, l’installazione del sistema operativo, la configurazione iniziale e i test.</p>
+<blockquote class="blockquote">
+<p>Le istruzioni generali per <em>Rasp-5</em> si applicano anche alle versioni più vecchie di Raspberry Pi, come Rasp-3 e Raspi-4.</p>
+</blockquote>
+<section id="introduzione" class="level2">
+<h2 class="anchored" data-anchor-id="introduzione">Introduzione</h2>
+<p>Il Raspberry Pi è un potente e versatile computer a scheda singola che è diventato uno strumento essenziale per gli ingegneri di varie discipline. Sviluppati dalla <a href="https://www.raspberrypi.org/">Raspberry Pi Foundation</a>, questi dispositivi compatti offrono una combinazione unica di convenienza, potenza di calcolo e ampie capacità GPIO (General Purpose Input/Output), rendendoli ideali per la prototipazione, lo sviluppo di sistemi embedded e progetti di ingegneria avanzata.</p>
+<section id="caratteristiche-principali" class="level3">
+<h3 class="anchored" data-anchor-id="caratteristiche-principali">Caratteristiche Principali</h3>
+<ol type="1">
+<li><p><strong>Potenza di Calcolo</strong>: Nonostante le dimensioni ridotte, Raspberry Pi offre notevoli capacità di elaborazione, con gli ultimi modelli dotati di processori ARM multi-core e fino a 8 GB di RAM.</p></li>
+<li><p><strong>Interfaccia GPIO</strong>: L’header GPIO a 40 pin consente l’interazione diretta con sensori, attuatori e altri componenti elettronici, facilitando i progetti di integrazione hardware-software.</p></li>
+<li><p><strong>Ampia Connettività</strong>: Wi-Fi, Bluetooth, Ethernet e più porte USB integrate consentono diversi progetti di comunicazione e networking.</p></li>
+<li><p><strong>Accesso Hardware di Basso Livello</strong>: Raspberry Pi fornisce accesso a interfacce come I2C, SPI e UART, consentendo un controllo dettagliato e la comunicazione con dispositivi esterni.</p></li>
+<li><p><strong>Capacità in Tempo Reale</strong>: Con una configurazione appropriata, Raspberry Pi può essere utilizzato per applicazioni soft in tempo reale, rendendolo adatto per sistemi di controllo e attività di elaborazione del segnale.</p></li>
+<li><p><strong>Efficienza Energetica</strong>: Il basso consumo energetico consente progetti alimentati a batteria e a basso consumo energetico, in particolare in modelli come Pi Zero.</p></li>
+</ol>
+</section>
+<section id="modelli-raspberry-pi-trattati-in-questo-libro" class="level3">
+<h3 class="anchored" data-anchor-id="modelli-raspberry-pi-trattati-in-questo-libro">Modelli Raspberry Pi (trattati in questo libro)</h3>
+<ol type="1">
+<li><strong>Raspberry Pi Zero 2 W</strong> (<em>Raspi-Zero</em>):
+<ul>
+<li>Ideale per: sistemi embedded compatti</li>
+<li>Specifiche principali: CPU single-core da 1 GHz (ARM Cortex-A53), 512 MB di RAM, consumo energetico minimo</li>
+</ul></li>
+<li><strong>Raspberry Pi 5</strong> (<em>Raspi-5</em>):
+<ul>
+<li>Ideale per: applicazioni più esigenti come edge computing, computer vision e applicazioni edgeAI, inclusi LLM.</li>
+<li>Specifiche principali: CPU quad-core da 2,4 GHz (ARM Cortex A-76), fino a 8 GB di RAM, interfaccia PCIe per espansioni</li>
+</ul></li>
+</ol>
+</section>
+<section id="applicazioni-di-ingegneria" class="level3">
+<h3 class="anchored" data-anchor-id="applicazioni-di-ingegneria">Applicazioni di Ingegneria</h3>
+<ol type="1">
+<li><p><strong>Progettazione di Sistemi Embedded</strong>: Sviluppo e prototipi di sistemi embedded per applicazioni reali.</p></li>
+<li><p><strong>IoT e Dispositivi in Rete</strong>: Creazione di dispositivi interconnessi ed esplorazione di protocolli come MQTT, CoAP e HTTP/HTTPS.</p></li>
+<li><p><strong>Sistemi di Controllo</strong>: Implementazione di loop di controllo feedback, controller PID e interfaccia per attuatori.</p></li>
+<li><p><strong>Visione Artificiale e IA</strong>: Utilizzo di librerie come OpenCV e TensorFlow Lite per l’elaborazione delle immagini e l’apprendimento automatico in edge.</p></li>
+<li><p><strong>Acquisizione e Analisi dei Dati</strong>: Raccolta dati dei sensori, analisi in tempo reale e creazione di sistemi di registrazione dei dati.</p></li>
+<li><p><strong>Robotica</strong>: Creazione di controller per robot, algoritmi di pianificazione del movimento e interfaccie con driver di motori.</p></li>
+<li><p><strong>Elaborazione del Segnale</strong>: Analisi del segnale in tempo reale, filtraggio e applicazioni DSP.</p></li>
+<li><p><strong>Sicurezza di Rete</strong>: Imposta VPN, firewall ed esplora i test di penetrazione della rete.</p></li>
+</ol>
+<p>Questo tutorial guiderà nell’impostazione dei modelli Raspberry Pi più comuni, consentendo di iniziare rapidamente il progetto di apprendimento automatico. Tratteremo la configurazione hardware, l’installazione del sistema operativo e la configurazione iniziale, concentrandoci sulla preparazione del Pi per le applicazioni di apprendimento automatico.</p>
+</section>
+</section>
+<section id="panoramica-hardware" class="level2">
+<h2 class="anchored" data-anchor-id="panoramica-hardware">Panoramica Hardware</h2>
+<section id="raspberry-pi-zero-2w" class="level3">
+<h3 class="anchored" data-anchor-id="raspberry-pi-zero-2w">Raspberry Pi Zero 2W</h3>
+<p><img src="images/jpeg/zero-hardware.jpg" class="img-fluid"></p>
+<ul>
+<li><strong>Processore</strong>: CPU Arm Cortex-A53 quad-core a 64 bit da 1 GHz</li>
+<li><strong>RAM</strong>: SDRAM da 512 MB</li>
+<li><strong>Wireless</strong>: LAN wireless 802.11 b/g/n da 2,4 GHz, Bluetooth 4.2, BLE</li>
+<li><strong>Porte</strong>: Mini HDMI, micro USB OTG, connettore per fotocamera CSI-2</li>
+<li><strong>Alimentazione</strong>: 5 V tramite porta micro USB</li>
+</ul>
+</section>
+<section id="raspberry-pi-5" class="level3">
+<h3 class="anchored" data-anchor-id="raspberry-pi-5">Raspberry Pi 5</h3>
+<p><img src="images/jpeg/r5-hardware.jpg" class="img-fluid"></p>
+<ul>
+<li><strong>Processore</strong>:
+<ul>
+<li>Pi 5: CPU Arm Cortex-A76 quad-core a 64 bit @ 2,4 GHz</li>
+<li>Pi 4: SoC Cortex-A72 quad-core (ARM v8) a 64 bit @ 1,5 GHz</li>
+</ul></li>
+<li><strong>RAM</strong>: opzioni da 2 GB, 4 GB o 8 GB (8 GB consigliati per attività di IA)</li>
+<li><strong>Wireless</strong>: Wireless 802.11ac dual-band, Bluetooth 5.0</li>
+<li><strong>Porte</strong>: 2 porte micro HDMI, 2 porte USB 3.0, 2 porte USB 2.0, porta fotocamera CSI, porta display DSI</li>
+<li><strong>Alimentazione</strong>: 5 V CC tramite connettore USB-C (3 A)</li>
+</ul>
+</section>
+</section>
+<section id="installazione-del-sistema-operativo" class="level2">
+<h2 class="anchored" data-anchor-id="installazione-del-sistema-operativo">Installazione del Sistema Operativo</h2>
+<section id="il-sistema-operativo-so" class="level3">
+<h3 class="anchored" data-anchor-id="il-sistema-operativo-so">Il sistema operativo (SO)</h3>
+<p>Un sistema operativo (SO) è un software fondamentale che gestisce le risorse hardware e software del computer, fornendo servizi standard per i programmi per computer. È il software principale che gira su un computer, fungendo da intermediario tra hardware e software applicativo. Il SO gestisce la memoria, i processi, i driver dei dispositivi, i file e i protocolli di sicurezza del computer.</p>
+<ol type="1">
+<li><strong>Funzioni chiave</strong>:
+<ul>
+<li>Gestione dei processi: Assegnazione del tempo della CPU a diversi programmi</li>
+<li>Gestione della memoria: Assegnazione e liberazione della memoria in base alle necessità</li>
+<li>Gestione del file system: Organizzazione e monitoraggio di file e directory</li>
+<li>Gestione dei dispositivi: Comunicazione con dispositivi hardware collegati</li>
+<li>Interfaccia utente: Fornitura di un modo per gli utenti di interagire con il computer</li>
+</ul></li>
+<li><strong>Componenti</strong>:
+<ul>
+<li>Kernel: Il nucleo del sistema operativo che gestisce le risorse hardware</li>
+<li>Shell: L’interfaccia utente per interagire con il sistema operativo</li>
+<li>File system: Organizzazione e gestione dell’archiviazione dei dati</li>
+<li>Device driver: Software che consente al sistema operativo di comunicare con l’hardware</li>
+</ul></li>
+</ol>
+<p>Il Raspberry Pi esegue una versione specializzata di Linux progettata per sistemi embedded. Questo sistema operativo, in genere una variante di Debian chiamata Raspberry Pi OS (in precedenza Raspbian), è ottimizzato per l’architettura basata su ARM del Pi e per le risorse limitate.</p>
+<blockquote class="blockquote">
+<p>L’ultima versione di Raspberry Pi OS è basata su <a href="https://www.raspberrypi.com/news/bookworm-the-new-version-of-raspberry-pi-os/">Debian Bookworm</a>.</p>
+</blockquote>
+<p><strong>Caratteristiche principali</strong>:</p>
+<ol type="1">
+<li>Leggero: Progettato per funzionare in modo efficiente sull’hardware del Pi.</li>
+<li>Versatile: Supporta un’ampia gamma di applicazioni e linguaggi di programmazione.</li>
+<li>Open source: Consente la personalizzazione e i miglioramenti guidati dalla comunità.</li>
+<li>Supporto GPIO: Consente l’interazione con sensori e altri hardware tramite i pin del Pi.</li>
+<li>Aggiornamenti regolari: Costantemente migliorato per prestazioni e sicurezza.</li>
+</ol>
+<p>Embedded Linux sul Raspberry Pi fornisce un sistema operativo completo in un pacchetto compatto, rendendolo ideale per progetti che vanno da semplici dispositivi IoT ad applicazioni di apprendimento automatico edge più complesse. La sua compatibilità con gli strumenti e le librerie Linux standard lo rende una potente piattaforma per lo sviluppo e la sperimentazione.</p>
+</section>
+<section id="installazione" class="level3">
+<h3 class="anchored" data-anchor-id="installazione">Installazione</h3>
+<p>Per usare Raspberry Pi, avremo bisogno di un sistema operativo. Di default, Raspberry Pi verifica la presenza di un sistema operativo su qualsiasi scheda SD inserita nello slot, quindi dovremmo installare un sistema operativo usando <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager.</a></p>
+<p><em>Raspberry Pi Imager</em> è uno strumento per scaricare e scrivere immagini su <em>macOS</em>, <em>Windows</em> e <em>Linux</em>. Include molte immagini di sistemi operativi popolari per Raspberry Pi. Useremo Imager anche per preconfigurare credenziali e impostazioni di accesso remoto.</p>
+<p>Seguire i passaggi per installare il sistema operativo nel Raspi.</p>
+<ol type="1">
+<li><a href="https://www.raspberrypi.com/software/">Scaricare</a> e installare Raspberry Pi Imager sul computer.</li>
+<li>Inserire una scheda microSD nel computer (si consiglia una scheda SD da 32 GB).</li>
+<li>Aprire Raspberry Pi Imager e selezionare il modello di Raspberry Pi.</li>
+<li>Scegliere il sistema operativo appropriato:
+<ul>
+<li><strong>For Raspi-Zero</strong>: Ad esempio, si può selezionare: <code>Raspberry Pi OS Lite (64-bit)</code>.</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/png/zero-burn.png" class="img-fluid figure-img"></p>
+<figcaption>img</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p>Grazie alla sua SDRAM ridotta (512 MB), il sistema operativo consigliato per Rasp Zero è la versione a 32 bit. Tuttavia, per eseguire alcuni modelli di apprendimento automatico, come YOLOv8 di Ultralitics, dovremmo usare la versione a 64 bit. Sebbene Raspi-Zero possa eseguire un <em>desktop</em>, sceglieremo la versione LITE (senza Desktop) per ridurre la RAM necessaria per il normale funzionamento.</p>
+</blockquote>
+<ul>
+<li>Per <strong>Raspi-5</strong>: possiamo selezionare la versione completa a 64 bit, che include un desktop: <code>Raspberry Pi OS (64-bit)</code></li>
+</ul>
+<img src="images/png/r5-burn.png" class="img-fluid"></li>
+<li>Selezionare la scheda microSD come dispositivo di archiviazione.</li>
+<li>Cliccare su <code>Next</code> e poi sull’icona dell’<code>ingranaggio</code> per accedere alle opzioni avanzate.</li>
+<li>Impostare <em>hostname</em>, <em>nome utente e password</em> di Raspi, configurare il <em>WiFi</em> e <em>abilitare SSH</em> (molto importante!)</li>
+</ol>
+<p><img src="images/jpeg/setup.jpg" class="img-fluid"></p>
+<ol start="8" type="1">
+<li>Scrivere l’immagine sulla scheda microSD.</li>
+</ol>
+<blockquote class="blockquote">
+<p>Negli esempi qui, useremo nomi host diversi: raspi, raspi-5, raspi-Zero, ecc. Lo si deve sostituire con quello in uso.</p>
+</blockquote>
+</section>
+<section id="configurazione-iniziale" class="level3">
+<h3 class="anchored" data-anchor-id="configurazione-iniziale">Configurazione Iniziale</h3>
+<ol type="1">
+<li>Inserire la scheda microSD nel Raspberry Pi.</li>
+<li>Collegare l’alimentazione per avviare il Raspberry Pi.</li>
+<li>Attendere il completamento del processo di boot iniziale (potrebbero volerci alcuni minuti).</li>
+</ol>
+<blockquote class="blockquote">
+<p>I comandi Linux più comuni da usare con Raspi si trovano <a href="https://www.jwdittrich.people.ysu.edu/raspberrypi/UsefulRaspberryPiCommands.pdf">qui</a> o <a href="https://www.codecademy.com/learn/learn-raspberry-pi/modules/raspberry-pi-command-line-module/cheatsheet">qui</a>.</p>
+</blockquote>
+</section>
+</section>
+<section id="accesso-remoto" class="level2">
+<h2 class="anchored" data-anchor-id="accesso-remoto">Accesso Remoto</h2>
+<section id="accesso-ssh" class="level3">
+<h3 class="anchored" data-anchor-id="accesso-ssh">Accesso SSH</h3>
+<p>Il modo più semplice per interagire con Rasp-Zero è tramite SSH (“Headless”). Si può usare un terminale (MAC/Linux), <a href="https://www.putty.org/">PuTTy (</a>Windows) o qualsiasi altro.</p>
+<ol type="1">
+<li><p>Trovare l’indirizzo IP del Raspberry Pi (ad esempio, controllando il router).</p></li>
+<li><p>Sul computer, aprire un terminale e connettersi tramite SSH:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> username@<span class="pp">[</span><span class="ss">raspberry_pi_ip_address</span><span class="pp">]</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In alternativa, se non si ha l’indirizzo IP, si può provare quanto segue:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> username@hostname.local</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>per esempio, <code>ssh mjrovai@rpi-5.local</code> , <code>ssh mjrovai@raspi.local</code> , ecc.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/png/ssh.png" class="img-fluid figure-img"></p>
+<figcaption>img</figcaption>
+</figure>
+</div>
+<p>Quando si vede il prompt:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mjrovai@rpi-5:~</span> $</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Significa che si sta interagendo da remoto con il Raspi. È una buona norma aggiornare/migliorare il sistema regolarmente. Per questo, si deve eseguire:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt upgrade</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Si deve confermare l’indirizzo IP Raspi. Sul terminale, si può usare:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span> <span class="at">-I</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+<p><img src="images/png/pasted_graphic_11_ILcmyOYU7X.png" class="img-fluid"></p>
+</section>
+<section id="per-spegnere-il-raspi-tramite-terminale" class="level3">
+<h3 class="anchored" data-anchor-id="per-spegnere-il-raspi-tramite-terminale">Per spegnere il Raspi tramite terminale:</h3>
+<p>Per spegnere il Raspberry Pi, ci sono idee migliori che staccare semplicemente il cavo di alimentazione. Questo perché il Raspi potrebbe ancora scrivere dati sulla scheda SD, nel qual caso il semplice spegnimento potrebbe causare la perdita di dati o, peggio ancora, una scheda SD danneggiata.</p>
+<p>Per uno spegnimento di sicurezza, usare la riga di comando:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> shutdown <span class="at">-h</span> now</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<blockquote class="blockquote">
+<p>Per evitare possibili perdite di dati e danneggiamenti della scheda SD, prima di rimuovere l’alimentazione, si deve attendere qualche secondo dopo lo spegnimento affinché il LED del Raspberry Pi smetta di lampeggiare e si spenga. Una volta che il LED si spegne, è sicuro spegnere.</p>
+</blockquote>
+</section>
+<section id="trasferire-file-tra-il-raspi-e-un-computer" class="level3">
+<h3 class="anchored" data-anchor-id="trasferire-file-tra-il-raspi-e-un-computer">Trasferire file tra il Raspi e un computer</h3>
+<p>Il trasferimento di file tra il Raspi e il nostro computer principale può essere effettuato tramite una chiavetta USB, direttamente sul terminale (con scp) o un programma FTP sulla rete.</p>
+<section id="utilizzo-del-protocollo-secure-copy-protocol-scp" class="level4">
+<h4 class="anchored" data-anchor-id="utilizzo-del-protocollo-secure-copy-protocol-scp">Utilizzo del Protocollo Secure Copy Protocol (<code>scp</code>):</h4>
+<section id="copiare-i-file-sul-raspberry-pi" class="level5">
+<h5 class="anchored" data-anchor-id="copiare-i-file-sul-raspberry-pi">Copiare i file sul Raspberry Pi</h5>
+<p>Creiamo un file di testo sul nostro computer, ad esempio, <code>test.txt</code>.</p>
+<p><img src="images/png/test_txt.png" class="img-fluid"></p>
+<blockquote class="blockquote">
+<p>Si può usare qualsiasi editor di testo. Nello stesso terminale, un’opzione è <code>nano</code>.</p>
+</blockquote>
+<p>Per copiare il file <code>test.txt</code> dal personal computer alla cartella home di un utente sul Raspberry Pi, si esegue il seguente comando dalla directory contenente <code>test.txt</code>, sostituendo il segnaposto <code>&lt;username&gt;</code> con il nome utente che si usa per accedere al Raspberry Pi e il segnaposto <code>&lt;pi_ip_address&gt;</code> con l’indirizzo IP del Raspberry Pi:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> scp test.txt <span class="op">&lt;</span>username<span class="op">&gt;</span>@<span class="op">&lt;</span>pi_ip_address<span class="op">&gt;</span>:~/</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<blockquote class="blockquote">
+<p>Notare che <code>~/</code> significa che sposteremo il file nella ROOT del Raspi. Si può scegliere qualsiasi cartella nel Raspi. Ma si deve creare la cartella prima di eseguire <code>scp</code>, poiché <code>scp</code> non lo fa automaticamente.</p>
+</blockquote>
+<p>Ad esempio, trasferiamo il file <code>test.txt</code> nella ROOT dell’Raspi-zero, che ha un IP di <code>192.168.4.210</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> test.txt mjrovai@192.168.4.210:~/</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/png/transfer_file.png" class="img-fluid"></p>
+<p>Abbiamo usato un profilo diverso per differenziare i terminali. L’azione di cui sopra avviene <strong>sul computer</strong>. Ora, andiamo sul Raspi (utilizzando SSH) e controlliamo se il file è lì:</p>
+<p><img src="images/png/list_archives.png" class="img-fluid"></p>
+</section>
+<section id="copiare-i-file-dal-raspberry-pi" class="level5">
+<h5 class="anchored" data-anchor-id="copiare-i-file-dal-raspberry-pi">Copiare i file dal Raspberry Pi</h5>
+<p>Per copiare un file chiamato <code>test.txt</code> dalla directory home di un utente su un Raspberry Pi alla directory corrente su un altro computer, si esegue il seguente comando <strong>sul computer host</strong>:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> scp <span class="op">&lt;</span>username<span class="op">&gt;</span>@<span class="op">&lt;</span>pi_ip_address<span class="op">&gt;</span>:myfile.txt .</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Per esempio:</p>
+<p>Sul Raspi, creiamo una copia del file con un altro nome:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> test.txt test_2.txt</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>E sul computer host (in questo caso, un Mac)</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> mjrovai@192.168.4.210:test_2.txt .</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/png/tranfer-text-mac.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="trasferimento-di-file-tramite-ftp" class="level4">
+<h4 class="anchored" data-anchor-id="trasferimento-di-file-tramite-ftp">Trasferimento di file tramite FTP</h4>
+<p>È anche possibile trasferire file tramite FTP, come <a href="https://filezilla-project.org/download.php?type=client">FileZilla FTP Client</a>. Seguire le istruzioni, installare il programma per il proprio sistema operativo desktop e usare l’indirizzo IP Raspi come <code>Host</code>. Per esempio:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sftp://192.168.4.210</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>e inserire <code>nome utente e password</code> di Raspi . Premendo <code>Quickconnect</code> si apriranno due finestre, una per il desktop del computer host (destra) e un’altra per il Raspi (sinistra).</p>
+<p><img src="images/png/filezila.png" class="img-fluid"></p>
+</section>
+</section>
+</section>
+<section id="aumentare-la-memoria-swap" class="level2">
+<h2 class="anchored" data-anchor-id="aumentare-la-memoria-swap">Aumentare la memoria SWAP</h2>
+<p>Utilizzando <code>htop</code>, un visualizzatore di processi interattivo multipiattaforma, si possono facilmente monitorare, in tempo reale, le risorse in esecuzione sul Raspi, come l’elenco dei processi, le CPU in esecuzione e la memoria utilizzata. Per lanciare <code>hop</code>, si immette il vomando sul terminale:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">htop</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/png/htop.png" class="img-fluid"></p>
+<p>Per quanto riguarda la memoria, tra i dispositivi della famiglia Raspberry Pi, il Raspi-Zero ha la quantità più piccola di SRAM (500 MB), rispetto a una selezione da 2 GB a 8 GB sui Raspi 4 o 5. Per qualsiasi Raspi, è possibile aumentare la memoria disponibile per il sistema con “Swap”. La memoria di swap, nota anche come spazio di swap, è una tecnica utilizzata nei sistemi operativi dei computer per archiviare temporaneamente i dati dalla RAM (Random Access Memory) sulla scheda SD quando la RAM fisica è completamente utilizzata. Ciò consente al sistema operativo (SO) di continuare a funzionare anche quando la RAM è piena, il che può prevenire crash o rallentamenti del sistema.</p>
+<p>La memoria di swap avvantaggia i dispositivi con RAM limitata, come il Raspi-Zero. Aumentare lo swap può aiutare a eseguire applicazioni o processi più impegnativi, ma è essenziale bilanciare questo con il potenziale impatto sulle prestazioni dell’accesso frequente al disco.</p>
+<p>Per default, la memoria SWAP (Swp) di Rapi-Zero è di soli 100 MB, il che è molto poco per l’esecuzione di alcune applicazioni di apprendimento automatico più complesse ed esigenti (ad esempio, YOLO). Aumentiamola a 2 MB:</p>
+<p>Per prima cosa, si disattiva lo swap-file:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dphys-swapfile swapoff</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Poi, si deve aprire e modificare il file <code>/etc/dphys-swapfile</code>. Per farlo, useremo nano:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> nano /etc/dphys-swapfile</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Cercare la variabile <strong>CONF_SWAPSIZE</strong> (il valore predefinito è 200) e aggiornarla a <strong>2000</strong>:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="va">CONF_SWAPSIZE</span><span class="op">=</span>2000</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>E salvare il file.</p>
+<p>Quindi, attivare di nuovo lo swapfile e riavviare Rasp-zero:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dphys-swapfile setup</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dphys-swapfile swapon</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> reboot</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Quando il dispositivo viene riavviato (so deve entrare di nuovo con SSH), ci si accorgerà che il valore massimo della memoria di swap mostrato in alto è ora qualcosa come 2 GB (nel nostro caso, 1.95 GB).</p>
+<blockquote class="blockquote">
+<p>Per mantenere in esecuzione <em>htop</em>, si deve aprire un’altra finestra del terminale per interagire continuamente con il Raspi.</p>
+</blockquote>
+</section>
+<section id="installazione-di-una-fotocamera" class="level2">
+<h2 class="anchored" data-anchor-id="installazione-di-una-fotocamera">Installazione di una Fotocamera</h2>
+<p>Il Raspi è un dispositivo eccellente per applicazioni di visione artificiale; è necessaria una fotocamera. Possiamo installare una webcam USB standard sulla porta micro-USB utilizzando un adattatore USB OTG (Raspi-Zero e Rasp-5) o un modulo fotocamera collegato alla porta Raspi CSI (Camera Serial Interface).</p>
+<blockquote class="blockquote">
+<p>Le webcam USB hanno generalmente una qualità inferiore rispetto ai moduli fotocamera che si collegano alla porta CSI. Inoltre, non possono essere controllate utilizzando i comandi <code>raspistill</code> e <code>raspivid</code> nel terminale o il pacchetto di registrazione <code>picamera</code> in Python. Tuttavia, potrebbero esserci dei motivi per collegare una telecamera USB al Raspberry Pi, ad esempio perché è molto più facile configurare più telecamere con un singolo Raspberry Pi, cavi lunghi o semplicemente perché si ha una telecamera del genere a portata di mano.</p>
+</blockquote>
+<section id="installazione-di-una-webcam-usb" class="level3">
+<h3 class="anchored" data-anchor-id="installazione-di-una-webcam-usb">Installazione di una Webcam USB</h3>
+<ol type="1">
+<li>Spegnere il Raspi:</li>
+</ol>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> shutdown <span class="at">-h</span> no</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="2" type="1">
+<li>Collegare la webcam USB (modulo telecamera USB 30fps,1280x720) al Raspi (in questo esempio, si usa il Raspi-Zero, ma le istruzioni funzionano per tutti i Raspi).</li>
+</ol>
+<p><img src="images/jpeg/usb-cam-2.jpg" class="img-fluid"></p>
+<ol start="3" type="1">
+<li>Riaccendere ed eseguire SSH</li>
+<li>Per verificare che la fotocamera USB è riconosciuta, eseguire:</li>
+</ol>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lsusb</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Si dovrebbe vedere la fotocamera elencata nell’output.</p>
+<p><img src="images/png/USB-CAM-2.png" class="img-fluid"></p>
+<ol start="5" type="1">
+<li>Per scattare una foto di prova con la fotocamera USB, si usa:</li>
+</ol>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fswebcam</span> test_image.jpg</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Questo salverà un’immagine denominata “test_image.jpg” nella directory corrente.</p>
+<p><img src="images/png/image-test.png" class="img-fluid"></p>
+<ol start="6" type="1">
+<li>Dato che stiamo usando SSH per connetterci al Rapsi, dobbiamo trasferire l’immagine al computer principale in modo da poterla visualizzare. Possiamo usare FileZilla o SCP per questo:</li>
+</ol>
+<p>Si apre un terminale <strong>sul computer host</strong> e si esegue:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> mjrovai@raspi-zero.local:~/test_image.jpg .</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<blockquote class="blockquote">
+<p>Sostituire “mjrovai” col nome utente e “raspi-zero” con il nome host di Pi.</p>
+</blockquote>
+<p><img src="images/png/cam-2_test.png" class="img-fluid"></p>
+<ol start="7" type="1">
+<li>Se la qualità dell’immagine non è soddisfacente, si possono regolare varie impostazioni; ad esempio, definire una risoluzione adatta a YOLO (640x640):</li>
+</ol>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">fswebcam</span> <span class="at">-r</span> 640x640 <span class="at">--no-banner</span> test_image_yolo.jpg</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Questo cattura un’immagine ad alta risoluzione senza il banner di default.</p>
+<p><img src="images/png/usb-cam-test-2.png" class="img-fluid"></p>
+<p>Si può anche usare una normale webcam USB:</p>
+<p><img src="images/jpeg/usb_camera.jpg" class="img-fluid"></p>
+<p>Verificandola con <code>lsusb</code></p>
+<p><img src="images/png/usb-cam-test.png" class="img-fluid"></p>
+<section id="streaming-video" class="level4">
+<h4 class="anchored" data-anchor-id="streaming-video">Streaming Video</h4>
+<p>Per lo streaming video (che richiede più risorse), possiamo installare e usare mjpg-streamer:</p>
+<p>Per prima cosa, si installa Git:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install git</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Ora, dovremmo installare le dipendenze necessarie per mjpg-streamer, clonare il repository e procedere con l’installazione:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install cmake libjpeg62-turbo-dev</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/jacksonliam/mjpg-streamer.git</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> mjpg-streamer/mjpg-streamer-experimental</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> make install</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Quindi avviare lo streaming con:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mjpg_streamer</span> <span class="at">-i</span> <span class="st">"input_uvc.so"</span> <span class="at">-o</span> <span class="st">"output_http.so -w ./www"</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Possiamo poi accedere allo streaming aprendo un browser Web e andando su:</p>
+<p><code>http://&lt;your_pi_ip_address&gt;:8080</code>. In questo caso: http://192.168.4.210:8080</p>
+<p>Dovremmo vedere una pagina web con opzioni per visualizzare lo stream. Cliccare suk che dice “Stream” o provare ad accedere a:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">http://</span><span class="op">&lt;</span>raspberry_pi_ip_address<span class="op">&gt;</span>:8080/<span class="pp">?</span>action=stream</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/png/streem.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="installazione-di-un-modulo-fotocamera-sulla-porta-csi" class="level3">
+<h3 class="anchored" data-anchor-id="installazione-di-un-modulo-fotocamera-sulla-porta-csi">Installazione di un Modulo Fotocamera sulla porta CSI</h3>
+<p>Ora ci sono diversi moduli fotocamera Raspberry Pi. Il modello originale da 5 megapixel è stato <a href="https://www.raspberrypi.com/news/camera-board-available-for-sale/">rilasciato</a> nel 2013, seguito da un <a href="https://www.raspberrypi.com/products/camera-module-v2/">8-megapixel Camera Module 2</a> che è stato rilasciato nel 2016. L’ultimo modello di fotocamera è il <a href="https://www.raspberrypi.com/documentation/accessories/camera.html">12-megapixel Camera Module 3</a>, rilasciato nel 2023.</p>
+<p>La fotocamera originale da 5 MP (<strong>Arducam OV5647</strong>) non è più disponibile da Raspberry Pi, ma può essere trovata da diversi fornitori alternativi. Di seguito è riportato un esempio di tale fotocamera su un Raspi-Zero.</p>
+<p><img src="images/jpeg/rasp-zero-with-cam.jpg" class="img-fluid"></p>
+<p>Ecco un altro esempio di un modulo fotocamera v2, dotato di un sensore <strong>Sony IMX219</strong> da 8 megapixel:</p>
+<p><img src="images/png/raspi-5-cam.png" class="img-fluid"></p>
+<p>Qualsiasi modulo fotocamera funzionerà sul Raspberry Pi, ma per questo è necessario aggiornare il file <code>configuration.txt</code>:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> nano /boot/firmware/config.txt</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In fondo al file, ad esempio, per usare la fotocamera Arducam OV5647 da 5 MP, si deve aggiungere la riga:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="va">dtoverlay</span><span class="op">=</span>ov5647,cam0</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Oppure per il modulo v2, che ha la fotocamera Sony IMX219 da 8 MP:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="va">dtoverlay</span><span class="op">=</span>imx219,cam0</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Salvare il file (CTRL+O [INVIO] CRTL+X) e riavviare il Raspi:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Sudo</span> reboot</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Dopo l’avvio, si può vedere se la fotocamera è elencata:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">libcamera-hello</span> <span class="at">--list-cameras</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/jpeg/list_cams_raspi-zero.jpg" class="img-fluid"></p>
+<p><img src="images/png/list_cams_raspi-5.png" class="img-fluid"></p>
+<blockquote class="blockquote">
+<p><a href="https://www.raspberrypi.com/documentation/computers/camera_software.html#libcamera">libcamera</a> è una libreria software open source che supporta i sistemi di telecamere direttamente dal sistema operativo Linux sui processori Arm. Riduce al minimo il codice proprietario in esecuzione sulla GPU Broadcom.</p>
+</blockquote>
+<p>Catturiamo un’immagine jpeg con una risoluzione di 640 x 480 per il test e salviamola in un file denominato <code>test_cli_camera.jpg</code></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rpicam-jpeg</span> <span class="at">--output</span> test_cli_camera.jpg <span class="at">--width</span> 640 <span class="at">--height</span> 480</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>se vogliamo vedere il file salvato, dovremmo usare <code>ls -f</code>, che elenca tutto il contenuto della directory corrente in formato lungo. Come prima, possiamo usare scp per visualizzare l’immagine:</p>
+<p><img src="images/png/test_camera_raspi-5.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="esecuzione-del-desktop-raspi-da-remoto" class="level2">
+<h2 class="anchored" data-anchor-id="esecuzione-del-desktop-raspi-da-remoto">Esecuzione del desktop Raspi da remoto</h2>
+<p>Sebbene abbiamo interagito principalmente con il Raspberry Pi utilizzando comandi del terminale tramite SSH, possiamo accedere all’intero ambiente desktop grafico da remoto se abbiamo installato il sistema operativo Raspberry Pi completo (ad esempio, <code>Raspberry Pi OS (64-bit)</code>. Questo può essere particolarmente utile per le attività che traggono vantaggio da un’interfaccia visuale. Per abilitare questa funzionalità, dobbiamo configurare un server VNC (Virtual Network Computing) sul Raspberry Pi. Ecco come fare:</p>
+<ol type="1">
+<li><p>Abilitare il server VNC:</p>
+<ul>
+<li>Connettersi al Raspberry Pi tramite SSH.</li>
+<li>Esegui lo strumento di configurazione Raspberry Pi immettendo: <code>bash  sudo raspi-config</code></li>
+<li>Andare su <code>Interface Options</code> utilizzando i tasti freccia.</li>
+</ul>
+<p><img src="images/png/vnc-1.png" class="img-fluid"></p>
+<ul>
+<li>Selezionare <code>VNC</code> e <code>Yes</code> per abilitare server VNC.</li>
+</ul>
+<p><img src="images/png/vnc-2.png" class="img-fluid"></p>
+<ul>
+<li>Uscire dallo strumento di configurazione, salvando le modifiche quando richiesto.</li>
+</ul>
+<p><img src="images/png/vnc-3.png" class="img-fluid"></p></li>
+<li><p>Installare un VNC Viewer sul computer:</p>
+<ul>
+<li>Scaricare e installare un’applicazione di visualizzazione VNC sul computer principale. Le opzioni più diffuse includono RealVNC Viewer, TightVNC o VNC Viewer di RealVNC. Installeremo <a href="https://www.realvnc.com/en/connect/download/viewer">VNC Viewer</a> di RealVNC.</li>
+</ul></li>
+<li><p>Una volta installato, si deve confermare l’indirizzo IP Raspi. Ad esempio, sul terminale, si può usare:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span> <span class="at">-I</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><img src="images/png/vnc-4.png" class="img-fluid"></p></li>
+<li><p>Connettersi al Raspberry Pi:</p>
+<ul>
+<li>Aprire l’applicazione di visualizzazione VNC.</li>
+</ul>
+<p><img src="images/png/vnc-5.png" class="img-fluid"></p>
+<ul>
+<li>Inserire l’indirizzo IP e il nome host del Raspberry Pi.</li>
+<li>Quando richiesto, inserire il nome utente e la password del Raspberry Pi.</li>
+</ul>
+<p><img src="images/png/vnc-7.png" class="img-fluid"></p></li>
+<li><p>Il Raspberry Pi 5 Desktop dovrebbe apparire sul monitor del computer.</p>
+<p><img src="images/png/vnc-8.png" class="img-fluid"></p></li>
+<li><p>Regolare le Impostazioni dello Schermo (se necessario):</p>
+<ul>
+<li>Una volta connessi, regolare la risoluzione dello schermo per una visualizzazione ottimale. Questo può essere fatto tramite le impostazioni desktop del Raspberry Pi o modificando il file config.txt.</li>
+<li>Facciamolo tramite le impostazioni desktop. Raggiungere il menù (l’icona Raspberry nell’angolo in alto a sinistra) e selezionare la migliore definizione dello schermo per il proprio monitor:</li>
+</ul></li>
+</ol>
+<p><img src="images/png/vnc-9.png" class="img-fluid"></p>
+</section>
+<section id="aggiornamento-e-installazione-del-software" class="level2">
+<h2 class="anchored" data-anchor-id="aggiornamento-e-installazione-del-software">Aggiornamento e Installazione del Software</h2>
+<ol type="1">
+<li><p>Aggiorna il sistema:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update <span class="kw">&amp;&amp;</span> <span class="fu">sudo</span> apt upgrade <span class="at">-y</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Installare il software essenziale:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install python3-pip <span class="at">-y</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Abilita pip per i progetti Python:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> rm /usr/lib/python3.11/EXTERNALLY-MANAGED</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="considerazioni-specifiche-del-modello" class="level2">
+<h2 class="anchored" data-anchor-id="considerazioni-specifiche-del-modello">Considerazioni Specifiche del Modello</h2>
+<section id="raspberry-pi-zero" class="level3">
+<h3 class="anchored" data-anchor-id="raspberry-pi-zero">Raspberry Pi Zero</h3>
+<ul>
+<li>Potenza di elaborazione limitata, ideale per progetti leggeri</li>
+<li>Utilizza la configurazione headless (SSH) per risparmiare risorse.</li>
+<li>Valutare l’aumento dello spazio di swap per attività che richiedono molta memoria.</li>
+</ul>
+</section>
+<section id="raspberry-pi-4-o-5" class="level3">
+<h3 class="anchored" data-anchor-id="raspberry-pi-4-o-5">Raspberry Pi 4 o 5</h3>
+<ul>
+<li>Adatto per progetti più impegnativi, tra cui IA e apprendimento automatico.</li>
+<li>Può eseguire senza problemi l’intero ambiente desktop.</li>
+<li>Per Pi 5, valutare l’utilizzo di un dissipatore attivo per la gestione della temperatura durante attività intensive.</li>
+</ul>
+<p>Ricordarsi di adattare i requisiti del progetto in base allo specifico modello di Raspberry Pi in uso. Il Pi Zero è ideale per progetti a basso consumo energetico e con limiti di spazio, mentre i modelli Pi 4/5 sono più adatti per attività che richiedono un utilizzo intensivo di risorse di calcolo.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiato!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiato!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="harvard-edge/cs249r_book" data-repo-id="R_kgDOKQSOaw" data-category="General" data-category-id="DIC_kwDOKQSOa84CZ8Ry" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../../contents/labs/raspi/raspi.it.html" class="pagination-link" aria-label="Raspberry Pi">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Raspberry Pi</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../../contents/labs/raspi/image_classification/image_classification.it.html" class="pagination-link" aria-label="Classificazione delle Immagini">
+        <span class="nav-page-text">Classificazione delle Immagini</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Scritto, modificato e curato dal Prof.&nbsp;Vijay Janapa Reddi (Harvard University)</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/harvard-edge/cs249r_book/edit/dev/contents/labs/raspi/setup/setup.it.qmd" class="toc-action"><i class="bi bi-github"></i>Modifica questa pagina</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/issues/new" class="toc-action"><i class="bi empty"></i>Segnala un problema</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/blob/dev/contents/labs/raspi/setup/setup.it.qmd" class="toc-action"><i class="bi empty"></i>Mostra il codice</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Questo libro è stato creato con <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

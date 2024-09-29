@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Rilevamento degli Oggetti – Machine Learning Systems</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../../">
+<link href="../../../../../contents/labs/arduino/nicla_vision/kws/kws.it.html" rel="next">
+<link href="../../../../../contents/labs/arduino/nicla_vision/image_classification/image_classification.it.html" rel="prev">
+<link href="../../../../../favicon.png" rel="icon" type="image/png">
+<script src="../../../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "~",
+    "/"
+  ],
+  "language": {
+    "search-no-results-text": "Nessun risultato",
+    "search-matching-documents-text": "documenti trovati",
+    "search-copy-link-title": "Copiare il link nella ricerca",
+    "search-hide-matches-text": "Nascondere i risultati aggiuntivi",
+    "search-more-match-text": "ci sono altri risultati in questo documento",
+    "search-more-matches-text": "ulteriori risultati in questo documento",
+    "search-clear-button-title": "Pulire",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancellare",
+    "search-submit-button-title": "Inviare",
+    "search-label": "Ricerca"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-M21L0CBCVN"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-M21L0CBCVN', { 'anonymize_ip': true});
+</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-M21L0CBCVN"></script>
+
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../../../index.html">
+    <span class="navbar-title">Machine Learning Systems</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-wide tools-end">
+    <a href="https://github.com/harvard-edge/cs249r_book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="../../../../../Machine-Learning-Systems.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Attiva/disattiva la modalità oscura"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Attiva/disattiva la modalità lettore">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Attiva/disattiva la barra laterale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../contents/labs/arduino/nicla_vision/nicla_vision.it.html">Nicla Vision</a></li><li class="breadcrumb-item"><a href="../../../../../contents/labs/arduino/nicla_vision/object_detection/object_detection.it.html">Rilevamento degli Oggetti</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Attiva/disattiva la barra laterale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Ricerca" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+  <div id="quarto-announcement" data-announcement-id="2d6cdf6fc58f1105ce2a5c5c28a11153" class="alert alert-info hidden"><i class="bi bi-star-half quarto-announcement-icon"></i><div class="quarto-announcement-content">
+<p>🌟 Aiutaci a raggiungere 1.000 stelle GitHub! 🌟 Per ogni 25 stelle, Arduino e SEEED doneranno una NiclaVision o una XIAO ESP32S3 per l’istruzione sull’intelligenza artificiale. <a href="https://github.com/harvard-edge/cs249r_book">Cliccare qui per una ⭐</a></p>
+</div></div>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Ricerca"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">PREFAZIONE</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefazione</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/dedication.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dedica</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/acknowledgements/acknowledgements.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ringraziamenti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/contributors.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Collaboratori e Ringraziamenti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/copyright.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Copyright</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/about.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Informazioni sul Libro</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">PARTE PRINCIPALE</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Nozioni Fondamentali</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/introduction/introduction.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduzione</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/ml_systems/ml_systems.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Sistemi di ML</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/dl_primer/dl_primer.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Avvio al Deep Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Workflow</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/workflow/workflow.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Workflow dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/data_engineering/data_engineering.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data Engineering</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/frameworks/frameworks.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Framework di IA</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Training</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/training/training.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Addestramento dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/efficient_ai/efficient_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">IA Efficiente</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/optimizations/optimizations.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Ottimizzazioni dei Modelli</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/hw_acceleration/hw_acceleration.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Accelerazione IA</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Deployment</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/benchmarking/benchmarking.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Benchmarking dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/ondevice_learning/ondevice_learning.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Apprendimento On-Device</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/ops/ops.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Operazioni di ML</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Argomenti Avanzati</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/privacy_security/privacy_security.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Sicurezza e Privacy</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/responsible_ai/responsible_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">IA Responsabile</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/sustainable_ai/sustainable_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">IA Sostenibile</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/robust_ai/robust_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">IA Robusta</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/generative_ai/generative_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">IA Generativa</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Impatto Sociale</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/ai_for_good/ai_for_good.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">AI for Good</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Chiusura</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/conclusion/conclusion.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Conclusione</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
+ <span class="menu-text">LABS</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/labs.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Panoramica</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/getting_started.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Guida Introduttiva</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../../contents/labs/arduino/nicla_vision/nicla_vision.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Nicla Vision</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/kws/kws.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keyword Spotting (KWS)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/motion_classification/motion_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione del Movimento e Rilevamento delle Anomalie</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../../contents/labs/seeed/xiao_esp32s3/xiao_esp32s3.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">XIAO ESP32S3</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/kws/kws.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keyword Spotting (KWS)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/motion_classification/motion_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione del Movimento e Rilevamento delle Anomalie</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../../contents/labs/raspi/raspi.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Raspberry Pi</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/raspi/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/raspi/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/raspi/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/raspi/llm/llm.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Small Language Models (SLM)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../../contents/labs/shared/shared.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab Condivisi</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/shared/kws_feature_eng/kws_feature_eng.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">KWS Feature Engineering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/shared/dsp_spectral_features_block/dsp_spectral_features_block.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Blocco delle Feature Spettrali DSP</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="true">
+ <span class="menu-text">RIFERIMENTI</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../references.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Riferimenti</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/tools.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Tool</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/zoo_datasets.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Dataset</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/zoo_models.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Model Zoo</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/learning_resources.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Risorse</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/community.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Le Community</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/case_studies.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Casi di Studio</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Indice</h2>
+   
+  <ul>
+  <li><a href="#introduzione" id="toc-introduzione" class="nav-link active" data-scroll-target="#introduzione">Introduzione</a>
+  <ul>
+  <li><a href="#object-detection-e-image-classification" id="toc-object-detection-e-image-classification" class="nav-link" data-scroll-target="#object-detection-e-image-classification">Object Detection e Image Classification</a></li>
+  <li><a href="#una-soluzione-innovativa-per-il-rilevamento-degli-oggetti-fomo" id="toc-una-soluzione-innovativa-per-il-rilevamento-degli-oggetti-fomo" class="nav-link" data-scroll-target="#una-soluzione-innovativa-per-il-rilevamento-degli-oggetti-fomo">Una soluzione innovativa per il rilevamento degli oggetti: FOMO</a></li>
+  </ul></li>
+  <li><a href="#obiettivo-del-progetto-di-object-detection" id="toc-obiettivo-del-progetto-di-object-detection" class="nav-link" data-scroll-target="#obiettivo-del-progetto-di-object-detection">Obiettivo del Progetto di Object Detection</a></li>
+  <li><a href="#raccolta-dati" id="toc-raccolta-dati" class="nav-link" data-scroll-target="#raccolta-dati">Raccolta Dati</a>
+  <ul>
+  <li><a href="#raccolta-del-dataset-con-openmv-ide" id="toc-raccolta-del-dataset-con-openmv-ide" class="nav-link" data-scroll-target="#raccolta-del-dataset-con-openmv-ide">Raccolta del Dataset con OpenMV IDE</a></li>
+  </ul></li>
+  <li><a href="#edge-impulse-studio" id="toc-edge-impulse-studio" class="nav-link" data-scroll-target="#edge-impulse-studio">Edge Impulse Studio</a>
+  <ul>
+  <li><a href="#setup-del-progetto" id="toc-setup-del-progetto" class="nav-link" data-scroll-target="#setup-del-progetto">Setup del progetto</a></li>
+  <li><a href="#caricamento-dei-dati-non-etichettati" id="toc-caricamento-dei-dati-non-etichettati" class="nav-link" data-scroll-target="#caricamento-dei-dati-non-etichettati">Caricamento dei dati non etichettati</a></li>
+  <li><a href="#etichettatura-del-dataset" id="toc-etichettatura-del-dataset" class="nav-link" data-scroll-target="#etichettatura-del-dataset">Etichettatura del Dataset</a></li>
+  </ul></li>
+  <li><a href="#impulse-design" id="toc-impulse-design" class="nav-link" data-scroll-target="#impulse-design">Impulse Design</a>
+  <ul>
+  <li><a href="#pre-elaborazione-di-tutti-i-dataset" id="toc-pre-elaborazione-di-tutti-i-dataset" class="nav-link" data-scroll-target="#pre-elaborazione-di-tutti-i-dataset">Pre-elaborazione di tutti i dataset</a></li>
+  </ul></li>
+  <li><a href="#progettazione-addestramento-e-test-del-modello" id="toc-progettazione-addestramento-e-test-del-modello" class="nav-link" data-scroll-target="#progettazione-addestramento-e-test-del-modello">Progettazione, Addestramento e Test del Modello</a>
+  <ul>
+  <li><a href="#modello-di-test-con-live-classification" id="toc-modello-di-test-con-live-classification" class="nav-link" data-scroll-target="#modello-di-test-con-live-classification">Modello di test con “Live Classification”</a></li>
+  </ul></li>
+  <li><a href="#distribuzione-del-modello" id="toc-distribuzione-del-modello" class="nav-link" data-scroll-target="#distribuzione-del-modello">Distribuzione del Modello</a></li>
+  <li><a href="#conclusione" id="toc-conclusione" class="nav-link" data-scroll-target="#conclusione">Conclusione</a></li>
+  <li><a href="#risorse" id="toc-risorse" class="nav-link" data-scroll-target="#risorse">Risorse</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/harvard-edge/cs249r_book/edit/dev/contents/labs/arduino/nicla_vision/object_detection/object_detection.it.qmd" class="toc-action"><i class="bi bi-github"></i>Modifica questa pagina</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/issues/new" class="toc-action"><i class="bi empty"></i>Segnala un problema</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/blob/dev/contents/labs/arduino/nicla_vision/object_detection/object_detection.it.qmd" class="toc-action"><i class="bi empty"></i>Mostra il codice</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../contents/labs/arduino/nicla_vision/nicla_vision.it.html">Nicla Vision</a></li><li class="breadcrumb-item"><a href="../../../../../contents/labs/arduino/nicla_vision/object_detection/object_detection.it.html">Rilevamento degli Oggetti</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Rilevamento degli Oggetti</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/jpg/obj_det_ini.jpg" class="img-fluid figure-img"></p>
+<figcaption><em>DALL·E 3 Prompt: umetto in stile anni ’40 o ’50 che mostra l’interno di un ampio magazzino industriale. Un nastro trasportatore è in primo piano, trasportando un mix di ruote e scatole giocattolo. Le ruote sono distinguibili per i loro cerchioni giallo brillante e pneumatici neri. Le scatole sono cubi bianchi dipinti con pattern alternati in bianco e nero. Alla fine del nastro trasportatore in movimento c’è un robot in stile retrò, dotato di strumenti e sensori, che classifica e conta diligentemente le ruote e le scatole in arrivo. L’estetica generale ricorda l’animazione di metà secolo con linee audaci e una tavolozza di colori classica.</em></figcaption>
+</figure>
+</div>
+<section id="introduzione" class="level2">
+<h2 class="anchored" data-anchor-id="introduzione">Introduzione</h2>
+<p>Questo è il seguito di <strong>CV su Nicla Vision</strong>, che ora esplora l’<strong>Object Detection</strong> sui microcontrollori.</p>
+<p><img src="images/jpg/cv_obj_detect.jpg" class="img-fluid"></p>
+<section id="object-detection-e-image-classification" class="level3">
+<h3 class="anchored" data-anchor-id="object-detection-e-image-classification">Object Detection e Image Classification</h3>
+<p>Il compito principale dei modelli di Image Classification [classificazione delle immagini] è quello di produrre un elenco delle categorie di oggetti più probabili presenti in un’immagine, ad esempio, per identificare un gatto soriano subito dopo cena:</p>
+<p><img src="images/png/img_1.png" class="img-fluid"></p>
+<p>Ma cosa succede quando il gatto salta vicino al bicchiere di vino? Il modello riconosce ancora solo la categoria predominante nell’immagine, il gatto soriano:</p>
+<p><img src="images/png/img_2.png" class="img-fluid"></p>
+<p>E cosa succede se non c’è una categoria dominante nell’immagine?</p>
+<p><img src="images/png/img_3.png" class="img-fluid"></p>
+<p>Il modello identifica l’immagine soprastante in modo completamente sbagliato come un “ashcan” [?pattumiera?], probabilmente a causa delle tonalità di colore.</p>
+<blockquote class="blockquote">
+<p>Il modello utilizzato in tutti gli esempi precedenti è <em>MobileNet</em>, addestrato con un ampio set di dati, la <em>ImageNet</em>.</p>
+</blockquote>
+<p>Per risolvere questo problema, abbiamo bisogno di un altro tipo di modello, in cui non solo possono essere trovate <strong>più categorie</strong> (o etichette), ma anche <strong>dove</strong> si trovano gli oggetti in una determinata immagine.</p>
+<p>Come possiamo immaginare, tali modelli sono molto più complicati e più grandi, ad esempio, <strong>MobileNetV2 SSD FPN-Lite 320x320, addestrato con il set di dati COCO</strong>. Questo modello di rilevamento degli oggetti pre-addestrato è progettato per individuare fino a 10 oggetti all’interno di un’immagine, generando un riquadro di delimitazione per ogni oggetto rilevato. L’immagine sottostante è il risultato di un tale modello in esecuzione su un Raspberry Pi:</p>
+<p><img src="images/png/img_4.png" class="img-fluid"></p>
+<p>Quei modelli utilizzati per il rilevamento degli oggetti (come MobileNet SSD o YOLO) hanno solitamente dimensioni di diversi MB, il che è OK per l’uso con Raspberry Pi ma non adatto per l’uso con dispositivi embedded, dove la RAM solitamente è inferiore a 1 M Byte.</p>
+</section>
+<section id="una-soluzione-innovativa-per-il-rilevamento-degli-oggetti-fomo" class="level3">
+<h3 class="anchored" data-anchor-id="una-soluzione-innovativa-per-il-rilevamento-degli-oggetti-fomo">Una soluzione innovativa per il rilevamento degli oggetti: FOMO</h3>
+<p><a href="https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/object-detection/fomo-object-detection-for-constrained-devices">Edge Impulse ha lanciato nel 2022 <strong>FOMO</strong> (Faster Objects, More Objects)</a>, una nuova soluzione per eseguire il rilevamento di oggetti su dispositivi embedded, non solo su Nicla Vision (Cortex M7) ma anche su CPU Cortex M4F (serie Arduino Nano33 e OpenMV M4) e sui dispositivi Espressif ESP32 (ESP-CAM e XIAO ESP32S3 Sense).</p>
+<p>In questo esercizio pratico, esploreremo l’uso di FOMO con Object Detection, senza entrare in molti dettagli sul modello stesso. Per saperne di più su come funziona il modello, si può esaminare l’<a href="https://www.edgeimpulse.com/blog/announcing-fomo-faster-objects-more-objects">annuncio ufficiale FOMO</a> di Edge Impulse, dove Louis Moreau e Mat Kelcey spiegano in dettaglio come funziona.</p>
+</section>
+</section>
+<section id="obiettivo-del-progetto-di-object-detection" class="level2">
+<h2 class="anchored" data-anchor-id="obiettivo-del-progetto-di-object-detection">Obiettivo del Progetto di Object Detection</h2>
+<p>Tutti i progetti di apprendimento automatico devono iniziare con un obiettivo dettagliato. Supponiamo di trovarci in una struttura industriale e di dover ordinare e contare <strong>ruote</strong> e <strong>scatole</strong> speciali.</p>
+<p><img src="images/jpg/proj_goal.jpg" class="img-fluid"></p>
+<p>In altre parole, dovremmo eseguire una classificazione multi-etichetta, in cui ogni immagine può avere tre classi:</p>
+<ul>
+<li><p>Background [Sfondo] (nessun oggetto)</p></li>
+<li><p>Box [Scatola]</p></li>
+<li><p>Wheel [Ruota]</p></li>
+</ul>
+<p>Ecco alcuni campioni di immagini non etichettate che dovremmo usare per rilevare gli oggetti (ruote e scatole):</p>
+<p><img src="images/jpg/samples.jpg" class="img-fluid"></p>
+<p>Siamo interessati a quale oggetto è presente nell’immagine, alla sua posizione (centroide) e a quanti ne possiamo trovare su di essa. La dimensione dell’oggetto non viene rilevata con FOMO, come con MobileNet SSD o YOLO, in cui il Bounding Box è uno degli output del modello.</p>
+<p>Svilupperemo il progetto utilizzando Nicla Vision per l’acquisizione di immagini e l’inferenza del modello. Il progetto ML verrà sviluppato utilizzando Edge Impulse Studio. Ma prima di iniziare il progetto di “object detection” in Studio, creiamo un <em>dataset grezzo</em> (non etichettato) con immagini che contengono gli oggetti da rilevare.</p>
+</section>
+<section id="raccolta-dati" class="level2">
+<h2 class="anchored" data-anchor-id="raccolta-dati">Raccolta Dati</h2>
+<p>Possiamo utilizzare Edge Impulse Studio, OpenMV IDE, il telefono o altri dispositivi per l’acquisizione delle immagini. Qui, utilizzeremo di nuovo OpenMV IDE per il nostro scopo.</p>
+<section id="raccolta-del-dataset-con-openmv-ide" class="level3">
+<h3 class="anchored" data-anchor-id="raccolta-del-dataset-con-openmv-ide">Raccolta del Dataset con OpenMV IDE</h3>
+<p>Per prima cosa, si crea sul computer una cartella in cui verranno salvati i dati, ad esempio “data”. Quindi, su OpenMV IDE, si va in “Tools &gt; Dataset Editor” e si seleziona “New Dataset” per avviare la raccolta di dati:</p>
+<p><img src="images/jpg/data_folder.jpg" class="img-fluid"></p>
+<p>Edge impulse suggerisce che gli oggetti dovrebbero essere di dimensioni simili e non sovrapposti per prestazioni migliori. Questo va bene in una struttura industriale, dove la telecamera dovrebbe essere fissa, mantenendo la stessa distanza dagli oggetti da rilevare. Nonostante ciò, proveremo anche con dimensioni e posizioni miste per vedere il risultato.</p>
+<blockquote class="blockquote">
+<p>Non creeremo cartelle separate per le nostre immagini perché ciascuna contiene più etichette.</p>
+</blockquote>
+<p>Si collega Nicla Vision a OpenMV IDE e si esegue <code>dataset_capture_script.py</code>. Cliccando sul pulsante “Capture Image” inizierà l’acquisizione delle immagini:</p>
+<p><img src="images/jpg/img_5.jpg" class="img-fluid"></p>
+<p>Suggeriamo circa 50 immagini che mescolano gli oggetti e variano il numero di ciascuno che appare sulla scena. Provare ad acquisire con diverse angolazioni, sfondi e condizioni di luce.</p>
+<blockquote class="blockquote">
+<p>Le immagini memorizzate utilizzano una dimensione del fotogramma QVGA 320x240 e RGB565 (formato pixel a colori).</p>
+</blockquote>
+<p>Dopo aver acquisito il dataset, si chiude il Tool Dataset Editor su <code>Tools &gt; Dataset Editor</code>.</p>
+</section>
+</section>
+<section id="edge-impulse-studio" class="level2">
+<h2 class="anchored" data-anchor-id="edge-impulse-studio">Edge Impulse Studio</h2>
+<section id="setup-del-progetto" class="level3">
+<h3 class="anchored" data-anchor-id="setup-del-progetto">Setup del progetto</h3>
+<p>Si va su <a href="https://www.edgeimpulse.com/">Edge Impulse Studio</a>, si inseriscono le proprie credenziali in <strong>Login</strong> (o si crea un account) e si avvia un nuovo progetto.</p>
+<p><img src="images/png/img_6.png" class="img-fluid"></p>
+<blockquote class="blockquote">
+<p>Qui si può clonare il progetto sviluppato per questa esercitazione pratica: <a href="https://studio.edgeimpulse.com/public/292737/latest">NICLA_Vision_Object_Detection</a>.</p>
+</blockquote>
+<p>Nella “Project Dashboard”, si va in basso e su <strong>Project info</strong> e si seleziona <strong>Bounding boxes (object detection)</strong> e Nicla Vision come “Target Device”:</p>
+<p><img src="images/png/img_7.png" class="img-fluid"></p>
+</section>
+<section id="caricamento-dei-dati-non-etichettati" class="level3">
+<h3 class="anchored" data-anchor-id="caricamento-dei-dati-non-etichettati">Caricamento dei dati non etichettati</h3>
+<p>Su Studio, si va alla scheda <code>Data acquisition</code> e nella sezione <code>UPLOAD DATA</code>, si caricano dal computer i file acquisiti.</p>
+<p><img src="images/png/img_8.png" class="img-fluid"></p>
+<blockquote class="blockquote">
+<p>Si può lasciare che Studio divida automaticamente i dati tra “Train” e “Test” o farlo manualmente.</p>
+</blockquote>
+<p><img src="images/png/img_9.png" class="img-fluid"></p>
+<p>Tutte le immagini non etichettate (51) sono state caricate, ma devono comunque essere etichettate in modo appropriato prima di utilizzarle come set di dati nel progetto. Lo Studio ha uno strumento per questo scopo, che si trova al link <code>Labeling queue (51)</code>.</p>
+<p>Ci sono due modi per eseguire l’etichettatura assistita dall’IA su Edge Impulse Studio (versione gratuita):</p>
+<ul>
+<li>Utilizzando yolov5</li>
+<li>Tracciando di oggetti tra i frame</li>
+</ul>
+<blockquote class="blockquote">
+<p>Edge Impulse ha lanciato una <a href="https://docs.edgeimpulse.com/docs/edge-impulse-studio/data-acquisition/auto-labeler">funzione di auto-labeling</a> per i clienti Enterprise, semplificando le attività di etichettatura nei progetti di rilevamento degli oggetti.</p>
+</blockquote>
+<p>Gli oggetti ordinari possono essere rapidamente identificati ed etichettati utilizzando una libreria esistente di modelli di rilevamento degli oggetti pre-addestrati da YOLOv5 (addestrati con il set di dati COCO). Ma poiché, nel nostro caso, gli oggetti non fanno parte dei set di dati COCO, dovremmo selezionare l’opzione di <code>tracking objects</code>. Con questa opzione, una volta disegnati i riquadri di delimitazione ed etichettate le immagini in un frame, gli oggetti verranno tracciati automaticamente da un frame all’altro, etichettando <em>parzialmente</em> quelli nuovi (non tutti sono etichettati correttamente).</p>
+<blockquote class="blockquote">
+<p>Si può usare <a href="https://docs.edgeimpulse.com/docs/tools/edge-impulse-cli/cli-uploader#bounding-boxes">EI uploader</a> per importare i dati se si ha già un dataset etichettato contenente dei “bounding box”.</p>
+</blockquote>
+</section>
+<section id="etichettatura-del-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="etichettatura-del-dataset">Etichettatura del Dataset</h3>
+<p>Iniziando dalla prima immagine dei dati non etichettati, si usa il mouse per trascinare una casella attorno a un oggetto per aggiungere un’etichetta. Poi si clicca su <strong>Save labels</strong> per passare all’elemento successivo.</p>
+<p><img src="images/png/img_10.png" class="img-fluid"></p>
+<p>Si continua con questo processo finché la coda non è vuota. Alla fine, tutte le immagini dovrebbero avere gli oggetti etichettati come i campioni sottostanti:</p>
+<p><img src="images/jpg/img_11.jpg" class="img-fluid"></p>
+<p>Poi, si esaminano i campioni etichettati nella scheda <code>Data acquisition</code>. Se un’etichetta è sbagliata, la si può modificare usando il menù <em><code>three dots</code></em> dopo il nome del campione:</p>
+<p><img src="images/png/img_12.png" class="img-fluid"></p>
+<p>Si verrà guidati a sostituire l’etichetta sbagliata, correggendo il dataset.</p>
+<p><img src="images/jpg/img_13.jpg" class="img-fluid"></p>
+</section>
+</section>
+<section id="impulse-design" class="level2">
+<h2 class="anchored" data-anchor-id="impulse-design">Impulse Design</h2>
+<p>In questa fase, si deve definire come:</p>
+<ul>
+<li><p>Il <strong>Pre-processing</strong> consiste nel ridimensionare le singole immagini da <code>320 x 240</code> a <code>96 x 96</code> e nel comprimerle (forma quadrata, senza ritaglio). Successivamente, le immagini vengono convertite da RGB a scala di grigi.</p></li>
+<li><p><strong>Design a Model</strong>, in questo caso, “Object Detection”.</p></li>
+</ul>
+<p><img src="images/png/img_14.png" class="img-fluid"></p>
+<section id="pre-elaborazione-di-tutti-i-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="pre-elaborazione-di-tutti-i-dataset">Pre-elaborazione di tutti i dataset</h3>
+<p>In questa sezione, si seleziona <strong>Color depth</strong> come <code>Grayscale</code>, che è adatta per l’uso con modelli FOMO e Save <code>parameters</code>.</p>
+<p><img src="images/png/img_15.png" class="img-fluid"></p>
+<p>Lo Studio passa automaticamente alla sezione successiva, <code>Generate features</code>, dove tutti i campioni saranno pre-elaborati, con conseguente set di dati con singole immagini 96x96x1 o 9.216 “feature”.</p>
+<p><img src="images/png/img_16.png" class="img-fluid"></p>
+<p>L’esploratore di feature mostra che tutti i campioni evidenziano una buona separazione dopo la generazione delle feature.</p>
+<blockquote class="blockquote">
+<p>Uno dei campioni (46) apparentemente si trova nello spazio sbagliato, ma cliccandoci sopra si può confermare che l’etichettatura è corretta.</p>
+</blockquote>
+</section>
+</section>
+<section id="progettazione-addestramento-e-test-del-modello" class="level2">
+<h2 class="anchored" data-anchor-id="progettazione-addestramento-e-test-del-modello">Progettazione, Addestramento e Test del Modello</h2>
+<p>Useremo FOMO, un modello di rilevamento degli oggetti basato su MobileNetV2 (alpha 0.35) progettato per segmentare grossolanamente un’immagine in una griglia di <strong>background</strong> rispetto a <strong>oggetti di interesse</strong> (in questo caso, <em>scatole</em> e <em>ruote</em>).</p>
+<p>FOMO è un modello di apprendimento automatico innovativo per il rilevamento degli oggetti, che può utilizzare fino a 30 volte meno energia e memoria rispetto ai modelli tradizionali come Mobilenet SSD e YOLOv5. FOMO può funzionare su microcontrollori con meno di 200 KB di RAM. Il motivo principale per cui ciò è possibile è che mentre altri modelli calcolano le dimensioni dell’oggetto disegnando un quadrato attorno ad esso (bounding box), FOMO ignora le dimensioni dell’immagine, fornendo solo le informazioni su dove si trova l’oggetto nell’immagine, tramite le coordinate del centroide.</p>
+<p><strong>Come funziona FOMO?</strong></p>
+<p>FOMO prende l’immagine in scala di grigi e la divide in blocchi di pixel usando un fattore di 8. Per l’input di 96x96, la griglia è 12x12 (96/8=12). Successivamente, FOMO eseguirà un classificatore attraverso ogni blocco di pixel per calcolare la probabilità che ci sia una scatola o una ruota in ognuno di essi e, successivamente, determinerà le regioni che hanno la più alta probabilità di contenere l’oggetto (se un blocco di pixel non ha oggetti, verrà classificato come <em>background</em>). Dalla sovrapposizione della regione finale, FOMO fornisce le coordinate (relative alle dimensioni dell’immagine) del centroide di questa regione.</p>
+<p><img src="images/png/img_17.png" class="img-fluid"></p>
+<p>Per l’addestramento, dovremmo selezionare un modello pre-addestrato. Usiamo <strong><code>FOMO (Faster Objects, More Objects) MobileNetV2 0.35</code>.</strong> Questo modello utilizza circa 250 KB di RAM e 80 KB di ROM (Flash), che si adatta bene alla nostra scheda poiché ha 1 MB di RAM e ROM.</p>
+<p><img src="images/png/img_18.png" class="img-fluid"></p>
+<p>Per quanto riguarda gli iperparametri di training, il modello verrà addestrato con:</p>
+<ul>
+<li>Epochs: 60,</li>
+<li>Batch size: 32</li>
+<li>Learning Rate: 0.001.</li>
+</ul>
+<p>Per la convalida durante l’addestramento, il 20% del set di dati (<em>validation_dataset</em>) verrà risparmiato. Per il restante 80% (<em>train_dataset</em>), applicheremo il “Data Augmentation”, che capovolgerà casualmente, cambierà le dimensioni e la luminosità dell’immagine e le ritaglierà, aumentando artificialmente il numero di campioni sul set di dati per l’addestramento.</p>
+<p>Di conseguenza, il modello termina con praticamente 1,00 nel punteggio F1, con un risultato simile quando si utilizzano i dati di test.</p>
+<blockquote class="blockquote">
+<p>Notare che FOMO ha aggiunto automaticamente una terza etichetta di background [sfondo] ai due precedentemente definiti (<em>box</em> e <em>wheel</em>).</p>
+</blockquote>
+<p><img src="images/png/img_19.png" class="img-fluid"></p>
+<blockquote class="blockquote">
+<p>Nelle attività di rilevamento degli oggetti, l’accuratezza non è generalmente la <a href="https://learnopencv.com/mean-average-precision-map-object-detection-model-evaluation-metric/">evaluation metric</a> primaria. Il rilevamento degli oggetti comporta la classificazione degli oggetti e la fornitura di riquadri di delimitazione attorno a essi, il che lo rende un problema più complesso della semplice classificazione. Il problema è che non abbiamo il riquadro di delimitazione, solo i centroidi. In breve, usare l’accuratezza come metrica potrebbe essere fuorviante e potrebbe non fornire una comprensione completa delle prestazioni del modello. Per questo motivo, useremo il punteggio F1.</p>
+</blockquote>
+<section id="modello-di-test-con-live-classification" class="level3">
+<h3 class="anchored" data-anchor-id="modello-di-test-con-live-classification">Modello di test con “Live Classification”</h3>
+<p>Dato che Edge Impulse supporta ufficialmente Nicla Vision, colleghiamolo allo Studio. Per farlo, si seguono i passaggi:</p>
+<ul>
+<li><p>Si effettua il download dell’<a href="https://cdn.edgeimpulse.com/firmware/arduino-nicla-vision.zip">last EI Firmware</a> e lo si decomprime.</p></li>
+<li><p>Si apre il file zip sul computer e si seleziona l’uploader relativo al proprio sistema operativo:</p></li>
+</ul>
+<p><img src="images/png/image17.png" class="img-fluid"></p>
+<ul>
+<li><p>Mettere Nicla-Vision in “Boot Mode”, premendo due volte il pulsante di reset.</p></li>
+<li><p>Eseguire il codice batch specifico per il sistema operativo per caricare il binario (<code>arduino-nicla-vision.bin</code>) sulla board.</p></li>
+</ul>
+<p>Si va nella sezione <code>Live classification</code> su EI Studio e, tramite <em>webUSB</em>, si connette la Nicla Vision:</p>
+<p><img src="images/png/img_20.png" class="img-fluid"></p>
+<p>Una volta connessa, si può usare la Nicla per catturare immagini reali da testare col modello addestrato su Edge Impulse Studio.</p>
+<p><img src="images/png/img_21.png" class="img-fluid"></p>
+<p>Una cosa da notare è che il modello può produrre falsi positivi e falsi negativi. Questo può essere ridotto al minimo definendo una <code>Confidence Threshold</code> [Soglia di confidenza] (si usa il menù <code>Three dots</code> [tre-punti] per la configurazione). Provare con 0,8 o più.</p>
+</section>
+</section>
+<section id="distribuzione-del-modello" class="level2">
+<h2 class="anchored" data-anchor-id="distribuzione-del-modello">Distribuzione del Modello</h2>
+<p>Selezionare OpenMV Firmware nella scheda Deploy e premere [Build].</p>
+<p><img src="images/png/img_22.png" class="img-fluid"></p>
+<p>Quando si connette di nuovo Nicla con OpenMV IDE, proverà ad aggiornarne il FW. Scegliere invece l’opzione <code>Load a specific firmware</code>.</p>
+<p><img src="images/png/img_24.png" class="img-fluid"></p>
+<p>Si troverà un file ZIP sul computer dallo Studio. Lo si apre:</p>
+<p><img src="images/png/img_23.png" class="img-fluid"></p>
+<p>Caricare il file .bin sulla board:</p>
+<p><img src="images/png/img_25.png" class="img-fluid"></p>
+<p>Una volta terminato il download, verrà visualizzato un messaggio pop-up. <code>Premere OK</code> e aprire lo script <strong>ei_object_detection.py</strong> scaricato da Studio.</p>
+<p>Prima di eseguire lo script, modifichiamo alcune righe. Notare che si può lasciare la definizione della finestra come 240 x 240 e la telecamera che cattura le immagini come QVGA/RGB. L’immagine catturata verrà pre-elaborata dal FW distribuito da Edge Impulse</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Edge Impulse - OpenMV Object Detection Example</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sensor, image, time, os, tf, math, uos, gc</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>sensor.reset()                         <span class="co"># Reset and initialize the sensor.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>sensor.set_pixformat(sensor.RGB565)    <span class="co"># Set pixel format to RGB565 (or GRAYSCALE)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>sensor.set_framesize(sensor.QVGA)      <span class="co"># Set frame size to QVGA (320x240)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>sensor.set_windowing((<span class="dv">240</span>, <span class="dv">240</span>))       <span class="co"># Set 240x240 window.</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>sensor.skip_frames(time<span class="op">=</span><span class="dv">2000</span>)          <span class="co"># Let the camera adjust.</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>net <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> None```</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>Ridefinire la confidenza minima, ad esempio, a <span class="dv">0</span>,<span class="dv">8</span> per ridurre al minimo i falsi positivi e negativi.</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>```python</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>min_confidence <span class="op">=</span> <span class="fl">0.8</span>```</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>Se necessario, modificare il colore dei cerchi che saranno utilizzati per visualizzare il centroide dell<span class="st">'oggetto rilevato per un contrasto migliore.</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="er">```python</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load built in model</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    labels, net <span class="op">=</span> tf.load_builtin_model(<span class="st">'trained'</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">Exception</span>(e)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [ <span class="co"># Add more colors if you are detecting more than 7 types of classes at once.</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">255</span>, <span class="dv">255</span>,   <span class="dv">0</span>), <span class="co"># background: yellow (not used)</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    (  <span class="dv">0</span>, <span class="dv">255</span>,   <span class="dv">0</span>), <span class="co"># cube: green</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">255</span>,   <span class="dv">0</span>,   <span class="dv">0</span>), <span class="co"># wheel: red</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    (  <span class="dv">0</span>,   <span class="dv">0</span>, <span class="dv">255</span>), <span class="co"># not used</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">255</span>,   <span class="dv">0</span>, <span class="dv">255</span>), <span class="co"># not used</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    (  <span class="dv">0</span>, <span class="dv">255</span>, <span class="dv">255</span>), <span class="co"># not used</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    (<span class="dv">255</span>, <span class="dv">255</span>, <span class="dv">255</span>), <span class="co"># not used</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Mantenere il codice restante così com’è e premere il <code>pulsante Play verde</code> per eseguire il codice:</p>
+<p><img src="images/png/img_26.png" class="img-fluid"></p>
+<p>Nella vista della telecamera, possiamo vedere gli oggetti con i loro centroidi contrassegnati con 12 cerchi pixel-fixed (ogni cerchio ha un colore distinto, a seconda della sua classe). Sul terminale seriale, il modello mostra le etichette rilevate e la loro posizione sulla finestra dell’immagine (240X240).</p>
+<blockquote class="blockquote">
+<p>Attenzione l’origine delle coordinate è nell’angolo in alto a sinistra.</p>
+</blockquote>
+<p><img src="images/jpg/img_27.jpg" class="img-fluid"></p>
+<p>Notare che la frequenza dei fotogrammi al secondo è di circa 8 fps (simile a quella ottenuta con il progetto Image Classification). Ciò accade perché FOMO è intelligentemente costruito su un modello CNN, non con un modello di rilevamento degli oggetti come SSD MobileNet. Ad esempio, quando si esegue un modello MobileNetV2 SSD FPN-Lite 320x320 su un Raspberry Pi 4, la latenza è circa 5 volte superiore (circa 1,5 fps)</p>
+<p>Ecco un breve video che mostra i risultati dell’inferenza: </p><div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/JbpoqRp3BbM" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div><p></p>
+</section>
+<section id="conclusione" class="level2">
+<h2 class="anchored" data-anchor-id="conclusione">Conclusione</h2>
+<p>FOMO è un salto significativo nello spazio di elaborazione delle immagini, come hanno affermato Louis Moreau e Mat Kelcey durante il suo lancio nel 2022:</p>
+<blockquote class="blockquote">
+<p>FOMO è un algoritmo rivoluzionario che porta per la prima volta il rilevamento, il tracciamento e il conteggio degli oggetti in tempo reale sui microcontrollori.</p>
+</blockquote>
+<p>Esistono molteplici possibilità per esplorare il rilevamento degli oggetti (e, più precisamente, il loro conteggio) su dispositivi embedded, ad esempio, per esplorare la il raggruppamento di sensori (telecamera + microfono) e il rilevamento degli oggetti di Nicla. Questo può essere molto utile nei progetti che coinvolgono le api, ad esempio.</p>
+<p><img src="images/jpg/img_28.jpg" class="img-fluid"></p>
+</section>
+<section id="risorse" class="level2">
+<h2 class="anchored" data-anchor-id="risorse">Risorse</h2>
+<ul>
+<li><a href="https://studio.edgeimpulse.com/public/292737/latest">Progetto Edge Impulse</a></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiato!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiato!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="harvard-edge/cs249r_book" data-repo-id="R_kgDOKQSOaw" data-category="General" data-category-id="DIC_kwDOKQSOa84CZ8Ry" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../../../contents/labs/arduino/nicla_vision/image_classification/image_classification.it.html" class="pagination-link" aria-label="Classificazione delle Immagini">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Classificazione delle Immagini</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../../../contents/labs/arduino/nicla_vision/kws/kws.it.html" class="pagination-link" aria-label="Keyword Spotting (KWS)">
+        <span class="nav-page-text">Keyword Spotting (KWS)</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Scritto, modificato e curato dal Prof.&nbsp;Vijay Janapa Reddi (Harvard University)</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/harvard-edge/cs249r_book/edit/dev/contents/labs/arduino/nicla_vision/object_detection/object_detection.it.qmd" class="toc-action"><i class="bi bi-github"></i>Modifica questa pagina</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/issues/new" class="toc-action"><i class="bi empty"></i>Segnala un problema</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/blob/dev/contents/labs/arduino/nicla_vision/object_detection/object_detection.it.qmd" class="toc-action"><i class="bi empty"></i>Mostra il codice</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Questo libro è stato creato con <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

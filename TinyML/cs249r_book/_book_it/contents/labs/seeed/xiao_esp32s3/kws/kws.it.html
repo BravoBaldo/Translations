@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Keyword Spotting (KWS) – Machine Learning Systems</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../../">
+<link href="../../../../../contents/labs/seeed/xiao_esp32s3/motion_classification/motion_classification.it.html" rel="next">
+<link href="../../../../../contents/labs/seeed/xiao_esp32s3/object_detection/object_detection.it.html" rel="prev">
+<link href="../../../../../favicon.png" rel="icon" type="image/png">
+<script src="../../../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "~",
+    "/"
+  ],
+  "language": {
+    "search-no-results-text": "Nessun risultato",
+    "search-matching-documents-text": "documenti trovati",
+    "search-copy-link-title": "Copiare il link nella ricerca",
+    "search-hide-matches-text": "Nascondere i risultati aggiuntivi",
+    "search-more-match-text": "ci sono altri risultati in questo documento",
+    "search-more-matches-text": "ulteriori risultati in questo documento",
+    "search-clear-button-title": "Pulire",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancellare",
+    "search-submit-button-title": "Inviare",
+    "search-label": "Ricerca"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-M21L0CBCVN"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-M21L0CBCVN', { 'anonymize_ip': true});
+</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-M21L0CBCVN"></script>
+
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../../../index.html">
+    <span class="navbar-title">Machine Learning Systems</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-wide tools-end">
+    <a href="https://github.com/harvard-edge/cs249r_book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="../../../../../Machine-Learning-Systems.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Attiva/disattiva la modalità oscura"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Attiva/disattiva la modalità lettore">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Attiva/disattiva la barra laterale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../contents/labs/seeed/xiao_esp32s3/xiao_esp32s3.it.html">XIAO ESP32S3</a></li><li class="breadcrumb-item"><a href="../../../../../contents/labs/seeed/xiao_esp32s3/kws/kws.it.html">Keyword Spotting (KWS)</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Attiva/disattiva la barra laterale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Ricerca" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+  <div id="quarto-announcement" data-announcement-id="2d6cdf6fc58f1105ce2a5c5c28a11153" class="alert alert-info hidden"><i class="bi bi-star-half quarto-announcement-icon"></i><div class="quarto-announcement-content">
+<p>🌟 Aiutaci a raggiungere 1.000 stelle GitHub! 🌟 Per ogni 25 stelle, Arduino e SEEED doneranno una NiclaVision o una XIAO ESP32S3 per l’istruzione sull’intelligenza artificiale. <a href="https://github.com/harvard-edge/cs249r_book">Cliccare qui per una ⭐</a></p>
+</div></div>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Ricerca"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">PREFAZIONE</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefazione</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/dedication.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dedica</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/acknowledgements/acknowledgements.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ringraziamenti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/contributors.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Collaboratori e Ringraziamenti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/copyright.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Copyright</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/about.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Informazioni sul Libro</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">PARTE PRINCIPALE</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Nozioni Fondamentali</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/introduction/introduction.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduzione</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/ml_systems/ml_systems.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Sistemi di ML</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/dl_primer/dl_primer.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Avvio al Deep Learning</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Workflow</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/workflow/workflow.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Workflow dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/data_engineering/data_engineering.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data Engineering</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/frameworks/frameworks.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Framework di IA</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Training</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/training/training.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Addestramento dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/efficient_ai/efficient_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">IA Efficiente</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/optimizations/optimizations.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Ottimizzazioni dei Modelli</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/hw_acceleration/hw_acceleration.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Accelerazione IA</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Deployment</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/benchmarking/benchmarking.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Benchmarking dell’IA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/ondevice_learning/ondevice_learning.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Apprendimento On-Device</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/ops/ops.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Operazioni di ML</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Argomenti Avanzati</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/privacy_security/privacy_security.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Sicurezza e Privacy</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/responsible_ai/responsible_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">IA Responsabile</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/sustainable_ai/sustainable_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">IA Sostenibile</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/robust_ai/robust_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">IA Robusta</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/generative_ai/generative_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">IA Generativa</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Impatto Sociale</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/ai_for_good/ai_for_good.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">AI for Good</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Chiusura</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/conclusion/conclusion.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Conclusione</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
+ <span class="menu-text">LABS</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/labs.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Panoramica</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/getting_started.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Guida Introduttiva</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../../contents/labs/arduino/nicla_vision/nicla_vision.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Nicla Vision</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/kws/kws.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keyword Spotting (KWS)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/arduino/nicla_vision/motion_classification/motion_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione del Movimento e Rilevamento delle Anomalie</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../../contents/labs/seeed/xiao_esp32s3/xiao_esp32s3.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">XIAO ESP32S3</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/kws/kws.it.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Keyword Spotting (KWS)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/seeed/xiao_esp32s3/motion_classification/motion_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione del Movimento e Rilevamento delle Anomalie</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../../contents/labs/raspi/raspi.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Raspberry Pi</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/raspi/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/raspi/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/raspi/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/raspi/llm/llm.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Small Language Models (SLM)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../../../contents/labs/shared/shared.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab Condivisi</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/shared/kws_feature_eng/kws_feature_eng.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">KWS Feature Engineering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/labs/shared/dsp_spectral_features_block/dsp_spectral_features_block.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Blocco delle Feature Spettrali DSP</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="true">
+ <span class="menu-text">RIFERIMENTI</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../references.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Riferimenti</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/tools.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Tool</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/zoo_datasets.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Dataset</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/zoo_models.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Model Zoo</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/learning_resources.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Risorse</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/community.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">E</span>&nbsp; <span class="chapter-title">Le Community</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../../contents/case_studies.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">F</span>&nbsp; <span class="chapter-title">Casi di Studio</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Indice</h2>
+   
+  <ul>
+  <li><a href="#introduzione" id="toc-introduzione" class="nav-link active" data-scroll-target="#introduzione">Introduzione</a>
+  <ul>
+  <li><a href="#come-funziona-un-assistente-vocale" id="toc-come-funziona-un-assistente-vocale" class="nav-link" data-scroll-target="#come-funziona-un-assistente-vocale">Come funziona un assistente vocale?</a></li>
+  <li><a href="#il-progetto-kws" id="toc-il-progetto-kws" class="nav-link" data-scroll-target="#il-progetto-kws">Il progetto KWS</a></li>
+  <li><a href="#il-flusso-di-lavoro-del-machine-learning" id="toc-il-flusso-di-lavoro-del-machine-learning" class="nav-link" data-scroll-target="#il-flusso-di-lavoro-del-machine-learning">Il Flusso di Lavoro del Machine Learning</a></li>
+  </ul></li>
+  <li><a href="#il-dataset" id="toc-il-dataset" class="nav-link" data-scroll-target="#il-dataset">Il Dataset</a>
+  <ul>
+  <li><a href="#acquisizione-offline-di-dati-audio-con-xiao-esp32s3-sense" id="toc-acquisizione-offline-di-dati-audio-con-xiao-esp32s3-sense" class="nav-link" data-scroll-target="#acquisizione-offline-di-dati-audio-con-xiao-esp32s3-sense">Acquisizione (offline) di dati audio con XIAO ESP32S3 Sense</a></li>
+  <li><a href="#salvare-campioni-audio-registrati-dataset-come-file-audio-.wav-su-una-scheda-microsd" id="toc-salvare-campioni-audio-registrati-dataset-come-file-audio-.wav-su-una-scheda-microsd" class="nav-link" data-scroll-target="#salvare-campioni-audio-registrati-dataset-come-file-audio-.wav-su-una-scheda-microsd">Salvare campioni audio registrati (dataset) come file audio .wav su una scheda microSD</a></li>
+  <li><a href="#app-di-acquisizione-dei-dati-audio-offline" id="toc-app-di-acquisizione-dei-dati-audio-offline" class="nav-link" data-scroll-target="#app-di-acquisizione-dei-dati-audio-offline">App di Acquisizione dei Dati Audio (offline)</a></li>
+  </ul></li>
+  <li><a href="#modello-di-training-con-edge-impulse-studio" id="toc-modello-di-training-con-edge-impulse-studio" class="nav-link" data-scroll-target="#modello-di-training-con-edge-impulse-studio">Modello di training con Edge Impulse Studio</a>
+  <ul>
+  <li><a href="#caricamento-dei-dati" id="toc-caricamento-dei-dati" class="nav-link" data-scroll-target="#caricamento-dei-dati">Caricamento dei Dati</a></li>
+  <li><a href="#creazione-di-impulse-pre-process-definizione-del-modello" id="toc-creazione-di-impulse-pre-process-definizione-del-modello" class="nav-link" data-scroll-target="#creazione-di-impulse-pre-process-definizione-del-modello">Creazione di Impulse (Pre-Process / Definizione del Modello)</a></li>
+  <li><a href="#pre-elaborazione-mfcc" id="toc-pre-elaborazione-mfcc" class="nav-link" data-scroll-target="#pre-elaborazione-mfcc">Pre-elaborazione (MFCC)</a></li>
+  <li><a href="#progettazione-e-addestramento-del-modello" id="toc-progettazione-e-addestramento-del-modello" class="nav-link" data-scroll-target="#progettazione-e-addestramento-del-modello">Progettazione e Addestramento del Modello</a></li>
+  </ul></li>
+  <li><a href="#test" id="toc-test" class="nav-link" data-scroll-target="#test">Test</a></li>
+  <li><a href="#distribuzione-e-inferenza" id="toc-distribuzione-e-inferenza" class="nav-link" data-scroll-target="#distribuzione-e-inferenza">Distribuzione e Inferenza</a></li>
+  <li><a href="#post-elaborazione" id="toc-post-elaborazione" class="nav-link" data-scroll-target="#post-elaborazione">Post-elaborazione</a></li>
+  <li><a href="#conclusione" id="toc-conclusione" class="nav-link" data-scroll-target="#conclusione">Conclusione</a></li>
+  <li><a href="#risorse" id="toc-risorse" class="nav-link" data-scroll-target="#risorse">Risorse</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/harvard-edge/cs249r_book/edit/dev/contents/labs/seeed/xiao_esp32s3/kws/kws.it.qmd" class="toc-action"><i class="bi bi-github"></i>Modifica questa pagina</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/issues/new" class="toc-action"><i class="bi empty"></i>Segnala un problema</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/blob/dev/contents/labs/seeed/xiao_esp32s3/kws/kws.it.qmd" class="toc-action"><i class="bi empty"></i>Mostra il codice</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../../contents/labs/seeed/xiao_esp32s3/xiao_esp32s3.it.html">XIAO ESP32S3</a></li><li class="breadcrumb-item"><a href="../../../../../contents/labs/seeed/xiao_esp32s3/kws/kws.it.html">Keyword Spotting (KWS)</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Keyword Spotting (KWS)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/jpeg/kws_ini.jpg" class="img-fluid figure-img"></p>
+<figcaption><em>Immagine di Marcelo Rovai</em></figcaption>
+</figure>
+</div>
+<section id="introduzione" class="level2">
+<h2 class="anchored" data-anchor-id="introduzione">Introduzione</h2>
+<p>Keyword Spotting (KWS) è parte integrante di molti sistemi di riconoscimento vocale, consentendo ai dispositivi di rispondere a parole o frasi specifiche. Sebbene questa tecnologia sia alla base di dispositivi popolari come Google Assistant o Amazon Alexa, è ugualmente applicabile e realizzabile su dispositivi più piccoli e a basso consumo. Questo lab guiderà nell’implementazione di un sistema KWS utilizzando TinyML sulla scheda microcontrollore XIAO ESP32S3.</p>
+<p>The XIAO ESP32S3, dotato del chip ESP32-S3 di Espressif, è un microcontrollore compatto e potente che offre un processore Xtensa LX7 dual-core, Wi-Fi integrato e Bluetooth. Il suo equilibrio di potenza di calcolo, efficienza energetica e connettività versatile lo rendono una piattaforma fantastica per le applicazioni TinyML. Inoltre, con la sua scheda di espansione, avremo accesso alla parte “sense” del dispositivo, che ha una fotocamera OV2640 da 1600x1200, uno slot per schede SD e un <strong>microfono digitale</strong>. Il microfono integrato e la scheda SD saranno essenziali in questo progetto.</p>
+<p>Utilizzeremo <a href="https://www.edgeimpulse.com/">Edge Impulse Studio</a>, una piattaforma potente e intuitiva che semplifica la creazione e l’implementazione di modelli di apprendimento automatico su dispositivi edge. Addestreremo un modello KWS passo dopo passo, ottimizzandolo e distribuendolo su XIAO ESP32S3 Sense.</p>
+<p>Il nostro modello sarà progettato per riconoscere parole chiave che possono attivare il “wake-up” [risveglio] del dispositivo o azioni specifiche (nel caso di “YES”), dando vita a progetti con comandi vocali.</p>
+<p>Sfruttando la nostra esperienza con TensorFlow Lite per microcontrollori (il motore “sotto il cofano” di EI Studio), creeremo un sistema KWS in grado di apprendere in tempo reale sul dispositivo.</p>
+<p>Procedendo nel lab, analizzeremo ogni fase del processo, dalla raccolta e preparazione dei dati all’addestramento e distribuzione del modello, per fornire una comprensione completa dell’implementazione di un sistema KWS su un microcontrollore.</p>
+<section id="come-funziona-un-assistente-vocale" class="level3">
+<h3 class="anchored" data-anchor-id="come-funziona-un-assistente-vocale">Come funziona un assistente vocale?</h3>
+<p>Keyword Spotting (KWS) è fondamentale per molti assistenti vocali, consentendo ai dispositivi di rispondere a parole o frasi specifiche. Per iniziare, è essenziale rendersi conto che gli assistenti vocali sul mercato, come Google Home o Amazon Echo-Dot, reagiscono agli umani solo quando vengono “svegliati” da parole chiave specifiche come “Hey Google” sul primo e “Alexa” sul secondo.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594299/1_3n44ykL_GNR5jQSwrUSKWA.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>In altre parole, il riconoscimento dei comandi vocali si basa su un modello multi-fase o Cascade Detection.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594300/image_Zd5vTdG9RB.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p><strong>Fase 1:</strong> Un microprocessore più piccolo all’interno dell’Echo Dot o Google Home <strong>ascolta continuamente</strong> il suono, in attesa che venga individuata la parola chiave. Per tale rilevamento, viene utilizzato un modello TinyML all’edge (applicazione KWS).</p>
+<p><strong>Fase 2:</strong> Solo quando vengono attivati dall’applicazione KWS nella Fase 1, i dati vengono inviati al cloud ed elaborati su un modello più grande.</p>
+<p>Il video qui sotto mostra un esempio in cui si emula un Google Assistant su un Raspberry Pi (Fase 2), con un Arduino Nano 33 BLE come dispositivo tinyML (Fase 1).</p>
+<iframe class="react-editor-embed react-editor-embed-override" src="https://www.youtube.com/embed/e_OPgcnsyvM" frameborder="0" style="box-sizing: border-box; align-self: center; flex: 1 1 0%; height: 363.068px; max-height: 100%; max-width: 100%; overflow: hidden; width: 645.455px; z-index: 1;">
+</iframe>
+<blockquote class="blockquote">
+<p>Per approfondire il progetto completo, guardare il tutorial: <a href="https://www.hackster.io/mjrobot/building-an-intelligent-voice-assistant-from-scratch-2199c3">Building an Intelligent Voice Assistant From Scratch</a>.</p>
+</blockquote>
+<p>In questo lab, ci concentreremo sulla Fase 1 (KWS o Keyword Spotting), dove utilizzeremo XIAO ESP2S3 Sense, che ha un microfono digitale per individuare la parola chiave.</p>
+</section>
+<section id="il-progetto-kws" class="level3">
+<h3 class="anchored" data-anchor-id="il-progetto-kws">Il progetto KWS</h3>
+<p>Il diagramma seguente darà un’idea di come dovrebbe funzionare l’applicazione KWS finale (durante l’inferenza):</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594331/image_buEZet7Pje.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>La nostra applicazione KWS riconoscerà quattro classi di suono:</p>
+<ul>
+<li><strong>YES</strong> (Keyword 1)</li>
+<li><strong>NO</strong> (Keyword 2)</li>
+<li><strong>NOISE</strong> [rumore] (nessuna parola chiave pronunciata, è presente solo rumore di fondo)</li>
+<li><strong>UNKNOW</strong> (un mix di parole diverse da YES e NO)</li>
+</ul>
+<blockquote class="blockquote">
+<p>Facoltativamente, per progetti reali, si consiglia sempre di includere parole diverse dalle parole chiave, come “Rumore” (o Sfondo) e “Sconosciuto”.</p>
+</blockquote>
+</section>
+<section id="il-flusso-di-lavoro-del-machine-learning" class="level3">
+<h3 class="anchored" data-anchor-id="il-flusso-di-lavoro-del-machine-learning">Il Flusso di Lavoro del Machine Learning</h3>
+<p>Il componente principale dell’applicazione KWS è il suo modello. Quindi, dobbiamo addestrare un modello del genere con le nostre parole chiave specifiche, rumore e altre parole (lo “unknown”):</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594302/image_VjDpbeenv9.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+</section>
+</section>
+<section id="il-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="il-dataset">Il Dataset</h2>
+<p>Il componente critico del flusso di lavoro di apprendimento automatico è il <strong>dataset</strong>. Una volta decise le parole chiave specifiche (<em>YES</em> e NO), possiamo sfruttare il dataset sviluppato da Pete Warden, <a href="https://arxiv.org/pdf/1804.03209.pdf">“Speech Commands: A Dataset for Limited-Vocabulary Speech Recognition</a>“. Questo set di dati ha 35 parole chiave (con +1.000 campioni ciascuna), come yes, no, stop e go. In altre parole, possiamo ottenere 1.500 campioni di <em>yes</em> e <em>no</em>.</p>
+<p>Si può scaricare una piccola parte del dataset da Edge Studio (<a href="https://docs.edgeimpulse.com/docs/pre-built-datasets/keyword-spotting">Keyword spotting pre-built dataset</a>), che include campioni dalle quattro classi che utilizzeremo in questo progetto: yes, no, noise e background. Per farlo, si seguono i passaggi seguenti:</p>
+<ul>
+<li>Download del <a href="https://cdn.edgeimpulse.com/datasets/keywords2.zip">dataset delle parole chiave</a>.</li>
+<li>Decomprimere il file in una posizione a scelta.</li>
+</ul>
+<p>Sebbene disponiamo di molti dati dal dataset di Pete, è consigliabile raccogliere alcune parole pronunciate da noi. Lavorando con gli accelerometri, creare un dataset con dati acquisiti dallo stesso tipo di sensore era essenziale. Nel caso del <em>suono</em>, è diverso perché ciò che classificheremo sono, in realtà, dati <em>audio</em>.</p>
+<blockquote class="blockquote">
+<p>La differenza fondamentale tra suono e audio è la loro forma di energia. Il suono è energia delle onde meccaniche (onde sonore longitudinali) che si propagano attraverso un mezzo causando variazioni di pressione all’interno del mezzo. L’audio è costituito da energia elettrica (segnali analogici o digitali) che rappresentano il suono elettricamente.</p>
+</blockquote>
+<p>Le onde sonore dovrebbero essere convertite in dati audio quando pronunciamo una parola chiave. La conversione dovrebbe essere eseguita campionando il segnale generato dal microfono a 16 KHz con una profondità di 16 bit.</p>
+<p>Quindi, qualsiasi dispositivo in grado di generare dati audio con questa specifica di base (16Khz/16bit) funzionerà bene. Come dispositivo, possiamo usare il XIAO ESP32S3 Sense appropriato, un computer o persino il telefono cellulare.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594337/sound-audio_lOADMI6ern.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p><strong>Acquisizione di Dati Audio online con Edge Impulse e uno smartphone</strong></p>
+<p>Nel lab “Motion Classification” e “Anomaly Detection”, colleghiamo il nostro dispositivo direttamente a Edge Impulse Studio per l’acquisizione dei dati (con una frequenza di campionamento da 50 Hz a 100 Hz). Per una frequenza così bassa, potremmo usare la funzione EI CLI <em>Data Forwarder</em>, ma secondo Jan Jongboom, CTO di Edge Impulse, <em>l’audio (</em>16 KHz)* è troppo veloce perché il data forwarder possa essere acquisito<em>. Quindi, una volta che i dati digitali sono stati acquisiti dal microfono, possiamo trasformarli </em>in un file WAV* da inviare a Studio tramite Data Uploader (lo stesso che faremo con il set di dati di Pete)<em>.</em></p>
+<blockquote class="blockquote">
+<p>Se vogliamo raccogliere dati audio direttamente sullo Studio, possiamo usare qualsiasi smartphone connesso online. Non esploreremo questa opzione qui, ma si può facilmente seguire la <a href="https://docs.edgeimpulse.com/docs/development-platforms/using-your-mobile-phone">documentazione</a> EI.</p>
+</blockquote>
+<section id="acquisizione-offline-di-dati-audio-con-xiao-esp32s3-sense" class="level3">
+<h3 class="anchored" data-anchor-id="acquisizione-offline-di-dati-audio-con-xiao-esp32s3-sense">Acquisizione (offline) di dati audio con XIAO ESP32S3 Sense</h3>
+<p>Il microfono integrato è il <a href="https://files.seeedstudio.com/wiki/XIAO-BLE/mic-MSM261D3526H1CPM-ENG.pdf">MSM261D3526H1CPM</a>, un microfono MEMS con uscita digitale PDM con Multi-mode. Internamente, è collegato all’ESP32S3 tramite un bus I2S utilizzando i pin IO41 (Clock) e IO41 (Data).</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594599/pasted_graphic_62_RRD6zoEXwv.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p><strong>Cos’è I2S?</strong></p>
+<p>I2S, o Inter-IC Sound, è un protocollo standard per la trasmissione di audio digitale da un dispositivo a un altro. Inizialmente è stato sviluppato da Philips Semiconductor (ora NXP Semiconductors). È comunemente utilizzato in dispositivi audio come processori di segnale digitale, processori audio digitali e, più di recente, microcontrollori con capacità audio digitali (il nostro caso qui).</p>
+<p>Il protocollo I2S è composto da almeno tre linee:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594628/image_8CRJmXD9Fr.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p><strong>1. Linea di clock di bit (o seriale) (BCLK o CLK)</strong>: Questa linea si attiva/disattiva per indicare l’inizio di un nuovo bit di dati (pin IO42).</p>
+<p><strong>2. Linea di “Word select (WS)”</strong>: Questa linea si attiva/disattiva per indicare l’inizio di una nuova parola (canale sinistro o canale destro). La frequenza del clock di Word select (WS) definisce la frequenza di campionamento. Nel nostro caso, L/R sul microfono è impostato su massa, il che significa che utilizzeremo solo il canale sinistro (mono).</p>
+<p><strong>3. Data line (SD)</strong>: Questa linea trasporta i dati audio (pin IO41)</p>
+<p>In un flusso di dati I2S, i dati vengono inviati come una sequenza di frame, ciascuno contenente una parola del canale sinistro e una parola del canale destro. Ciò rende I2S particolarmente adatto per la trasmissione di dati audio stereo. Tuttavia, può anche essere utilizzato per audio mono o multicanale con linee dati aggiuntive.</p>
+<p>Cominciamo a capire come catturare dati grezzi usando il microfono. Su va sul <a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense">progetto GitHub</a>e si scarica lo sketch: <a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/Mic_Test/XiaoEsp32s3_Mic_Test">XIAOEsp2s3_Mic_Test</a>:</p>
+<pre><code>/*
+  XIAO ESP32S3 Simple Mic Test
+*/
+
+#include &lt;I2S.h&gt;
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) {
+  }
+
+
+  // start I2S at 16 kHz with 16-bits per sample
+  I2S.setAllPins(-1, 42, 41, -1, -1);
+  if (!I2S.begin(PDM_MONO_MODE, 16000, 16)) {
+    Serial.println("Failed to initialize I2S!");
+    while (1); // do nothing
+  }
+}
+
+void loop() {
+  // read a sample
+  int sample = I2S.read();
+
+  if (sample &amp;&amp; sample != -1 &amp;&amp; sample != 1) {
+    Serial.println(sample);
+  }
+}</code></pre>
+<p>Questo codice è un semplice test del microfono per XIAO ESP32S3 che utilizza l’interfaccia I2S (Inter-IC Sound). Imposta l’interfaccia I2S per catturare dati audio a una frequenza di campionamento di 16 kHz con 16 bit per campione e quindi legge continuamente i campioni dal microfono e li stampa sul monitor seriale.</p>
+<p>Analizziamo le parti principali del codice:</p>
+<ul>
+<li>Include la libreria I2S: Questa libreria fornisce funzioni per configurare e utilizzare l’<a href="https://espressif-docs.readthedocs-hosted.com/projects/arduino-esp32/en/latest/api/i2s.html">interfaccia I2S</a>, che è uno standard per la connessione di dispositivi audio digitali.</li>
+<li>I2S.setAllPins(-1, 42, 41, -1, -1): Imposta i pin I2S. I parametri sono (-1, 42, 41, -1, -1), dove il secondo parametro (42) è il PIN per il clock I2S (CLK) e il terzo parametro (41) è il PIN per la linea dati I2S (DATA). Gli altri parametri sono impostati su -1, il che significa che quei pin non vengono utilizzati.</li>
+<li>I2S.begin(PDM_MONO_MODE, 16000, 16): Inizializza l’interfaccia I2S in modalità mono Pulse Density Modulation (PDM), con una frequenza di campionamento di 16 kHz e 16 bit per campione. Se l’inizializzazione fallisce, viene stampato un messaggio di errore e il programma si arresta.</li>
+<li>int sample = I2S.read(): Legge un campione audio dall’interfaccia I2S.</li>
+</ul>
+<p>Se il campione è valido, viene stampato sul monitor seriale e sul plotter.</p>
+<p>Di seguito è riportato un test “sussurrato” in due toni diversi.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594603/plotter_zIdxqUxqkY.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+</section>
+<section id="salvare-campioni-audio-registrati-dataset-come-file-audio-.wav-su-una-scheda-microsd" class="level3">
+<h3 class="anchored" data-anchor-id="salvare-campioni-audio-registrati-dataset-come-file-audio-.wav-su-una-scheda-microsd">Salvare campioni audio registrati (dataset) come file audio .wav su una scheda microSD</h3>
+<p>Utilizziamo il lettore di schede SD integrato per salvare i file audio .wav; dobbiamo prima abilitare la PSRAM XIAO.</p>
+<blockquote class="blockquote">
+<p>ESP32-S3 ha solo poche centinaia di kilobyte di RAM interna sul chip MCU. Potrebbe essere insufficiente per alcuni scopi, quindi ESP32-S3 può utilizzare fino a 16 MB di PSRAM esterna (Psuedostatic RAM) collegata in parallelo con il chip flash SPI. La memoria esterna è incorporata nella mappa di memoria e, con alcune restrizioni, è utilizzabile allo stesso modo della RAM dati interna.</p>
+</blockquote>
+<p>Per iniziare, si inserisce la scheda SD sullo XIAO come mostrato nella foto qui sotto (la scheda SD deve essere formattata in FAT32).</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594791/image_qIPJ5vK4IA.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Attivare la funzione PSRAM del chip ESP-32 (Arduino IDE): Tools&gt;PSRAM: “OPI PSRAM”&gt;OPI PSRAM</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594639/image_Zo8usTd0A2.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<ul>
+<li>Scaricare lo sketch <a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/Wav_Record_dataset">Wav_Record_dataset</a>,<a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/Wav_Record_dataset"></a> che si trova sul GitHub del progetto.</li>
+</ul>
+<p>Questo codice registra l’audio usando l’interfaccia I2S della scheda Seeed XIAO ESP32S3 Sense, salva la registrazione come file .wav su una scheda SD e consente il controllo del processo di registrazione tramite comandi inviati dal monitor seriale. Il nome del file audio è personalizzabile (dovrebbe essere le etichette della classe da usare con la formazione) e possono essere effettuate più registrazioni, ciascuna salvata in un nuovo file. Il codice include anche funzionalità per aumentare il volume delle registrazioni.</p>
+<p>Analizziamo le parti più essenziali:</p>
+<pre><code>#include &lt;I2S.h&gt;
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"</code></pre>
+<p>Queste sono le librerie necessarie per il programma. I2S.h consente l’input audio, FS.h fornisce capacità di gestione del file system, SD.h consente al programma di interagire con una scheda SD e SPI.h gestisce la comunicazione SPI con la scheda SD.</p>
+<pre><code>#define RECORD_TIME   10  
+#define SAMPLE_RATE 16000U
+#define SAMPLE_BITS 16
+#define WAV_HEADER_SIZE 44
+#define VOLUME_GAIN 2</code></pre>
+<p>Qui vengono definite varie costanti per il programma.</p>
+<ul>
+<li><strong>RECORD_TIME</strong> specifica la lunghezza della registrazione audio in secondi.</li>
+<li><strong>SAMPLE_RATE</strong> e <strong>SAMPLE_BITS</strong> definiscono la qualità audio della registrazione.</li>
+<li><strong>WAV_HEADER_SIZE</strong> specifica la dimensione dell’intestazione del file .wav.</li>
+<li><strong>VOLUME_GAIN</strong> viene utilizzato per aumentare il volume della registrazione.</li>
+</ul>
+<pre><code>int fileNumber = 1;
+String baseFileName;
+bool isRecording = false;</code></pre>
+<p>Queste variabili tengono traccia del numero di file corrente (per creare nomi di file univoci), del nome del file di base e se il sistema sta attualmente registrando.</p>
+<pre><code>void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+  
+  I2S.setAllPins(-1, 42, 41, -1, -1);
+  if (!I2S.begin(PDM_MONO_MODE, SAMPLE_RATE, SAMPLE_BITS)) {
+    Serial.println("Failed to initialize I2S!");
+    while (1);
+  }
+
+  
+  if(!SD.begin(21)){
+    Serial.println("Failed to mount SD Card!");
+    while (1);
+  }
+
+  Serial.printf("Enter with the label name\n");
+}</code></pre>
+<p>La funzione di configurazione inizializza la comunicazione seriale, l’interfaccia I2S per l’ingresso audio e l’interfaccia della scheda SD. Se l’I2S non si inizializza o la scheda SD non riesce a essere montata, verrà visualizzato un messaggio di errore e l’esecuzione verrà interrotta.</p>
+<pre><code>void loop() {
+  if (Serial.available() &gt; 0) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+    if (command == "rec") {
+      isRecording = true;
+    } else {
+      baseFileName = command;
+      fileNumber = 1; //reset file number each time a new basefile name is set
+      Serial.printf("Send rec for starting recording label \n");
+    }
+
+  }
+
+  if (isRecording &amp;&amp; baseFileName != "") {
+    String fileName = "/" + baseFileName + "." + String(fileNumber) + ".wav";
+    fileNumber++;
+    record_wav(fileName);
+    delay(1000); // delay to avoid recording multiple files at once
+    isRecording = false;
+  }
+}</code></pre>
+<p>Nel ciclo principale, il programma attende un comando dal monitor seriale. Se il comando è rec, il programma inizia a registrare. Altrimenti, si presume che il comando sia il nome base per i file .wav. Se sta attualmente registrando e un nome file base è impostato, registra l’audio e lo salva come file .wav. I nomi dei file vengono generati aggiungendo il numero al nome file base.</p>
+<pre><code>void record_wav(String fileName)
+{
+  ...
+  
+  File file = SD.open(fileName.c_str(), FILE_WRITE);
+  ...
+  rec_buffer = (uint8_t *)ps_malloc(record_size);
+  ...
+
+  esp_i2s::i2s_read(esp_i2s::I2S_NUM_0, 
+                    rec_buffer, 
+                    record_size, 
+                    &amp;sample_size, 
+                    portMAX_DELAY);
+  ...
+}</code></pre>
+<p>Questa funzione registra l’audio e lo salva come file .wav con il nome specificato. Inizia inizializzando le variabili sample_size e record_size. record_size viene calcolato in base alla frequenza di campionamento, alla dimensione e al tempo di registrazione desiderato. Analizziamo le sezioni essenziali;</p>
+<pre><code>File file = SD.open(fileName.c_str(), FILE_WRITE);
+// Write the header to the WAV file
+uint8_t wav_header[WAV_HEADER_SIZE];
+generate_wav_header(wav_header, record_size, SAMPLE_RATE);
+file.write(wav_header, WAV_HEADER_SIZE);</code></pre>
+<p>Questa sezione del codice apre il file sulla scheda SD per la scrittura e poi genera l’intestazione del file .wav utilizzando la funzione generate_wav_header. Quindi scrive l’intestazione nel file.</p>
+<pre><code>// PSRAM malloc for recording
+rec_buffer = (uint8_t *)ps_malloc(record_size);
+if (rec_buffer == NULL) {
+  Serial.printf("malloc failed!\n");
+  while(1) ;
+}
+Serial.printf("Buffer: %d bytes\n", ESP.getPsramSize() - ESP.getFreePsram());</code></pre>
+<p>La funzione ps_malloc alloca memoria nella PSRAM per la registrazione. Se l’allocazione fallisce (ad esempio, rec_buffer è NULL), stampa un messaggio di errore e interrompe l’esecuzione.</p>
+<pre><code>// Start recording
+esp_i2s::i2s_read(esp_i2s::I2S_NUM_0, 
+         rec_buffer, 
+         record_size, 
+         &amp;sample_size, 
+         portMAX_DELAY);
+if (sample_size == 0) {
+  Serial.printf("Record Failed!\n");
+} else {
+    Serial.printf("Record %d bytes\n", sample_size);
+  }</code></pre>
+<p>La funzione i2s_read legge i dati audio dal microfono in rec_buffer. Stampa un messaggio di errore se non vengono letti dati (sample_size è 0).</p>
+<pre><code>// Increase volume
+for (uint32_t i = 0; i &lt; sample_size; i += SAMPLE_BITS/8) {
+  (*(uint16_t *)(rec_buffer+i)) &lt;&lt;= VOLUME_GAIN;
+}</code></pre>
+<p>Questa sezione del codice aumenta il volume di registrazione spostando i valori del campione di VOLUME_GAIN.</p>
+<pre><code>// Write data to the WAV file
+Serial.printf("Writing to the file ...\n");
+if (file.write(rec_buffer, record_size) != record_size)
+  Serial.printf("Write file Failed!\n");
+
+free(rec_buffer);
+file.close();
+Serial.printf("Recording complete: \n");
+Serial.printf("Send rec for a new sample or enter a new label\n\n");</code></pre>
+<p>Infine, i dati audio vengono scritti nel file .wav. Se l’operazione di scrittura fallisce, viene stampato un messaggio di errore. Dopo la scrittura, la memoria allocata per rec_buffer viene liberata e il file viene chiuso. La funzione termina stampando un messaggio di completamento e chiedendo all’utente di inviare un nuovo comando.</p>
+<pre><code>void generate_wav_header(uint8_t *wav_header,  
+             uint32_t wav_size, 
+             uint32_t sample_rate)
+{
+  ...
+  memcpy(wav_header, set_wav_header, sizeof(set_wav_header));
+}</code></pre>
+<p>La funzione generate_wav_header crea un’intestazione di file .wav in base ai parametri (wav_size e sample_rate). Genera un array di byte in base al formato di file .wav, che include campi per la dimensione del file, il formato audio, il numero di canali, la frequenza di campionamento, la frequenza di byte, l’allineamento dei blocchi, i bit per campione e la dimensione dei dati. L’intestazione generata viene poi copiata nell’array wav_header passato alla funzione.</p>
+<p>Ora, caricare il codice su XIAO e ottenere campioni dalle parole chiave (yes e no). Si possono anche catturare rumore e altre parole.</p>
+<p>Il monitor seriale chiederà di ricevere l’etichetta da registrare.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594657/pasted_graphic_x87Mi3IFkT.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Invia l’etichetta (ad esempio, yes). Il programma attenderà un altro comando: rec</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594659/pasted_graphic_2_ONWtwJmxr6.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>E il programma inizierà a registrare nuovi campioni ogni volta che viene inviato un comando rec. I file verranno salvati come yes.1.wav, yes.2.wav, yes.3.wav, ecc., finché non verrà inviata una nuova etichetta (ad esempio, no). In questo caso, si deve inviare il comando rec per ogni nuovo campione, che verrà salvato come no.1.wav, no.2.wav, no.3.wav, ecc.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594661/pasted_graphic_4_8cwca5pRTa.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Alla fine, otterremo i file salvati sulla scheda SD.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594663/image_Cos4bNiaDF.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>I file sono pronti per essere caricati su Edge Impulse Studio</p>
+</section>
+<section id="app-di-acquisizione-dei-dati-audio-offline" class="level3">
+<h3 class="anchored" data-anchor-id="app-di-acquisizione-dei-dati-audio-offline">App di Acquisizione dei Dati Audio (offline)</h3>
+<p>In alternativa, si può anche usare il PC o lo smartphone per acquisire dati audio con una frequenza di campionamento di 16 KHz e una profondità di bit di 16 bit. Una buona app per questo è <a href="https://www.bejbej.ca/app/voicerecordpro"><em>Voice Recorder Pro</em></a> <a href="https://www.bejbej.ca/app/voicerecordpro">(</a>IOS). Le registrazioni si devono salvare come file .wav e inviarle al computer.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594808/image_pNmXUg1ux5.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<blockquote class="blockquote">
+<p>Notare che qualsiasi app, come <a href="https://www.audacityteam.org/">Audacity</a>, può essere usata per la registrazione audio o anche il computer<a href="https://www.audacityteam.org/">.</a></p>
+</blockquote>
+</section>
+</section>
+<section id="modello-di-training-con-edge-impulse-studio" class="level2">
+<h2 class="anchored" data-anchor-id="modello-di-training-con-edge-impulse-studio">Modello di training con Edge Impulse Studio</h2>
+<section id="caricamento-dei-dati" class="level3">
+<h3 class="anchored" data-anchor-id="caricamento-dei-dati">Caricamento dei Dati</h3>
+<p>Quando il dataset grezzo è definito e raccolto (dataset di Pete + parole chiave registrate), dovremmo avviare un nuovo progetto in Edge Impulse Studio:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594809/pasted_graphic_44_AxzJtW0fRQ.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Una volta creato il progetto, selezionare lo strumento “Upload Existing Data” nella sezione “Acquisition section”. Si scelgono i file da caricare:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594810/pasted_graphic_48_JAwBsZY3lh.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>E si caricano nello Studio (si possono dividere automaticamente i dati in train/test). Ripetere per tutte le classi e tutti i dati grezzi.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594813/pasted_graphic_46_Zyg8bVdDuG.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>I campioni appariranno ora nella sezione “Data acquisition”.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594834/pasted_graphic_49_OaHcAmQTRg.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Tutti i dati sul dataset di Pete hanno una lunghezza di 1s, ma i campioni registrati nella sezione precedente hanno 10s e devono essere divisi in campioni da 1s per essere compatibili.</p>
+<p>Cliccare sui tre punti dopo il nome del campione e selezionare “Split sample”.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594836/image_gE0k6Mevup.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Una volta all’interno dello strumento, dividere i dati in record da 1 secondo. Se necessario, aggiungere o rimuovere segmenti:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594852/image_4Ii4Ng4m2f.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Questa procedura deve essere ripetuta per tutti i campioni.</p>
+<blockquote class="blockquote">
+<p>Nota: Per file audio più lunghi (minuti), prima si dividono in segmenti da 10 secondi e poi usa di nuovo lo strumento per ottenere le divisioni finali da 1 secondo.</p>
+</blockquote>
+<p>Supponiamo di non dividere automaticamente i dati in train/test durante il caricamento. In tal caso, possiamo farlo manualmente (utilizzando il menù a tre punti, spostando i campioni singolarmente) o utilizzando Perform Train / Test Split su Dashboard - Danger Zone.</p>
+<blockquote class="blockquote">
+<p>Possiamo facoltativamente controllare tutti i dataset utilizzando la scheda Data Explorer.</p>
+</blockquote>
+</section>
+<section id="creazione-di-impulse-pre-process-definizione-del-modello" class="level3">
+<h3 class="anchored" data-anchor-id="creazione-di-impulse-pre-process-definizione-del-modello">Creazione di Impulse (Pre-Process / Definizione del Modello)</h3>
+<p><em>Un</em> <strong>impulse</strong> <em>prende dati grezzi, usa l’elaborazione del segnale per estrarre le feature e poi usa un blocco di apprendimento per classificare nuovi dati.</em></p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1594912/pasted_graphic_51_BoV3CAx2lS.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Per prima cosa, prenderemo i dati con una finestra di 1 secondo, aumentando i dati, facendo scorrere quella finestra ogni 500 ms. Notare che è impostata l’opzione Zero-pad data. È essenziale riempire con zeri i campioni inferiori a 1 secondo (in alcuni casi, si è ridotta la finestra di 1000 ms sullo strumento di divisione per evitare rumori e picchi).</p>
+<p>Ogni campione audio di 1 secondo dovrebbe essere pre-elaborato e convertito in un’immagine (ad esempio, 13 x 49 x 1). Useremo MFCC, che estrae le caratteristiche dai segnali audio usando <a href="https://en.wikipedia.org/wiki/Mel-frequency_cepstrum">Mel Frequency Cepstral Coefficients</a>, che sono ottimi per la voce umana.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595150/image_uk5EiFvTHh.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Successivamente, selezioniamo KERAS per la classificazione e costruiamo il nostro modello da zero eseguendo la classificazione delle immagini tramite la rete neurale convoluzionale).</p>
+</section>
+<section id="pre-elaborazione-mfcc" class="level3">
+<h3 class="anchored" data-anchor-id="pre-elaborazione-mfcc">Pre-elaborazione (MFCC)</h3>
+<p>Il passo successivo è creare le immagini da addestrare nella fase successiva:</p>
+<p>Possiamo mantenere i valori dei parametri di default o sfruttare l’opzione DSP Autotuneparameters, cosa che faremo.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595153/image_qLl1o4Ruj5.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Il risultato non impiegherà molta memoria per pre-elaborare i dati (solo 16 KB). Tuttavia, il tempo di elaborazione stimato è elevato, 675 ms per un Espressif ESP-EYE (il riferimento più vicino disponibile), con un clock di 240 KHz (lo stesso del nostro dispositivo), ma con una CPU più piccola (XTensa LX6, rispetto alla LX7 sull’ESP32S). Il tempo di inferenza reale dovrebbe essere inferiore.</p>
+<p>Supponiamo di dover ridurre il tempo di inferenza in seguito. In tal caso, dovremmo tornare alla fase di pre-elaborazione e, ad esempio, ridurre la lunghezza FFT a 256, modificare il numero di coefficienti o un altro parametro.</p>
+<p>Per ora, manteniamo i parametri definiti dallo strumento Autotuning. Salviamo i parametri e generiamo le funzionalità.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595159/pasted_graphic_54_ejdOEShDDa.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<blockquote class="blockquote">
+<p>Per andare oltre con la conversione di dati seriali temporali in immagini usando FFT, spettrogramma, ecc., si può giocare con questo CoLab: <a href="https://colab.research.google.com/github/Mjrovai/UNIFEI-IESTI01-TinyML-2022.1/blob/main/00_Curse_Folder/2_Applications_Deploy/Class_24/IESTI01_Audio_Raw_Data_Analisys.ipynb">Audio Raw Data Analysis.</a></p>
+</blockquote>
+</section>
+<section id="progettazione-e-addestramento-del-modello" class="level3">
+<h3 class="anchored" data-anchor-id="progettazione-e-addestramento-del-modello">Progettazione e Addestramento del Modello</h3>
+<p>Useremo un modello di Rete Neurale Convoluzionale (CNN). L’architettura di base è definita con due blocchi di Conv1D + MaxPooling (rispettivamente con 8 e 16 neuroni) e un Dropout di 0,25. E sull’ultimo layer, dopo aver appiattito quattro neuroni, uno per ogni classe:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595163/image_tLZhhkaWgS.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Come iperparametri, avremo un Learning Rate di 0,005 e un modello che verrà addestrato per 100 epoche. Includeremo anche l’aumento dei dati, come un po’ di rumore. Il risultato sembra OK:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595165/image_iJtkzDOJ11.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Per capire cosa sta succedendo “sotto il cofano”, si può scaricare il dataset ed eseguire un Jupyter Notebook giocando con il codice. Ad esempio, si può analizzare l’accuratezza per ogni epoca:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595193/image_wi6KMb5EcS.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Questo CoLab Notebook può spiegare come si può andare oltre: <a href="https://colab.research.google.com/github/Mjrovai/XIAO-ESP32S3-Sense/blob/main/KWS">KWS Classifier Project - Looking “Under the hood</a> Training/xiao_esp32s3_keyword_spotting_project_nn_classifier.ipynb)”.</p>
+</section>
+</section>
+<section id="test" class="level2">
+<h2 class="anchored" data-anchor-id="test">Test</h2>
+<p>Testando il modello con i dati messi da parte prima dell’addestramento (Test Data), abbiamo ottenuto un’accuratezza di circa l’87%.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595225/pasted_graphic_58_TmPGA8iljK.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Esaminando il punteggio F1, possiamo vedere che per YES abbiamo ottenuto 0.95, un risultato eccellente una volta utilizzata questa parola chiave per “attivare” la nostra fase di post-elaborazione (accendere il LED integrato). Anche per NO, abbiamo ottenuto 0,90. Il risultato peggiore è per unknown, che è OK.</p>
+<p>Possiamo procedere con il progetto, ma è possibile eseguire Live Classification utilizzando uno smartphone prima della distribuzione sul nostro dispositivo. Si va alla sezione Live Classification e si clicca su Connect a Development board:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595226/image_7MfzDDxs1C.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Puntare il telefono sul codice a barre e selezionare il link.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595229/image_dGusVuQ6HI.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Il telefono sarà connesso allo Studio. Selezionare l’opzione Classification sull’app e, quando è in esecuzione, iniziare a testare le parole chiave, confermando che il modello funziona con dati live e reali:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595228/image_jVLeBB4tbk.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+</section>
+<section id="distribuzione-e-inferenza" class="level2">
+<h2 class="anchored" data-anchor-id="distribuzione-e-inferenza">Distribuzione e Inferenza</h2>
+<p>Studio impacchetterà tutte le librerie necessarie, le funzioni di pre-elaborazione e i modelli addestrati, scaricandoli sul computer. Si deve selezionare l’opzione Arduino Library e, in basso, scegliere Quantized (Int8) e premere il pulsante Build.</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595230/pasted_graphic_59_SdCzZ80grw.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Ora è il momento di un vero test. Faremo inferenze completamente scollegate da Studio. Modifichiamo uno degli esempi di codice ESP32 creati quando si distribuisce la libreria Arduino.</p>
+<p>Nell’IDE Arduino, si va alla scheda File/Examples, si cerca il progetto e si seleziona esp32/esp32_microphone:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595434/image_o2IC7U796n.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Questo codice è stato creato per il microfono integrato ESP-EYE, che dovrebbe essere adattato al nostro dispositivo.</p>
+<p>Iniziare a modificare le librerie per gestire il bus I2S:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595435/image_APjcWclO6P.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Da:</p>
+<pre><code>#include &lt;I2S.h&gt;
+#define SAMPLE_RATE 16000U
+#define SAMPLE_BITS 16</code></pre>
+<p>Inizializzare il microfono IS2 in setup(), includendo le righe:</p>
+<pre><code>void setup()
+{
+...
+    I2S.setAllPins(-1, 42, 41, -1, -1);
+    if (!I2S.begin(PDM_MONO_MODE, SAMPLE_RATE, SAMPLE_BITS)) {
+      Serial.println("Failed to initialize I2S!");
+    while (1) ;
+...
+}</code></pre>
+<p>Nella funzione static void capture_samples(void* arg), sostituire la riga 153 che legge i dati dal microfono I2S:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595437/image_lQtCch3Ptw.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Da:</p>
+<pre><code>/* read data at once from i2s */
+esp_i2s::i2s_read(esp_i2s::I2S_NUM_0, 
+                 (void*)sampleBuffer, 
+                 i2s_bytes_to_read, 
+                 &amp;bytes_read, 100);</code></pre>
+<p>Nella funzione static bool microphone_inference_start(uint32_t n_samples), dovremmo commentare o eliminare le righe da 198 a 200, dove viene chiamata la funzione di inizializzazione del microfono. Ciò non è necessario perché il microfono I2S è già stato inizializzato durante setup().</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595444/image_8G6p7WF9ga.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Infine, nella funzione static void microphone_inference_end(void), sostituire la riga 243:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595438/image_jjY4COA0DE.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>Da:</p>
+<pre><code>static void microphone_inference_end(void)
+{
+    free(sampleBuffer);
+    ei_free(inference.buffer);
+}</code></pre>
+<p>Il codice completo si trova tra i <a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/xiao_esp32s3_microphone">progetti GitHub</a>. Caricare lo sketch sulla bacheca e provare alcune inferenze reali:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595484/image_iPcCPucH2k.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+</section>
+<section id="post-elaborazione" class="level2">
+<h2 class="anchored" data-anchor-id="post-elaborazione">Post-elaborazione</h2>
+<p>Ora che sappiamo che il modello funziona rilevando le nostre parole chiave, modifichiamo il codice per vedere il LED interno accendersi ogni volta che viene rilevato uno YES.</p>
+<p>Si deve inizializzare il LED:</p>
+<pre><code>#define LED_BUILT_IN 21
+...
+void setup()
+{
+...
+  pinMode(LED_BUILT_IN, OUTPUT); // Set the pin as output
+  digitalWrite(LED_BUILT_IN, HIGH); //Turn off
+...
+}</code></pre>
+<p>E modifica la parte “// print the predictions” del codice precedente (su loop():</p>
+<pre><code>int pred_index = 0;     // Initialize pred_index
+float pred_value = 0;   // Initialize pred_value
+
+// print the predictions
+ei_printf("Predictions ");
+ei_printf("(DSP: %d ms., Classification: %d ms., Anomaly: %d ms.)",
+     result.timing.dsp, result.timing.classification, result.timing.anomaly);
+ei_printf(": \n");
+for (size_t ix = 0; ix &lt; EI_CLASSIFIER_LABEL_COUNT; ix++) {
+      ei_printf("    %s: ", result.classification[ix].label);
+      ei_printf_float(result.classification[ix].value);
+      ei_printf("\n");
+
+      if (result.classification[ix].value &gt; pred_value){
+         pred_index = ix;
+         pred_value = result.classification[ix].value;
+      }
+}
+
+// show the inference result on LED
+if (pred_index == 3){
+    digitalWrite(LED_BUILT_IN, LOW); //Turn on
+}
+else{
+   digitalWrite(LED_BUILT_IN, HIGH); //Turn off
+}</code></pre>
+<p>Il codice completo si trova sul <a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/xiao_esp32s3_microphone_led">GitHub del progetto</a>. Caricare lo sketch sulla scheda e provare alcune inferenze reali:</p>
+<p><img src="https://hackster.imgix.net/uploads/attachments/1595542/image_UTzc7GrWWp.png?auto=compress%2Cformat&amp;w=740&amp;h=555&amp;fit=max" class="img-fluid"></p>
+<p>L’idea è che il LED sarà ACCESO ogni volta che viene rilevata la parola chiave YES. Allo stesso modo, invece di accendere un LED, questo potrebbe essere un “trigger” per un dispositivo esterno, come abbiamo visto nell’introduzione.</p>
+<iframe class="react-editor-embed react-editor-embed-override" src="https://www.youtube.com/embed/wjhtEzXt60Q" frameborder="0" style="box-sizing: border-box; align-self: center; flex: 1 1 0%; height: 363.068px; max-height: 100%; max-width: 100%; overflow: hidden; width: 645.455px; z-index: 1;">
+</iframe>
+</section>
+<section id="conclusione" class="level2">
+<h2 class="anchored" data-anchor-id="conclusione">Conclusione</h2>
+<p>The Seeed XIAO ESP32S3 Sense è un <em>tiny device gigante</em>! Tuttavia, è potente, affidabile, non costoso, a basso consumo e ha sensori adatti per essere utilizzato nelle applicazioni di apprendimento automatico embedded più comuni come visione e suono. Anche se Edge Impulse non supporta ufficialmente XIAO ESP32S3 Sense (ancora!), ci siamo resi conto che utilizzare Studio per la formazione e l’implementazione è semplice.</p>
+<blockquote class="blockquote">
+<p>Nel <a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense">repository GitHub</a>, si trova l’ultima versione di tutto il codice utilizzato in questo progetto e nei precedenti della serie XIAO ESP32S3.</p>
+</blockquote>
+<p>Prima di concludere, considerare che la classificazione dei suoni è più di una semplice voce. Ad esempio, si possono sviluppare progetti TinyML sul suono in diverse aree, come:</p>
+<ul>
+<li><strong>Sicurezza</strong> (Rilevamento vetri rotti)</li>
+<li><strong>Industria</strong> (Rilevamento di Anomalie)</li>
+<li><strong>Medicina</strong> (Russare, Tosse, Malattie polmonari)</li>
+<li><strong>Natura</strong> (Controllo alveari, suono degli insetti)</li>
+</ul>
+</section>
+<section id="risorse" class="level2">
+<h2 class="anchored" data-anchor-id="risorse">Risorse</h2>
+<ul>
+<li><p><a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense">Codici XIAO ESP32S3</a></p></li>
+<li><p><a href="https://cdn.edgeimpulse.com/datasets/keywords2.zip">Sottoinsieme del Dataset dei Comandi Vocali di Google</a></p></li>
+<li><p><a href="https://colab.research.google.com/github/Mjrovai/Arduino_Nicla_Vision/blob/main/KWS/KWS_MFCC_Analysis.ipynb">KWS MFCC Analysis Colab Notebook</a></p></li>
+<li><p><a href="https://colab.research.google.com/github/Mjrovai/Arduino_Nicla_Vision/blob/main/KWS/KWS_CNN_training.ipynb">KWS CNN training Colab Notebook</a></p></li>
+<li><p><a href="https://github.com/Mjrovai/XIAO-ESP32S3-Sense/tree/main/xiao_esp32s3_microphone_led">XIAO ESP32S3 Post-processing Code</a></p></li>
+<li><p><a href="https://studio.edgeimpulse.com/public/230109/live">Progetto Edge Impulse</a></p></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiato!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiato!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="harvard-edge/cs249r_book" data-repo-id="R_kgDOKQSOaw" data-category="General" data-category-id="DIC_kwDOKQSOa84CZ8Ry" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../../../contents/labs/seeed/xiao_esp32s3/object_detection/object_detection.it.html" class="pagination-link" aria-label="Rilevamento degli Oggetti">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Rilevamento degli Oggetti</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../../../contents/labs/seeed/xiao_esp32s3/motion_classification/motion_classification.it.html" class="pagination-link" aria-label="Classificazione del Movimento e Rilevamento delle Anomalie">
+        <span class="nav-page-text">Classificazione del Movimento e Rilevamento delle Anomalie</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Scritto, modificato e curato dal Prof.&nbsp;Vijay Janapa Reddi (Harvard University)</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/harvard-edge/cs249r_book/edit/dev/contents/labs/seeed/xiao_esp32s3/kws/kws.it.qmd" class="toc-action"><i class="bi bi-github"></i>Modifica questa pagina</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/issues/new" class="toc-action"><i class="bi empty"></i>Segnala un problema</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/blob/dev/contents/labs/seeed/xiao_esp32s3/kws/kws.it.qmd" class="toc-action"><i class="bi empty"></i>Mostra il codice</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Questo libro è stato creato con <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

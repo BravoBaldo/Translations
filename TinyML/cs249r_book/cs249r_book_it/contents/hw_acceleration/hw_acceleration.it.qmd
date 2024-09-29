@@ -138,7 +138,7 @@ Ci concentriamo prima sull'hardware personalizzato appositamente progettato per 
 
 Strutturando l'analisi lungo questo spettro, miriamo a illustrare i compromessi fondamentali tra utilizzo, efficienza, programmabilità e flessibilità nella progettazione dell'acceleratore. Il punto di equilibrio ottimale dipende dai vincoli e dai requisiti dell'applicazione target. Questa prospettiva dello spettro fornisce un quadro per ragionare sulle scelte hardware per l'apprendimento automatico e sulle capacità richieste a ciascun livello di specializzazione.
 
-@fig-design-tradeoffs illustra la complessa interazione tra flessibilità, prestazioni, diversità funzionale e area di progettazione dell'architettura. Nota come l'ASIC si trovi nell'angolo in basso a destra, con area minima, flessibilità e consumo energetico e prestazioni massime, a causa della sua natura altamente specializzata per l'applicazione. Un compromesso chiave è la diversità funzionale rispetto alle prestazioni: le architetture per uso generico possono servire applicazioni diverse, ma le loro prestazioni applicative sono degradate rispetto alle architetture più personalizzate.
+@fig-design-tradeoffs illustra la complessa interazione tra flessibilità, prestazioni, diversità funzionale e area di progettazione dell'architettura. Notare come l'ASIC si trovi nell'angolo in basso a destra, con area minima, flessibilità e consumo energetico e prestazioni massime, a causa della sua natura altamente specializzata per l'applicazione. Un compromesso chiave è la diversità funzionale rispetto alle prestazioni: le architetture per uso generico possono servire applicazioni diverse, ma le loro prestazioni applicative sono degradate rispetto alle architetture più personalizzate.
 
 La progressione inizia con l'opzione più specializzata, gli ASIC appositamente progettati per l'intelligenza artificiale, per basare la nostra comprensione sulle massime ottimizzazioni possibili prima di espanderci ad architetture più generalizzabili. Questo approccio strutturato chiarisce lo spazio di progettazione dell'acceleratore.
 
@@ -267,7 +267,7 @@ Sebbene gli FPGA possano non raggiungere le massime prestazioni ed efficienza de
 
 ##### Parallelismo e Pipeline Personalizzati
 
-Le architetture FPGA possono sfruttare il parallelismo spaziale e il pipelining adattando la progettazione hardware per rispecchiare il parallelismo nei modelli ML. Ad esempio, la piattaforma FPGA HARPv2 di Intel suddivide i layer di una rete convoluzionale MNIST su elementi di elaborazione separati per massimizzare la produttività. Sugli FPGA sono possibili anche modelli paralleli unici come le valutazioni di "ensemble" ad albero. Pipeline profonde con buffering e flusso di dati ottimizzati possono essere personalizzate in base alla struttura e ai tipi di dati di ogni modello. Questo livello di parallelismo e pipeline su misura non è fattibile sulle GPU.
+Le architetture FPGA possono sfruttare il parallelismo spaziale e il pipelining adattando la progettazione hardware per rispecchiare il parallelismo nei modelli ML. Ad esempio, la piattaforma FPGA HARPv2 di Intel suddivide i layer di una rete convoluzionale MNIST su elementi di elaborazione separati per massimizzare la produttività. Sugli FPGA sono possibili anche pattern paralleli unici come le valutazioni di "ensemble" ad albero. Pipeline profonde con buffering e flusso di dati ottimizzati possono essere personalizzate in base alla struttura e ai tipi di dati di ogni modello. Questo livello di parallelismo e pipeline su misura non è fattibile sulle GPU.
 
 ##### Memoria On-Chip a Bassa Latenza
 
@@ -343,7 +343,7 @@ La limitata memoria on-chip dei DSP limita le dimensioni del modello che possono
 
 ##### Complessità di Programmazione
 
-La programmazione efficiente delle architetture DSP richiede competenza nella programmazione parallela e nell'ottimizzazione dei modelli di accesso ai dati. Le loro microarchitetture specializzate hanno una curva di apprendimento più ripida rispetto ai framework software di alto livello, rendendo lo sviluppo più complesso.
+La programmazione efficiente delle architetture DSP richiede competenza nella programmazione parallela e nell'ottimizzazione dei pattern di accesso ai dati. Le loro microarchitetture specializzate hanno una curva di apprendimento più ripida rispetto ai framework software di alto livello, rendendo lo sviluppo più complesso.
 
 ### Graphics Processing Unit (GPU)
 
@@ -379,7 +379,7 @@ Le economie di scala dell'elaborazione grafica rendono le GPU ampiamente accessi
 
 ##### Architettura Programmabile
 
-Sebbene non siano flessibili come gli FPGA, le GPU offrono programmabilità tramite linguaggi CUDA e shader per personalizzare i calcoli. Gli sviluppatori possono ottimizzare i modelli di accesso ai dati, creare nuove operazioni e regolare le precisioni per modelli e algoritmi in evoluzione.
+Sebbene non siano flessibili come gli FPGA, le GPU offrono programmabilità tramite linguaggi CUDA e shader per personalizzare i calcoli. Gli sviluppatori possono ottimizzare i pattern di accesso ai dati, creare nuove operazioni e regolare le precisioni per modelli e algoritmi in evoluzione.
 
 #### Svantaggi
 
@@ -529,7 +529,7 @@ L'intelligenza artificiale si sta evolvendo rapidamente, con nuove architetture 
 
 #### Interazioni Complesse Hardware-Software
 
-Molte interazioni e compromessi sottili tra scelte architettoniche hardware e ottimizzazioni software hanno un impatto significativo sull'efficienza complessiva. Ad esempio, tecniche come il partizionamento tensoriale e il batching influenzano il parallelismo e i modelli di accesso ai dati influenzano l'utilizzo della memoria. La progettazione congiunta fornisce una prospettiva multilivello per svelare queste dipendenze.
+Molte interazioni e compromessi sottili tra scelte architettoniche hardware e ottimizzazioni software hanno un impatto significativo sull'efficienza complessiva. Ad esempio, tecniche come il partizionamento tensoriale e il batching influenzano il parallelismo e i pattern di accesso ai dati influenzano l'utilizzo della memoria. La progettazione congiunta fornisce una prospettiva multilivello per svelare queste dipendenze.
 
 #### Necessità di Specializzazione
 
@@ -694,9 +694,11 @@ Il [capitolo sul benchmarking](../benchmarking/benchmarking.qmd) esplora questo 
 
 Suite di benchmarking come MLPerf, Fathom e AI Benchmark offrono una serie di test standardizzati utilizzabili su diverse piattaforme hardware. Queste suite misurano le prestazioni dell'acceleratore AI su varie reti neurali e attività di apprendimento automatico, dalla classificazione di immagini di base all'elaborazione complessa del linguaggio. Fornendo un terreno comune per il confronto, aiutano a garantire che le dichiarazioni sulle prestazioni siano coerenti e verificabili. Questi "tool" vengono applicati non solo per guidare lo sviluppo dell'hardware, ma anche per garantire che lo stack software sfrutti appieno il potenziale dell'architettura sottostante.
 
-* **MLPerf:** Include un ampio set di benchmark che coprono sia l'addestramento [@mattson2020mlperf] che l'inferenza [@reddi2020mlperf] per una gamma di attività di machine learning.
+* **MLPerf:** Include un ampio set di benchmark che coprono sia l'addestramento [@mattson2020mlperf] che l'inferenza [@reddi2020mlperf] per una gamma di attività di machine learning. @fig-ml-perf mostra gli usi di MLperf.
 * **Fathom:** Si concentra sulle operazioni principali nei modelli di deep learning, enfatizzandone l'esecuzione su diverse architetture [@adolf2016fathom].
 * **AI Benchmark:** Mira a dispositivi mobili e consumer, valutando le prestazioni dell'IA nelle applicazioni per utenti finali [@ignatov2018ai].
+
+![MLPerf Training v3.0 e suoi utilizzi. Fonte: [Forbes](https://www.forbes.com/sites/stevemcdowell/2023/06/27/nvidia-h100-dominates-new-mlperf-v30-benchmark-results/)](images/png/mlperf.png){#fig-ml-perf}
 
 I benchmark hanno anche metriche delle prestazioni che sono misure quantificabili utilizzate per valutare l'efficacia degli acceleratori di IA. Queste metriche forniscono una visione completa delle capacità di un acceleratore e vengono utilizzate per guidare il processo di progettazione e selezione per i sistemi di IA. Le metriche comuni comprendono:
 
@@ -945,7 +947,9 @@ Di conseguenza, l'elaborazione ottica è ancora in una fase di ricerca molto pre
 
 I computer quantistici sfruttano fenomeni unici della fisica quantistica, come la sovrapposizione e l'entanglement, per rappresentare ed elaborare informazioni in modi non possibili in modo classico. Invece dei bit binari, l'unità fondamentale è il bit quantistico o qubit. A differenza dei bit classici, che sono limitati a 0 o 1, i qubit possono esistere simultaneamente in una sovrapposizione di entrambi gli stati a causa degli effetti quantistici.
 
-Anche più qubit possono essere entangled, portando a una densità di informazioni esponenziale ma introducendo risultati probabilistici. La sovrapposizione consente il calcolo parallelo su tutti gli stati possibili, mentre l'entanglement consente correlazioni non locali tra qubit.
+Anche più qubit possono essere entangled, portando a una densità di informazioni esponenziale ma introducendo risultati probabilistici. La sovrapposizione consente il calcolo parallelo su tutti gli stati possibili, mentre l'entanglement consente correlazioni non locali tra qubit. @fig-qubit simula la struttura di un qubit.
+
+![Qubit, i mattoni del calcolo quantistico. Fonte: [Microsoft](https://azure.microsoft.com/en-gb/resources/cloud-computing-dictionary/what-is-a-qubit)](images/png/qubit.png){#fig-qubit}
 
 Gli algoritmi quantistici manipolano attentamente questi effetti meccanici quantistici intrinseci per risolvere problemi come l'ottimizzazione o la ricerca in modo più efficiente rispetto alle loro controparti classiche in teoria.
 
@@ -962,7 +966,9 @@ Tuttavia, gli stati quantistici sono fragili e soggetti a errori che richiedono 
 
 Sebbene un vantaggio quantistico significativo per l'apprendimento automatico sia ancora lontano, la ricerca attiva presso aziende come [D-Wave](https://www.dwavesys.com/company/about-d-wave/), [Rigetti](https://www.rigetti.com/) e [IonQ](https://ionq.com/) sta facendo progredire l'ingegneria informatica quantistica e gli algoritmi quantistici. Le principali aziende tecnologiche come Google, [IBM](https://www.ibm.com/quantum?utm_content=SRCWW&p1=Search&p4C700050385964705&p5=e&gclid=Cj0KCQjw-pyqBhDmARIsAKd9XIPD9U1Sjez_S0z5jeDDE4nRyd6X_gtVDUKJ-HIolx2vOc599KgW8gAaAv8gEALw_wcB&gclsrc=aw.ds) e Microsoft stanno esplorando attivamente l'informatica quantistica. Google ha recentemente annunciato un processore quantistico a 72 qubit chiamato [Bristlecone](https://blog.research.google/2018/03/a-preview-of-bristlecone-googles-new.html) e prevede di costruire un sistema quantistico commerciale a 49 qubit. Microsoft ha anche un programma di ricerca attivo nell'informatica quantistica topologica e collabora con la startup quantistica [IonQ](https://ionq.com/)
 
-Le tecniche quantistiche potrebbero prima fare breccia nell'ottimizzazione prima di un'adozione più generalizzata dell'apprendimento automatico. La realizzazione del pieno potenziale dell'apprendimento automatico quantistico attende importanti traguardi nello sviluppo dell'hardware quantistico e nella maturità dell'ecosistema.
+Le tecniche quantistiche potrebbero prima fare breccia nell'ottimizzazione prima di un'adozione più generalizzata dell'apprendimento automatico. La realizzazione del pieno potenziale dell'apprendimento automatico quantistico attende importanti traguardi nello sviluppo dell'hardware quantistico e nella maturità dell'ecosistema. @fig-q-computing illustra un confronto tra il calcolo quantistico e il calcolo classico.
+
+![Confronto tra il calcolo quantistico e il calcolo classico. Fonte: [Devopedia](​​https://devopedia.org/quantum-computing)](images/png/qcomputing.png){#fig-q-computing}
 
 ## Tendenze Future
 

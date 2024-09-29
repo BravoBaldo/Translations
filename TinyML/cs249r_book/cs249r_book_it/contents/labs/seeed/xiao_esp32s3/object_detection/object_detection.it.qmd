@@ -1,0 +1,352 @@
+# Rilevamento degli Oggetti {.unnumbered}
+
+![*DALL·E prompt - Fumetto in stile anni '50, che mostra una scheda dettagliata con sensori, in particolare una telecamera, su un tavolo con un panno fantasia. Dietro la scheda, un computer con un ampio retro mostra l'IDE Arduino. Il contenuto dell'IDE accenna alle assegnazioni dei pin LED e all'inferenza di apprendimento automatico per rilevare i comandi vocali. Il monitor seriale, in una finestra distinta, rivela gli output per i comandi 'yes' e 'no'.*](./images/png/obj_detec_ini.png)
+
+## Introduzione
+
+Nell'ultima sezione riguardante Computer Vision (CV) e XIAO ESP32S3, *Classificazione delle immagini*, abbiamo imparato come impostare e classificare le immagini con questa straordinaria scheda di sviluppo. Continuando il nostro viaggio con CV, esploreremo il **Rilevamento degli oggetti** sui microcontrollori.
+
+### Object Detection e Image Classification
+
+Il compito principale con i modelli di Classificazione delle immagini è identificare la categoria di oggetti più probabile presente su un'immagine, ad esempio, per classificare tra un gatto o un cane, gli "oggetti" dominanti in un'immagine:
+
+![](https://hackster.imgix.net/uploads/attachments/1654476/img_class_Oafs1LJbVZ.jpg?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Ma cosa succede se non c'è una categoria dominante nell'immagine?
+
+![](https://hackster.imgix.net/uploads/attachments/1654477/img_3_03NVYn1A61.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Un modello di classificazione delle immagini identifica l'immagine soprastante in modo completamente sbagliato come un "ashcan", probabilmente a causa delle tonalità di colore.
+
+> Il modello utilizzato nelle immagini precedenti è MobileNet, che è addestrato con un ampio set di dati, *ImageNet*, in esecuzione su un Raspberry Pi.
+
+Per risolvere questo problema, abbiamo bisogno di un altro tipo di modello, in cui non solo possono essere trovate **più categorie** (o etichette), ma anche **dove** si trovano gli oggetti in una determinata immagine.
+
+Come possiamo immaginare, tali modelli sono molto più complicati e più grandi, ad esempio, **MobileNetV2 SSD FPN-Lite 320x320, addestrato con il set di dati COCO**. Questo modello di rilevamento degli oggetti pre-addestrato è progettato per individuare fino a 10 oggetti all'interno di un'immagine, generando un riquadro di delimitazione per ogni oggetto rilevato. L'immagine sottostante è il risultato di un tale modello in esecuzione su un Raspberry Pi:
+
+![](https://hackster.imgix.net/uploads/attachments/1654478/img_4_Z4otzrJp6I.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+I modelli utilizzati per il rilevamento di oggetti (come MobileNet SSD o YOLO) hanno solitamente dimensioni di diversi MB, il che è OK per l'uso con Raspberry Pi ma non è adatto per l'uso con dispositivi embedded, dove la RAM di solito ha, al massimo, pochi MB come nel caso di XIAO ESP32S3.
+
+### Una soluzione innovativa per il Rilevamento di Oggetti: FOMO
+
+[Edge Impulse ha lanciato nel 2022, **FOMO** (Faster Objects, More Objects),](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/object-detection/fomo-object-detection-for-constrained-devices) una nuova soluzione per eseguire il rilevamento di oggetti su dispositivi embedded, come Nicla Vision e Portenta (Cortex M7), su CPU Cortex M4F (serie Arduino Nano33 e OpenMV M4) e sui dispositivi Espressif ESP32 (ESP-CAM, ESP-EYE e XIAO ESP32S3 Sense).
+
+In questo progetto pratico, esploreremo l'Object Detection utilizzando FOMO.
+
+> Per saperne di più sulla FOMO, si può leggere l'[annuncio ufficiale su FOMO](https://www.edgeimpulse.com/blog/announcing-fomo-faster-objects-more-objects) di Edge Impulse, dove Louis Moreau e Mat Kelcey spiegano in dettaglio come funziona.
+
+## Obiettivo del Progetto di Object Detection
+
+Tutti i progetti di apprendimento automatico devono iniziare con un obiettivo dettagliato. Supponiamo di trovarci in una struttura industriale o rurale e di dover smistare e contare **arance (frutti)** e in particolare **rane (insetti)**.
+
+![](https://hackster.imgix.net/uploads/attachments/1654479/oranges-frogs_nHEaTqne53.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+In altre parole, dovremmo eseguire una classificazione multi-etichetta, in cui ogni immagine può avere tre classi:
+
+- Background [Sfondo] (nessun oggetto)
+- Fruit
+- Bug
+
+Ecco alcuni esempi di immagini non etichettate che dovremmo utilizzare per rilevare gli oggetti (frutti e insetti):
+
+![](https://hackster.imgix.net/uploads/attachments/1654480/objects_QYBPGKlycG.jpg?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Siamo interessati a quale oggetto è presente nell'immagine, alla sua posizione (centroide) e a quanti ne possiamo trovare su di essa. La dimensione dell'oggetto non viene rilevata con FOMO, come con MobileNet SSD o YOLO, in cui il Bounding Box è uno degli output del modello.
+
+Svilupperemo il progetto utilizzando XIAO ESP32S3 per l'acquisizione di immagini e l'inferenza del modello. Il progetto ML verrà sviluppato utilizzando Edge Impulse Studio. Ma prima di iniziare il progetto di "object detection" in Studio, creiamo un *dataset grezzo* (non etichettato) con immagini che contengono gli oggetti da rilevare.
+
+## Raccolta Dati
+
+Si possono catturare immagini usando XIAO, il telefono o altri dispositivi. Qui, useremo XIAO con codice dalla libreria Arduino IDE ESP32.
+
+### Raccolta di Dataset con XIAO ESP32S3
+
+Aprire Arduino IDE e selezionare la scheda XIAO_ESP32S3 (e la porta a cui è collegata). Su `File > Examples > ESP32 > Camera`, selezionare `CameraWebServer`.
+
+Nel pannello BOARDS MANAGER, confermare di aver installato l'ultimo pacchetto "stable".
+
+> ⚠️ **Attenzione**
+>
+> Le versioni Alpha (ad esempio, 3.x-alpha) non funzionano correttamente con XIAO ed Edge Impulse. Utilizzare invece l'ultima versione stabile (ad esempio, 2.0.11).
+
+Si devono anche commentare tutti i modelli di fotocamere, eccetto i pin del modello XIAO:
+
+`#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM`
+
+E su `Tools`, abilitare la PSRAM. Inserisci le credenziali wifi e caricare il codice sul dispositivo:
+
+![](https://hackster.imgix.net/uploads/attachments/1654482/ide_UM8udFSg8J.jpg?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Se il codice viene eseguito correttamente, si vedrà l'indirizzo sul monitor seriale:
+
+![](https://hackster.imgix.net/uploads/attachments/1654483/serial_monitor_0sYoddSZfP.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Copiare l'indirizzo sul browser e attendere che la pagina venga caricata. Selezionare la risoluzione della telecamera (ad esempio, QVGA) e selezionare `[START STREAM]`. Attendi qualche secondo/minuto, a seconda della connessione. Si può salvare un'immagine nell'area download del computer usando il pulsante \[Save\].
+
+![](https://hackster.imgix.net/uploads/attachments/1654484/setup-img-collection_wSKNMRCSX5.jpg?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Edge impulse suggerisce che gli oggetti dovrebbero essere simili per dimensione e non sovrapposti per prestazioni migliori. Questo va bene in una struttura industriale, dove la telecamera dovrebbe essere fissa, mantenendo la stessa distanza dagli oggetti da rilevare. Nonostante ciò, proveremo anche a usare dimensioni e posizioni miste per vedere il risultato.
+
+> Non abbiamo bisogno di creare cartelle separate per le nostre immagini perché ognuna contiene più etichette.
+
+Suggeriamo di usare circa 50 immagini per mescolare gli oggetti e variare il numero di ciascuno che appare sulla scena. Provare ad acquisire con diverse angolazioni, sfondi e condizioni di luce.
+
+> Le immagini archiviate usano una dimensione del frame QVGA di 320x240 e RGB565 (formato pixel colore).
+
+Dopo aver acquisito il dataset, `[Stop Stream]` e spostare le immagini in una cartella.
+
+## Edge Impulse Studio
+
+### Setup del progetto
+
+Si va su [Edge Impulse Studio](https://www.edgeimpulse.com/), si inseriscono le proprie credenziali in **Login** (o si crea un account) e si avvia un nuovo progetto.
+
+![](https://hackster.imgix.net/uploads/attachments/1654488/img_6_USMrnsGavw.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+> Qui, è possibile clonare il progetto sviluppato per questa esercitazione pratica: [XIAO-ESP32S3-Sense-Object_Detection](https://studio.edgeimpulse.com/public/315759/latest)
+
+Nella dashboard del progetto, andare in basso e su **Project info** e selezionare **Bounding boxes (object detection)** e **Espressif ESP-EYE** (il più simile alla nostra scheda) come Target Device:
+
+![](https://hackster.imgix.net/uploads/attachments/1654490/img_7_QXn8PxtWMa.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+### Caricamento dei dati non etichettati
+
+In Studio, si va alla scheda `Data acquisition` e nella sezione `UPLOAD DATA` caricare i file acquisiti come cartella dal computer.
+
+![](https://hackster.imgix.net/uploads/attachments/1654491/img_8_5hY40TOZKY.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+> Si può lasciare che Studio divida automaticamente i dati tra "Train" e "Test" o farlo manualmente. Caricheremo tutti come training.
+
+![](https://hackster.imgix.net/uploads/attachments/1654492/img_9_evgYUfkKcp.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Tutte le immagini non etichettate (47) sono state caricate, ma devono essere etichettate in modo appropriato prima di essere utilizzate come dataset del progetto. Studio ha uno strumento per questo scopo, che che si trova nel link Labeling queue (47).
+
+Ci sono due modi per eseguire l'etichettatura assistita dall'IA su Edge Impulse Studio (versione gratuita):
+
+- Utilizzando yolov5
+- Tracciando di oggetti tra i frame
+
+> Edge Impulse ha lanciato una [funzione di auto-labeling](https://docs.edgeimpulse.com/docs/edge-impulse-studio/data-acquisition/auto-labeler) per i clienti Enterprise, semplificando le attività di etichettatura nei progetti di rilevamento degli oggetti.
+
+Gli oggetti ordinari possono essere rapidamente identificati ed etichettati utilizzando una libreria esistente di modelli di rilevamento degli oggetti pre-addestrati da YOLOv5 (addestrati con il set di dati COCO). Ma poiché, nel nostro caso, gli oggetti non fanno parte dei dataset COCO, dovremmo selezionare l'opzione di "tracking" [tracciamento] degli oggetti. Con questa opzione, una volta disegnati i bounding box ed etichettate le immagini in un frame, gli oggetti verranno tracciati automaticamente da un frame all'altro, etichettando *partially* quelli nuovi (non tutti sono etichettati correttamente).
+
+> Si può usare [EI uploader](https://docs.edgeimpulse.com/docs/tools/edge-impulse-cli/cli-uploader#bounding-boxes) per importare i dati se si ha già un dataset etichettato contenente dei "bounding box".
+
+### Etichettatura del Dataset
+
+Iniziando dalla prima immagine dei dati non etichettati, si usa il mouse per trascinare una casella attorno a un oggetto per aggiungere un'etichetta. Poi si clicca su **Save labels** per passare all'elemento successivo.
+
+![](https://hackster.imgix.net/uploads/attachments/1654493/img_10_guoeW66Fee.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Si continua con questo processo finché la coda non è vuota. Alla fine, tutte le immagini dovrebbero avere gli oggetti etichettati come i campioni sottostanti:
+
+![](https://hackster.imgix.net/uploads/attachments/1654502/img_11_J1KJZAc2T7.jpg?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Poi, si esaminano i campioni etichettati nella scheda `Data acquisition`. Se una delle etichette è errata, la si può modificarla utilizzando il menù *tre puntini* dopo il nome del campione:
+
+![](https://hackster.imgix.net/uploads/attachments/1654512/img_12_szymDAiZSt.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Si verrà guidati a sostituire l'etichetta errata e a correggere il dataset.
+
+![](https://hackster.imgix.net/uploads/attachments/1654516/img_13_PO2Q1FA0Sv.jpg?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+### Bilanciamento del dataset e suddivisione Train/Test
+
+Dopo aver etichettato tutti i dati, ci siamo resi conto che la classe fruit aveva molti più campioni di bug. Quindi, sono state raccolte 11 immagini di bug nuove e aggiuntive (per un totale di 58 immagini). Dopo averle etichettate, è il momento di selezionare alcune immagini e spostarle nel dataset di test. Per farlo si usa il menù a tre punti dopo il nome dell'immagine. Sono state selezionate sei immagini, che rappresentano il 13% del set di dati totale.
+
+![](https://hackster.imgix.net/uploads/attachments/1654521/move_to_test_zAWSz4v3Qf.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+## Impulse Design
+
+In questa fase, si deve definire come:
+
+- Il **Pre-processing** consiste nel ridimensionare le singole immagini da 320 x 240 a 96 x 96 e nel ridurle (forma quadrata, senza ritaglio). In seguito, le immagini vengono convertite da RGB a scala di grigi.
+- **Design a Model**, in questo caso, “Object Detection”.
+
+![](https://hackster.imgix.net/uploads/attachments/1654524/img_14_5LM3MnENo8.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+### Pre-elaborazione di tutti i dataset
+
+In questa sezione, selezionare **Color depth** come Grayscale, adatta per l'uso con modelli FOMO ed eseguire il "Save" dei parametri.
+
+![](https://hackster.imgix.net/uploads/attachments/1654526/img_15_RNibQ5TKZd.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Studio passa automaticamente alla sezione successiva, "Generate features", in cui tutti i campioni verranno pre-elaborati, generando un set di dati con singole immagini 96x96x1 o 9.216 feature.
+
+![](https://hackster.imgix.net/uploads/attachments/1654529/img_16_7WukfTFmf6.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+L'esploratore di feature mostra che tutti i campioni evidenziano una buona separazione dopo la generazione delle feature.
+
+> Alcuni campioni sembrano stare nello spazio sbagliato, ma cliccandoci sopra si conferma la corretta etichettatura.
+
+## Progettazione, Addestramento e Test del Modello
+
+Useremo FOMO, un modello di rilevamento degli oggetti basato su MobileNetV2 (alpha 0.35) progettato per segmentare grossolanamente un'immagine in una griglia di **background** rispetto a **oggetti di interesse** (in questo caso, *scatole* e *ruote*).
+
+FOMO è un modello di apprendimento automatico innovativo per il rilevamento degli oggetti, che può utilizzare fino a 30 volte meno energia e memoria rispetto ai modelli tradizionali come Mobilenet SSD e YOLOv5. FOMO può funzionare su microcontrollori con meno di 200 KB di RAM. Il motivo principale per cui ciò è possibile è che mentre altri modelli calcolano le dimensioni dell'oggetto disegnando un quadrato attorno ad esso (bounding box), FOMO ignora le dimensioni dell'immagine, fornendo solo le informazioni su dove si trova l'oggetto nell'immagine tramite le sue coordinate del centroide.
+
+**Come funziona FOMO?**
+
+FOMO prende l'immagine in scala di grigi e la divide in blocchi di pixel usando un fattore di 8. Per l'input di 96x96, la griglia è 12x12 (96/8=12). Successivamente, FOMO eseguirà un classificatore attraverso ogni blocco di pixel per calcolare la probabilità che ci sia un box o una ruota in ognuno di essi e, successivamente, determinerà le regioni che hanno la più alta probabilità di contenere l'oggetto (se un blocco di pixel non ha oggetti, verrà classificato come *background*). Dalla sovrapposizione della regione finale, FOMO fornisce le coordinate (relative alle dimensioni dell'immagine) del centroide di questa regione.
+
+![](https://hackster.imgix.net/uploads/attachments/1654531/img_17_L59gC89Uju.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Per l'addestramento, dovremmo selezionare un modello pre-addestrato. Usiamo **FOMO (Faster Objects, More Objects) MobileNetV2 0.35**. Questo modello utilizza circa 250 KB di RAM e 80 KB di ROM (Flash), che si adatta bene alla nostra scheda.
+
+![](https://hackster.imgix.net/uploads/attachments/1654532/img_18_LSDsmljicI.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Per quanto riguarda gli iperparametri di training, il modello verrà addestrato con:
+
+- Epochs: 60
+- Batch size: 32
+- Learning Rate: 0.001.
+
+Per la convalida durante l'addestramento, il 20% del set di dati (*validation_dataset*) verrà risparmiato. Per il restante 80% (*train_dataset*), applicheremo il "Data Augmentation", che capovolgerà casualmente, cambierà le dimensioni e la luminosità dell'immagine e le ritaglierà, aumentando artificialmente il numero di campioni sul set di dati per l'addestramento.
+
+Di conseguenza, il modello termina con un punteggio F1 complessivo dell'85%, simile al risultato ottenuto utilizzando i dati di prova (83%).
+
+> Notare che FOMO ha aggiunto automaticamente una terza etichetta di background [sfondo] ai due precedentemente definiti (*box* e *wheel*).
+
+![](https://hackster.imgix.net/uploads/attachments/1654533/img_19_s2e9Is84y2.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+> Nelle attività di rilevamento di oggetti, l'accuratezza non è in genere la [metrica di valutazione primaria](https://learnopencv.com/mean-average-precision-map-object-detection-model-evaluation-metric/). Il rilevamento di oggetti comporta la classificazione degli oggetti e la definizione di riquadri di delimitazione attorno a essi, il che lo rende un problema più complesso della semplice classificazione. Il problema è che non abbiamo il riquadro di delimitazione, solo i centroidi. In breve, usare l'accuratezza come metrica potrebbe essere fuorviante e potrebbe non fornire una comprensione completa delle prestazioni del modello. Per questo motivo, useremo il punteggio F1.
+
+### Modello di test con “Live Classification”
+
+Una volta addestrato il nostro modello, possiamo testarlo utilizzando lo strumento Live Classification. Nella sezione corrispondente, cliccare sull'icona "Connect a development board" (una piccola MCU) e scansionare il codice QR col telefono.
+
+![](https://hackster.imgix.net/uploads/attachments/1654534/img_20_ntLrthagWX.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Una volta connesso, si può usare lo smartphone per catturare immagini reali da testare col modello addestrato su Edge Impulse Studio.
+
+![](https://hackster.imgix.net/uploads/attachments/1654535/img_21_h8Xe7I1W11.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Una cosa da notare è che il modello può produrre falsi positivi e falsi negativi. Questo può essere ridotto al minimo definendo una "Confidence Threshold" appropriata (usare il menù "Tre puntini" per la configurazione). Provare con 0,8 o più.
+
+## Deploying del Modello (Arduino IDE)
+
+Selezionare la Libreria Arduino e il modello Quantized (int8), abilitare il compilatore EON nella scheda Deploy e premere \[Build\].
+
+![](https://hackster.imgix.net/uploads/attachments/1654537/img_22_Xu9uwecZuV.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Apri l'Arduino IDE e, in Sketch, andare su Include Library e aggiungere .ZIP Library.. Selezionare il file che scaricato da Edge Impulse Studio e il gioco è fatto!
+
+![](https://hackster.imgix.net/uploads/attachments/1654538/img_24_bokujC4nFg.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Nella scheda Examples  su Arduino IDE, si trova il codice di uno sketch (`esp32 > esp32_camera`) sotto il nome del progetto.
+
+![](https://hackster.imgix.net/uploads/attachments/1654539/img_23_gm9v86mJkL.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Si devono cambiare le righe dalla 32 alla 75, che definiscono il modello e i pin della telecamera, utilizzando i dati relativi al nostro modello. Copiare e incollare le righe seguenti, sostituendo le righe 32-75:
+
+```cpp
+#define PWDN_GPIO_NUM     -1 
+#define RESET_GPIO_NUM    -1 
+#define XCLK_GPIO_NUM     10 
+#define SIOD_GPIO_NUM     40 
+#define SIOC_GPIO_NUM     39
+#define Y9_GPIO_NUM       48 
+#define Y8_GPIO_NUM       11 
+#define Y7_GPIO_NUM       12 
+#define Y6_GPIO_NUM       14 
+#define Y5_GPIO_NUM       16 
+#define Y4_GPIO_NUM       18 
+#define Y3_GPIO_NUM       17 
+#define Y2_GPIO_NUM       15 
+#define VSYNC_GPIO_NUM    38 
+#define HREF_GPIO_NUM     47 
+#define PCLK_GPIO_NUM     13
+```
+
+Ecco il codice risultante:
+
+![](https://hackster.imgix.net/uploads/attachments/1654540/img_25_3uwrBVZ83q.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Caricare il codice sul XIAO ESP32S3 Sense e si è pronti a iniziare a rilevare frutta e insetti. Si può controllare il risultato su Serial Monitor.
+
+**Background**
+
+![](https://hackster.imgix.net/uploads/attachments/1654541/inference-back_Zi8gtT7YY6.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+**Fruits**
+
+![](https://hackster.imgix.net/uploads/attachments/1654542/fruits-inference_RxYagWYKOc.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+**Bugs**
+
+![](https://hackster.imgix.net/uploads/attachments/1654543/bugs-inference_fXpzxJOZRj.png?auto=compress%2Cformat&w=1280&h=960&fit=max)
+
+Si noti che la latenza del modello è di 143ms e il frame rate al secondo è di circa 7 fps (simile a quanto ottenuto con il progetto Image Classification). Ciò accade perché FOMO è intelligentemente costruito su un modello CNN, non con un modello di rilevamento degli oggetti come SSD MobileNet. Ad esempio, quando si esegue un modello MobileNetV2 SSD FPN-Lite 320x320 su un Raspberry Pi 4, la latenza è circa cinque volte superiore (circa 1,5 fps).
+
+## Distribuzione del Modello (SenseCraft-Web-Toolkit)
+
+Come discusso nel capitolo Image Classification, verificare l'inferenza con i modelli di immagine su Arduino IDE è molto impegnativo perché non possiamo vedere su cosa punta la telecamera. Di nuovo, utilizziamo **SenseCraft-Web Toolkit**.
+
+Seguire i seguenti passaggi per avviare SenseCraft-Web-Toolkit:
+
+1. Aprire il [sito web di SenseCraft-Web-Toolkit](https://seeed-studio.github.io/SenseCraft-Web-Toolkit/#/setup/process).
+2. Collega XIAO al computer:
+
+- Dopo aver collegato XIAO, selezionarlo come di seguito:
+
+![](./images/jpeg/senseCraft-1.jpg)
+
+- Selezionare il dispositivo/Porta e premere `[Connect]`:
+
+![](./images/jpeg/senseCraft-2.jpg)
+
+> Si possono provare diversi modelli di Computer Vision caricati in precedenza da Seeed Studio. Da provare e verificarli!
+
+Nel nostro caso, useremo il pulsante blu in fondo alla pagina: `[Upload Custom AI Model]`.
+
+Ma prima, dobbiamo scaricare da Edge Impulse Studio il modello **quantized .tflite**.
+
+3. Si va sul proprio progetto su Edge Impulse Studio, oppure si clona questo:
+
+- [XIAO-ESP32S3-CAM-Fruits-vs-Veggies-v1-ESP-NN](https://studio.edgeimpulse.com/public/228516/live)
+
+4. Su `Dashboard`, scaricare il modello ("block output"):  `Object Detection model - TensorFlow Lite (int8 quantized)`
+
+![](./images/jpeg/sense-craft-1.jpg)
+
+5. Su SenseCraft-Web-Toolkit, usare il pulsante blu in fondo alla pagina: `[Upload Custom AI Model]`. Si aprirà una finestra. Inserire il file del Modello scaricato sul computer da Edge Impulse Studio, scegliere un nome del modello e inserirlo con le etichette (ID: Object):
+
+![](./images/jpeg/sense-craft-2.jpg)
+
+> Notare che si devono utilizzare le etichette apprese su EI Studio e inserirle in ordine alfabetico (nel nostro caso, background, bug, fruit).
+
+Dopo alcuni secondi (o minuti), il modello verrà caricato sul dispositivo e l'immagine della telecamera apparirà in tempo reale nel Preview Sector:
+
+![](./images/jpeg/sense-craft-3.jpg)
+
+Gli oggetti rilevati saranno contrassegnati (il centroide).  È possibile selezionare l'affidabilità del cursore di inferenza `Confidence` e `IoU`, che viene utilizzata per valutare l'accuratezza delle "bounding box" previste rispetto a quelle vere.
+
+Cliccando sul pulsante in alto (Device Log), si può aprire un Serial Monitor per seguire l'inferenza, come abbiamo fatto con l'IDE Arduino.
+
+![](./images/jpeg/monitor.png)
+
+Su Device Log, si otterranno informazioni come:
+
+- Tempo di pre-elaborazione (acquisizione dell'immagine e Crop): 3 ms,
+- Tempo di inferenza (latenza del modello): 115 ms,
+- Tempo di post-elaborazione (visualizzazione dell'immagine e marcatura degli oggetti): 1 ms.
+- Tensore di output (box), ad esempio, uno dei box: [[30,150, 20, 20, 97, 2]]; dove 30,150, 20, 20 sono le coordinate della casella (intorno al centroide); 97 è il risultato dell'inferenza e 2 è la classe (in questo caso 2: frutto).
+
+> Notare che nell'esempio precedente, abbiamo ottenuto 5 caselle perché nessuno dei frutti ha ottenuto 3 centroidi. Una soluzione sarà la post-elaborazione, dove possiamo aggregare centroidi vicini in uno.
+
+Ecco altri screenshot:
+
+![](./images/jpeg/sense-craft-4.jpg)
+
+## Conclusione
+
+FOMO è un salto significativo nello spazio di elaborazione delle immagini, come hanno affermato Louis Moreau e Mat Kelcey durante il suo lancio nel 2022:
+
+> FOMO è un algoritmo rivoluzionario che porta per la prima volta il rilevamento, il tracciamento e il conteggio degli oggetti in tempo reale sui microcontrollori.
+
+Esistono molteplici possibilità per esplorare il rilevamento di oggetti (e, più precisamente, il loro conteggio) su dispositivi embedded.
+
+## Risorse
+
+- [Progetto Edge Impulse](https://studio.edgeimpulse.com/public/315759/latest)
