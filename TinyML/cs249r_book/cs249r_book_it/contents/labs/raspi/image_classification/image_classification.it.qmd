@@ -131,11 +131,10 @@ tflite_11_05_08/mobilenet_v2_1.0_224_quant.tgz
 tar xzf mobilenet_v2_1.0_224_quant.tgz
 ```
 
-Prelevarne le etichette:
+Prelevarne le [etichette](https://github.com/Mjrovai/EdgeML-with-Raspberry-Pi/blob/main/IMG_CLASS/models/labels.txt):
 
 ```bash
-wget https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/
-lite/java/demo/app/src/main/assets/labels_mobilenet_quant_v1_224.txt -O labels.txt
+wget https://github.com/Mjrovai/EdgeML-with-Raspberry-Pi/blob/main/IMG_CLASS/models/labels.txt
 ```
 
 Alla fine, si dovrebbero avere i modelli nella sua directory:
@@ -292,7 +291,7 @@ Quindi, rimodelliamo l'immagine, aggiungiamo la dimensione batch e vediamo il ri
 
 ```python
 img = img.resize((input_details[0]['shape'][1], input_details[0]['shape'][2]))
-input_data = np.expand_dims(img, axis=0
+input_data = np.expand_dims(img, axis=0)
 input_data.shape
 ```
 
@@ -483,26 +482,26 @@ Sul notebook [Cifar 10 - Image Classification on a Raspi with TFLite](https://gi
 
     ```bash
     source ~/tflite/bin/activate
-    ```
+```
 
 2. Ora, creiamo un file .pth nelll'ambiente virtuale per aggiungere il percorso del sistema del pacchetto sul sito:
 
-    ```bash
-    echo "/usr/lib/python3/dist-packages" > $VIRTUAL_ENV/lib/python3.11/
-    site-packages/system_site_packages.pth
-    ```
+   ```bash
+   echo "/usr/lib/python3/dist-packages" > $VIRTUAL_ENV/lib/python3.11/
+   site-packages/system_site_packages.pth
+   ```
 
-    > Nota: se la versione di Python è diversa, sostituire `python3.11` con la versione appropriata.
+   > Nota: Se la versione di Python è diversa, sostituire `python3.11` con la versione appropriata.
 
 3. Dopo aver creato questo file, provare a importare picamera2 in Python:
 
-    ```bash
-    python3
-    >>> import picamera2
-    >>> print(picamera2.__file__)
-    ```
+   ```bash
+   python3
+   >>> import picamera2
+   >>> print(picamera2.__file__)
+   ```
 
-Il codice sopra mostrerà la posizione del file del modulo `picamera2` stesso, dimostrando che la libreria è accessibile dall'ambiente. 
+Il codice sopra mostrerà la posizione del file del modulo `picamera2` stesso, dimostrando che la libreria è accessibile dall'ambiente.
 
 ```python
 /home/mjrovai/tflite/lib/python3.11/site-packages/picamera2/__init__.py
@@ -577,14 +576,15 @@ Una volta definito l'obiettivo del nostro progetto di apprendimento automatico, 
 
 2. Creiamo un nuovo script Python che combina l'acquisizione delle immagini con un server Web.  Lo chiameremo `get_img_data.py`:
 
-<div class="scroll-code-block">
-```python
-from flask import Flask, Response, render_template_string, request, redirect, url_for
-from picamera2 import Picamera2
-import io
-import threading
-import time
-import os
+<div class="scroll-code-block">
+
+```python
+from flask import Flask, Response, render_template_string, request, redirect, url_for
+from picamera2 import Picamera2
+import io
+import threading
+import time
+import os
 import signal
 
 app = Flask(__name__)
@@ -599,150 +599,178 @@ current_label = None
 shutdown_event = threading.Event()
 
 def initialize_camera():
-global picam2
-picam2 = Picamera2()
-config = picam2.create_preview_configuration(main={"size": (320, 240)})
-picam2.configure(config)
-picam2.start()
-time.sleep(2)  # Wait for camera to warm up
+    global picam2
+    picam2 = Picamera2()
+    config = picam2.create_preview_configuration(main={"size": (320, 240)})
+    picam2.configure(config)
+    picam2.start()
+    time.sleep(2)  # Wait for camera to warm up
 
 def get_frame():
-global frame
-while not shutdown_event.is_set():
-stream = io.BytesIO()
-picam2.capture_file(stream, format='jpeg')
-with frame_lock:
-frame = stream.getvalue()
-time.sleep(0.1)  # Adjust as needed for smooth preview
+    global frame
+    while not shutdown_event.is_set():
+        stream = io.BytesIO()
+        picam2.capture_file(stream, format='jpeg')
+        with frame_lock:
+            frame = stream.getvalue()
+        time.sleep(0.1)  # Adjust as needed for smooth preview
 
 def generate_frames():
-while not shutdown_event.is_set():
-with frame_lock:
-if frame is not None:
-yield (b'--frame\r\n'
-b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-time.sleep(0.1)  # Adjust as needed for smooth streaming
+    while not shutdown_event.is_set():
+        with frame_lock:
+            if frame is not None:
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        time.sleep(0.1)  # Adjust as needed for smooth streaming
 
 def shutdown_server():
-shutdown_event.set()
-if picam2:
-picam2.stop()
-# Give some time for other threads to finish
-time.sleep(2)
-# Send SIGINT to the main process
-os.kill(os.getpid(), signal.SIGINT)
+    shutdown_event.set()
+    if picam2:
+        picam2.stop()
+    # Give some time for other threads to finish
+    time.sleep(2)
+    # Send SIGINT to the main process
+    os.kill(os.getpid(), signal.SIGINT)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-global current_label
-if request.method == 'POST':
-current_label = request.form['label']
-if current_label not in capture_counts:
-capture_counts[current_label] = 0
-os.makedirs(os.path.join(base_dir, current_label), exist_ok=True)
-return redirect(url_for('capture_page'))
-return render_template_string('''<!DOCTYPE html>
-<html>
-<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Dataset Capture - Label Entry</title>
-</head>
-<body>
-<h1>Enter Label for Dataset</h1>
-<form method="post"><input type="text" name="label" required>
-<input type="submit" value="Start Capture"></form>
-</body>
-</html>''')
+    global current_label
+    if request.method == 'POST':
+        current_label = request.form['label']
+        if current_label not in capture_counts:
+            capture_counts[current_label] = 0
+        os.makedirs(os.path.join(base_dir, current_label), exist_ok=True)
+        return redirect(url_for('capture_page'))
+    return render_template_string('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Dataset Capture - Label Entry</title>
+        </head>
+        <body>
+            <h1>Enter Label for Dataset</h1>
+            <form method="post">
+                <input type="text" name="label" required>
+                <input type="submit" value="Start Capture">
+            </form>
+        </body>
+        </html>
+    ''')
 
 @app.route('/capture')
 def capture_page():
-return render_template_string('''<!DOCTYPE html>
-<html>
-<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Dataset Capture</title>
-<script>var shutdownInitiated = false;
-function checkShutdown() {
-if (!shutdownInitiated) {
-fetch('/check_shutdown')
-.then(response => response.json())
-.then(data => {
-if (data.shutdown) {
-shutdownInitiated = true;
-document.getElementById('video-feed').src = '';
-document.getElementById('shutdown-message')
-.style.display = 'block';
-}
-});
-}
-}
-setInterval(checkShutdown, 1000);  // Check every second</script>
-</head>
-<body>
-<h1>Dataset Capture</h1>
-<p>Current Label: {{ label }}</p>
-<p>Images captured for this label: {{ capture_count }}</p>
-<img id="video-feed" src="{{ url_for('video_feed') }}" width="640" 
-            height="480" /><div id="shutdown-message" style="display: none; color: red;">Capture process has been stopped. You can close this window.</div>
-<form action="/capture_image" method="post"><input type="submit" value="Capture Image"></form>
-<form action="/stop" method="post"><input type="submit" value="Stop Capture" 
-                style="background-color: #ff6666;"></form>
-<form action="/" method="get"><input type="submit" value="Change Label" 
-                style="background-color: #ffff66;"></form>
-</body>
-</html>''', label=current_label, capture_count=capture_counts.get(current_label, 0))
+    return render_template_string('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Dataset Capture</title>
+            <script>
+                var shutdownInitiated = false;
+                function checkShutdown() {
+                    if (!shutdownInitiated) {
+                        fetch('/check_shutdown')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.shutdown) {
+                                    shutdownInitiated = true;
+                                    document.getElementById('video-feed').src = '';
+                                    document.getElementById('shutdown-message')
+                                    .style.display = 'block';
+                                }
+
+                            });
+                    }
+
+                }
+
+                setInterval(checkShutdown, 1000);  // Check every second
+            </script>
+        </head>
+        <body>
+            <h1>Dataset Capture</h1>
+            <p>Current Label: {{ label }}</p>
+            <p>Images captured for this label: {{ capture_count }}</p>
+            <img id="video-feed" src="{{ url_for('video_feed') }}" width="640" 
+            height="480" />
+            <div id="shutdown-message" style="display: none; color: red;">
+                Capture process has been stopped. You can close this window.
+            </div>
+            <form action="/capture_image" method="post">
+                <input type="submit" value="Capture Image">
+            </form>
+            <form action="/stop" method="post">
+                <input type="submit" value="Stop Capture" 
+                style="background-color: #ff6666;">
+            </form>
+            <form action="/" method="get">
+                <input type="submit" value="Change Label" 
+                style="background-color: #ffff66;">
+            </form>
+        </body>
+        </html>
+    ''', label=current_label, capture_count=capture_counts.get(current_label, 0))
 
 @app.route('/video_feed')
 def video_feed():
-return Response(generate_frames(),
-mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/capture_image', methods=['POST'])
 def capture_image():
-global capture_counts
-if current_label and not shutdown_event.is_set():
-capture_counts[current_label] += 1
-timestamp = time.strftime("%Y%m%d-%H%M%S")
-filename = f"image_{timestamp}.jpg"
-full_path = os.path.join(base_dir, current_label, filename)
-
-    picam2.capture_file(full_path)
+    global capture_counts
+    if current_label and not shutdown_event.is_set():
+        capture_counts[current_label] += 1
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        filename = f"image_{timestamp}.jpg"
+        full_path = os.path.join(base_dir, current_label, filename)
+        
+        picam2.capture_file(full_path)
     
     return redirect(url_for('capture_page'))
+
 @app.route('/stop', methods=['POST'])
 def stop():
-summary = render_template_string('''<!DOCTYPE html>
-<html>
-<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Dataset Capture - Stopped</title>
-</head>
-<body>
-<h1>Dataset Capture Stopped</h1>
-<p>The capture process has been stopped. You can close this window.</p>
-<p>Summary of captures:</p>
-<ul>{% for label, count in capture_counts.items() %}<li>{{ label }}: {{ count }} images</li>{% endfor %}</ul>
-</body>
-</html>''', capture_counts=capture_counts)
-
+    summary = render_template_string('''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Dataset Capture - Stopped</title>
+        </head>
+        <body>
+            <h1>Dataset Capture Stopped</h1>
+            <p>The capture process has been stopped. You can close this window.</p>
+            <p>Summary of captures:</p>
+            <ul>
+            {% for label, count in capture_counts.items() %}
+                <li>{{ label }}: {{ count }} images</li>
+            {% endfor %}
+            </ul>
+        </body>
+        </html>
+    ''', capture_counts=capture_counts)
+    
     # Start a new thread to shutdown the server
     threading.Thread(target=shutdown_server).start()
     
     return summary
+
 @app.route('/check_shutdown')
 def check_shutdown():
-return {'shutdown': shutdown_event.is_set()}
+    return {'shutdown': shutdown_event.is_set()}
 
 if __name__ == '__main__':
-initialize_camera()
-threading.Thread(target=get_frame, daemon=True).start()
-app.run(host='0.0.0.0', port=5000, threaded=True)
+    initialize_camera()
+    threading.Thread(target=get_frame, daemon=True).start()
+    app.run(host='0.0.0.0', port=5000, threaded=True)
 ```
 </div>
 
 3. Eseguire questo script:
 
-    ```bash
-    python3 get_img_data.py
-    ```
-
+   ```bash
+   python3 get_img_data.py
+   
+```
 4. Accedere all'interfaccia web:
 
     - Sul Raspberry Pi stesso (se si ha una GUI): Aprire un browser web e andare su `http://localhost:5000`
@@ -752,16 +780,16 @@ Questo script Python crea un'interfaccia basata sul web per catturare e organizz
 
 #### Caratteristiche Principali:
 
-1. *Interfaccia Web**: Accessibile da qualsiasi dispositivo sulla stessa rete del Raspberry Pi.
+1. **Interfaccia Web**: Accessibile da qualsiasi dispositivo sulla stessa rete del Raspberry Pi.
 2. **Anteprima Telecamera in Tempo Reale**: Mostra un feed in tempo reale dalla telecamera.
-3. *Sistema di Etichettatura**: Consente agli utenti di immettere etichette per diverse categorie di immagini.
-4. *Archiviazione Organizzata**: Salva automaticamente le immagini in sottodirectory specifiche per etichetta..
+3. **Sistema di Etichettatura**: Consente agli utenti di immettere etichette per diverse categorie di immagini.
+4. **Archiviazione Organizzata**: Salva automaticamente le immagini in sottodirectory specifiche per etichetta.
 5. **Contatori per Etichetta**: Tiene traccia di quante immagini vengono acquisite per ogni etichetta.
-6. *Statistiche di Riepilogo**: Fornisce un riepilogo delle immagini acquisite quando si interrompe il processo di acquisizione.
+6. **Statistiche di Riepilogo**: Fornisce un riepilogo delle immagini acquisite quando si interrompe il processo di acquisizione.
 
 #### Componenti Principali:
 
-1. *Applicazione Web Flask**: Gestisce il routing e serve l'interfaccia Web.
+1. **Applicazione Web Flask**: Gestisce il routing e serve l'interfaccia Web.
 2. **Integrazione di Picamera2**: Controlla la telecamera Raspberry Pi.
 3. **Threaded Frame Capture**: Assicura un'anteprima live fluida.
 4. **File Management**: Organizza le immagini catturate in directory etichettate.
@@ -1109,7 +1137,8 @@ for i in range(top_k_results):
 
 Modifichiamo la funzione creata in precedenza in modo da poter gestire diversi tipi di modelli:
 
-<div class="scroll-code-block">```python
+<div class="scroll-code-block">
+```python
 def image_classification(img_path, model_path, labels, top_k_results=3, 
                          apply_softmax=False):
     # Load the image

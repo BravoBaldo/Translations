@@ -1,19 +1,19 @@
 Italian translations of [cs249r_book](https://github.com/harvard-edge/cs249r_book) or [On Line Version](https://mlsysbook.ai/)
 
 # Status
-*	Allineato.
+*	Allineato al 07/11/2024.
+*	Il pdf è ricavato dalla versione word
 
 # ToDo:
-*	Prima revisione 
-*	Alcuni paragrafi devono essere collegati al successivo
-*	Ridimensionare alcune immagini
+*	Automatizzare versione Word
  
 
 
 # Batch:
 Per rigenerare sia la versione inglese che quella italiana, eseguire:
+(Si suppone che [Quarto](https://quarto.org/) sia già installato)
 ```
-.\MakeItalian.bat
+.\RemakeAll.bat
 ```
 
 That's all for now ;)

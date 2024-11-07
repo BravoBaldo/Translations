@@ -1,0 +1,1113 @@
+---
+bibliography: hw_acceleration.bib
+---
+
+# Accelerazione IA {#sec-ai_acceleration}
+
+::: {.content-visible when-format="html"}
+Risorse: [Slide](#sec-ai-acceleration-resource), [Video](#sec-ai-acceleration-resource), [Esercizi](#sec-ai-acceleration-resource), [Laboratori](#sec-ai-acceleration-resource)
+:::
+
+![_DALL·E 3 Prompt: Creare una rappresentazione intricata e colorata di un progetto di  System on Chip (SoC) in un formato rettangolare. Mostrare una varietà di acceleratori e piccoli chip di machine learning specializzati, tutti integrati nel processore. Fornire una vista dettagliata all'interno del chip, evidenziando il rapido movimento degli elettroni. Ogni acceleratore e piccolo chip dovrebbe essere progettato per interagire con i neuroni, gli strati e le attivazioni della rete neurale, enfatizzandone la velocità di elaborazione. Rappresentare le reti neurali come una rete di nodi interconnessi, con flussi di dati vibranti che scorrono tra i pezzi dell'acceleratore, mostrando la migliorata velocità di elaborazione._](images/png/cover_ai_hardware.png)
+
+L'implementazione di ML su dispositivi edge presenta sfide quali velocità di elaborazione limitata, vincoli di memoria e rigorosi requisiti di efficienza energetica. Per superare queste sfide, l'accelerazione hardware specializzata è fondamentale. Gli acceleratori hardware sono progettati per ottimizzare attività ad alta intensità di calcolo come l'inferenza utilizzando chip di silicio personalizzati su misura per moltiplicazioni di matrici, fornendo accelerazioni significative rispetto alle CPU per uso generico. Ciò consente l'esecuzione in tempo reale di modelli avanzati su dispositivi con rigorosi vincoli di dimensioni, peso e potenza.
+
+::: {.callout-tip}
+
+## Obiettivi dell'Apprendimento
+
+* Comprendere perché l'accelerazione hardware è necessaria per i carichi di lavoro AI
+
+* Esaminare le opzioni chiave di accelerazione come GPU, TPU, FPGA e ASIC e i loro compromessi
+
+* Scoprire modelli di programmazione, framework e compilatori per acceleratori AI
+
+* Apprezzare l'importanza del benchmarking e delle metriche per la valutazione hardware
+
+* Riconoscere il ruolo della progettazione congiunta hardware-software nella creazione di sistemi efficienti
+
+* Ottenere visibilità su direzioni di ricerca all'avanguardia come il calcolo neuromorfico e quantistico
+
+* Comprendere come il ML sta iniziando ad aumentare e migliorare la progettazione hardware
+
+:::
+
+## Introduzione
+
+Probabilmente avrete notato la crescente domanda di integrazione dell'apprendimento automatico nei dispositivi di uso quotidiano, come gli smartphone nelle nostre tasche, gli elettrodomestici intelligenti e persino i veicoli autonomi. Portare le funzionalità di ML in questi ambienti del mondo reale è entusiasmante, ma comporta una serie di sfide. A differenza dei potenti server dei data center, questi dispositivi edge hanno risorse di elaborazione limitate, il che rende difficile eseguire modelli complessi in modo efficace.
+
+L'accelerazione hardware specializzata è la chiave per rendere possibile l'apprendimento automatico ad alte prestazioni su dispositivi edge con risorse limitate. Quando parliamo di accelerazione hardware, ci riferiamo all'uso di chip e architetture personalizzati progettati per gestire il pesante lavoro delle operazioni di ML, alleggerendo il carico del processore principale. Nelle reti neurali, alcune delle attività più impegnative riguardano le moltiplicazioni di matrici durante l'inferenza. Gli acceleratori hardware sono progettati per ottimizzare queste operazioni, spesso offrendo accelerazioni da 10 a 100 volte superiori rispetto alle CPU per uso generico. Questo tipo di accelerazione è ciò che rende fattibile l'esecuzione di modelli di reti neurali avanzate su dispositivi limitati da dimensioni, peso e potenza, e di fare tutto in tempo reale.
+
+In questo capitolo, esamineremo più da vicino le diverse tecniche di accelerazione hardware disponibili per l'apprendimento automatico embedded e i compromessi che derivano da ciascuna opzione. L'obiettivo è fornire una solida comprensione di come funzionano queste tecniche, in modo che si possano prendere decisioni informate quando si tratta di scegliere l'hardware giusto e ottimizzare il software. Alla fine, sarete ben equipaggiati per sviluppare capacità di apprendimento automatico ad alte prestazioni su dispositivi edge, anche con i loro vincoli.
+
+## Background e Basi
+
+### Background Storico
+
+Le origini dell'accelerazione hardware risalgono agli anni '60, con l'avvento dei coprocessori matematici in virgola mobile per eliminare i calcoli dalla CPU principale. Un primo esempio è stato il chip [Intel 8087](https://en.wikipedia.org/wiki/Intel_8087) rilasciato nel 1980 per accelerare le operazioni in virgola mobile per il processore 8086. Ciò ha stabilito la pratica di utilizzare processori specializzati per gestire in modo efficiente carichi di lavoro ad alta intensità di calcolo.
+
+Negli anni '90, sono emerse le prime [Graphics Processing Units (GPU)](https://en.wikipedia.org/wiki/History_of_the_graphics_processor) [Unità di elaborazione grafica] per elaborare rapidamente pipeline grafiche per rendering e giochi. La [GeForce 256](https://en.wikipedia.org/wiki/GeForce_256) di Nvidia nel 1999 è stata una delle prime GPU programmabili in grado di eseguire algoritmi software personalizzati. Le GPU esemplificano acceleratori a funzione fissa specifici per dominio e si sono evolute in acceleratori programmabili paralleli.
+
+Negli anni 2000, le GPU sono state applicate all'elaborazione generica in [GPGPU](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units). La loro elevata larghezza di banda di memoria e la produttività computazionale le hanno rese adatte a carichi di lavoro ad alta intensità di calcolo. Ciò ha incluso innovazioni nell'uso di GPU per accelerare il training di modelli di deep learning come [AlexNet](https://papers.nips.cc/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html) nel 2012.
+
+Negli ultimi anni, le [Tensor Processing Unit (TPU)](https://en.wikipedia.org/wiki/Tensor_processing_unit) di Google rappresentano ASIC personalizzati specificamente progettati per la moltiplicazione di matrici nel deep learning. Durante l'inferenza, i loro core tensoriali ottimizzati raggiungono TeraOPS/watt più elevati rispetto a CPU o GPU. L'innovazione continua include tecniche di compressione del modello come [pruning](https://arxiv.org/abs/1506.02626) e [quantizzazione](https://arxiv.org/abs/1609.07061) per adattare reti neurali più grandi su dispositivi edge.
+
+Questa evoluzione dimostra come l'accelerazione hardware si sia concentrata sulla risoluzione di colli di bottiglia ad alta intensità di calcolo, dalla matematica in virgola mobile alla grafica alla moltiplicazione di matrici per ML. Comprendere questa storia fornisce un contesto cruciale per gli acceleratori AI specializzati odierni.
+
+### La Necessità di Accelerazione
+
+L'evoluzione dell'accelerazione hardware è strettamente legata alla storia più ampia dell'informatica. Centrale in questa storia è il ruolo dei transistor, i mattoni fondamentali dell'elettronica moderna. I transistor agiscono come piccoli interruttori che possono accendersi o spegnersi, consentendo i calcoli complessi che guidano tutto, dalle semplici calcolatrici ai modelli avanzati di apprendimento automatico. Nei primi decenni, la progettazione dei chip era governata dalla legge di Moore, che prevedeva che il numero di transistor su un circuito integrato sarebbe raddoppiato approssimativamente ogni due anni, e dal Dennard Scaling, che osservava che man mano che i transistor diventavano più piccoli, le loro prestazioni (velocità) aumentavano, mentre la densità di potenza (potenza per unità di area) rimaneva costante. Queste due leggi sono state mantenute durante l'era single-core. @fig-moore-dennard mostra le tendenze di diverse metriche dei microprocessori. Come indica la figura, il Dennard Scaling fallisce intorno alla metà degli anni 2000; si noti come la velocità di clock (frequenza) rimanga pressoché costante anche se il numero di transistor continua ad aumentare.
+
+![Tendenze dei Microprocessori. Fonte: [Karl Rupp](https://www.karlrupp.net/2018/02/42-years-of-microprocessor-trend-data/).](images/png/hwai_40yearsmicrotrenddata.png){#fig-moore-dennard}
+
+Tuttavia, come descrive @patterson2016computer, i vincoli tecnologici alla fine hanno imposto una transizione all'era multicore, con chip contenenti più core di elaborazione per offrire guadagni in termini di prestazioni. Le limitazioni di potenza hanno impedito un ulteriore ridimensionamento, il che ha portato al "silicio scuro" ([Dark Silicon](https://en.wikipedia.org/wiki/Dark_silicon)), in cui non tutte le aree del chip potevano essere attive simultaneamente [@xiu2019time].
+
+"Dark silicon" si riferisce a parti del chip che non possono essere alimentate simultaneamente a causa di limitazioni termiche e di potenza. In sostanza, con l'aumento della densità dei transistor, la quota del chip che poteva essere utilizzata attivamente senza surriscaldarsi o superare i budget di potenza si è ridotta.
+
+Questo fenomeno ha comportato che, sebbene i chip avessero più transistor, non tutti potevano essere operativi simultaneamente, limitando i potenziali guadagni in termini di prestazioni. Questa crisi energetica ha reso necessario un passaggio all'era degli acceleratori, con unità hardware specializzate su misura per attività specifiche per massimizzare l'efficienza. L'esplosione dei carichi di lavoro dell'intelligenza artificiale ha ulteriormente spinto la domanda di acceleratori personalizzati. I fattori abilitanti includevano nuovi linguaggi di programmazione, strumenti software e progressi nella produzione.
+
+Fondamentalmente, gli acceleratori hardware vengono valutati in base a Prestazioni, Potenza e Area di silicio (PPA); la natura dell'applicazione target, sia essa legata alla memoria o al calcolo, influenza notevolmente la progettazione. Ad esempio, i carichi di lavoro legati alla memoria richiedono un'elevata larghezza di banda e un accesso a bassa latenza, mentre le applicazioni legate al calcolo richiedono la massima produttività di elaborazione.
+
+### Principi Generali
+
+La progettazione di acceleratori hardware specializzati comporta la gestione di compromessi complessi tra prestazioni, efficienza energetica, area di silicio e ottimizzazioni specifiche del carico di lavoro. Questa sezione delinea considerazioni e metodologie fondamentali per raggiungere un equilibrio ottimale in base ai requisiti dell'applicazione e ai vincoli hardware.
+
+#### Prestazioni entro i Budget di Potenza
+
+Per capire come raggiungere il giusto equilibrio tra prestazioni e budget di potenza, è importante definire prima alcuni concetti chiave che svolgono un ruolo cruciale in questo processo. Le prestazioni si riferiscono in generale alla capacità complessiva di un sistema di completare efficacemente le attività di calcolo entro determinati vincoli. Uno dei componenti chiave delle prestazioni è il throughput, ovvero la velocità con cui vengono elaborate queste attività, comunemente misurata in "floating point operations per second (FLOPS)" [operazioni in virgola mobile al secondo ] o frame al secondo (FPS). Il throughput dipende fortemente dal parallelismo, ovvero la capacità dell'hardware di eseguire più operazioni contemporaneamente, e dalla frequenza di clock, ovvero la velocità con cui il processore esegue ciclicamente queste operazioni. Un throughput più elevato in genere comporta prestazioni migliori, ma aumenta anche il consumo di energia all'aumentare dell'attività.
+
+La semplice massimizzazione del throughput non è sufficiente; anche l'efficienza dell'hardware è importante. L'efficienza è la misura di quante operazioni vengono eseguite per watt di potenza consumata, riflettendo la relazione tra lavoro di calcolo e consumo di energia. In scenari in cui la potenza è un fattore limitante, come nei dispositivi edge, ottenere un'elevata efficienza è fondamentale. Per aiutare a ricordare come questi concetti si interconnettono, considerare le seguenti relazioni:
+
+* **Prestazioni** = Throughput * Efficienza
+* **Throughput** ~= Parallelismo * Frequenza di Clock
+* **Efficienza** = Operazioni / Watt
+
+Gli acceleratori hardware mirano a massimizzare le prestazioni entro budget di potenza stabiliti. Ciò richiede un attento bilanciamento del parallelismo, della frequenza di clock del chip, della tensione di esercizio, dell'ottimizzazione del carico di lavoro e di altre tecniche per massimizzare le operazioni per watt.
+
+Ad esempio, le GPU raggiungono un throughput elevato tramite architetture massivamente parallele. Tuttavia, la loro efficienza è inferiore a quella dei circuiti integrati specifici per applicazione (ASIC) personalizzati come il TPU di Google, che ottimizzano per un carico di lavoro specifico.
+
+#### Gestione dell'Area e dei Costi del Silicio
+
+La dimensione dell'area di un chip ha un impatto diretto sul suo costo di produzione. Per capirne il motivo, è utile conoscere un po' il processo di produzione.
+
+I chip vengono creati da grandi e sottili fette di materiale semiconduttore note come wafer. Durante la produzione, ogni wafer viene suddiviso in blocchi più piccoli chiamati "die", e ogni die contenente i circuiti per un singolo chip. Dopo che il wafer è stato elaborato, viene tagliato in questi singoli die, che vengono poi confezionati per formare i chip finali utilizzati nei dispositivi elettronici.
+
+I die più grandi richiedono più materiale e sono più inclini a difetti, il che può ridurre la resa, il che significa che vengono prodotti meno chip utilizzabili da ogni wafer. Mentre i produttori possono scalare i progetti combinando più die più piccoli in un singolo pacchetto (pacchetti multi-die), ciò aggiunge complessità e costi al processo di confezionamento e produzione.
+
+La quantità di area di silicio necessaria su un die dipende da diversi fattori:
+
+* **Risorse di Calcolo**, ad esempio numero di core, memoria, cache
+* **Nodo del Processo di Produzione**, transistor più piccoli consentono una maggiore densità
+* **Modello di Programmazione**, acceleratori programmati richiedono maggiore flessibilità
+
+La progettazione dell'acceleratore implica la compressione delle massime prestazioni entro questi vincoli di area del silicio. Tecniche come la potatura e la compressione aiutano ad adattare modelli più grandi al chip senza superare lo spazio disponibile.
+
+#### Ottimizzazioni Specifiche del Carico di Lavoro
+
+La progettazione di acceleratori hardware efficaci richiede di adattare l'architettura alle esigenze specifiche del carico di lavoro target. Diversi tipi di carichi di lavoro, che siano in AI, grafica o robotica, hanno caratteristiche uniche che stabiliscono come l'acceleratore dovrebbe essere ottimizzato.
+
+Alcune delle considerazioni chiave quando si ottimizza l'hardware per carichi di lavoro specifici includono:
+
+* **Memoria vs Limiti di Calcolo:** I carichi di lavoro vincolati alla memoria richiedono una maggiore larghezza di banda di memoria, mentre le app vincolate al calcolo necessitano di un throughput [produttività] aritmetico.
+* **Località dei Dati:** Lo spostamento dei dati dovrebbe essere ridotto al minimo per l'efficienza. La memoria vicina al calcolo aiuta.
+* **Operazioni a Livello di Bit:** I tipi di dati a bassa precisione come INT8/INT4 ottimizzano la densità di calcolo.
+* **Parallelismo dei Dati:** Più unità di calcolo replicate consentono l'esecuzione parallela.
+* **Pipelining:** L'esecuzione sovrapposta delle operazioni aumenta la produttività.
+
+La comprensione delle caratteristiche del carico di lavoro consente un'accelerazione personalizzata. Ad esempio, le reti neurali convoluzionali utilizzano operazioni di "finestra scorrevole" mappate in modo ottimale su array spaziali di elementi di elaborazione.
+
+Grazie alla comprensione di questi compromessi architettonici, i progettisti possono prendere decisioni informate sull'architettura dell'acceleratore hardware, assicurandosi che fornisca le migliori prestazioni possibili per l'uso previsto.
+
+#### Progettazione Hardware Sostenibile
+
+Negli ultimi anni, la sostenibilità dell'IA è diventata una preoccupazione urgente, guidata da due fattori chiave: la scala crescente dei carichi di lavoro dell'IA e il consumo energetico associato.
+
+Innanzitutto, le dimensioni dei modelli e dei set di dati dell'IA sono cresciute rapidamente. Ad esempio, in base alle tendenze di elaborazione dell'IA di OpenAI, la quantità di elaborazione utilizzata per addestrare modelli all'avanguardia raddoppia ogni 3,5 mesi. Questa crescita esponenziale richiede enormi risorse di elaborazione nei data center.
+
+In secondo luogo, l'uso di energia per l'addestramento e l'inferenza dell'IA presenta problemi di sostenibilità. I data center che eseguono applicazioni di IA consumano molta energia, contribuendo a elevate emissioni di carbonio. Si stima che l'addestramento di un grande modello di IA possa avere un'impronta di carbonio di 626.000 libbre di CO~2~ equivalente, quasi 5 volte le emissioni di un'auto media nel corso della sua vita.
+
+Per affrontare queste sfide, la progettazione hardware sostenibile si concentra sull'ottimizzazione dell'efficienza energetica senza compromettere le prestazioni. Ciò comporta lo sviluppo di acceleratori specializzati che riducono al minimo il consumo di energia massimizzando al contempo la produttività computazionale.
+
+Parleremo di [IA sostenibile](../sustainable_ai/sustainable_ai.it.qmd) in un capitolo successivo, dove ne discuteremo più in dettaglio.
+
+## Tipi di acceleratori {#sec-aihw}
+
+Gli acceleratori hardware possono assumere molte forme. Possono esistere come widget (come il [Neural Engine nel chip Apple M1](https://www.apple.com/newsroom/2020/11/apple-unleashes-m1/)) o come interi chip appositamente progettati per svolgere molto bene determinate attività. Questa sezione esaminerà i processori per carichi di lavoro di apprendimento automatico lungo lo spettro che va dagli ASIC altamente specializzati alle CPU più generiche.
+
+Ci concentriamo prima sull'hardware personalizzato appositamente progettato per l'intelligenza artificiale per comprendere le ottimizzazioni più estreme possibili quando vengono rimossi i vincoli di progettazione. Questo stabilisce un limite massimo per prestazioni ed efficienza. Poi prendiamo in considerazione progressivamente architetture più programmabili e adattabili, discutendo di GPU e FPGA. Queste fanno compromessi nella personalizzazione per mantenere la flessibilità. Infine, trattiamo le CPU generiche che sacrificano le ottimizzazioni per un carico di lavoro particolare in cambio di una programmabilità versatile tra le applicazioni.
+
+Strutturando l'analisi lungo questo spettro, miriamo a illustrare i compromessi fondamentali tra utilizzo, efficienza, programmabilità e flessibilità nella progettazione dell'acceleratore. Il punto di equilibrio ottimale dipende dai vincoli e dai requisiti dell'applicazione target. Questa prospettiva dello spettro fornisce un quadro per ragionare sulle scelte hardware per l'apprendimento automatico e sulle capacità richieste a ciascun livello di specializzazione.
+
+@fig-design-tradeoffs illustra la complessa interazione tra flessibilità, prestazioni, diversità funzionale e area di progettazione dell'architettura. Notare come l'ASIC si trovi nell'angolo in basso a destra, con area minima, flessibilità e consumo energetico e prestazioni massime, a causa della sua natura altamente specializzata per l'applicazione. Un compromesso chiave è la diversità funzionale rispetto alle prestazioni: le architetture per uso generico possono servire applicazioni diverse, ma le loro prestazioni applicative sono degradate rispetto alle architetture più personalizzate.
+
+![Compromessi di Progettazione. Fonte: @rayis2014.](images/png/tradeoffs.png){#fig-design-tradeoffs}
+
+La progressione inizia con l'opzione più specializzata, gli ASIC appositamente progettati per l'intelligenza artificiale, per basare la nostra comprensione sulle massime ottimizzazioni possibili prima di espanderci ad architetture più generalizzabili. Questo approccio strutturato chiarisce lo spazio di progettazione dell'acceleratore.
+
+### Application-Specific Integrated Circuits (ASIC)
+
+Un "circuito integrato specifico per applicazione" (ASIC) è un tipo di [circuito integrato](https://en.wikipedia.org/wiki/Integrated_circuit) (IC) progettato su misura per un'applicazione o un carico di lavoro specifico, anziché per un uso generico. A differenza di CPU e GPU, gli ASIC non supportano più applicazioni o carichi di lavoro. Piuttosto, sono ottimizzati per eseguire un singolo compito in modo estremamente efficiente. Google TPU è un esempio di ASIC.
+
+Gli ASIC raggiungono questa efficienza adattando ogni aspetto del design del chip, ovvero le porte logiche sottostanti, i componenti elettronici, l'architettura, la memoria, l'I/O e il processo di produzione, specificamente per l'applicazione target. Questo livello di personalizzazione consente di rimuovere qualsiasi logica o funzionalità non necessaria richiesta per il calcolo generale. Il risultato è un IC che massimizza le prestazioni e l'efficienza energetica sul carico di lavoro desiderato. I guadagni di efficienza derivanti dall'hardware specifico per applicazione sono così sostanziali che queste aziende incentrate sul software dedicano enormi risorse ingegneristiche alla progettazione di ASIC personalizzati.
+
+L'ascesa di algoritmi di apprendimento automatico più complessi ha reso i vantaggi prestazionali abilitati dall'accelerazione hardware personalizzata un fattore di differenziazione competitiva chiave, anche per le aziende tradizionalmente concentrate sull'ingegneria del software. Gli ASIC sono diventati un investimento ad alta priorità per i principali provider cloud che mirano a offrire un calcolo AI più veloce.
+
+#### Vantaggi
+
+Grazie alla loro natura personalizzata, gli ASIC offrono vantaggi significativi rispetto ai processori generici come CPU e GPU. I principali vantaggi includono quanto segue.
+
+##### Prestazioni ed efficienza massimizzate
+
+Il vantaggio più fondamentale degli ASIC è la massimizzazione delle prestazioni e dell'efficienza energetica personalizzando l'architettura hardware specificamente per l'applicazione target. Ogni transistor e aspetto della progettazione è ottimizzato per il carico di lavoro desiderato: non è necessaria alcuna logica o sovraccarico non necessario per supportare il calcolo generico.
+
+Ad esempio, [le Tensor Processing Units (TPU) di Google](https://cloud.google.com/tpu/docs/intro-to-tpu) contengono architetture su misura esattamente per le operazioni di moltiplicazione di matrici utilizzate nelle reti neurali. Per progettare gli ASIC TPU, i team di ingegneria di Google devono definire chiaramente le specifiche del chip, scrivere la descrizione dell'architettura utilizzando linguaggi di descrizione hardware come [Verilog](https://www.verilog.com/), sintetizzare il design per mapparlo sui componenti hardware e posizionare e instradare con cura transistor e collegamenti in base alle regole di progettazione del processo di fabbricazione. Questo complesso processo di progettazione, noto come "very-large-scale integration " (VLSI) [integrazione su larga scala ], consente loro di creare un IC ottimizzato per carichi di lavoro di apprendimento automatico.
+
+Di conseguenza, gli ASIC TPU raggiungono un'efficienza di oltre un ordine di grandezza superiore nelle operazioni per watt rispetto alle GPU per uso generico sui carichi di lavoro di apprendimento automatico massimizzando le prestazioni e riducendo al minimo il consumo energetico tramite un design hardware full-stack personalizzato.
+
+##### Memoria On-Chip Specializzata
+
+Gli ASIC incorporano memoria on-chip, come SRAM (Static Random Access Memory) e cache specificamente ottimizzate per fornire dati alle unità di elaborazione. La SRAM è un tipo di memoria più veloce e affidabile della DRAM (Dynamic Random Access Memory) perché non deve essere aggiornata periodicamente. Tuttavia, richiede più transistor per bit di dati, il che la rende più ingombrante e costosa da produrre rispetto alla DRAM.
+
+La SRAM è ideale per la memoria on-chip, dove la velocità è fondamentale. Il vantaggio di avere grandi quantità di SRAM on-chip ad alta larghezza di banda è che i dati possono essere archiviati vicino agli elementi di elaborazione, consentendo un rapido accesso. Ciò fornisce enormi vantaggi in termini di velocità rispetto all'accesso alla DRAM off-chip, che, sebbene di capacità maggiore, può essere fino a 100 volte più lenta. Ad esempio, il system-on-a-chip M1 di Apple contiene una speciale SRAM a bassa latenza per accelerare le prestazioni del suo hardware di machine learning Neural Engine.
+
+La località dei dati e l'ottimizzazione della gerarchia di memoria sono fondamentali per un throughput elevato e un basso consumo energetico. @tbl-latency-comparison mostra "Numeri che Tutti Dovrebbero Conoscere", di [Jeff Dean](https://research.google/people/jeff/).
+
++-------------------------------------------------------+--------------------------+
+| Operazione                                            | Latenza                  |
++:======================================================+:=========================+
+| Riferimento alla cache L1                             | 0,5 ns                   |
++-------------------------------------------------------+--------------------------+
+| Branch mispredict                                     | 5 ns                     |
++-------------------------------------------------------+--------------------------+
+| Riferimento alla cache L2                             | 7 ns                     |
++-------------------------------------------------------+--------------------------+
+| Blocco/sblocco mutex                                  | 25 ns                    |
++-------------------------------------------------------+--------------------------+
+| Riferimento alla memoria principale                   | 100 ns                   |
++-------------------------------------------------------+--------------------------+
+| Comprimere 1K byte con Zippy                          | 3.000 ns (3 us)          |
++-------------------------------------------------------+--------------------------+
+| Inviare 1 KB byte su una rete da 1 Gbps               | 10.000 ns (10 us)        |
++-------------------------------------------------------+--------------------------+
+| Leggere 4 KB casualmente da SSD                       | 150.000 ns (150 us)      |
++-------------------------------------------------------+--------------------------+
+| Leggere 1 MB in sequenza dalla memoria                | 250.000 ns (250 us)      |
++-------------------------------------------------------+--------------------------+
+| Andata e ritorno all'interno dello stesso data center | 500.000 ns (0,5 ms)      |
++-------------------------------------------------------+--------------------------+
+| Leggere 1 MB in sequenza da SSD                       | 1.000.000 ns (1 ms)      |
++-------------------------------------------------------+--------------------------+
+| Ricerca su disco                                      | 10.000.000 ns (10 ms)    |
++-------------------------------------------------------+--------------------------+
+| Leggere 1 MB in sequenza da disco                     | 20.000.000 ns (20 ms)    |
++-------------------------------------------------------+--------------------------+
+| Inviare un pacchetto CA → Paesi Bassi → CA            | 150.000.000 ns (150 ms)  |
++-------------------------------------------------------+--------------------------+
+
+: Confronto della latenza delle operazioni di elaborazione e di rete. {#tbl-latency-comparison .striped .hover}
+
+
+##### Tipi di Dati e Operazioni Personalizzati
+
+A differenza dei processori generici, gli ASIC possono essere progettati per supportare in modo nativo tipi di dati personalizzati come INT4 o bfloat16, ampiamente utilizzati nei modelli di ML. Ad esempio, l'architettura GPU Ampere di Nvidia ha un bfloat16 dedicato ai Tensor Core per accelerare i carichi di lavoro AI. I tipi di dati a bassa precisione consentono una maggiore densità aritmetica e prestazioni. Per ulteriori dettagli fare riferimento a @sec-efficient-numerics. Gli ASIC possono anche incorporare direttamente operazioni non standard negli algoritmi ML come operazioni primitive, ad esempio, il supporto nativo di funzioni di attivazione come ReLU rende l'esecuzione più efficiente.
+
+##### Parallelismo Elevato
+
+Le architetture ASIC possono sfruttare un parallelismo più elevato ottimizzato per il carico di lavoro del target rispetto alle CPU o GPU generiche. Un maggior numero di unità di calcolo personalizzate per l'applicazione significa più operazioni eseguite simultaneamente. Gli ASIC altamente paralleli raggiungono un throughput enorme per carichi di lavoro paralleli di dati come l'inferenza di reti neurali.
+
+##### Nodi di Processo Avanzati
+
+I processi di produzione all'avanguardia consentono di impacchettare più transistor in aree di die più piccole, aumentando la densità. Gli ASIC progettati specificamente per applicazioni ad alto volume possono ammortizzare meglio i costi dei nodi.
+
+#### Svantaggi
+
+##### Tempistiche di Progettazione Lunghe
+
+Il processo di progettazione e validazione di un ASIC può richiedere 2-3 anni. La sintesi dell'architettura utilizzando linguaggi di descrizione hardware, la definizione del layout del chip e la fabbricazione del chip su nodi di processo avanzati comportano lunghi cicli di sviluppo. Ad esempio, per realizzare un chip da 7 nm, i team devono definire attentamente le specifiche, scrivere l'architettura in HDL, sintetizzare le porte logiche, posizionare i componenti, instradare tutte le interconnessioni e finalizzare il layout da inviare per la fabbricazione. Questa "Very Large-Scale Integration (VLSI)" significa che la progettazione e la produzione di ASIC possono tradizionalmente richiedere 2-5 anni.
+
+Ci sono alcuni motivi chiave per cui le lunghe tempistiche di progettazione degli ASIC, spesso 2-3 anni, possono essere difficili per i carichi di lavoro di apprendimento automatico:
+
+* **Gli algoritmi ML si evolvono rapidamente:** Nuove architetture di modelli, tecniche di training e ottimizzazioni di rete emergono continuamente. Ad esempio, i Transformers sono diventati estremamente popolari nell'NLP negli ultimi anni. Quando un ASIC termina il tapeout, l'architettura ottimale per un carico di lavoro potrebbe essere cambiata.
+* **I dataset crescono rapidamente:** Gli ASIC progettati per determinate dimensioni di modello o tipi di dati possono diventare sottodimensionati rispetto alla domanda. Ad esempio, i modelli di linguaggio naturale stanno aumentando esponenzialmente con più dati e parametri. Un chip progettato per BERT potrebbe non supportare GPT-3.
+* **Le applicazioni ML cambiano frequentemente:** L'attenzione del settore cambia tra visione artificiale, parlato, NLP, sistemi di raccomandazione, ecc. Un ASIC ottimizzato per la classificazione delle immagini potrebbe avere meno rilevanza in pochi anni.
+* **Cicli di progettazione più rapidi con GPU/FPGA:** Gli acceleratori programmabili come le GPU possono adattarsi molto più rapidamente aggiornando le librerie software e i framework. I nuovi algoritmi possono essere implementati senza modifiche hardware.
+* **Esigenze di time-to-market:** Ottenere un vantaggio competitivo in ML richiede di sperimentare e implementare rapidamente nuove idee. Attendere diversi anni per un ASIC è diverso da un'iterazione rapida.
+
+Il ritmo dell'innovazione in ML deve essere adattato meglio alla scala temporale pluriennale per lo sviluppo di ASIC. Sono necessari notevoli sforzi ingegneristici per estendere la durata di vita di ASIC tramite architetture modulari, ridimensionamento dei processi, compressione dei modelli e altre tecniche. Tuttavia, la rapida evoluzione di ML rende l'hardware a funzione fissa una sfida.
+
+##### Elevati Costi di Progettazione Non Ricorrenti
+
+I costi fissi per portare un ASIC dalla progettazione alla produzione ad alto volume possono essere molto dispendiosi in termini di capitale, spesso decine di milioni di dollari. La fabbricazione di fotomaschere per il tape-out dei chip in nodi di processo avanzati, il packaging e il lavoro di progettazione una tantum sono costosi. Ad esempio, un solo tape-out del chip da 7 nm potrebbe costare milioni. L'elevato "non-recurring engineering (NRE)" [investimento di progettazione non ricorrente] riduce la fattibilità dell'ASIC ai casi di utilizzo della produzione ad alto volume in cui il costo iniziale può essere ammortizzato.
+
+##### Integrazione e Programmazione Complesse
+
+Gli ASIC richiedono un ampio lavoro di integrazione software, inclusi driver, compilatori, supporto del sistema operativo e strumenti di debug. Hanno anche bisogno di competenza nel packaging elettrico e termico. Inoltre, programmare in modo efficiente le architetture ASIC può comportare sfide come il partizionamento del carico di lavoro e la pianificazione su molte unità parallele. La natura personalizzata richiede notevoli sforzi di integrazione per trasformare l'hardware grezzo in acceleratori completamente operativi.
+
+Mentre gli ASIC forniscono enormi guadagni di efficienza nelle applicazioni target adattando ogni aspetto della progettazione hardware a un'attività specifica, la loro natura fissa comporta compromessi in termini di flessibilità e costi di sviluppo rispetto agli acceleratori programmabili, che devono essere soppesati in base all'applicazione.
+
+### Field-Programmable Gate Array (FPGA)
+
+Gli FPGA sono circuiti integrati programmabili che possono essere riconfigurati per diverse applicazioni. La loro natura personalizzabile offre vantaggi per accelerare gli algoritmi AI rispetto agli ASIC fissi o alle GPU inflessibili. Mentre Google, Meta e NVIDIA stanno valutando di installare gli ASIC nei data center, Microsoft ha distribuito gli FPGA nei suoi data center [@putnam2014reconfigurable] nel 2011 per servire in modo efficiente diversi carichi di lavoro.
+
+Gli FPGA hanno trovato ampia applicazione in vari campi, tra cui l'imaging medico, la robotica e la finanza, dove eccellono nella gestione di attività di machine learning ad alta intensità di calcolo. Nell'imaging medico, un esempio illustrativo è l'applicazione degli FPGA per la segmentazione dei tumori cerebrali, un processo tradizionalmente dispendioso in termini di tempo e soggetto a errori. Rispetto alle implementazioni tradizionali di GPU e CPU, gli FPGA hanno dimostrato rispettivamente miglioramenti delle prestazioni di oltre 5 e 44 volte e guadagni di 11 e 82 volte in termini di efficienza energetica, evidenziando il loro potenziale per applicazioni esigenti [@xiong2021mribased].
+
+#### Vantaggi
+
+Gli FPGA offrono diversi vantaggi rispetto alle GPU e agli ASIC per accelerare i carichi di lavoro di apprendimento automatico.
+
+##### Flessibilità Tramite "Reconfigurable Fabric"
+
+Il vantaggio principale degli FPGA è la capacità di riconfigurare il "fabric" [tessuto] sottostante per implementare architetture personalizzate ottimizzate per diversi modelli, a differenza degli ASIC a funzione fissa. Ad esempio, le società di trading quantitativo utilizzano gli FPGA per accelerare i loro algoritmi perché cambiano frequentemente e il basso costo NRE degli FPGA è più fattibile rispetto acquistare i nuovi ASIC. @fig-different-fpgas contiene una tabella che confronta tre diversi FPGA.
+
+![Confronto di FPGA. Fonte: @gwennap_certus-nx_nodate.](images/png/fpga.png){#fig-different-fpgas}
+
+Gli FPGA comprendono blocchi di base: blocchi logici configurabili, blocchi RAM e interconnessioni. Vengono fornite una quantità base di queste risorse e gli ingegneri programmano i chip compilando il codice HDL in flussi di bit che riorganizzano la struttura in diverse configurazioni. Questo rende gli FPGA adattabili man mano che gli algoritmi evolvono.
+
+Sebbene gli FPGA possano non raggiungere le massime prestazioni ed efficienza degli ASIC specifici per il carico di lavoro, la loro programmabilità offre maggiore flessibilità man mano che gli algoritmi cambiano. Questa adattabilità rende gli FPGA una scelta interessante per accelerare le applicazioni di machine learning in evoluzione.
+
+##### Parallelismo e Pipeline Personalizzati
+
+Le architetture FPGA possono sfruttare il parallelismo spaziale e il pipelining adattando la progettazione hardware per rispecchiare il parallelismo nei modelli ML. Ad esempio, su una piattaforma FPGA HARPv2 di Intel è possibile suddividere i layer di una rete convoluzionale su elementi di elaborazione separati per massimizzare la produttività. Sugli FPGA sono possibili anche pattern paralleli unici come le valutazioni di "ensemble" ad albero. Pipeline profonde con buffering e flusso di dati ottimizzati possono essere personalizzate in base alla struttura e ai tipi di dati di ogni modello. Questo livello di parallelismo e pipeline su misura non è fattibile sulle GPU.
+
+##### Memoria On-Chip a Bassa Latenza
+
+Grandi quantità di memoria on-chip ad alta larghezza di banda consentono l'archiviazione localizzata per pesi e attivazioni. Ad esempio, gli FPGA Xilinx Versal contengono 32 MB di blocchi RAM a bassa latenza e interfacce DDR4 a doppio canale per la memoria esterna. Avvicinare fisicamente la memoria alle unità di elaborazione riduce la latenza di accesso. Ciò fornisce significativi vantaggi di velocità rispetto alle GPU che attraversano PCIe (Peripheral Component Interconnect Express) o altri bus di sistema per raggiungere la memoria GDDR6 off-chip.
+
+##### Supporto Nativo per Bassa Precisione
+
+Un vantaggio fondamentale degli FPGA è la capacità di implementare in modo nativo qualsiasi larghezza di bit per unità aritmetiche, come INT4 o bfloat16, utilizzate nei modelli ML quantizzati. Ad esempio, [Intel Stratix 10 NX FPGA
+](https://www.intel.com/content/www/us/en/products/details/fpga/stratix/10/nx.html) ha core INT8 dedicati che possono raggiungere fino a 143 INT8 TOPS (Tera Operations Per Second) a ~1 TOPS/W (Tera Operations Per Second per Watt). TOPS è una misura di prestazioni simile a FLOPS, ma mentre FLOPS misura calcoli in virgola mobile, TOPS misura il numero di operazioni intere che un sistema può eseguire al secondo. Le larghezze di bit inferiori, come INT8 o INT4, aumentano la densità aritmetica e le prestazioni. Gli FPGA possono persino supportare la sintonizzazione a precisione mista o dinamica in fase di esecuzione.
+
+#### Svantaggi
+
+##### Throughput di Picco Inferiore Rispetto agli ASIC
+
+Gli FPGA non possono eguagliare i numeri di throughput grezzi degli ASIC, personalizzati per un modello e una precisione specifici. I sovraccarichi del "fabric" riconfigurabile rispetto all'hardware a funzione fissa comportano prestazioni di picco inferiori. Ad esempio, i pod TPU v5e consentono di connettere fino a 256 chip con oltre 100 PetaOps (Peta Operations Per Second) di prestazioni INT8, mentre gli FPGA possono offrire fino a 143 INT8 TOPS o 286 INT4 TOPS come sull'FPGA Intel Stratix 10 NX; PetaOps rappresenta quadrilioni di operazioni al secondo, mentre TOPS misura trilioni, evidenziando la capacità di elaborazione molto maggiore dei pod TPU rispetto agli FPGA.
+
+Questo perché gli FPGA comprendono blocchi di base: blocchi logici configurabili, blocchi RAM e interconnessioni. Vengono forniti con una quantità stabilita di queste risorse. Per programmare gli FPGA, gli ingegneri scrivono codice HDL e lo compilano in flussi di bit che riorganizzano il "fabric", che ha sovraccarichi intrinseci rispetto a un ASIC appositamente progettato per un calcolo.
+
+##### Complessità di Programmazione
+
+Per ottimizzare le prestazioni FPGA, gli ingegneri devono programmare le architetture in linguaggi di descrizione hardware di basso livello come Verilog o VHDL. Ciò richiede competenza nella progettazione hardware e cicli di sviluppo più lunghi rispetto a framework software di livello superiore come TensorFlow. Massimizzare l'utilizzo può essere difficile nonostante i progressi nella sintesi di alto livello da C/C++.
+
+##### Sovraccarichi di Riconfigurazione
+
+La modifica delle configurazioni FPGA richiede il ricaricamento di un nuovo flusso di bit, che ha costi di latenza e dimensioni di archiviazione considerevoli. Ad esempio, la riconfigurazione parziale su FPGA Xilinx può richiedere centinaia di millisecondi. Questo rende impossibile lo scambio dinamico di architetture in tempo reale. L'archiviazione del flusso di bit consuma anche memoria on-chip.
+
+##### Guadagni in diminuzione sui nodi avanzati
+
+Sebbene i nodi di processo più piccoli siano molto vantaggiosi per gli ASIC, offrono meno vantaggi per gli FPGA. A 7 nm e al di sotto, effetti come variazione di processo, vincoli termici e invecchiamento hanno un impatto sproporzionato sulle prestazioni degli FPGA. Anche le spese generali della struttura configurabile riducono i guadagni rispetto agli ASIC a funzione fissa.
+
+### Digital Signal Processor (DSP)
+
+Il primo core di elaborazione del segnale digitale è stato costruito nel 1948 da Texas Instruments ([The Evolution of Audio DSPs](https://audioxpress.com/article/the-evolution-of-audio-dsps)). Tradizionalmente, i DSP avrebbero avuto una logica per accedere direttamente ai dati digitali/audio nella memoria, eseguire un'operazione aritmetica (moltiplica-addiziona-accumula-MAC era una delle operazioni più comuni) e quindi scrivere il risultato nella memoria. Il DSP avrebbe incluso componenti analogici specializzati per recuperare i dati digitali/audio.
+
+Una volta entrati nell'era degli smartphone, i DSP hanno iniziato a comprendere attività più sofisticate. Richiedevano Bluetooth, Wi-Fi e connettività cellulare. Anche i media sono diventati molto più complessi. Oggi, è raro avere chip interi dedicati solo al DSP, ma un System on Chip includerebbe DSP e CPU per uso generico. Ad esempio, l'[Hexagon Digital Signal Processor](https://developer.qualcomm.com/software/hexagon-dsp-sdk/dsp-processor) di Qualcomm afferma di essere un "processore di livello mondiale con funzionalità sia CPU che DSP per supportare le esigenze di elaborazione profondamente integrate della piattaforma mobile per funzioni sia multimediali che modem". [Google Tensors](https://blog.google/products/pixel/google-tensor-g3-pixel-8/), il chip nei telefoni Google Pixel, include anche CPU e motori DSP specializzati.
+
+#### Vantaggi
+
+I DSP offrono vantaggi architettonici in termini di throughput della matematica vettoriale, accesso alla memoria a bassa latenza, efficienza energetica e supporto per diversi tipi di dati, rendendoli adatti all'accelerazione ML embedded.
+
+##### Architettura Ottimizzata per la Matematica Vettoriale
+
+I DSP contengono percorsi dati specializzati, file di registro e istruzioni ottimizzati specificamente per le operazioni di matematica vettoriale comunemente utilizzate nei modelli di apprendimento automatico. Ciò include motori di prodotto scalare, unità MAC e funzionalità SIMD su misura per calcoli vettoriali/matriciali. Ad esempio, il DSP CEVA-XM6 (["Ceva SensPro fonde AI e Vector DSP"](https://www.ceva-dsp.com/wp-content/uploads/2020/04/Ceva-SensPro-Fuses-AI-and-Vector-DSP.pdf)) ha unità vettoriali a 512 bit per accelerare le convoluzioni. Questa efficienza sui carichi di lavoro di matematica vettoriale va ben oltre le CPU generiche.
+
+##### Memoria On-Chip a Bassa Latenza
+
+I DSP integrano grandi quantità di memoria SRAM veloce su chip per conservare i dati localmente per l'elaborazione. Avvicinare fisicamente la memoria alle unità di calcolo riduce la latenza di accesso. Ad esempio, il DSP SHARC+ di Analog contiene 10 MB di SRAM su chip. Questa memoria locale ad alta larghezza di banda offre vantaggi di velocità per le applicazioni in tempo reale.
+
+##### Efficienza Energetica
+
+I DSP sono progettati per fornire elevate prestazioni per watt su carichi di lavoro di segnali digitali. Percorsi dati efficienti, parallelismo e architetture di memoria consentono trilioni di operazioni matematiche al secondo entro budget di potenza mobili ridotti. Ad esempio, [l'Hexagon DSP di Qualcomm](https://developer.qualcomm.com/software/hexagon-dsp-sdk/dsp-processor) può fornire 4 TOPS consumando un numero minimo di watt.
+
+##### Supporto per Matematica a Virgola Mobile e Intera
+
+A differenza delle GPU che eccellono in precisione singola o dimezzata, i DSP possono supportare nativamente tipi di dati a virgola mobile e intera a 8/16 bit utilizzati nei modelli ML. Alcuni DSP supportano l'accelerazione del prodotto scalare a precisione INT8 per reti neurali quantizzate.
+
+#### Svantaggi
+
+I DSP fanno compromessi architettonici che limitano il throughput di picco, la precisione e la capacità del modello rispetto ad altri acceleratori AI. Tuttavia, i loro vantaggi in termini di efficienza energetica e matematica intera li rendono una valida opzione di edge computing. Quindi, mentre i DSP offrono alcuni vantaggi rispetto alle CPU, presentano anche delle limitazioni per i carichi di lavoro di apprendimento automatico:
+
+##### Throughput di Picco Inferiore Rispetto ad ASIC/GPU
+
+I DSP non possono eguagliare il throughput computazionale grezzo delle GPU o degli ASIC personalizzati progettati specificamente per l'apprendimento automatico. Ad esempio, l'ASIC Cloud AI 100 di Qualcomm fornisce 480 TOPS su INT8, mentre il loro DSP Hexagon fornisce 10 TOPS. I DSP non hanno il massiccio parallelismo delle unità GPU SM.
+
+##### Prestazioni a Doppia Precisione più Lente
+
+La maggior parte dei DSP deve essere ottimizzata per la virgola mobile di precisione più elevata necessaria in alcuni modelli ML. I loro motori di prodotto scalare si concentrano su INT8/16 e FP32, che forniscono una migliore efficienza energetica. Tuttavia, la produttività in virgola mobile a 64 bit è molto più bassa, il che può limitare l'utilizzo nei modelli che richiedono un'elevata precisione.
+
+##### Capacità del Modello Limitata
+
+La limitata memoria on-chip dei DSP limita le dimensioni del modello che possono eseguire. Grandi modelli di deep learning con centinaia di megabyte di parametri supererebbero la capacità delle SRAM on-chip. I DSP sono più adatti per modelli di piccole e medie dimensioni destinati a dispositivi edge.
+
+##### Complessità di Programmazione
+
+La programmazione efficiente delle architetture DSP richiede competenza nella programmazione parallela e nell'ottimizzazione dei pattern di accesso ai dati. Le loro microarchitetture specializzate hanno una curva di apprendimento più ripida rispetto ai framework software di alto livello, rendendo lo sviluppo più complesso.
+
+### Graphics Processing Unit (GPU)
+
+Il termine "graphics processing unit " [unità di elaborazione grafica] esiste almeno dagli anni '80. C'è sempre stata una richiesta di hardware grafico nelle console per videogiochi (elevata richiesta, doveva avere un costo relativamente basso) e nelle simulazioni scientifiche (richiesta inferiore, ma risoluzione più alta, poteva avere un prezzo elevato).
+
+Il termine è stato reso popolare, tuttavia, nel 1999 quando NVIDIA ha lanciato la GeForce 256, mirando principalmente al settore di mercato dei giochi per PC [@lindholm2008nvidia]. Man mano che i giochi per PC diventavano più sofisticati, le GPU NVIDIA diventavano più programmabili. Presto, gli utenti si resero conto che potevano sfruttare questa programmabilità, eseguire vari carichi di lavoro non correlati alla grafica sulle GPU e trarre vantaggio dall'architettura sottostante. E così, alla fine degli anni 2000, le GPU divennero unità di elaborazione grafica per uso generale o GP-GPU.
+
+In seguito a questo cambiamento, altri importanti attori come Intel con la sua [Arc Graphics](https://www.intel.com/content/www/us/en/products/details/fpga/stratix/10/nx.html) e AMD con la sua serie [Radeon RX](https://www.amd.com/en/graphics/radeon-rx-graphics) hanno anche evoluto le loro GPU per supportare una gamma più ampia di applicazioni oltre al rendering grafico tradizionale. Questa espansione delle capacità delle GPU ha aperto nuove possibilità, in particolare nei campi che richiedono un'enorme potenza di calcolo.
+
+Un esempio lampante di questo potenziale è la recente ricerca rivoluzionaria condotta da OpenAI [@brown2020language] con GPT-3, un modello di linguaggio con 175 miliardi di parametri. L'addestramento di un modello così massiccio, che avrebbe richiesto mesi su CPU convenzionali, è stato completato in pochi giorni utilizzando potenti GPU, dimostrando l'impatto trasformativo delle GPU nell'accelerazione di complesse attività di apprendimento automatico.
+
+#### Vantaggi
+
+##### Elevata Capacità di Elaborazione
+
+Il vantaggio principale delle GPU è la loro capacità di eseguire calcoli in virgola mobile paralleli massivi ottimizzati per la computer grafica e l'algebra lineare [@rajat2009largescale]. Le GPU moderne come la A100 di Nvidia offrono fino a 19,5 teraflop di prestazioni FP32 con 6912 core CUDA e 40 GB di memoria grafica strettamente accoppiati a 1,6 TB/s di larghezza di banda della memoria grafica.
+
+Questa capacità di elaborazione grezza deriva dall'architettura "Streaming Multiprocessor" (SM) altamente parallela, pensata per carichi di lavoro paralleli ai dati [@jia2019beyond]. Ogni SM contiene centinaia di core scalari ottimizzati per la matematica float32/64. Con migliaia di SM su un chip, le GPU sono appositamente progettate per la moltiplicazione di matrici e le operazioni vettoriali utilizzate in tutte le reti neurali.
+
+Ad esempio, l'ultima GPU [H100](https://www.nvidia.com/en-us/data-center/h100/) di Nvidia fornisce 4000 TFLOP di FP8, 2000 TFLOP di FP16, 1000 TFLOP di TF32, 67 TFLOP di FP32 e 34 TFLOP di prestazioni di elaborazione FP64, che possono accelerare notevolmente l'addestramento di grandi batch su modelli come BERT, GPT-3 e altre architetture di trasformatori. Il parallelismo scalabile delle GPU è fondamentale per accelerare il deep learning computazionalmente intensivo.
+
+##### Ecosistema Software Maturo
+
+Nvidia fornisce ampie librerie di runtime come [cuDNN](https://developer.nvidia.com/cudnn) e [cuBLAS](https://developer.nvidia.com/cublas) che sono altamente ottimizzate per primitive di deep learning. Framework come TensorFlow e PyTorch si integrano con queste librerie per abilitare l'accelerazione GPU senza programmazione diretta. Queste librerie sono basate su CUDA, la piattaforma di elaborazione parallela e il modello di programmazione di Nvidia.
+
+CUDA (Compute Unified Device Architecture) è il framework sottostante che consente a queste librerie di alto livello di interagire con l'hardware della GPU. Fornisce agli sviluppatori un accesso di basso livello alle risorse della GPU, consentendo calcoli e ottimizzazioni personalizzate che sfruttano appieno le capacità di elaborazione parallela della GPU. Utilizzando CUDA, gli sviluppatori possono scrivere software che sfruttano l'architettura della GPU per attività di elaborazione ad alte prestazioni.
+
+Questo ecosistema consente di sfruttare rapidamente le GPU ad alto livello tramite Python senza competenze di programmazione GPU. Flussi di lavoro e astrazioni noti forniscono una comoda rampa di accesso per scalare gli esperimenti di deep learning. La maturità del software integra i vantaggi della produttività.
+
+##### Ampia Disponibilità
+
+Le economie di scala dell'elaborazione grafica rendono le GPU ampiamente accessibili nei data center, nelle piattaforme cloud come AWS e GCP e nelle workstation desktop. La loro disponibilità negli ambienti di ricerca ha fornito una comoda piattaforma di sperimentazione e innovazione nel ML. Ad esempio, quasi tutti i risultati di deep learning all'avanguardia hanno coinvolto l'accelerazione GPU per merito di questa ubiquità. L'ampio accesso integra la maturità del software per rendere le GPU l'acceleratore ML standard.
+
+##### Architettura Programmabile
+
+Sebbene non siano flessibili come gli FPGA, le GPU offrono programmabilità tramite linguaggi CUDA e shader per personalizzare i calcoli. Gli sviluppatori possono ottimizzare i pattern di accesso ai dati, creare nuove operazioni e regolare le precisioni per modelli e algoritmi in evoluzione.
+
+#### Svantaggi
+
+Sebbene le GPU siano diventate l'acceleratore standard per il deep learning, la loro architettura presenta alcuni svantaggi importanti.
+
+##### Meno Efficienti degli ASIC Custom
+
+L'affermazione "Le GPU sono meno efficienti degli ASIC" potrebbe scatenare un acceso dibattito nel campo ML/AI e far esplodere questo libro.
+
+In genere, le GPU sono percepite come meno efficienti degli ASIC perché questi ultimi sono realizzati su misura per attività specifiche e quindi possono funzionare in modo più efficiente nativamente. Con la loro architettura generica, le GPU sono intrinsecamente più versatili e programmabili, soddisfacendo un ampio spettro di attività computazionali oltre a ML/AI.
+
+Tuttavia, le GPU moderne si sono evolute per includere un supporto hardware specializzato per operazioni AI essenziali, come la moltiplicazione di matrici generalizzata (GEMM) e altre operazioni di matrice, supporto nativo per la quantizzazione e supporto nativo per la potatura, che sono fondamentali per l'esecuzione efficace dei modelli ML. Questi miglioramenti hanno notevolmente migliorato l'efficienza delle GPU per le attività AI al punto che possono rivaleggiare con le prestazioni degli ASIC per determinate applicazioni.
+
+Di conseguenza, le GPU contemporanee sono convergenti, incorporando capacità specializzate simili ad ASIC all'interno di un framework di elaborazione flessibile e di uso generale. Questa adattabilità ha offuscato i confini tra i due tipi di hardware. Le GPU offrono un forte equilibrio tra specializzazione e programmabilità che si adatta bene alle esigenze dinamiche della ricerca e sviluppo ML/AI.
+
+##### Elevate Esigenze di Larghezza di Banda di Memoria
+
+L'architettura massicciamente parallela richiede un'enorme larghezza di banda di memoria per alimentare migliaia di core. Ad esempio, la GPU Nvidia A100 richiede 1.6 TB/sec per saturare completamente il suo computer. Le GPU si affidano ad ampi bus di memoria a 384 bit per RAM GDDR6 ad alta larghezza di banda, ma anche la GDDR6 più veloce raggiunge il massimo a circa 1 TB/sec. Questa dipendenza dalla DRAM esterna comporta latenza e sovraccarico di potenza.
+
+##### Complessità di Programmazione
+
+Sebbene strumenti come CUDA siano utili, la mappatura e il partizionamento ottimali dei carichi di lavoro ML nell'architettura GPU massivamente parallela rimangono una sfida, il raggiungimento di un utilizzo elevato e della località della memoria richiede una messa a punto di basso livello [@jia2018dissecting]. Astrazioni come TensorFlow possono tralasciare le prestazioni.
+
+##### Memoria On-Chip Limitata
+
+Le GPU hanno cache di memoria on-chip relativamente piccole rispetto ai grandi requisiti di working set dei modelli ML durante l'addestramento. Si basano su un accesso ad alta larghezza di banda alla DRAM esterna, che gli ASIC riducono al minimo con una grande SRAM on-chip.
+
+##### Architettura Fissa
+
+A differenza degli FPGA, l'architettura fondamentale della GPU non può essere modificata dopo la produzione. Questo vincolo limita l'adattamento a nuovi carichi di lavoro o layer ML. Il confine CPU-GPU crea anche overhead di spostamento dei dati.
+
+### Central Processing Unit (CPU)
+
+Il termine CPU ha una lunga storia che risale al 1955 [@weik1955survey] mentre la prima CPU a microprocessore, l'Intel 4004, è stata inventata nel 1971 ([Chi ha inventato il microprocessore?](https://computerhistory.org/blog/who-invented-the-microprocessor/)). I compilatori traducono linguaggi di programmazione di alto livello come Python, Java o C per assemblare istruzioni (x86, ARM, RISC-V, ecc.) che le CPU devono elaborare. Il set di istruzioni che una CPU comprende è chiamato "instruction set architecture" (ISA), che definisce i comandi che il processore può eseguire direttamente. Deve essere concordato sia dall'hardware che dal software ci gira sopra.
+
+Una panoramica degli sviluppi significativi nelle CPU:
+
+* **Era del Single-core (anni '50-2000):** Questa era è nota per i miglioramenti microarchitettonici aggressivi. Tecniche come l'esecuzione speculativa (esecuzione di un'istruzione prima che quella precedente fosse finita), "out-of-order execution" [esecuzione fuori ordine] (riordinamento delle istruzioni per renderle più efficaci) e "wider issue widths" [larghezze di emissione più ampie] (esecuzione di più istruzioni contemporaneamente) sono state implementate per aumentare la produttività delle istruzioni. Anche il termine "System on Chip" ha avuto origine in questa era, poiché diversi componenti analogici (componenti progettati con transistor) e componenti digitali (componenti progettati con linguaggi di descrizione hardware mappati su transistor) sono stati inseriti sulla stessa piattaforma per realizzare un'attività.
+* **Era Multicore (anni 2000):** Guidata dalla diminuzione della legge di Moore, questa è caratterizzata dall'aumento del numero di core all'interno di una CPU. Ora, le attività possono essere suddivise su più core diversi, ognuno con il proprio percorso dati e unità di controllo. Molti dei problemi di quest'epoca riguardavano come condividere determinate risorse, quali risorse condividere e come mantenere coerenza e consistenza in tutti i core.
+* **Un Mare di acceleratori (anni 2010):** Ancora una volta, spinta dalla diminuzione della legge di Moore, quest'epoca è caratterizzata dal delegare le attività più complicate su acceleratori (widget) collegati al datapath principale nelle CPU. È comune vedere acceleratori dedicati a vari carichi di lavoro di intelligenza artificiale, nonché elaborazione di immagini/digitali e crittografia. In queste progettazioni, le CPU sono spesso descritte più come giudici, che decidono quali attività devono essere elaborate piuttosto che eseguire l'elaborazione stessa. Qualsiasi attività potrebbe comunque essere eseguita sulla CPU anziché sugli acceleratori, ma la CPU sarebbe generalmente più lenta. Tuttavia, il costo di progettazione e programmazione dell'acceleratore è diventato un ostacolo non banale che ha suscitato interesse per le librerie specifiche per la progettazione (DSL).
+* **Presenza nei data center:** Sebbene sentiamo spesso dire che le GPU dominano il mercato dei data center, le CPU sono comunque adatte per attività che non possiedono intrinsecamente un elevato grado di parallelismo. Le CPU spesso gestiscono attività seriali e di piccole dimensioni e coordinano il data center.
+* **Sull'edge:** Dati i vincoli più rigidi sulle risorse sull'edge, le CPU edge spesso implementano solo un sottoinsieme delle tecniche sviluppate nell'era single-core perché queste ottimizzazioni tendono a essere pesanti in termini di consumo di energia e area. Le CPU edge mantengono comunque un datapath relativamente semplice con capacità di memoria limitate.
+
+Tradizionalmente, le CPU sono state sinonimo di elaborazione generica, un termine che è cambiato anche perché il carico di lavoro "medio" che un consumatore esegue cambia nel tempo. Ad esempio, i componenti in virgola mobile erano un tempo considerati riservati alla "elaborazione scientifica", di solito venivano implementati come un coprocessore (un componente modulare che funzionava con il datapath) e raramente distribuiti ai consumatori medi. Confrontate questo atteggiamento con quello odierno, in cui le FPU sono integrate in ogni datapath.
+
+#### Vantaggi
+
+Sebbene la produttività in sé sia limitata, le CPU per uso generico offrono vantaggi pratici di accelerazione AI.
+
+##### Programmabilità Generale
+
+Le CPU supportano carichi di lavoro diversi oltre al ML, offrendo una programmabilità flessibile per uso generico. Questa versatilità deriva dai loro set di istruzioni standardizzati e dagli ecosistemi di compilatori maturi, che consentono di eseguire qualsiasi applicazione, dai database e server Web alle pipeline analitiche [@hennessy2019golden].
+
+Questo evita la necessità di acceleratori ML dedicati e consente di sfruttare l'infrastruttura basata su CPU esistenti per la distribuzione ML di base. Ad esempio, i server X86 di fornitori come Intel e AMD possono eseguire framework ML comuni utilizzando pacchetti Python e TensorFlow insieme ad altri carichi di lavoro aziendali.
+
+##### Ecosistema Software Maturo
+
+Per decenni, librerie matematiche altamente ottimizzate come [BLAS](https://www.netlib.org/blas/), [LAPACK](https://hpc.llnl.gov/software/mathematical-software/lapack#:~:text=The%20Linear%20Algebra%20PACKage%20(LAPACK,problems%2C%20and%20singular%20value%20decomposition.)) e [FFTW](https://www.fftw.org/) hanno sfruttato istruzioni vettorializzate e multithreading su CPU [@dongarra2009evolution]. I principali framework ML come PyTorch, TensorFlow e SciKit-Learn sono progettati per integrarsi perfettamente con questi kernel matematici di CPU.
+
+I fornitori di hardware come Intel e AMD forniscono anche librerie di basso livello per ottimizzare completamente le prestazioni per primitive di deep learning ([accelerazione dell'inferenza AI su CPU](https://www.intel.com/content/www/us/en/developer/articles/technical/ai-inference-acceleration-on-intel-cpus.html#gs.0w9qn2)). Questo ecosistema software robusto e maturo consente di distribuire rapidamente ML su infrastrutture di CPU esistenti.
+
+##### Ampia Disponibilità
+
+Le economie di scala della produzione di CPU, guidate dalla domanda in molti mercati come PC, server e dispositivi mobili, le rendono disponibili ovunque. Le CPU Intel, ad esempio, hanno alimentato la maggior parte dei server per decenni [@ranganathan2011from]. Questa ampia disponibilità nei data center riduce i costi hardware per l'implementazione di ML di base.
+
+Anche i piccoli dispositivi embedded in genere integrano una certa CPU, consentendo l'inferenza edge. L'ubiquità riduce la necessità di acquistare acceleratori ML specializzati in molte situazioni.
+
+##### Basso Consumo per L'inferenza
+
+Ottimizzazioni come ARM Neon e le estensioni vettoriali Intel AVX forniscono un throughput di numeri interi e in virgola mobile a basso consumo ottimizzato per carichi di lavoro "a raffica" come l'inferenza [@ignatov2018ai]. Sebbene più lenta delle GPU, l'inferenza CPU può essere implementata in ambienti con vincoli energetici. Ad esempio, le CPU Cortex-M di ARM ora offrono oltre 1 TOPS di prestazioni INT8 sotto 1 W, consentendo l'individuazione di parole chiave e applicazioni di visione su dispositivi edge ([ARM](https://community.arm.com/arm-community-blogs/b/architectures-and-processors-blog/posts/armv8_2d00_m-based-processor-software-development-hints-and-tips)).
+
+#### Svantaggi
+
+Pur offrendo alcuni vantaggi, le CPU per uso generico presentano anche delle limitazioni per i carichi di lavoro AI.
+
+##### Throughput Inferiore Rispetto agli Acceleratori
+
+Le CPU non dispongono delle architetture specializzate per l'elaborazione parallela massiva che GPU e altri acceleratori forniscono. Il loro design per uso generico riduce il throughput computazionale per le operazioni matematiche altamente parallelizzabili comuni nei modelli ML [@jouppi2017datacenter].
+
+##### Non Ottimizzato per il Parallelismo dei Dati
+
+Le architetture delle CPU non sono specificamente ottimizzate per i carichi di lavoro paralleli dei dati inerenti all'AI [@sze2017efficient]. Assegnano un'area di silicio sostanziale alla decodifica delle istruzioni, all'esecuzione speculativa, alla memorizzazione nella cache e al controllo del flusso che fornisce pochi vantaggi per le operazioni su array utilizzate nelle reti neurali ([accelerazione dell'inferenza AI sulle CPU](https://www.intel.com/content/www/us/en/developer/articles/technical/ai-inference-acceleration-on-intel-cpus.html#gs.0w9qn2)). Tuttavia, le CPU moderne sono dotate di istruzioni vettoriali come [AVX-512](https://www.intel.com/content/www/us/en/products/docs/accelerator-engines/what-is-intel-avx-512.html) specificamente per accelerare determinate operazioni chiave come la moltiplicazione matriciale.
+
+I multiprocessori di streaming GPU, ad esempio, dedicano la maggior parte dei transistor alle unità a virgola mobile anziché alla logica di predizione di diramazione complessa. Questa specializzazione consente un utilizzo molto più elevato per la matematica ML.
+
+##### Maggiore Latenza della Memoria
+
+Le CPU soffrono di una latenza maggiore nell'accesso alla memoria principale rispetto alle GPU e ad altri acceleratori ([DDR](https://www.integralmemory.com/articles/the-evolution-of-ddr-sdram/)). Tecniche come il tiling e il caching possono aiutare, ma la separazione fisica dalla RAM off-chip crea colli di bottiglia nei carichi di lavoro ML ad alta intensità di dati. Ciò sottolinea la necessità di architetture di memoria specializzate nell'hardware ML.
+
+##### Inefficienza Energetica in Caso di Carichi di Lavoro Pesanti
+
+Sebbene sia adatto per l'inferenza intermittente, il mantenimento di una produttività quasi di picco per l'addestramento comporta un consumo energetico inefficiente sulle CPU, in particolare sulle CPU mobili [@ignatov2018ai]. Gli acceleratori ottimizzano esplicitamente il flusso di dati, la memoria e il calcolo per carichi di lavoro ML sostenuti. Le CPU sono inefficienti dal punto di vista energetico per l'addestramento di modelli di grandi dimensioni.
+
+### Confronto
+
+@tbl-accelerator-comparison confronta i diversi tipi di funzionalità hardware.
+
++--------------+------------------------------------------------------------+-------------------------------------------------------------+--------------------------------------------------------------+
+| Acceleratore | Descrizione                                                | Principali vantaggi                                         | Principali svantaggi                                         |
++:=============+:===========================================================+:============================================================+:=============================================================+
+| ASIC         | IC personalizzati progettati per carichi di lavoro target  | - Massimizza le prestazioni/watt.                           | - L'architettura fissa manca di flessibilità                 |
+|              | come l'inferenza AI                                        | - Ottimizzato per le operazioni tensoriali                  | - Elevato costo NRE                                          |
+|              |                                                            | - Memoria on-chip a bassa latenza                           | - Lunghi cicli di progettazione                              |
++--------------+------------------------------------------------------------+-------------------------------------------------------------+--------------------------------------------------------------+
+| FPGA         | Fabric riconfigurabile con logica programmabile            | - Architettura flessibile                                   | - Prestazioni/watt inferiori rispetto agli ASIC              |
+|              | e routing                                                  | - Accesso alla memoria a bassa latenza                      | - Programmazione complessa                                   |
++--------------+------------------------------------------------------------+-------------------------------------------------------------+--------------------------------------------------------------+
+| GPU          | Originariamente per la grafica, ora utilizzate per         | - Elevata produttività                                      | - Non efficienti dal punto di vista energetico come gli ASIC |
+|              | l'accelerazione della rete neurale                         | - Scalabilità parallela                                     | - Richiede un'elevata larghezza di banda della memoria       |
+|              |                                                            | - Ecosistema software con CUDA                              |                                                              |
++--------------+------------------------------------------------------------+-------------------------------------------------------------+--------------------------------------------------------------+
+| CPU          | Processori per uso generico                                | - Programmabilità                                           | - Prestazioni inferiori per carichi di lavoro AI             |
+|              |                                                            | - Disponibilità ubiqua                                      |                                                              |
++--------------+------------------------------------------------------------+-------------------------------------------------------------+--------------------------------------------------------------+
+
+: Confronto di diversi acceleratori hardware per carichi di lavoro AI. {#tbl-accelerator-comparison .striped .hover}
+
+In generale, le CPU forniscono una baseline prontamente disponibile, le GPU offrono un'accelerazione ampiamente accessibile, gli FPGA offrono programmabilità e gli ASIC massimizzano l'efficienza per funzioni fisse. La scelta ottimale dipende dalla scala, dal costo, dalla flessibilità e da altri requisiti dell'applicazione target.
+
+Sebbene inizialmente sviluppati per l'implementazione del data center, Google ha anche profuso notevoli sforzi nello sviluppo di [TPU Edge](https://cloud.google.com/edge-tpu). Questi TPU Edge mantengono l'ispirazione degli array sistolici [https://it.wikipedia.org/wiki/Array_sistolico], ma sono adattati alle risorse limitate accessibili all'edge.
+
+## Co-Progettazione Hardware-Software
+
+La co-progettazione hardware-software si basa sul principio secondo cui i sistemi AI raggiungono prestazioni ed efficienza ottimali quando i componenti hardware e software sono progettati in stretta integrazione. Ciò comporta un ciclo di progettazione iterativo e collaborativo in cui l'architettura hardware e gli algoritmi software vengono sviluppati e perfezionati contemporaneamente con un feedback continuo tra i team.
+
+Ad esempio, un nuovo modello di rete neurale può essere prototipato su una piattaforma di accelerazione basata su FPGA per ottenere dati sulle prestazioni reali all'inizio del processo di progettazione. Questi risultati forniscono un feedback ai progettisti hardware su potenziali ottimizzazioni e agli sviluppatori software su perfezionamenti del modello o framework per sfruttare meglio le capacità hardware. Questo livello di sinergia è difficile da raggiungere con la pratica comune di software sviluppato in modo indipendente per essere distribuito su hardware fisso.
+
+La progettazione congiunta è fondamentale per i sistemi di intelligenza artificiale embedded che affrontano notevoli vincoli di risorse come budget di potenza ridotti, memoria e capacità di elaborazione limitate e requisiti di latenza in tempo reale. La stretta integrazione tra sviluppatori di algoritmi e architetti hardware aiuta a sbloccare le ottimizzazioni in tutto lo stack per soddisfare queste restrizioni. Le tecniche di abilitazione includono miglioramenti algoritmici come la ricerca e il pruning [potatura] dell'architettura neurale e progressi hardware come flussi di dati specializzati e gerarchie di memoria.
+
+Riunendo la progettazione hardware e software, anziché svilupparli separatamente, è possibile realizzare ottimizzazioni olistiche che massimizzano prestazioni ed efficienza. Le sezioni successive forniscono maggiori dettagli su specifici approcci di progettazione congiunta.
+
+### La Necessità della Progettazione Congiunta
+
+Diversi fattori chiave rendono essenziale un approccio di progettazione congiunta hardware-software collaborativo per la creazione di sistemi di intelligenza artificiale efficienti.
+
+#### Aumento delle Dimensioni e della Complessità del Modello
+
+I modelli di intelligenza artificiale all'avanguardia sono cresciuti rapidamente in termini di dimensioni, abilitati dai progressi nella progettazione dell'architettura neurale e dalla disponibilità di grandi set di dati. Ad esempio, il modello linguistico GPT-3 contiene 175 miliardi di parametri [@brown2020language], che richiedono enormi risorse di calcolo per l'addestramento. Questa esplosione nella complessità del modello richiede una progettazione congiunta per sviluppare hardware e algoritmi efficienti in tandem. Tecniche come la compressione del modello [@cheng2017survey] e la quantizzazione devono essere co-ottimizzate con l'architettura hardware.
+
+#### Vincoli della Distribuzione Embedded
+
+L'implementazione di applicazioni AI su dispositivi edge come telefoni cellulari o elettrodomestici intelligenti introduce vincoli significativi su energia, memoria e area di silicio [@sze2017efficient]. Abilitare l'inferenza in tempo reale con queste restrizioni richiede la co-esplorazione di ottimizzazioni hardware come flussi di dati specializzati e compressione con progettazione efficiente di reti neurali e tecniche di potatura. La co-progettazione massimizza le prestazioni entro rigidi vincoli di distribuzione.
+
+#### Rapida Evoluzione degli Algoritmi AI
+
+L'intelligenza artificiale si sta evolvendo rapidamente, con nuove architetture di modelli, metodologie di training e framework software che emergono costantemente. Ad esempio, i Transformers sono diventati di recente molto popolari per l'NLP [@young2018recent]. Per tenere il passo con queste innovazioni algoritmiche è necessaria una progettazione congiunta hardware-software per adattare le piattaforme ed evitare rapidamente il debito tecnico accumulato.
+
+#### Interazioni Complesse Hardware-Software
+
+Molte interazioni e compromessi sottili tra scelte architettoniche hardware e ottimizzazioni software hanno un impatto significativo sull'efficienza complessiva. Ad esempio, tecniche come il partizionamento tensoriale e il batching influenzano il parallelismo e i pattern di accesso ai dati influenzano l'utilizzo della memoria. La progettazione congiunta fornisce una prospettiva multilivello per svelare queste dipendenze.
+
+#### Necessità di Specializzazione
+
+I carichi di lavoro dell'intelligenza artificiale traggono vantaggio da operazioni specializzate come matematica a bassa precisione e gerarchie di memoria personalizzate. Ciò motiva l'incorporazione di hardware personalizzato su misura per algoritmi di reti neurali piuttosto che affidarsi esclusivamente a software flessibile in esecuzione su hardware generico [@sze2017efficient]. Tuttavia, lo stack software deve mirare esplicitamente alle operazioni hardware personalizzate per realizzare i vantaggi.
+
+#### Richiesta di Maggiore Efficienza
+
+Con la crescente complessità del modello, si verificano rendimenti decrescenti e spese generali derivanti dall'ottimizzazione del solo hardware o software in isolamento [@putnam2014reconfigurable]. Si presentano inevitabili compromessi che richiedono un'ottimizzazione globale su più livelli. La progettazione congiunta di hardware e software fornisce grandi guadagni di efficienza composti.
+
+### Principi di Progettazione Congiunta Hardware-Software
+
+L'architettura hardware e lo stack software devono essere strettamente integrati e co-ottimizzati per creare sistemi di intelligenza artificiale efficienti e ad alte prestazioni. Nessuno dei due può essere progettato in isolamento; massimizzare le loro sinergie richiede un approccio olistico noto come progettazione congiunta hardware-software.
+
+L'obiettivo principale è adattare le capacità hardware in modo che corrispondano agli algoritmi e ai carichi di lavoro eseguiti dal software. Ciò richiede un ciclo di feedback tra architetti hardware e sviluppatori software per convergere su soluzioni ottimizzate. Diverse tecniche consentono un'efficace co-progettazione:
+
+#### Ottimizzazione Software Consapevole dell'Hardware
+
+Lo stack software può essere ottimizzato per sfruttare meglio le capacità hardware:
+
+* **Parallelismo:** Parallelizzare i calcoli matriciali come convoluzione o layer di attenzione per massimizzare la produttività sui motori vettoriali.
+* **Ottimizzazione della Memoria:** Ottimizzare i layout dei dati per migliorare la località della cache in base alla profilazione hardware. Ciò massimizza il riutilizzo e riduce al minimo l'accesso DRAM costoso.
+* **Compressione:** Utilizzare la sparsity [diradazione] nei modelli per ridurre lo spazio di archiviazione e risparmiare sui calcoli tramite operazioni di zero-skipping.
+* **Operazioni Personalizzate:** Incorporare operazioni specializzate come INT4 a bassa precisione o bfloat16 nei modelli per sfruttare al meglio il supporto hardware dedicato.
+* **Mappatura del Flusso di Dati:** Mappare esplicitamente le fasi del modello alle unità di calcolo per ottimizzare lo spostamento dei dati sull'hardware.
+
+#### Specializzazione Hardware Algorithm-Driven
+
+L'hardware può essere adattato alle caratteristiche degli algoritmi ML:
+
+* **Tipi di Dati Personalizzati:** Supportare INT8/4 o bfloat16 a bassa precisione nell'hardware per una maggiore densità aritmetica.
+* **Memoria su Chip:** Aumentare la larghezza di banda SRAM e ridurre la latenza di accesso per adattarla ai pattern di accesso alla memoria del modello.
+* **Operazioni Specifiche del Dominio:** Aggiungere unità hardware per funzioni ML chiave come FFT o moltiplicazione di matrici per ridurre latenza ed energia.
+* **Profilazione del Modello:** Utilizzare la simulazione e la profilazione del modello per identificare hotspot computazionali e ottimizzare l'hardware.
+
+La chiave è il feedback collaborativo: le informazioni dalla profilazione dell'hardware guidano le ottimizzazioni del software, mentre i progressi algoritmici informano la specializzazione dell'hardware. Questo miglioramento reciproco fornisce guadagni di efficienza moltiplicativa rispetto agli sforzi isolati.
+
+#### Co-esplorazione Algoritmo-Hardware
+
+Una potente tecnica di co-progettazione prevede l'esplorazione congiunta di innovazioni nelle architetture di reti neurali e nella progettazione custom dell'hardware.
+A powerful co-design technique involves jointly exploring innovations in neural network architectures and custom hardware design. Ciò consente di trovare abbinamenti ideali su misura per i rispettivi punti di forza [@sze2017efficient].
+
+Ad esempio, il passaggio ad architetture mobili come MobileNets [@howard2017mobilenets] è stato guidato dai vincoli dei dispositivi edge come dimensioni del modello e latenza. La quantizzazione [@jacob2018quantization] e le tecniche di pruning [potatura] [@gale2019state] che hanno reso questi modelli efficienti sono diventate possibili grazie ad acceleratori hardware con supporto nativo per interi a bassa precisione e supporto per potatura [@asit2021accelerating].
+
+I modelli basati sull'attenzione hanno prosperato su GPU e ASIC massivamente paralleli, dove il loro calcolo si mappa bene nello spazialmente, al contrario delle architetture RNN, che si basano sull'elaborazione sequenziale. La co-evoluzione di algoritmi e hardware ha evidenziato nuove capacità.
+
+Una co-esplorazione efficace richiede una stretta collaborazione tra ricercatori di algoritmi e architetti hardware. La prototipazione rapida su FPGA [@zhang2015fpga] o simulatori di intelligenza artificiale specializzati consente una rapida valutazione di diverse coppie di architetture di modelli e progetti hardware pre-silicio.
+
+Ad esempio, l'architettura TPU di Google si è evoluta con ottimizzazioni verso i modelli TensorFlow per massimizzare le prestazioni sulla classificazione delle immagini. Questo stretto ciclo di feedback ha prodotto modelli su misura per la TPU che sarebbero stati improbabili in isolamento.
+
+Gli studi hanno mostrato guadagni di prestazioni ed efficienza da 2 a 5 volte superiori con la co-esplorazione algoritmo-hardware rispetto agli sforzi isolati di ottimizzazione di algoritmi o hardware [@suda2016throughput]. Parallelizzare lo sviluppo congiunto riduce anche i "time-to-deployment" [tempi di distribuzione].
+
+Nel complesso, esplorare le strette interdipendenze tra innovazione del modello e progressi hardware crea opportunità che devono essere visibili quando vengono affrontate in sequenza. Questa progettazione sinergica congiunta produce soluzioni maggiori della somma delle loro parti.
+
+### Sfide
+
+Sebbene la progettazione collaborativa possa migliorare l'efficienza, l'adattabilità e il time-to-market, presenta anche sfide ingegneristiche e organizzative.
+
+#### Aumento dei Costi di Prototipazione
+
+È richiesta una prototipazione più estesa per valutare diverse accoppiate hardware-software. La necessità di prototipi rapidi e iterativi su FPGA o emulatori aumenta il sovraccarico della validazione. Ad esempio, Microsoft ha scoperto che erano necessari più prototipi per la progettazione collaborativa di un acceleratore AI rispetto alla progettazione sequenziale [@fowers2018configurable].
+
+#### Ostacoli Organizzativi e di Team
+
+La progettazione collaborativa richiede uno stretto coordinamento tra gruppi hardware e software tradizionalmente scollegati. Ciò potrebbe causare problemi di comunicazione o priorità e pianificazioni non allineate. Anche la navigazione di diversi flussi di lavoro di progettazione è impegnativa. Potrebbe esistere una certa inerzia organizzativa nell'adottare pratiche integrate.
+
+#### Complessità di Simulazione e Modellazione
+
+Catturare interazioni sottili tra layer hardware e software per la simulazione e la modellazione congiunte aggiunge una complessità significativa. Le astrazioni complete "cross-layer" sono difficili da costruire quantitativamente prima dell'implementazione, rendendo più difficile quantificare in anticipo le ottimizzazioni olistiche.
+
+#### Rischi di Eccessiva Specializzazione
+
+Una progettazione congiunta rigorosa comporta il rischio di adattare eccessivamente le ottimizzazioni agli algoritmi correnti, sacrificando la generalità. Ad esempio, l'hardware ottimizzato esclusivamente per i modelli Transformer potrebbe avere prestazioni inferiori con le tecniche future. Mantenere la flessibilità richiede lungimiranza.
+
+#### Problemi sui Cambiamenti
+
+Gli ingegneri che hanno familiarità con le consolidate pratiche di progettazione hardware o software discrete potrebbero accettare solo flussi di lavoro collaborativi familiari. Nonostante i vantaggi a lungo termine, i progetti potrebbero incontrare attriti nella transizione alla progettazione congiunta.
+
+## Software per Hardware AI
+
+Acceleratori hardware specializzati come GPU, TPU e FPGA sono essenziali per fornire applicazioni di intelligenza artificiale ad alte prestazioni. Tuttavia, è necessario un ampio stack software per sfruttare efficacemente queste piattaforme hardware, che coprano l'intero ciclo di vita di sviluppo e distribuzione. Framework e librerie costituiscono la spina dorsale dell'hardware AI, offrendo set di codice, algoritmi e funzioni pre-costruiti e robusti, specificamente ottimizzati per eseguire varie attività AI su hardware diversi. Sono progettati per semplificare le complessità dell'utilizzo dell'hardware da zero, che può richiedere molto tempo ed essere soggetto a errori. Il software svolge un ruolo importante:
+
+* Fornendo astrazioni di programmazione e modelli come CUDA e OpenCL per mappare i calcoli sugli acceleratori.
+* Integrando gli acceleratori in framework di deep learning popolari come TensorFlow e PyTorch.
+* Ottimizzando l'intero stack hardware-software con compilatori e tool.
+* Con piattaforme di simulazione per modellare insieme hardware e software.
+* Con l'infrastruttura per gestire la distribuzione sugli acceleratori.
+
+Questo vasto ecosistema software è importante quanto l'hardware nel fornire applicazioni AI performanti ed efficienti. Questa sezione fornisce una panoramica degli strumenti disponibili a ogni livello dello stack per consentire agli sviluppatori di creare ed eseguire sistemi AI basati sull'accelerazione hardware.
+
+### Modelli di Programmazione {#sec-programming-models}
+
+I modelli di programmazione forniscono astrazioni per mappare calcoli e dati su acceleratori hardware eterogenei:
+
+* **[CUDA](https://developer.nvidia.com/cuda-toolkit):** Modello di programmazione parallela di Nvidia per sfruttare le GPU utilizzando estensioni a linguaggi come C/C++. Consente di avviare kernel su core GPU [@luebke2008cuda].
+* **[OpenCL](https://www.khronos.org/opencl/):** Standard aperto per scrivere programmi che spaziano tra CPU, GPU, FPGA e altri acceleratori. Specifica un framework di elaborazione eterogeneo [@munshi2009opencl].
+* **[OpenGL/WebGL](https://www.opengl.org):** Interfacce di programmazione grafica 3D in grado di mappare codice generico su core GPU [@segal1999opengl].
+* **[Verilog](https://www.verilog.com)/VHDL:** "Hardware description languages (HDL)" [Linguaggi di descrizione hardware] utilizzati per configurare FPGA come acceleratori AI specificando circuiti digitali [@gannot1994verilog].
+* **[TVM](https://tvm.apache.org):** Un framework di compilazione che fornisce un frontend Python per ottimizzare e mappare modelli di deep learning su diversi backend hardware [@chen2018tvm].
+
+Le sfide principali includono l'espressione del parallelismo, la gestione della memoria tra dispositivi e l'abbinamento di algoritmi alle capacità hardware. Le astrazioni devono bilanciare la portabilità con la possibilità di personalizzazione hardware. I modelli di programmazione consentono agli sviluppatori di sfruttare gli acceleratori senza competenze hardware. Questi dettagli sono discussi nella sezione [AI frameworks](../frameworks/frameworks.it.qmd) section.
+
+:::{#exr-tvm .callout-caution collapse="true"}
+
+### Software per hardware AI - TVM
+
+Abbiamo imparato che l'hardware AI sofisticato ha bisogno di un software speciale per fare magie. TVM è come un traduttore super intelligente, che trasforma il codice in istruzioni che gli acceleratori capiscono. In questo Colab, useremo TVM per creare un acceleratore finto chiamato VTA che esegue la moltiplicazione di matrici super velocemente. Pronti a vedere come il software alimenta l'hardware?
+
+[![](https://colab.research.google.com/assets/colab-badge.png)](https://colab.research.google.com/github/uwsampl/tutorial/blob/master/notebook/04a_TVM_Tutorial_VTA_Mat_Mult.ipynb)
+
+:::
+
+### Librerie e Runtime
+
+Librerie e runtime specializzati forniscono astrazioni software per accedere e massimizzare l'utilizzo degli acceleratori AI:
+
+* **Librerie Matematiche:** Implementazioni altamente ottimizzate di primitive di algebra lineare come GEMM, FFT, convoluzioni, ecc., su misura per l'hardware target. [Nvidia cuBLAS](https://developer.nvidia.com/cublas), [Intel MKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html) e [librerie di elaborazione Arm](https://www.arm.com/technologies/compute-library) sono esempi.
+* **Integrazioni di Framework:** Librerie per accelerare framework di deep learning come TensorFlow, PyTorch e MXNet su hardware supportato. Ad esempio, [cuDNN](https://developer.nvidia.com/cudnn) accelera le CNN sulle GPU Nvidia.
+* **Runtime:** Software per gestire l'esecuzione dell'acceleratore, tra cui pianificazione, sincronizzazione, gestione della memoria e altre attività. [Nvidia TensorRT](https://developer.nvidia.com/tensorrt) è un ottimizzatore di inferenza e runtime.
+* **Driver e firmware:** Software di basso livello per interfacciarsi con l'hardware, inizializzare i dispositivi e gestire l'esecuzione. Fornitori come Xilinx forniscono driver per le loro schede acceleratrici.
+
+Ad esempio, gli integratori PyTorch utilizzano librerie cuDNN e cuBLAS per accelerare l'addestramento sulle GPU Nvidia. Il runtime TensorFlow XLA ottimizza e compila modelli per acceleratori come le TPU. I driver inizializzano i dispositivi e delegano le operazioni.
+
+Le sfide includono il partizionamento e la pianificazione efficienti dei carichi di lavoro su dispositivi eterogenei come nodi multi-GPU. I runtime devono anche ridurre al minimo il sovraccarico dei trasferimenti di dati e della sincronizzazione.
+
+Librerie, runtime e driver forniscono i mattoni ottimizzati che gli sviluppatori di deep learning possono sfruttare per le prestazioni dell'acceleratore senza competenze di programmazione hardware. La loro ottimizzazione è essenziale per le distribuzioni.
+
+### Ottimizzazione dei Compilatori
+
+L'ottimizzazione dei compilatori è fondamentale per estrarre le massime prestazioni ed efficienza dagli acceleratori hardware per i carichi di lavoro AI. Applicano ottimizzazioni che spaziano tra modifiche algoritmiche, trasformazioni a livello di grafico e generazione di codice di basso livello.
+
+* **Ottimizzazione degli Algoritmi:** Tecniche come quantizzazione, potatura e ricerca di architettura neurale per migliorare l'efficienza del modello e abbinare le capacità hardware.
+* **Ottimizzazioni dei Grafi:** Ottimizzazioni a livello di grafo come fusione degli operatori, riscrittura e trasformazioni di layout per ottimizzare le prestazioni sull'hardware target.
+* **Generazione di Codice:** Generazione di codice di basso livello ottimizzato per acceleratori da modelli e framework di alto livello.
+
+Ad esempio, lo stack di compilatori "open" TVM applica la quantizzazione per un modello BERT che ha come target le GPU Arm. Fonde le operazioni di convoluzione puntuale e trasforma il layout dei pesi per ottimizzare l'accesso alla memoria. Infine, emette codice OpenGL ottimizzato per eseguire il carico di lavoro GPU.
+
+Le ottimizzazioni chiave del compilatore includono la massimizzazione del parallelismo, il miglioramento della località e del riutilizzo dei dati, la riduzione al minimo dell'ingombro della memoria e lo sfruttamento delle operazioni hardware personalizzate. I compilatori creano e ottimizzano i carichi di lavoro di machine learning in modo olistico su componenti hardware come CPU, GPU e altri acceleratori.
+
+Tuttavia, la mappatura efficiente di modelli complessi introduce sfide come il partizionamento efficiente dei carichi di lavoro su dispositivi eterogenei. I compilatori a livello di produzione richiedono anche molto tempo per la messa a punto su carichi di lavoro rappresentativi. Tuttavia, l'ottimizzazione dei compilatori è per sfruttare tutte le capacità degli acceleratori AI.
+
+### Simulazione e Modellazione
+
+Il software di simulazione è importante nella progettazione congiunta hardware-software. Consente accoppiare la modellazione di architetture hardware e stack software proposti:
+
+* **Simulazione Hardware:** Piattaforme come [Gem5](https://www.gem5.org) consentono la simulazione dettagliata di componenti hardware come pipeline, cache, interconnessioni e gerarchie di memoria. Gli ingegneri possono modellare le modifiche hardware senza prototipazione fisica [@binkert2011gem5].
+* **Simulazione Software:** Stack di compilatori come [TVM](https://tvm.apache.org) supportano la simulazione di carichi di lavoro di machine learning per stimare le prestazioni sulle architetture hardware target. Questo aiuta con le ottimizzazioni software.
+* **Co-simulazione:** Piattaforme unificate come SCALE-Sim [@samajdar2018scale] integrano la simulazione hardware e software in un unico strumento. Ciò consente un'analisi "what-if" per quantificare gli impatti a livello di sistema delle ottimizzazioni cross-layer all'inizio del ciclo di progettazione.
+
+Ad esempio, un progetto di acceleratore AI basato su FPGA potrebbe essere simulato utilizzando il linguaggio di descrizione hardware Verilog e sintetizzato in un modello Gem5. Verilog è adatto per descrivere la logica digitale e le interconnessioni dell'architettura dell'acceleratore. Verilog consente al progettista di specificare i datapath [percorsi dati], la logica di controllo, le memorie on-chip e altri componenti implementati nella struttura FPGA. Una volta completato il progetto Verilog, può essere sintetizzato in un modello che simula il comportamento dell'hardware, ad esempio utilizzando il simulatore Gem5. Gem5 è utile per questa attività perché consente la modellazione di sistemi completi, inclusi processori, cache, bus e acceleratori personalizzati. Gem5 supporta l'interfacciamento dei modelli Verilog dell'hardware alla simulazione, consentendo la modellazione unificata del sistema.
+
+Il modello di acceleratore FPGA sintetizzato potrebbe quindi avere carichi di lavoro ML simulati utilizzando TVM compilato su di esso all'interno dell'ambiente Gem5 per una modellazione unificata. TVM consente la compilazione ottimizzata di modelli di ML su hardware eterogeneo come FPGA. L'esecuzione di carichi di lavoro compilati con TVM sull'acceleratore all'interno della simulazione Gem5 fornisce un modo integrato per convalidare e perfezionare la progettazione hardware, lo stack software e l'integrazione di sistema prima di realizzare fisicamente l'acceleratore su un FPGA reale.
+
+Questo tipo di co-simulazione fornisce stime di metriche complessive come throughput, latenza e potenza per guidare la progettazione congiunta prima della costosa prototipazione fisica. Aiutano anche con le ottimizzazioni di partizionamento tra hardware e software per guidare i compromessi di progettazione.
+
+Tuttavia, la precisione nella modellazione di interazioni sottili di basso livello tra componenti è limitata. Le simulazioni quantificate sono stime ma non possono sostituire completamente i prototipi fisici e i test. Tuttavia, la simulazione e la modellazione unificate forniscono preziose informazioni iniziali sulle opportunità di ottimizzazione a livello di sistema durante il processo di co-progettazione.
+
+## Benchmarking dell'Hardware AI
+
+Il benchmarking è un processo critico che quantifica e confronta le prestazioni di varie piattaforme hardware progettate per accelerare le applicazioni di intelligenza artificiale. Guida le decisioni di acquisto, l'attenzione allo sviluppo e gli sforzi di ottimizzazione delle prestazioni per i produttori di hardware e gli sviluppatori di software.
+
+Il [capitolo sul benchmarking](../benchmarking/benchmarking.it.qmd) esplora questo argomento in modo molto dettagliato, spiegando perché è diventato una parte indispensabile del ciclo di sviluppo dell'hardware AI e come influisce sul più ampio panorama tecnologico. Qui, esamineremo brevemente i concetti principali, ma consigliamo di fare riferimento al capitolo per maggiori dettagli.
+
+Suite di benchmarking come MLPerf, Fathom e AI Benchmark offrono una serie di test standardizzati utilizzabili su diverse piattaforme hardware. Queste suite misurano le prestazioni dell'acceleratore AI su varie reti neurali e attività di apprendimento automatico, dalla classificazione di immagini di base all'elaborazione complessa del linguaggio. Fornendo un terreno comune per il confronto, aiutano a garantire che le dichiarazioni sulle prestazioni siano coerenti e verificabili. Questi "tool" vengono applicati non solo per guidare lo sviluppo dell'hardware, ma anche per garantire che lo stack software sfrutti appieno il potenziale dell'architettura sottostante.
+
+* **MLPerf:** Include un ampio set di benchmark che coprono sia l'addestramento [@mattson2020mlperf] che l'inferenza [@reddi2020mlperf] per una gamma di attività di machine learning. @fig-ml-perf illustra la diversità dei casi d'uso dell'IA trattati da MLPerf.
+* **Fathom:** Si concentra sulle operazioni principali nei modelli di deep learning, enfatizzandone l'esecuzione su diverse architetture [@adolf2016fathom].
+* **AI Benchmark:** Mira a dispositivi mobili e consumer, valutando le prestazioni dell'IA nelle applicazioni per utenti finali [@ignatov2018ai].
+
+![MLPerf Training v3.0 e suoi utilizzi. Fonte: [Forbes](https://www.forbes.com/sites/stevemcdowell/2023/06/27/nvidia-h100-dominates-new-mlperf-v30-benchmark-results/)](images/png/mlperf.png){#fig-ml-perf}
+
+I benchmark hanno anche metriche delle prestazioni che sono misure quantificabili utilizzate per valutare l'efficacia degli acceleratori di IA. Queste metriche forniscono una visione completa delle capacità di un acceleratore e vengono utilizzate per guidare il processo di progettazione e selezione per i sistemi di IA. Le metriche comuni comprendono:
+
+* **Throughput:** Solitamente misurato in operazioni al secondo, questo parametro indica il volume di calcoli che un acceleratore può gestire.
+* **Latenza:** Il ritardo temporale tra input e output in un sistema è fondamentale per le attività di elaborazione in tempo reale.
+* **Efficienza Energetica:** Calcolato come elaborazione per watt, che rappresenta il compromesso tra prestazioni e consumo energetico.
+* **Efficienza dei Costi:** Valuta il costo operativo in relazione alle prestazioni, un parametro essenziale per le distribuzioni attente al budget.
+* **Precisione:** Nelle attività di inferenza, la precisione dei calcoli è fondamentale e talvolta bilanciata rispetto alla velocità.
+* **Scalabilità:** La capacità del sistema di mantenere i guadagni in termini di prestazioni man mano che il carico computazionale aumenta.
+
+I risultati del benchmark forniscono informazioni che vanno oltre i semplici numeri: possono rivelare colli di bottiglia nello stack software e nell'hardware. Ad esempio, i benchmark possono mostrare come l'aumento delle dimensioni del batch migliori l'utilizzo della GPU fornendo più parallelismo o come le ottimizzazioni del compilatore aumentino le prestazioni della TPU. Questi insegnamenti consentono un'ottimizzazione continua [@jia2019beyond].
+
+Il benchmarking standardizzato fornisce una valutazione quantificata e comparabile degli acceleratori AI per informare la progettazione, l'acquisto e l'ottimizzazione. Tuttavia, anche la convalida delle prestazioni nel mondo reale rimane essenziale [@zhu2018benchmarking].
+
+## Sfide e Soluzioni
+
+Gli acceleratori AI offrono notevoli miglioramenti delle prestazioni, ma spesso è necessario migliorare i significativi problemi di portabilità e compatibilità nella loro integrazione nel più ampio panorama AI. Il nocciolo della questione risiede nella diversità dell'ecosistema AI: esiste una vasta gamma di acceleratori, framework e linguaggi di programmazione per l'apprendimento automatico, ognuno con le sue caratteristiche e requisiti unici.
+
+### Problemi di Portabilità/Compatibilità
+
+Gli sviluppatori incontrano spesso difficoltà nel trasferire i loro modelli AI da un ambiente hardware a un altro. Ad esempio, un modello di machine learning sviluppato per un ambiente desktop in Python utilizzando il framework PyTorch, ottimizzato per una GPU Nvidia, potrebbe non essere facilmente trasferito a un dispositivo più vincolato come Arduino Nano 33 BLE. Questa complessità deriva da nette differenze nei requisiti di programmazione: Python e PyTorch sul desktop rispetto a un ambiente C++ su un Arduino, per non parlare del passaggio dall'architettura x86 ad ARM ISA.
+
+Queste divergenze evidenziano la complessità della portabilità all'interno dei sistemi AI. Inoltre, il rapido progresso negli algoritmi e nei modelli di intelligenza artificiale implica che gli acceleratori hardware debbano adattarsi continuamente, creando un obiettivo mobile per la compatibilità. L'assenza di standard e interfacce universali aggrava il problema, rendendo difficile l'implementazione di soluzioni di intelligenza artificiale in modo coerente su vari dispositivi e piattaforme.
+
+#### Soluzioni e Strategie
+
+Per affrontare questi ostacoli, il settore dell'intelligenza artificiale si sta muovendo verso diverse soluzioni:
+
+##### Iniziative di Standardizzazione
+
+[Open Neural Network Exchange (ONNX)](https://onnx.ai/) è in prima linea in questa ricerca, proponendo un ecosistema aperto e condiviso che promuove l'intercambiabilità dei modelli. ONNX facilita l'uso di modelli di intelligenza artificiale su vari framework, consentendo ai modelli addestrati in un ambiente di essere distribuiti in modo efficiente in un altro, riducendo significativamente la necessità di riscritture o modifiche che richiedono molto tempo.
+
+##### Framework Multipiattaforma
+
+A complemento degli sforzi di standardizzazione, framework multipiattaforma come TensorFlow Lite e PyTorch Mobile sono stati sviluppati specificamente per creare coesione tra diversi ambienti di calcolo che vanno dai desktop ai dispositivi mobili ed embedded. Questi framework offrono versioni semplificate e leggere delle loro versioni principali, garantendo compatibilità e integrità funzionale su diversi tipi di hardware senza sacrificare le prestazioni. Ciò garantisce che gli sviluppatori possano creare applicazioni con la certezza che funzioneranno su molti dispositivi, colmando un divario che tradizionalmente ha rappresentato una sfida considerevole nello sviluppo dell'intelligenza artificiale.
+
+##### Piattaforme Indipendenti dall'Hardware
+
+L'ascesa delle piattaforme indipendenti dall'hardware ha anche svolto un ruolo importante nella democratizzazione dell'uso dell'IA. Creando ambienti in cui le applicazioni di IA possono essere eseguite su vari acceleratori, queste piattaforme eliminano l'onere della codifica specifica per l'hardware dagli sviluppatori. Questa astrazione semplifica il processo di sviluppo e apre nuove possibilità per l'innovazione e l'implementazione delle applicazioni, libere dai vincoli delle specifiche hardware.
+
+##### Strumenti di Compilazione Avanzati
+
+Inoltre, l'avvento di strumenti di compilazione avanzati come TVM, un compilatore di tensori end-to-end, offre un percorso ottimizzato attraverso la giungla delle diverse architetture hardware. TVM fornisce agli sviluppatori i mezzi per mettere a punto modelli di machine learning per un ampio spettro di substrati computazionali, garantendo prestazioni ottimali ed evitando la regolazione manuale del modello ogni volta che si verifica uno spostamento nell'hardware sottostante.
+
+##### Collaborazione tra Comunità e Settore
+
+La collaborazione tra comunità open source e consorzi di settore non può essere sottovalutata. Questi organismi collettivi sono fondamentali per la formazione di standard condivisi e best practice a cui tutti gli sviluppatori e i produttori possono aderire. Tale collaborazione promuove un ecosistema AI più unificato e sinergico, riducendo significativamente la prevalenza di problemi di portabilità e spianando la strada verso l'integrazione e l'avanzamento dell'AI globale. Attraverso questi lavori combinati, l'AI si sta muovendo costantemente verso un futuro in cui la distribuzione di modelli senza soluzione di continuità su varie piattaforme diventa uno standard piuttosto che un'eccezione.
+
+Risolvere le sfide della portabilità è fondamentale per il campo dell'IA per realizzare il pieno potenziale degli acceleratori hardware in un panorama tecnologico dinamico e diversificato. Richiede uno sforzo concertato da parte dei produttori di hardware, degli sviluppatori di software e degli enti normativi per creare un ambiente più interoperabile e flessibile. Con innovazione e collaborazione continue, la comunità dell'IA può aprire la strada a un'integrazione e a un'implementazione senza soluzione di continuità dei modelli di IA su molte piattaforme.
+
+### Problemi di Consumo Energetico
+
+Il consumo energetico è un problema cruciale nello sviluppo e nel funzionamento degli acceleratori AI dei data center, come le unità di elaborazione grafica (GPU) e le unità di elaborazione tensoriale (TPU) [@jouppi2017indatacenter] [@norrie2021design] [@jouppi2023tpu]. Questi potenti componenti sono la spina dorsale dell'infrastruttura AI contemporanea, ma le loro elevate richieste di energia contribuiscono all'impatto ambientale della tecnologia e aumentano significativamente i costi operativi. Man mano che le esigenze di elaborazione dei dati diventano più complesse, con la crescente popolarità dell'AI e del deep learning, c'è una richiesta pressante di GPU e TPU in grado di fornire la potenza di calcolo necessaria in modo più efficiente. L'impatto di tali progressi è duplice: possono ridurre l'impatto ambientale di queste tecnologie e ridurre i costi di esecuzione delle applicazioni AI.
+
+Le tecnologie hardware emergenti sono sul punto di rivoluzionare l'efficienza energetica in questo settore. L'informatica fotonica, ad esempio, utilizza la luce anziché l'elettricità per trasportare informazioni, offrendo la promessa di un'elaborazione ad alta velocità con una frazione del consumo energetico. Analizziamo più approfonditamente questa e altre tecnologie innovative nella sezione "Tecnologie Hardware Emergenti", esplorando il loro potenziale per affrontare le attuali sfide del consumo energetico.
+
+Ai margini della rete, gli acceleratori AI sono progettati per elaborare dati su dispositivi come smartphone, sensori IoT e dispositivi indossabili intelligenti. Questi dispositivi spesso funzionano con gravi limitazioni di potenza, rendendo necessario un attento bilanciamento tra prestazioni e consumo energetico. Un modello AI ad alte prestazioni può fornire risultati rapidi, ma a costo di esaurire rapidamente la durata della batteria e aumentare la produzione termica, il che può influire sulla funzionalità e sulla durata del dispositivo. La posta in gioco è più alta per i dispositivi distribuiti in aree remote o difficili da raggiungere, dove non è possibile garantire un'alimentazione costante, il che sottolinea la necessità di soluzioni a basso consumo energetico.
+
+I problemi di latenza aggravano ulteriormente la sfida dell'efficienza energetica ai margini. Le applicazioni AI Edge in settori quali la guida autonoma e il monitoraggio sanitario richiedono velocità, precisione e affidabilità, poiché i ritardi nell'elaborazione possono comportare gravi rischi per la sicurezza. Per queste applicazioni, gli sviluppatori devono ottimizzare sia gli algoritmi AI sia la progettazione hardware per raggiungere un equilibrio ottimale tra consumo energetico e latenza.
+
+Questo sforzo di ottimizzazione non riguarda solo l'apporto di miglioramenti incrementali alle tecnologie esistenti; riguarda il ripensamento di come e dove elaboriamo le attività AI. Progettando acceleratori AI che siano sia efficienti dal punto di vista energetico sia in grado di elaborare rapidamente, possiamo garantire che questi dispositivi svolgano i loro scopi previsti senza un consumo energetico non necessario o prestazioni compromesse. Tali sviluppi potrebbero promuovere l'adozione diffusa dell'AI in vari settori, consentendo un uso più intelligente, sicuro e sostenibile della tecnologia.
+
+### Superare i Vincoli delle Risorse
+
+Anche i vincoli di risorse rappresentano una sfida significativa per gli acceleratori Edge AI, poiché queste soluzioni hardware e software specializzate devono fornire prestazioni robuste entro i limiti dei dispositivi edge. A causa dei limiti di potenza e dimensioni, gli acceleratori Edge AI hanno spesso capacità di calcolo, memoria e archiviazione limitate [@lin2022ondevice]. Questa scarsità di risorse richiede un'attenta allocazione delle capacità di elaborazione per eseguire modelli di apprendimento automatico in modo efficiente.
+
+Inoltre, la gestione di risorse limitate richiede approcci innovativi, tra cui la quantizzazione del modello [@lin2023awq] [@Li2020Additive], pruning [@wang2020apq] e l'ottimizzazione delle pipeline di inferenza. Gli acceleratori Edge AI devono trovare un delicato equilibrio tra la fornitura di funzionalità AI significative e il non esaurire le risorse disponibili, mantenendo al contempo un basso consumo energetico. Superare questi vincoli di risorse è fondamentale per garantire l'implementazione di successo dell'intelligenza artificiale ai margini, dove molte applicazioni, dall'IoT ai dispositivi mobili, si basano sull'uso efficiente di risorse hardware limitate per fornire un processo decisionale intelligente e in tempo reale.
+
+## Tecnologie Emergenti
+
+Finora abbiamo discusso la tecnologia hardware AI nel contesto della progettazione dell'architettura von Neumann convenzionale e dell'implementazione basata su CMOS. Questi chip AI specializzati offrono vantaggi come una maggiore produttività ed efficienza energetica, ma si basano sui principi di elaborazione tradizionali. La crescita inarrestabile della domanda di potenza di elaborazione AI sta guidando le innovazioni nei metodi di integrazione per l'hardware AI.
+
+Sono emersi due approcci principali per massimizzare la densità di elaborazione, l'integrazione su "scala wafer" e le architetture basate su "chiplet", di cui parleremo in questa sezione. Guardando molto più avanti, esamineremo le tecnologie emergenti che divergono dalle architetture convenzionali e adottano approcci fondamentalmente diversi per l'elaborazione specializzata AI.
+
+Alcuni di questi paradigmi non convenzionali includono l'elaborazione neuromorfica, che imita le reti neurali biologiche; l'elaborazione quantistica, che sfrutta gli effetti della meccanica quantistica; e l'elaborazione ottica, che utilizza fotoni anziché elettroni. Oltre ai nuovi substrati di elaborazione, le nuove tecnologie dei dispositivi stanno consentendo ulteriori guadagni attraverso una migliore memoria e interconnessione.
+
+Esempi includono i "memristor" [https://it.wikipedia.org/wiki/Memristore] per l'elaborazione in memoria e la nanofotonica per la comunicazione fotonica integrata. Insieme, queste tecnologie offrono il potenziale per miglioramenti di ordini di grandezza in termini di velocità, efficienza e scalabilità rispetto all'attuale hardware AI. Esamineremo questi aspetti in questa sezione.
+
+### Metodi di Integrazione
+
+I metodi di integrazione si riferiscono agli approcci utilizzati per combinare e interconnettere i vari componenti di elaborazione e memoria di un chip o sistema AI. Collegando strettamente gli elementi di elaborazione chiave, l'integrazione cerca di massimizzare le prestazioni, l'efficienza energetica e la densità.
+
+In passato, l'elaborazione AI veniva eseguita principalmente su CPU e GPU costruite utilizzando metodi di integrazione convenzionali. Questi componenti discreti venivano fabbricati separatamente e collegati insieme su una scheda. Tuttavia, questa integrazione poco stretta crea colli di bottiglia, come i sovraccarichi dei trasferimento di dati.
+
+Con l'aumento dei carichi di lavoro AI, aumenta la domanda di una più stretta integrazione tra elementi di elaborazione, memoria e comunicazione. Alcuni fattori chiave dell'integrazione includono:
+
+* **Riduzione al minimo dello spostamento dei dati:** Una stretta integrazione riduce la latenza e l'energia per lo spostamento dei dati tra i componenti. Ciò migliora l'efficienza.
+* **Personalizzazione:** Adattare tutti i componenti del sistema ai carichi di lavoro AI consente ottimizzazioni in tutto lo stack hardware.
+* **Parallelismo:** L'integrazione di molti elementi di elaborazione consente un calcolo parallelo massiccio.
+* **Densità:** Una più stretta integrazione consente di impacchettare più transistor e memoria in una determinata area.
+* **Costo:** Le economie di scala derivanti da grandi sistemi integrati possono ridurre i costi.
+
+In risposta, nuove tecniche di produzione come la fabbricazione su scala di wafer e il confezionamento avanzato consentono ora livelli di integrazione molto più elevati. L'obiettivo è creare complessi di elaborazione AI unificati e specializzati, su misura per il deep learning e altri algoritmi AI. Un'integrazione più stretta è fondamentale per fornire le prestazioni e l'efficienza necessarie per la prossima generazione di AI.
+
+#### AI su Scala Wafer
+
+L'intelligenza artificiale su "wafer-scale" adotta un approccio estremamente integrato, producendo un intero wafer di silicio come un gigantesco chip. Ciò differisce drasticamente dalle CPU e GPU convenzionali, che tagliano ogni wafer in molti chip singoli più piccoli. @fig-wafer-scale mostra un confronto tra Cerebras Wafer Scale Engine 2, che è il chip più grande mai costruito, e la GPU più grande. Mentre alcune GPU possono contenere miliardi di transistor, impallidiscono comunque rispetto alla scala di un chip delle dimensioni di un wafer con oltre un trilione di transistor.
+
+![Wafer-scale vs. GPU. Fonte: [Cerebras](https://www.cerebras.net/product-chip/).](images/png/aimage1.png){#fig-wafer-scale}
+
+L'approccio su scala di wafer diverge anche dai progetti system-on-chip più modulari che hanno ancora componenti discreti che comunicano tramite bus. Invece, l'intelligenza artificiale su scala di wafer consente la personalizzazione completa e la stretta integrazione di elaborazione, memoria e interconnessioni nell'intero di die.
+
+Progettando il wafer come un'unità logica integrata, il trasferimento dati tra gli elementi è ridotto al minimo. Ciò fornisce una latenza e un consumo energetico inferiori rispetto ai design discreti system-on-chip o chiplet. Mentre i chiplet possono offrire flessibilità mescolando e abbinando i componenti, la comunicazione tra chiplet è impegnativa. La natura monolitica dell'integrazione su scala wafer elimina questi colli di bottiglia nella comunicazione tra chip.
+
+Tuttavia, la scala ultra-large pone anche difficoltà per la producibilità e la resa con i design su scala wafer. Difetti in qualsiasi regione del wafer possono rendere (alcune parti del) chip inutilizzabile. Sono necessarie tecniche di litografia specializzate per produrre tali matrici di grandi dimensioni. Quindi, l'integrazione su scala wafer persegue i massimi guadagni in termini di prestazioni dall'integrazione ma richiede il superamento di sostanziali sfide di fabbricazione.
+
+@vid-wfscale fornisce ulteriore contesto sui chip AI su scala wafer.
+
+:::{#vid-wfscale .callout-important}
+
+# Wafer-scale AI Chips
+
+{{< video https://www.youtube.com/watch?v=Fcob512SJz0 >}}
+
+:::
+
+#### Chiplet per AI
+
+Il design chiplet si riferisce a un'architettura semiconduttrice in cui un singolo circuito integrato (IC) è costruito da più componenti più piccoli e individuali noti come chiplet. Ogni chiplet è un blocco funzionale autonomo, in genere specializzato per un'attività o funzionalità specifica. Questi chiplet sono quindi interconnessi su un substrato o un package più grande per creare un sistema coeso.
+
+@fig-chiplet illustra questo concetto. Per l'hardware AI, i chiplet consentono di combinare diversi tipi di chip ottimizzati per attività come moltiplicazione di matrici, spostamento di dati, I/O analogico e memorie specializzate. Questa integrazione eterogenea differisce notevolmente dall'integrazione wafer-scale, in cui tutta la logica è prodotta come un unico chip monolitico. Aziende come Intel e AMD hanno adottato design chiplet per le loro CPU.
+
+I chiplet sono interconnessi utilizzando tecniche di packaging avanzate come interposer di substrato ad alta densità, impilamento 2.5D/3D e packaging a livello di wafer. Ciò consente di combinare chiplet realizzati con diversi nodi di processo, memorie specializzate e vari motori AI ottimizzati.
+
+![Partizionamento chiplet. Fonte: @vivet2021intact.](images/png/aimage2.png){#fig-chiplet}
+
+Ecco alcuni vantaggi chiave dell'uso di chiplet per l'intelligenza artificiale:
+
+* **Flessibilità:** I chiplet consentono la combinazione di diversi tipi di chip, nodi di processo e memorie su misura per ogni funzione. Questo è più modulare rispetto a un design fisso su scala wafer.
+* **Resa:** I chiplet più piccoli hanno una resa maggiore rispetto a un gigantesco chip su scala wafer. I difetti sono contenuti nei singoli chiplet.
+* **Costo:** Sfrutta le capacità di produzione esistenti anziché richiedere nuovi processi specializzati. Riduce i costi riutilizzando la fabbricazione assestata.
+* **Compatibilità:** Può integrarsi con architetture di sistema più convenzionali come PCIe e interfacce di memoria DDR standard.
+
+Tuttavia, i chiplet devono anche affrontare sfide di integrazione e prestazioni:
+
+* Densità inferiore rispetto alla scala wafer, poiché i chiplet sono limitati in termini di dimensioni.
+* Latenza aggiuntiva durante la comunicazione tra chiplet rispetto all'integrazione monolitica. Richiede ottimizzazione per interconnessioni a bassa latenza.
+* Il packaging avanzato aggiunge complessità rispetto all'integrazione su scala wafer, sebbene ciò sia discutibile.
+
+L'obiettivo principale dei chiplet è trovare il giusto equilibrio tra flessibilità modulare e densità di integrazione per prestazioni AI ottimali. I chiplet mirano a un'accelerazione AI efficiente pur lavorando entro i vincoli delle tecniche di produzione convenzionali. I chiplet prendono una via di mezzo tra gli estremi dell'integrazione su scala wafer e dei componenti completamente discreti. Ciò fornisce vantaggi pratici ma può sacrificare una certa densità computazionale ed efficienza rispetto a un sistema teorico a livello di wafer.
+
+### Elaborazione Nùeuromorfica {#sec-neuromorphic}
+
+L'elaborazione neuromorfica è un campo emergente che mira a emulare l'efficienza e la robustezza dei sistemi neurali biologici per applicazioni di machine learning. Una differenza fondamentale rispetto alle classiche architetture di Von Neumann è la fusione di memoria ed elaborazione nello stesso circuito [@schuman2022opportunities; @markovic2020physics; @furber2016large], come illustrato in @fig-neuromorphic. La struttura del cervello ispira questo approccio integrato. Un vantaggio fondamentale è il potenziale per un miglioramento di ordini di grandezza nel calcolo efficiente dal punto di vista energetico rispetto all'hardware AI convenzionale. Ad esempio, le stime prevedono guadagni di 100x-1000x nell'efficienza energetica rispetto agli attuali sistemi basati su GPU per carichi di lavoro equivalenti.
+
+![Confronto tra l'architettura di von Neumann e l'architettura neuromorfica. Fonte: @schuman2022opportunities.](images/png/aimage3.png){#fig-neuromorphic}
+
+Intel e IBM stanno guidando gli sforzi commerciali nell'hardware neuromorfico. I chip Loihi e Loihi 2 di Intel [@davies2018loihi; @davies2021advancing] offrono core neuromorfici programmabili con apprendimento on-chip. Il dispositivo Northpole [@modha2023neural] di IBM comprende oltre 100 milioni di sinapsi a giunzione a tunnel magnetico e 68 miliardi di transistor. Questi chip specializzati offrono vantaggi come un basso consumo energetico per l'inferenza edge.
+
+Le "Spiking neural network (SNN)" [@maass1997networks] sono modelli computazionali per hardware neuromorfico. A differenza delle reti neurali profonde che comunicano tramite valori continui, le SNN utilizzano picchi discreti che sono più simili ai neuroni biologici. Questo consente un calcolo efficiente basato sugli eventi anziché un'elaborazione costante. Inoltre, le SNN considerano le caratteristiche temporali e spaziali dei dati di input. Ciò imita meglio le reti neurali biologiche, in cui la tempistica dei picchi neuronali svolge un ruolo importante.
+
+Tuttavia, l'addestramento delle SNN rimane impegnativo a causa della complessità temporale aggiunta. @fig-spiking fornisce una panoramica della metodologia spiking: (a) illustrazione di un neurone; (b) Misura di un potenziale d'azione propagato lungo l'assone di un neurone. Solo il potenziale d'azione è rilevabile lungo l'assone; (c) Il picco del neurone è approssimato con una rappresentazione binaria; (d) Elaborazione guidata dagli eventi; (e) Active Pixel Sensor e Dynamic Vision Sensor.
+
+![Spiking neuromorfico. Fonte: @eshraghian2023training.](images/png/aimage4.png){#fig-spiking}
+
+Si può anche guardare @vid-snn linkato di seguito per una spiegazione più dettagliata.
+
+:::{#vid-snn .callout-important}
+
+# Neuromorphic Computing
+
+{{< video https://www.youtube.com/watch?v=yihk_8XnCzg >}}
+
+:::
+
+Dispositivi nanoelettronici specializzati chiamati memristor [@chua1971memristor] sono componenti sinaptici nei sistemi neuromorfici. I memristor agiscono come memoria non volatile con conduttanza regolabile, emulando la plasticità delle sinapsi reali. I memristor consentono l'apprendimento in situ senza trasferimenti di dati separati combinando funzioni di memoria ed elaborazione. Tuttavia, la tecnologia dei memristor deve ancora raggiungere la maturità e la scalabilità per l'hardware commerciale.
+
+L'integrazione della fotonica con il calcolo neuromorfico [@shastri2021photonics] è emersa di recente come un'area di ricerca attiva. L'uso della luce per il calcolo e la comunicazione consente alte velocità e un consumo energetico ridotto. Tuttavia, la piena realizzazione di sistemi neuromorfici fotonici richiede il superamento di problemi di progettazione e integrazione.
+
+Il calcolo neuromorfico offre promettenti capacità per un'efficace inferenza edge, ma incontra ostacoli in merito ad algoritmi di addestramento, integrazione dei nanodispositivi e progettazione del sistema. La ricerca multidisciplinare in corso in informatica, ingegneria, scienza dei materiali e fisica sarà fondamentale per sbloccare il pieno potenziale di questa tecnologia per i casi d'uso dell'intelligenza artificiale.
+
+### Calcolo Analogico
+
+Il computing analogico è un approccio emergente che utilizza segnali e componenti analogici come condensatori, induttori e amplificatori anziché la logica digitale per il calcolo. Rappresenta le informazioni come segnali elettrici continui anziché 0 e 1 discreti. Ciò consente al calcolo di riflettere direttamente la natura analogica dei dati del mondo reale, evitando errori di digitalizzazione e overhead.
+
+Il computing analogico ha generato un rinnovato interesse per l'hardware AI efficiente, in particolare per l'inferenza direttamente su dispositivi edge a basso consumo. I circuiti analogici, come la moltiplicazione e la sommatoria al centro delle reti neurali, possono essere utilizzati con un consumo energetico molto basso. Ciò rende l'analogico adatto per l'implementazione di modelli ML su nodi finali con vincoli energetici. Startup come Mythic stanno sviluppando acceleratori AI analogici.
+
+Mentre il computing analogico era popolare nei primi computer, il boom della logica digitale ha portato al suo declino. Tuttavia, l'analogico è convincente per applicazioni di nicchia che richiedono estrema efficienza [@haensch2018next]. Contrasta con gli approcci neuromorfici digitali che utilizzano ancora picchi digitali per il calcolo. L'analogico può consentire un calcolo di precisione inferiore, ma richiede competenza nella progettazione di circuiti analogici. I compromessi su precisione, complessità di programmazione e costi di fabbricazione rimangono aree di ricerca attive.
+
+Il calcolo neuromorfico, che emula i sistemi neurali biologici per un'inferenza ML efficiente, può utilizzare circuiti analogici per implementare i componenti e i comportamenti chiave del cervello. Ad esempio, i ricercatori hanno progettato circuiti analogici per modellare neuroni e sinapsi utilizzando condensatori, transistor e amplificatori operazionali [@hazan2021neuromorphic]. I condensatori possono esibire le dinamiche di picco dei neuroni biologici, mentre gli amplificatori e i transistor forniscono una somma ponderata di input per imitare i dendriti. Le tecnologie a resistore variabile come i memristor possono realizzare sinapsi analogiche con plasticità dipendente dal tempo di picco, che può rafforzare o indebolire le connessioni in base all'attività di picco.
+
+Startup come SynSense hanno sviluppato chip neuromorfici analogici contenenti questi componenti biomimetici [@bains2020business]. Questo approccio analogico si traduce in un basso consumo energetico e un'elevata scalabilità per i dispositivi edge rispetto alle complesse implementazioni SNN digitali.
+
+Tuttavia, l'addestramento di SNN analogiche sui chip rimane una sfida aperta. Nel complesso, la realizzazione analogica è una tecnica promettente per fornire l'efficienza, la scalabilità e la plausibilità biologica previste con il calcolo neuromorfico. La fisica dei componenti analogici combinata con la progettazione dell'architettura neurale potrebbe migliorare l'efficienza dell'inferenza rispetto alle reti neurali digitali convenzionali.
+
+### Elettronica Flessibile
+
+Mentre gran parte della nuova tecnologia hardware nell'area di lavoro ML si è concentrata sull'ottimizzazione e sulla creazione di sistemi più efficienti, c'è una traiettoria parallela che mira ad adattare l'hardware per applicazioni specifiche [@gates2009flexible; @musk2019integrated; @tang2023flexible; @tang2022soft; @kwon2022flexible]. Una di queste strade è lo sviluppo di elettronica flessibile per casi d'uso AI.
+
+L'elettronica flessibile si riferisce a circuiti elettronici e dispositivi fabbricati su substrati flessibili in plastica o polimeri anziché in silicio rigido. A differenza delle schede e dei chip rigidi convenzionali, ciò consente all'elettronica di piegarsi, torcersi e adattarsi a forme irregolari. @fig-flexible-device mostra un esempio di un prototipo di dispositivo flessibile che misura in modalità wireless la temperatura corporea, che può essere integrato senza soluzione di continuità in indumenti o cerotti cutanei. La flessibilità e la piegabilità dei materiali elettronici emergenti consentono di integrarli in fattori di forma sottili e leggeri, adatti per applicazioni AI e TinyML embedded.
+
+L'hardware AI flessibile può adattarsi a superfici curve e funzionare in modo efficiente con budget di potenza in microwatt. La flessibilità consente inoltre fattori di forma arrotolabili o pieghevoli per ridurre al minimo l'ingombro e il peso del dispositivo, ideali per piccoli dispositivi intelligenti portatili e dispositivi indossabili che incorporano TinyML. Un altro vantaggio fondamentale dell'elettronica flessibile rispetto alle tecnologie convenzionali sono i costi di produzione inferiori e i processi di fabbricazione più semplici, che potrebbero democratizzare l'accesso a queste tecnologie. Mentre le maschere in silicio e i costi di fabbricazione in genere costano milioni di dollari, l'hardware flessibile in genere costa solo decine di centesimi per la produzione [@huang2010pseudo; @biggs2021natively]. Il potenziale di fabbricare elettronica flessibile direttamente su pellicole di plastica utilizzando processi di stampa e rivestimento ad alta produttività può ridurre i costi e migliorare la producibilità su larga scala rispetto ai chip AI rigidi [@musk2019integrated].
+
+![Prototipo di dispositivo flessibile. Fonte: Jabil Circuit.](images/jpg/flexible-circuit.jpeg){#fig-flexible-device}
+
+Il campo è abilitato dai progressi nei semiconduttori organici e nei nanomateriali che possono essere depositati su pellicole sottili e flessibili. Tuttavia, la fabbricazione rimane impegnativa rispetto ai processi maturi del silicio. I circuiti flessibili attualmente presentano in genere prestazioni inferiori rispetto agli equivalenti rigidi. Tuttavia, promettono di trasformare l'elettronica in materiali leggeri e pieghevoli.
+
+I casi d'uso dell'elettronica flessibile sono adatti per l'integrazione intima con il corpo umano. Le potenziali applicazioni dell'intelligenza artificiale medica includono sensori biointegrati, "soft robot" e impianti che monitorano o stimolano il sistema nervoso in modo intelligente. In particolare, gli array di elettrodi flessibili potrebbero consentire interfacce neurali a densità più elevata e meno invasive rispetto agli equivalenti rigidi.
+
+Pertanto, l'elettronica flessibile sta inaugurando una nuova era di dispositivi indossabili e sensori corporei, in gran parte grazie alle innovazioni nei transistor organici. Questi componenti consentono un'elettronica più leggera e pieghevole, ideale per dispositivi indossabili, pelle elettronica e dispositivi medici che si adattano al corpo.
+
+Sono adatti per dispositivi bioelettronici in termini di biocompatibilità, aprendo la strada ad applicazioni in interfacce cerebrali e cardiache. Ad esempio, la ricerca sulle interfacce flessibili cervello-computer e sulla bioelettronica morbida per applicazioni cardiache dimostra il potenziale per applicazioni mediche di vasta portata.
+
+Aziende e istituti di ricerca non stanno solo sviluppando e investendo grandi quantità di risorse in elettrodi flessibili, come mostrato nel lavoro di Neuralink [@musk2019integrated]. Tuttavia, stanno anche spingendo i confini per integrare modelli di apprendimento automatico nei sistemi [@kwon2022flexible]. Questi sensori intelligenti mirano a una simbiosi fluida e duratura con il corpo umano.
+
+Eticamente, l'incorporazione di sensori intelligenti basati sull'apprendimento automatico nel corpo solleva importanti questioni. Le problematiche relative alla privacy dei dati, al consenso informato e alle implicazioni sociali a lungo termine di tali tecnologie sono al centro del lavoro in corso in neuroetica e bioetica [@segura2018ethical; @goodyear2017social; @farah2005neuroethics; @roskies2002neuroethics]. Il campo sta progredendo a un ritmo che richiede progressi paralleli nei parametri etici per guidare lo sviluppo e l'implementazione responsabili di queste tecnologie. Sebbene vi siano limitazioni e ostacoli etici da superare, le prospettive per l'elettronica flessibile sono ampie e promettono molto per la ricerca e le applicazioni future.
+
+### Tecnologie delle Memorie
+
+Le tecnologie delle memorie sono fondamentali per l'hardware AI, ma la DDR DRAM e la SRAM convenzionali creano colli di bottiglia. I carichi di lavoro AI richiedono un'elevata larghezza di banda (>1 TB/s). Le applicazioni scientifiche estreme dell'AI richiedono una latenza estremamente bassa (<50 ns) per alimentare i dati alle unità di calcolo [@duarte2022fastml], un'elevata densità (>128 Gb) per archiviare grandi parametri di modelli e set di dati e un'eccellente efficienza energetica (<100 fJ/b) per uso embedded [@verma2019memory]. Sono necessarie nuove memorie per soddisfare queste esigenze. Le opzioni emergenti includono diverse nuove tecnologie:
+
+* La RAM resistiva (ReRAM) può migliorare la densità con semplici array passivi. Tuttavia, permangono dei problemi legati alla variabilità [@chi2016prime].
+* La "Phase change memory (PCM)" [memoria a cambiamento di fase ] sfrutta le proprietà uniche del vetro calcogenuro. Le fasi cristalline e amorfe hanno resistenze diverse. L'Optane DCPMM di Intel fornisce PCM veloci (100 ns) e ad alta resistenza. Tuttavia, le sfide includono cicli di scrittura limitati e corrente di reset elevata [@burr2016recent].
+* Lo stacking 3D può anche aumentare la densità di memoria e la larghezza di banda integrando verticalmente strati di memoria con interconnessioni TSV [@loh20083dstacked]. Ad esempio, HBM fornisce interfacce larghe 1024 bit.
+
+Le nuove tecnologie di memoria, con le loro innovative architetture e materiali cellulari, sono fondamentali per sbloccare il prossimo livello di prestazioni ed efficienza hardware AI. Realizzare i loro vantaggi nei sistemi commerciali rimane una sfida continua.
+
+L'elaborazione in-memory sta guadagnando terreno come promettente strada per ottimizzare l'apprendimento automatico e i carichi di lavoro di elaborazione ad alte prestazioni. Al centro, la tecnologia colloca l'archiviazione e l'elaborazione dei dati per migliorare l'efficienza energetica e ridurre la latenza [@verma2019memory; @mittal2021survey,@wong2012metal]. Due tecnologie chiave sotto questo ombrello sono la "Resistive RAM (ReRAM)" e il "Processing-In-Memory (PIM)".
+
+ReRAM [@wong2012metal] e PIM [@chi2016prime] sono le colonne portanti per l'elaborazione in memoria, l'archiviazione e l'elaborazione dei dati nella stessa posizione. ReRAM si concentra su questioni di uniformità, resistenza, conservazione, funzionamento multi-bit e scalabilità. D'altro canto, PIM coinvolge unità CPU integrate direttamente in array di memoria, specializzate per attività come la moltiplicazione di matrici, che sono centrali nei calcoli AI.
+
+Queste tecnologie trovano applicazioni nei carichi di lavoro AI e nell'elaborazione ad alte prestazioni, dove la sinergia di storage e calcolo può portare a significativi guadagni in termini di prestazioni. L'architettura è particolarmente utile per le attività di elaborazione intensiva comuni nei modelli di apprendimento automatico.
+
+Mentre le tecnologie di elaborazione in memoria come ReRAM e PIM offrono interessanti prospettive di efficienza e prestazioni, presentano le loro sfide, come l'uniformità dei dati e i problemi di scalabilità in ReRAM [@imani2016resistive]. Tuttavia, il campo è maturo per l'innovazione e affrontare queste limitazioni può aprire nuove frontiere nell'AI e nell'elaborazione ad alte prestazioni.
+
+### Calcolo Ottico
+
+Nell'accelerazione dell'intelligenza artificiale, un'area di interesse in rapida crescita risiede nelle nuove tecnologie che si discostano dai paradigmi tradizionali. Alcune tecnologie emergenti menzionate sopra, come l'elettronica flessibile, il calcolo in memoria o persino il calcolo neuromorfico, stanno per diventare realtà, date le loro innovazioni e applicazioni rivoluzionarie. Una delle frontiere promettenti e all'avanguardia della prossima generazione è la tecnologia del calcolo ottico [@miller2000optical,@zhou2022photonic]. Aziende come [LightMatter](https://lightmatter.co/) sono pioniere nell'uso della fotonica luminosa per i calcoli, utilizzando quindi fotoni al posto degli elettroni per la trasmissione dei dati e l'elaborazione.
+
+Il calcolo ottico utilizza fotoni e dispositivi fotonici anziché i tradizionali circuiti elettronici per il calcolo e l'elaborazione dei dati. Trae ispirazione dai collegamenti di comunicazione in fibra ottica che si basano sulla luce per un trasferimento dati rapido ed efficiente [@shastri2021photonics]. La luce può propagarsi con una perdita molto inferiore rispetto agli elettroni dei semiconduttori, consentendo vantaggi intrinseci in termini di velocità ed efficienza.
+
+Alcuni vantaggi specifici dell'elaborazione ottica includono:
+
+* **Alta produttività:** I fotoni possono trasmettere con larghezze di banda >100 Tb/s utilizzando il multiplexing a divisione di lunghezza d'onda.
+* **Bassa latenza:** I fotoni interagiscono su scale temporali di femtosecondi, milioni di volte più velocemente dei transistor al silicio.
+* **Parallelismo:** Più segnali di dati possono propagarsi simultaneamente attraverso lo stesso mezzo ottico.
+* **Bassa potenza:** I circuiti fotonici che utilizzano guide d'onda e risonatori possono ottenere una logica e una memoria complesse con solo microwatt di potenza.
+
+Tuttavia, l'elaborazione ottica deve attualmente affrontare sfide significative:
+
+* Mancanza di memoria ottica equivalente alla RAM elettronica
+* Richiede la conversione tra domini ottici ed elettrici.
+* Set limitato di componenti ottici disponibili rispetto al ricco ecosistema elettronico.
+* Metodi di integrazione immaturi per combinare la fotonica con i tradizionali chip CMOS.
+* Modelli di programmazione complessi richiesti per gestire il parallelismo.
+
+Di conseguenza, l'elaborazione ottica è ancora in una fase di ricerca molto precoce nonostante il suo potenziale promettente. Tuttavia, le innovazioni tecniche potrebbero consentirgli di integrare l'elettronica e sbloccare guadagni di prestazioni per i carichi di lavoro AI. Aziende come Lightmatter sono pioniere nei primi acceleratori ottici AI. A lungo termine, se le sfide chiave saranno superate, potrebbe rappresentare un substrato di elaborazione rivoluzionario.
+
+### Quantum Computing
+
+I computer quantistici sfruttano fenomeni unici della fisica quantistica, come la sovrapposizione e l'entanglement, per rappresentare ed elaborare informazioni in modi non possibili in modo classico. Invece dei bit binari, l'unità fondamentale è il bit quantistico o qubit. A differenza dei bit classici, che sono limitati a 0 o 1, i qubit possono esistere simultaneamente in una sovrapposizione di entrambi gli stati a causa degli effetti quantistici.
+
+Anche più qubit possono essere entangled, portando a una densità di informazioni esponenziale ma introducendo risultati probabilistici. La sovrapposizione consente il calcolo parallelo su tutti gli stati possibili, mentre l'entanglement consente correlazioni non locali tra qubit. @fig-qubit trasmette visivamente le differenze tra i bit classici nell'informatica e i bit quantistici (qbit).
+
+![Qubit, i mattoni del calcolo quantistico. Fonte: [Microsoft](https://azure.microsoft.com/en-gb/resources/cloud-computing-dictionary/what-is-a-qubit)](images/png/qubit.png){#fig-qubit}
+
+Gli algoritmi quantistici manipolano attentamente questi effetti meccanici quantistici intrinseci per risolvere problemi come l'ottimizzazione o la ricerca in modo più efficiente rispetto alle loro controparti classiche in teoria.
+
+* Training più rapido di reti neurali profonde sfruttando il parallelismo quantistico per operazioni di algebra lineare.
+* Gli algoritmi ML quantistici efficienti sfruttano le capacità uniche dei qubit.
+* Reti neurali quantistiche con effetti quantistici intrinseci integrati nell'architettura del modello.
+* Ottimizzatori quantistici che sfruttano algoritmi di "annealing" quantistica o adiabatici per problemi di ottimizzazione combinatoria.
+
+Tuttavia, gli stati quantistici sono fragili e soggetti a errori che richiedono protocolli di correzione degli errori. La natura non intuitiva della programmazione quantistica introduce anche sfide non presenti nell'informatica classica.
+
+* I bit quantistici rumorosi e fragili sono difficili da scalare. Il più grande computer quantistico odierno ha meno di 1000 qubit.
+* Insieme limitato di porte e circuiti quantistici disponibili rispetto alla programmazione classica.
+* Mancanza di set di dati e benchmark per valutare l'apprendimento automatico quantistico in domini pratici.
+
+Sebbene un vantaggio quantistico significativo per l'apprendimento automatico sia ancora lontano, la ricerca attiva presso aziende come [D-Wave](https://www.dwavesys.com/company/about-d-wave/), [Rigetti](https://www.rigetti.com/) e [IonQ](https://ionq.com/) sta facendo progredire l'ingegneria informatica quantistica e gli algoritmi quantistici. Le principali aziende tecnologiche come Google, [IBM](https://www.ibm.com/quantum?utm_content=SRCWW&p1=Search&p4C700050385964705&p5=e&gclid=Cj0KCQjw-pyqBhDmARIsAKd9XIPD9U1Sjez_S0z5jeDDE4nRyd6X_gtVDUKJ-HIolx2vOc599KgW8gAaAv8gEALw_wcB&gclsrc=aw.ds) e Microsoft stanno esplorando attivamente l'informatica quantistica. Google ha recentemente annunciato un processore quantistico a 72 qubit chiamato [Bristlecone](https://blog.research.google/2018/03/a-preview-of-bristlecone-googles-new.html) e prevede di costruire un sistema quantistico commerciale a 49 qubit. Microsoft ha anche un programma di ricerca attivo nell'informatica quantistica topologica e collabora con la startup quantistica [IonQ](https://ionq.com/)
+
+Le tecniche quantistiche potrebbero prima fare breccia nell'ottimizzazione prima di un'adozione più generalizzata dell'apprendimento automatico. La realizzazione del pieno potenziale dell'apprendimento automatico quantistico attende importanti traguardi nello sviluppo dell'hardware quantistico e nella maturità dell'ecosistema. @fig-q-computing confronta a titolo esemplificativo l'informatica quantistica e quella classica.
+
+![Confronto tra il calcolo quantistico e il calcolo classico. Fonte: [Devopedia](​​https://devopedia.org/quantum-computing)](images/png/qcomputing.png){#fig-q-computing}
+
+## Tendenze Future
+
+In questo capitolo, l'attenzione principale è stata rivolta alla progettazione di hardware specializzato ottimizzato per carichi di lavoro e algoritmi di machine learning. Questa discussione ha riguardato le architetture personalizzate di GPU e TPU per l'addestramento e l'inferenza delle reti neurali. Tuttavia, una direzione di ricerca emergente sta sfruttando l'apprendimento automatico per facilitare il processo di progettazione hardware stesso.
+
+Il processo di progettazione hardware comprende molte fasi complesse, tra cui specifica, modellazione di alto livello, simulazione, sintesi, verifica, prototipazione e fabbricazione. Gran parte di questo processo richiede tradizionalmente una vasta competenza umana, impegno e tempo. Tuttavia, i recenti progressi nell'apprendimento automatico stanno consentendo l'automazione e il miglioramento di parti del flusso di lavoro di progettazione hardware utilizzando tecniche di apprendimento automatico.
+
+Ecco alcuni esempi di come l'apprendimento automatico sta trasformando la progettazione hardware:
+
+* **Sintesi di circuiti automatizzata tramite apprendimento per rinforzo:** Anziché realizzare manualmente progetti a livello di transistor, gli agenti di apprendimento automatico come l'apprendimento per rinforzo possono imparare a collegare porte logiche e generare automaticamente layout di circuiti. Ciò può accelerare il lungo processo di sintesi.
+* **Simulazione ed emulazione hardware basate su ML:** I modelli di reti neurali profonde possono essere addestrati per prevedere come si comporterà un progetto hardware in diverse condizioni. Ad esempio, i modelli di apprendimento profondo possono essere addestrati per prevedere i conteggi dei cicli per determinati carichi di lavoro. Ciò consente una simulazione più rapida e accurata rispetto alle simulazioni RTL tradizionali.
+* **Pianificazione automatizzata dei chip mediante algoritmi ML:** La pianificazione dei chip comporta il posizionamento ottimale di diversi componenti su un die. Algoritmi evolutivi come quelli genetici e altri algoritmi ML come l'apprendimento per rinforzo vengono utilizzati per esplorare le opzioni di pianificazione. Ciò può migliorare significativamente i posizionamenti manuali di pianificazione in termini di tempi di consegna più rapidi e qualità dei posizionamenti.
+* **Ottimizzazione dell'architettura basata su ML:** Le nuove architetture hardware, come quelle per gli acceleratori ML efficienti, possono essere generate e ottimizzate automaticamente tramite la ricerca nello spazio di progettazione architettonica. Gli algoritmi di apprendimento automatico possono cercare efficacemente ampi spazi di progettazione architettonica.
+
+L'applicazione del ML all'automazione della progettazione hardware promette di rendere il processo più veloce, più economico e più efficiente. Apre possibilità di progettazione che richiederebbero più di una progettazione manuale. L'uso del ML nella progettazione hardware è un'area di ricerca attiva e di distribuzione precoce, e studieremo le tecniche coinvolte e il loro potenziale trasformativo.
+
+### ML per l'automazione della progettazione hardware
+
+Una grande opportunità per l'apprendimento automatico nella progettazione hardware è l'automazione di parti del complesso e noioso flusso di lavoro di progettazione. Con "Hardware design automation (HDA)" ci si riferisce in generale all'uso di tecniche ML come l'apprendimento per rinforzo, algoritmi genetici e reti neurali per automatizzare attività come sintesi, verifica, floorplanning e altro. Ecco alcuni esempi di dove l'ML per HDA mostra una vera promessa:
+
+* **Sintesi di circuiti automatizzata:** La sintesi di circuiti comporta la conversione di una descrizione di alto livello della logica desiderata in un'implementazione di netlist a livello di gate ottimizzata. Questo processo complesso ha molte considerazioni e compromessi di progettazione. Gli agenti ML possono essere addestrati tramite l'apprendimento per rinforzo [@yu2023rl,@zhou2023area] per esplorare lo spazio di progettazione e produrre automaticamente sintesi ottimizzate. Startup come [Symbiotic EDA](https://www.symbioticeda.com/) stanno portando questa tecnologia sul mercato.
+* **Automated chip floorplanning:** Il Floorplanning si riferisce al posizionamento strategico di diversi componenti su un'area del chip. Algoritmi di ricerca come algoritmi genetici [@valenzuela2000genetic] e apprendimento per rinforzo (@mirhoseini2021graph, @agnesina2023autodmp) possono essere utilizzati per automatizzare l'ottimizzazione il floorplan per ridurre al minimo la lunghezza dei collegamenti, il consumo di energia e altri obiettivi. Questi "floor planners" assistiti da ML automatizzati sono estremamente preziosi man mano che aumenta la complessità dei chip.
+* **Simulatori hardware ML:** L'addestramento di modelli di reti neurali profonde per prevedere le prestazioni dei progetti hardware, poiché i simulatori possono accelerare il processo di simulazione di oltre 100 volte rispetto alle simulazioni architettoniche e RTL tradizionali.
+* **Traduzione automatica del codice:** La conversione di linguaggi di descrizione hardware come Verilog in implementazioni RTL ottimizzate è fondamentale ma richiede molto tempo. I modelli ML possono essere addestrati per agire come agenti traduttori e automatizzare questo processo.
+
+I vantaggi dell'HDA che utilizza ML sono tempi di progettazione ridotti, ottimizzazioni superiori ed esplorazione di spazi di progettazione troppo complessi per approcci manuali. Ciò può accelerare lo sviluppo hardware e portare a progetti migliori.
+
+Le sfide includono i limiti della generalizzazione ML, la natura black-box di alcune tecniche e compromessi sull'accuratezza. Tuttavia, la ricerca sta rapidamente avanzando per affrontare questi problemi e rendere le soluzioni HDA ML robuste e affidabili per l'uso in produzione. HDA fornisce un'importante via per ML per trasformare la progettazione hardware.
+
+### Simulazione e Verifica Hardware Basate su ML
+
+La simulazione e la verifica dei progetti hardware sono fondamentali prima della produzione per garantire che il progetto si comporti come previsto. Gli approcci tradizionali come la simulazione "register-transfer level" (RTL) sono complessi e richiedono molto tempo. Il ML introduce nuove opportunità per migliorare la simulazione e la verifica dell'hardware. Ecco alcuni esempi:
+
+* **Modellazione surrogata per la simulazione:** Modelli surrogati di un progetto altamente accurati possono essere creati utilizzando reti neurali. Questi modelli prevedono gli output dagli input molto più velocemente della simulazione RTL, consentendo una rapida esplorazione dello spazio di progettazione. Aziende come Ansys utilizzano questa tecnica.
+* **Simulatori ML:** Grandi modelli di reti neurali possono essere addestrati su simulazioni RTL per imparare a imitare la funzionalità di un progetto hardware. Una volta addestrato, il modello NN può essere un simulatore altamente efficiente per test di regressione e altre attività. [Graphcore](https://www.graphcore.ai/posts/ai-for-simulation-how-graphcore-is-helping-transform-traditional-hpc) ha dimostrato un'accelerazione di oltre 100 volte con questo approccio.
+* **Verifica formale tramite ML:** La verifica formale dimostra matematicamente le proprietà di un progetto. Le tecniche di ML possono aiutare a generare proprietà di verifica e imparare a risolvere le complesse prove formali necessarie, automatizzando parti di questo processo impegnativo. Startup come Cortical.io stanno introducendo sul mercato soluzioni di verifica ML formali.
+* **Rilevamento di bug:** I modelli ML possono essere addestrati per elaborare progetti hardware e identificare potenziali problemi. Ciò aiuta i progettisti umani a ispezionare progetti complessi e a trovare bug. Facebook ha mostrato modelli di rilevamento di bug per l'hardware dei suoi server.
+
+I principali vantaggi dell'applicazione di ML alla simulazione e alla verifica sono tempi di esecuzione più rapidi per la convalida del progetto, test più rigorosi e riduzione del lavoro umano. Le sfide includono la verifica della correttezza del modello ML e la gestione dei casi limite. ML promette di accelerare significativamente i flussi di lavoro di test.
+
+### ML per Architetture Hardware Efficienti
+
+Un obiettivo chiave è la progettazione di architetture hardware ottimizzate per prestazioni, potenza ed efficienza. ML introduce nuove tecniche per automatizzare e migliorare l'esplorazione dello spazio di progettazione dell'architettura per hardware generico e specializzato come gli acceleratori ML. Alcuni esempi promettenti sono:
+
+* **Ricerca di architetture per hardware:** Tecniche di ricerca come algoritmi evolutivi [@kao2020gamma], ottimizzazione bayesiana (@reagen2017case, @bhardwaj2020comprehensive), apprendimento per rinforzo (@kao2020confuciux, @krishnan2022multiagent) possono generare automaticamente nuove architetture hardware mutando e mescolando attributi di progettazione come dimensione della cache, numero di unità parallele, larghezza di banda della memoria e così via. Ciò consente un'esplorazione efficiente di ampi spazi di progettazione.
+* **Modellazione predittiva per l'ottimizzazione:** I modelli ML possono essere addestrati per prevedere metriche di prestazioni, potenza ed efficienza hardware per una determinata architettura. Questi diventano "modelli surrogati" [@krishnan2023archgym] per una rapida ottimizzazione ed esplorazione dello spazio sostituendo lunghe simulazioni.
+* **Ottimizzazione dell'acceleratore specializzato:** Per chip specializzati come unità di elaborazione tensore per AI, tecniche di ricerca architettura automatizzata basate su algoritmi ML [@zhang2022fullstack] promettono di trovare progetti rapidi ed efficienti.
+
+I vantaggi dell'utilizzo di ML includono un'esplorazione dello spazio di progettazione superiore, ottimizzazione automatizzata e riduzione dello sforzo manuale. Le sfide includono lunghi tempi di training per alcune tecniche e limitazioni degli ottimi locali. Tuttavia, ML per l'architettura hardware ha un grande potenziale per rivelare miglioramenti in termini di prestazioni ed efficienza.
+
+### ML per Ottimizzare la Produzione e Ridurre i Difetti
+
+Una volta completata la progettazione hardware, si passa alla produzione. Tuttavia, variabilità e difetti durante la produzione possono influire su rese e qualità. Le tecniche ML vengono ora applicate per migliorare i processi di fabbricazione e ridurre i difetti. Ecco alcuni esempi:
+
+* **Manutenzione predittiva:** I modelli ML possono analizzare i dati dei sensori delle apparecchiature nel tempo e identificare segnali che prevedono le esigenze di manutenzione prima del guasto. Ciò consente una manutenzione proattiva, che può essere molto utile nel costoso processo di fabbricazione.
+* **Ottimizzazione del processo:** I modelli di apprendimento supervisionato possono essere addestrati sui dati di processo per identificare i fattori che portano a basse rese. I modelli possono quindi ottimizzare i parametri per migliorare rese, produttività o coerenza.
+* **Previsione della resa:** Analizzando i dati di prova da progetti realizzati utilizzando tecniche come alberi di regressione, i modelli ML possono prevedere le rese all'inizio della produzione, consentendo aggiustamenti del processo.
+* **Rilevamento dei difetti:** Le tecniche di visione artificiale ML possono essere applicate alle immagini dei progetti per identificare difetti invisibili all'occhio umano. Ciò consente un controllo di qualità di precisione e un'analisi delle cause principali.
+* **Analisi proattiva dei guasti:** I modelli ML possono aiutare a prevedere, diagnosticare e prevenire i problemi che portano a difetti e guasti a valle analizzando i dati di processo strutturati e non strutturati.
+
+L'applicazione del ML alla produzione consente l'ottimizzazione dei processi, il controllo di qualità in tempo reale, la manutenzione predittiva e rese più elevate. Le sfide includono la gestione di dati di produzione complessi e varianti. Ma il ML è pronto a trasformare la produzione di semiconduttori.
+
+### Verso Modelli di Base per la Progettazione Hardware
+
+Come abbiamo visto, l'apprendimento automatico sta aprendo nuove possibilità nel flusso di lavoro di progettazione hardware, dalle specifiche alla produzione. Tuttavia, le attuali tecniche di ML hanno ancora una portata limitata e richiedono un'ampia progettazione specifica per dominio. La visione a lungo termine è lo sviluppo di sistemi di intelligenza artificiale generali che possono essere applicati con versatilità in tutte le attività di progettazione hardware.
+
+Per realizzare appieno questa visione, sono necessari investimenti e ricerca per sviluppare modelli di base per la progettazione hardware. Si tratta di modelli e architetture ML unificati e generici che possono apprendere complesse competenze di progettazione hardware con i dati di training e gli obiettivi corretti.
+
+La realizzazione di modelli di base per la progettazione hardware end-to-end richiederà quanto segue:
+
+* Accumulare grandi set di dati di alta qualità ed etichettati in tutte le fasi di progettazione hardware per addestrare i modelli di base.
+* Progressi nelle tecniche ML multimodali e multi-task per gestire la diversità di dati e attività di progettazione hardware.
+* Interfacce e layer di astrazione per collegare i modelli di base ai flussi e agli strumenti di progettazione esistenti.
+* Sviluppo di ambienti di simulazione e benchmark per addestrare e testare i modelli di base sulle capacità di progettazione hardware.
+* Metodi per spiegare e interpretare le decisioni di progettazione dei modelli ML e le ottimizzazioni per attendibilità e verifica.
+* Tecniche di compilazione per ottimizzare i modelli di base per un'implementazione efficiente su piattaforme hardware.
+
+Sebbene siano ancora in corso ricerche significative, i modelli di base rappresentano l'obiettivo a lungo termine più trasformativo per l'infusione dell'IA nel processo della progettazione hardware. Democratizzare la progettazione hardware tramite sistemi ML versatili e automatizzati promette di aprire una nuova era di progettazione di chip ottimizzata, efficiente e innovativa. Il viaggio che ci attende è pieno di sfide e opportunità aperte.
+
+Se sei interessato alla progettazione di architetture per computer assistite da ML [@krishnan2023archgym], invitiamo a leggere [Architecture 2.0](https://www.sigarch.org/architecture-2-0-why-computer-architects-need-a-data-centric-ai-gymnasium/).
+
+In alternativa, si può guardare @vid-arch for more details.
+
+:::{#vid-arch .callout-important}
+
+# Architecture 2.0
+
+{{< video https://www.youtube.com/watch?v=F5Eieaz7u1I&ab_channel=OpenComputeProject >}}
+
+:::
+
+## Conclusione
+
+L'accelerazione hardware specializzata è diventata indispensabile per abilitare applicazioni di intelligenza artificiale performanti ed efficienti, poiché modelli e set di dati esplodono in complessità. Questo capitolo ha esaminato i limiti dei processori generici come le CPU per i carichi di lavoro di intelligenza artificiale. La loro mancanza di parallelismo e di throughput computazionale non consente di addestrare o eseguire rapidamente reti neurali profonde all'avanguardia. Queste motivazioni hanno guidato le innovazioni negli acceleratori personalizzati.
+
+Abbiamo esaminato GPU, TPU, FPGA e ASIC progettati specificamente per le operazioni matematiche intensive inerenti alle reti neurali. Coprendo questo spettro di opzioni, abbiamo mirato a fornire un framework per ragionare attraverso la selezione dell'acceleratore in base a vincoli relativi a flessibilità, prestazioni, potenza, costi e altri fattori.
+
+Abbiamo anche esplorato il ruolo del software nell'abilitazione e nell'ottimizzazione attive dell'accelerazione dell'intelligenza artificiale. Ciò abbraccia astrazioni di programmazione, framework, compilatori e simulatori. Abbiamo discusso della progettazione congiunta hardware-software come metodologia proattiva per la creazione di sistemi di intelligenza artificiale più olistici integrando strettamente l'innovazione degli algoritmi e i progressi hardware.
+
+Ma c'è molto di più in arrivo! Frontiere entusiasmanti come l'informatica analogica, le reti neurali ottiche e l'apprendimento automatico quantistico rappresentano direzioni di ricerca attive che potrebbero sbloccare miglioramenti di ordini di grandezza in termini di efficienza, velocità e scala rispetto ai paradigmi attuali.
+
+In definitiva, l'accelerazione hardware specializzata rimane indispensabile per sbloccare le prestazioni e l'efficienza necessarie per soddisfare la promessa dell'intelligenza artificiale dal cloud all'edge. Ci auguriamo che questo capitolo fornisca utili informazioni di base e approfondimenti sulla rapida innovazione che si sta verificando in questo dominio.
+
+## Risorse {#sec-ai-acceleration-resource}
+
+Ecco un elenco curato di risorse per supportare studenti e insegnanti nei loro percorsi di apprendimento e insegnamento. Lavoriamo continuamente per espandere questa raccolta e presto aggiungeremo nuovi esercizi.
+
+:::{.callout-note collapse="false"}
+
+#### Slide
+
+* _Prossimamente._
+:::
+
+:::{.callout-important collapse="false"}
+
+#### Video
+
+* @vid-wfscale
+
+* @vid-snn
+
+* @vid-arch
+
+:::
+
+:::{.callout-caution collapse="false"}
+
+#### Esercizi
+
+* @exr-tvm
+:::
+
+:::{.callout-warning collapse="false"}
+
+#### Laboratori
+
+* _Prossimamente._
+:::

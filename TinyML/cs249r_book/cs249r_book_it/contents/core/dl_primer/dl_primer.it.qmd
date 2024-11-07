@@ -1,0 +1,384 @@
+---
+bibliography: dl_primer.bib
+---
+
+# Avvio al Deep Learning {#sec-dl_primer}
+
+::: {.content-visible when-format="html"}
+Risorse: [Slide](#sec-deep-learning-primer-resource), [Video](#sec-deep-learning-primer-resource), [Esercizi](#sec-deep-learning-primer-resource), [Laboratori](#sec-deep-learning-primer-resource)
+:::
+
+![_DALL·E 3 Prompt: Foto di un'aula classica con una grande lavagna che domina una parete. I disegni a gesso mostrano una rete neurale profonda dettagliata con diversi livelli nascosti e ogni nodo e connessione è etichettato con precisione con il gesso bianco. Il pavimento in legno rustico e le pareti in mattoni creano un contrasto con i concetti moderni. Intorno alla stanza, poster incorniciati sottolineano i temi del deep learning: reti convoluzionali, trasformatori, neuroni, funzioni di attivazione e altro ancora._](images/png/cover_dl_primer.png)
+
+Questa sezione funge da introduzione al deep learning, fornendo ai professionisti dei sistemi il contesto essenziale e le conoscenze fondamentali necessarie per implementare efficacemente soluzioni di deep learning. Invece di addentrarci in profondità teoriche, ci concentriamo su concetti chiave, architetture e considerazioni pratiche rilevanti per l'implementazione dei sistemi. Iniziamo con una panoramica dell'evoluzione del deep learning e del suo particolare significato nei sistemi di intelligenza artificiale embedded. Concetti fondamentali come le reti neurali vengono introdotti con un'enfasi sulle considerazioni di implementazione piuttosto che sulle basi matematiche.
+
+L'introduzione esplora le principali architetture di deep learning da una prospettiva di sistema, esaminandone le implicazioni pratiche e i requisiti di risorse. Confrontiamo inoltre il deep learning con gli approcci tradizionali di machine learning, aiutando i lettori a fare scelte architettoniche informate basate su vincoli di sistema del mondo reale. Questa panoramica di alto livello definisce il contesto per le tecniche e le ottimizzazioni più dettagliate incentrate sui sistemi trattate nei capitoli successivi.
+
+::: {.callout-tip}
+
+## Obiettivi dell'Apprendimento
+
+* Comprendere i concetti di base e le definizioni delle reti neurali profonde.
+
+* Riconoscere che esistono diverse architetture di modelli di deep learning.
+
+* Confronto tra deep learning e approcci di machine learning [apprendimento automatico] tradizionali in varie dimensioni.
+
+* Acquisire gli elementi concettuali di base per approfondire le tecniche e le applicazioni avanzate del deep learning.
+
+:::
+
+## Introduzione
+
+### Definizione e Importanza
+
+Il deep learning, un'area specializzata nell'apprendimento automatico e nell'intelligenza artificiale (IA), utilizza algoritmi modellati sulla struttura e la funzione del cervello umano, noti come reti neurali artificiali. Questo campo è un elemento fondamentale nell'IA, che guida il progresso in diversi settori come la visione artificiale, l'elaborazione del linguaggio naturale e i veicoli a guida autonoma. La sua importanza nei sistemi di IA embedded è evidenziata dalla sua capacità di gestire calcoli e previsioni intricati, ottimizzando le risorse limitate nelle impostazioni embedded.
+
+La @fig-ai-ml-dl fornisce una rappresentazione visiva di come il deep learning si inserisce nel contesto più ampio dell'IA e del "machine learning" [apprendimento automatico]. Il diagramma illustra lo sviluppo cronologico e la relativa segmentazione di questi tre campi interconnessi, mostrando il deep learning come un sottoinsieme specializzato dell'apprendimento automatico, che a sua volta è un sottoinsieme dell'IA.
+
+![Il diagramma illustra l'intelligenza artificiale come campo onnicomprensivo che comprende tutti i metodi computazionali che imitano le funzioni cognitive umane. Il Machine learning [apprendimento automatico] è un sottoinsieme dell'IA che include algoritmi in grado di apprendere dai dati. Il deep learning, un ulteriore sottoinsieme del ML, coinvolge specificamente reti neurali in grado di apprendere pattern [schemi] più complessi in grandi volumi di dati. Fonte: NVIDIA.](images/png/ai_dl_progress_nvidia.png){#fig-ai-ml-dl}
+
+Come mostrato nella figura, l'IA rappresenta il campo sovraordinato, che comprende tutti i metodi computazionali che imitano le funzioni cognitive umane. Il machine learning è mostrato come un sottoinsieme dell'IA che include algoritmi in grado di apprendere dai dati. Il deep learning, il sottoinsieme più piccolo nel diagramma, coinvolge specificamente reti neurali in grado di apprendere modelli più complessi da grandi volumi di dati.
+
+### Breve Storia del Deep Learning
+
+L'idea del deep learning ha origine nelle prime reti neurali artificiali. Ha vissuto diversi cicli di interesse, a partire dall'introduzione del Perceptron negli anni '50 [@rosenblatt1957perceptron], seguita dall'invenzione degli algoritmi di backpropagation negli anni '80 [@rumelhart1986learning].
+
+Il termine "deep learning" è diventato importante negli anni 2000, caratterizzato da progressi nella potenza di calcolo e nell'accessibilità dei dati. Traguardi importanti includono l'addestramento di successo di reti profonde come AlexNet [@krizhevsky2012imagenet] da parte di [Geoffrey Hinton](https://amturing.acm.org/award_winners/hinton_4791679.cfm), una figura di spicco nell'intelligenza artificiale, e il rinnovato focus sulle reti neurali come strumenti efficaci per l'analisi e la modellazione dei dati.
+
+Il deep learning ha recentemente registrato una crescita esponenziale, trasformando vari settori. La @fig-trends illustra questa notevole progressione, evidenziando due tendenze chiave nel settore. Innanzitutto, il grafico mostra che la crescita computazionale ha seguito un modello di raddoppio di 18 mesi dal 1952 al 2010. Questa tendenza ha poi accelerato drasticamente fino a un ciclo di raddoppio di 6 mesi dal 2010 al 2022, indicando un balzo significativo nelle capacità computazionali.
+
+In secondo luogo, la figura raffigura l'emergere di modelli su larga scala tra il 2015 e il 2022. Questi modelli sono apparsi da 2 a 3 ordini di grandezza più veloci rispetto alla tendenza generale, seguendo un ciclo di raddoppio di 10 mesi ancora più aggressivo. Questo rapido ridimensionamento delle dimensioni del modello rappresenta un cambiamento di paradigma nelle capacità di deep learning.
+
+![Crescita dei modelli di deep learning.](https://epochai.org/assets/images/posts/2022/compute-trends.png){#fig-trends}
+
+Molteplici fattori hanno contribuito a questa impennata, tra cui i progressi nella potenza computazionale, l'abbondanza di big data e i miglioramenti nei progetti algoritmici. In primo luogo, la crescita delle capacità computazionali, in particolare l'arrivo delle Graphics Processing Units (GPU) [unità di elaborazione grafica] e delle Tensor Processing Units (TPU) [unità di elaborazione tensoriale] [@jouppi2017datacenter], ha accelerato notevolmente i tempi di training e inferenza dei modelli di apprendimento profondo. Questi miglioramenti hardware hanno consentito la costruzione e il training di reti più complesse e profonde di quanto fosse possibile negli anni precedenti.
+
+In secondo luogo, la rivoluzione digitale ha prodotto una grande quantità di big data, offrendo materiale ricco da cui i modelli di deep learning possono imparare e distinguersi in attività quali il riconoscimento di immagini e parlato, la traduzione linguistica e il gioco. I grandi set di dati etichettati sono stati fondamentali per perfezionare e distribuire con successo applicazioni di deep learning in contesti reali.
+
+Inoltre, le collaborazioni e gli sforzi open source hanno alimentato una comunità dinamica di ricercatori e professionisti, accelerando i progressi nelle tecniche di deep learning. Innovazioni come il "deep reinforcement learning", il "transfer learning" e l'intelligenza artificiale generativa hanno ampliato la portata di ciò che è realizzabile col deep learning, aprendo nuove possibilità in vari settori, tra cui sanità, finanza, trasporti e intrattenimento.
+
+Le organizzazioni di tutto il mondo riconoscono il potenziale trasformativo del deep learning e investono molto in ricerca e sviluppo per sfruttare le sue capacità nel fornire soluzioni innovative, ottimizzare le operazioni e creare nuove opportunità di business. Mentre il deep learning continua la sua traiettoria ascendente, è destinato a ridefinire il modo in cui interagiamo con la tecnologia, migliorando la praticità, la sicurezza e la connettività nelle nostre vite.
+
+### Applicazioni del Deep Learning
+
+Il deep learning è ampiamente utilizzato in numerosi settori oggi, con il suo impatto trasformativo evidente in vari settori, come illustrato in @fig-deeplearning. Nella finanza, alimenta la previsione del mercato azionario, la valutazione del rischio e il rilevamento delle frodi, guidando le strategie di investimento e migliorando le decisioni finanziarie. Il marketing sfrutta il deep learning per la segmentazione e la personalizzazione dei clienti, consentendo pubblicità altamente mirate e l'ottimizzazione dei contenuti in base all'analisi del comportamento dei consumatori. Nella produzione, semplifica i processi e migliora il controllo di qualità, consentendo alle aziende di aumentare la produttività e ridurre al minimo gli sprechi. L'assistenza sanitaria trae vantaggio dal deep learning nella diagnosi, nella pianificazione del trattamento e nel monitoraggio dei pazienti, salvando potenzialmente vite umane attraverso migliori previsioni mediche.
+
+![Applicazioni, vantaggi e implementazioni del deep learning in vari settori, tra cui finanza, marketing, produzione e assistenza sanitaria. Fonte: [Leeway Hertz](https://www.leewayhertz.com/what-is-deep-learning/)](images/png/deeplearning.png){#fig-deeplearning}
+
+Oltre a questi settori principali, il deep learning migliora i prodotti e i servizi di tutti i giorni. Netflix lo utilizza per rafforzare i suoi sistemi di raccomandazione, fornendo agli utenti più [raccomandazioni personalizzate](https://dl.acm.org/doi/abs/10.1145/3543873.3587675). Google ha migliorato notevolmente il suo servizio di traduzione, gestendo ora oltre [100 lingue](https://cloud.google.com/translate/docs/languages) con maggiore accuratezza, come evidenziato nei suoi [recenti progressi](https://research.google/blog/recent-advances-in-google-translate/). I veicoli autonomi di aziende come Waymo, Cruise e Motional sono diventati realtà grazie al deep learning nel loro [perception system](https://motional.com/news/technically-speaking-improving-av-perception-through-transformative-machine-learning). Inoltre, Amazon impiega il deep learning edge nei dispositivi Alexa per attività come [individuazione di parole chiave](https://towardsdatascience.com/how-amazon-alexa-works-your-guide-to-natural-language-processing-ai-7506004709d3). Queste applicazioni dimostrano come il machine learning spesso predice ed elabora le informazioni con maggiore accuratezza e velocità rispetto agli esseri umani, rivoluzionando vari aspetti della nostra vita quotidiana.
+
+### Rilevanza per l'IA Embedded
+
+L'IA embedded, l'integrazione di algoritmi di intelligenza artificiale direttamente nei dispositivi hardware, trae naturalmente vantaggio dalle capacità del deep learning. La combinazione di algoritmi di deep learning e sistemi embedded ha gettato le basi per dispositivi intelligenti e autonomi in grado di analisi avanzate on-device [sul dispositivo]. Il deep learning aiuta a estrarre pattern e informazioni complesse dai dati di input, il che è essenziale nello sviluppo di sistemi embedded intelligenti, dagli elettrodomestici ai macchinari industriali. Questa collaborazione inaugura una nuova era di dispositivi intelligenti e interconnessi, in grado di apprendere e adattarsi al comportamento dell'utente e alle condizioni ambientali, ottimizzando le prestazioni e offrendo praticità ed efficienza senza precedenti.
+
+## Reti Neurali
+
+Il deep learning trae ispirazione dalle reti neurali del cervello umano per creare pattern decisionali. Questa sezione approfondisce i concetti fondamentali del deep learning, offrendo approfondimenti sugli argomenti più complessi trattati più avanti in questa introduzione.
+
+Le reti neurali fungono da fondamento del deep learning, ispirate alle reti neurali biologiche nel cervello umano per elaborare e analizzare i dati in modo gerarchico. Le reti neurali sono composte da unità di base chiamate perceptron, che sono solitamente organizzate in layer [strati]. Ogni layer è costituito da diversi perceptron e più layer sono impilati per formare l'intera rete. Le connessioni tra questi layer sono definite da insiemi di pesi o parametri che determinano come i dati vengono elaborati mentre fluiscono dall'input all'output della rete.
+
+Di seguito, esaminiamo i componenti e le strutture primarie nelle reti neurali.
+
+### Perceptron
+
+Il Perceptron è l'unità di base o il nodo che costituisce la base per strutture più complesse. Funziona prendendo più input, ognuno dei quali rappresenta una caratteristica dell'oggetto in analisi, come le caratteristiche di una casa per prevederne il prezzo o gli attributi di una canzone per prevederne la popolarità nei servizi di streaming musicale. Questi input sono indicati come $x_1, x_2, ..., x_n$. Un perceptron può essere configurato per eseguire attività di regressione o classificazione. Per la regressione, viene utilizzato l'output numerico effettivo $\hat{y}$. Per la classificazione, l'output dipende dal fatto che $\hat{y}$ superi una determinata soglia. Se $\hat{y}$ supera questa soglia, il perceptron potrebbe restituire una classe (ad esempio, 'yes') e, in caso contrario, un'altra classe (ad esempio, 'no').
+
+@fig-perceptron illustra gli elementi fondamentali di un perceptron, che funge da fondamento per reti neurali più complesse. Un perceptron può essere pensato come un decisore in miniatura, che utilizza i suoi pesi, il sui bias [polarizzazione] e la sua funzione di attivazione per elaborare input e generare output in base ai parametri appresi. Questo concetto costituisce la base per comprendere architetture di reti neurali più complesse, come i perceptron multilayer [multistrato]. In queste strutture avanzate, i layer di perceptron lavorano di concerto, con l'output di ogni layer che funge da input per il layer successivo. Questa disposizione gerarchica crea un modello di deep learning in grado di comprendere e modellare pattern complessi e astratti all'interno dei dati. Impilando queste semplici unità, le reti neurali acquisiscono la capacità di affrontare attività sempre più sofisticate, dal riconoscimento delle immagini all'elaborazione del linguaggio naturale.
+
+![Perceptron. Concepiti negli anni '50, i perceptron hanno aperto la strada allo sviluppo di reti neurali più complesse e sono stati un elemento fondamentale nel deep learning. Fonte: Wikimedia - Chrislb.](images/png/Rosenblattperceptron.png){#fig-perceptron}
+
+Ciascun input $x_i$ ha un peso corrispondente $w_{ij}$ e il perceptron moltiplica semplicemente ogni input per il suo peso corrispondente. Questa operazione è simile alla regressione lineare, dove l'output intermedio, $z$, è calcolato come la somma dei prodotti degli input e dei loro pesi:
+
+$$
+z = \sum (x_i \cdot w_{ij})
+$$
+
+A questo calcolo intermedio, viene aggiunto un termine di bias $b$, che consente al modello di adattarsi meglio ai dati spostando la funzione di output lineare verso l'alto o verso il basso. Pertanto, la combinazione lineare intermedia calcolata dal perceptron, incluso il bias, diventa:
+
+$$
+z = \sum (x_i \cdot w_{ij}) + b
+$$
+
+Questa forma base di un perceptron può modellare solo relazioni lineari tra input e output. I pattern trovati in natura sono spesso complessi e si estendono oltre le relazioni lineari. Per consentire al perceptron di gestire relazioni non lineari, una funzione di attivazione viene applicata all'output lineare $z$.
+
+$$
+\hat{y} = \sigma(z)
+$$
+
+@fig-nonlinear illustra un esempio in cui i dati presentano un pattern non lineare che non potrebbe essere modellato adeguatamente con un approccio lineare. La funzione di attivazione, come la sigmoide, la tanh o la ReLU, trasforma la somma di input lineare in un output non lineare. L'obiettivo principale di questa funzione è introdurre la non linearità nel modello, consentendogli di apprendere ed eseguire attività più sofisticate. Pertanto, l'output finale del perceptron, inclusa la funzione di attivazione, può essere espresso come:
+
+![Le funzioni di attivazione consentono la modellazione di relazioni non lineari complesse. Fonte: Medium - Sachin Kaushik.](images/png/nonlinear_patterns.png){#fig-nonlinear}
+
+### Perceptron Multilayer
+
+I "Multilayer perceptron" (MLP) sono un'evoluzione del modello del perceptron a singolo layer, caratterizzato da più layer di nodi collegati in modo "feedforward". @fig-mlp fornisce una rappresentazione visiva di questa struttura. Come illustrato nella figura, le informazioni in una rete "feedforward" si muovono in una sola direzione: dal livello di input a sinistra, attraverso i livelli nascosti al centro, fino al livello di output a destra, senza cicli o loop.
+
+![Perceptron Multilayer. Fonte: Wikimedia - Charlie.](https://www.nomidl.com/wp-content/uploads/2022/04/image-7.png){width=70% #fig-mlp}
+
+Mentre un singolo perceptron è limitato nella sua capacità di modellare pattern complessi, la vera forza delle reti neurali emerge dall'assemblaggio di più layer. Ciascun layer è costituito da numerosi perceptron che lavorano insieme, consentendo alla rete di catturare relazioni intricate e non lineari all'interno dei dati. Con sufficiente profondità e ampiezza, queste reti possono approssimare praticamente qualsiasi funzione, indipendentemente da quanto sia complessa.
+
+### Processo di Training
+
+Una rete neurale riceve un input, esegue un calcolo e produce una previsione. La previsione è determinata dai calcoli eseguiti all'interno dei set di perceptron trovati tra i layer di input e output. Questi calcoli dipendono principalmente dall'input e dai pesi. Poiché non si ha il controllo sull'input, l'obiettivo durante il training [addestramento] è quello di regolare i pesi in modo tale che l'output della rete fornisca la previsione più accurata.
+
+Il processo di addestramento prevede diversi passaggi chiave, a partire dal passaggio in avanti (forward), in cui i pesi esistenti della rete vengono utilizzati per calcolare l'output per un dato input. Questo output viene poi confrontato con i veri valori target per calcolare un errore, che misura quanto bene la previsione della rete corrisponde al risultato previsto. In seguito, viene eseguito un passaggio all'indietro (backward). Ciò comporta l'utilizzo dell'errore per apportare modifiche ai pesi della rete tramite un processo chiamato "backpropagation". Questa regolazione riduce l'errore nelle previsioni successive. Il ciclo di passaggio forward [in avanti], calcolo dell'errore e passaggio backward [all'indietro] viene ripetuto iterativamente. Questo processo continua finché le previsioni della rete non sono sufficientemente accurate o non viene raggiunto un numero predefinito di iterazioni, riducendo al minimo la "funzione di perdita" utilizzata per misurare l'errore.
+
+#### Forward Pass
+
+Il forward pass è la fase iniziale in cui i dati si spostano attraverso la rete dal livello di input a quello di output, come illustrato in @fig-forward-propagation. All'inizio dell'addestramento, i pesi della rete vengono inizializzati in modo casuale, impostando le condizioni iniziali. Durante il "forward pass", ogni layer esegue calcoli specifici sui dati di input utilizzando questi pesi e il bias, e i risultati vengono poi passati al layer successivo. L'output finale di questa fase è la previsione della rete. Questa "prediction " viene confrontata con i valori target effettivi presenti nel set di dati per calcolare la "loss" [perdita], che può essere considerata come la differenza tra gli output previsti e i valori target. La perdita quantifica le prestazioni della rete in questa fase, fornendo una metrica cruciale per la successiva regolazione dei pesi durante il backward pass.
+
+![Reti neurali: propagazione forward e backward. Fonte: [Linkedin](https://www.linkedin.com/pulse/lecture2-unveiling-theoretical-foundations-ai-machine-underdown-phd-oqsuc/)](images/png/forwardpropagation.png){#fig-forward-propagation}
+
+#### Backward Pass (Backpropagation) {#sec-backward_pass}
+
+Dopo aver completato il forward pass e calcolato la perdita, che misura quanto le previsioni del modello si discostano dai valori target effettivi, il passo successivo è migliorare le prestazioni del modello regolando i pesi della rete. Poiché non possiamo controllare gli input del modello, la regolazione dei pesi diventa il nostro metodo principale per perfezionare il modello.
+
+Determiniamo come regolare i pesi del nostro modello tramite un algoritmo chiave chiamato "backpropagation". La backpropagation utilizza la perdita calcolata per determinare il gradiente di ciascun peso. Questi gradienti descrivono la direzione e l'entità in cui i pesi devono essere regolati. Regolando i pesi in base a questi gradienti, il modello è meglio posizionato per fare previsioni più vicine ai valori target effettivi nel successivo "forward pass".
+
+Comprendere questi concetti fondamentali apre la strada alla comprensione di architetture e tecniche di deep learning più complesse, favorendo lo sviluppo di applicazioni più sofisticate e produttive, in particolare all'interno di sistemi di intelligenza artificiale embedded.
+
+@vid-gd and @vid-bp build upon @vid-nn. Riguardano la "gradient descent" [discesa del gradiente] e la backpropagation nelle reti neurali.
+
+:::{#vid-gd .callout-important}
+
+# Gradient descent
+
+{{< video https://www.youtube.com/watch?v=IHZwWFHWa-w&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi&index=2 >}}
+
+:::
+
+:::{#vid-bp .callout-important}
+
+# Backpropagation
+
+{{< video https://www.youtube.com/watch?v=Ilg3gGewQ5U&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi&index=3 >}}
+
+:::
+
+### Architetture dei Modelli
+
+Le architetture di deep learning si riferiscono ai vari approcci strutturati che stabiliscono come i neuroni e i layer sono organizzati e interagiscono nelle reti neurali. Queste architetture si sono evolute per affrontare efficacemente diversi problemi e diversi tipi di dati. Questa sezione fornisce una panoramica di alcune note architetture di deep learning e delle loro caratteristiche.
+
+#### Multilayer Perceptron (MLP)
+
+Gli MLP sono architetture di deep learning di base che comprendono tre layer: uno di input, uno o più layer nascosti e un layer di output. Questi layer sono completamente connessi, il che significa che ogni neurone in uno layer è collegato a ogni neurone nei layer precedenti e successivi. Gli MLP possono modellare funzioni complesse e sono utilizzati in varie attività, come regressione, classificazione e riconoscimento di pattern. La loro capacità di apprendere relazioni non lineari tramite backpropagation li rende uno strumento versatile nel toolkit di deep learning.
+
+Nei sistemi di intelligenza artificiale embedded, gli MLP possono funzionare come modelli compatti per attività più semplici come l'analisi dei dati dei sensori o il riconoscimento di pattern di base, in cui le risorse computazionali sono limitate. La loro capacità di apprendere relazioni non lineari con una complessità relativamente minore li rende una scelta adatta per i sistemi embedded.
+
+:::{.callout-caution #exr-mlp collapse="false"}
+
+##### Multilayer Perceptron (MLP)
+
+Abbiamo appena scalfito la superficie delle reti neurali. Ora, proveremo ad applicare questi concetti in esempi pratici. Nei notebook Colab forniti, si esploreranno:
+
+**Previsione dei prezzi delle case:** Scoprire come le reti neurali possono analizzare i dati sugli alloggi per stimare i valori delle proprietà. 
+[![](https://colab.research.google.com/assets/colab-badge.png)](https://colab.research.google.com/github/Mjrovai/UNIFEI-IESTI01-TinyML-2022.1/blob/main/00_Curse_Folder/1_Fundamentals/Class_07/TF_Boston_Housing_Regression.ipynb)
+
+**Classificazione delle immagini:** Scoprire come creare una rete per comprendere il famoso set di dati di cifre scritte a mano MNIST. 
+[![](https://colab.research.google.com/assets/colab-badge.png)](https://colab.research.google.com/github/Mjrovai/UNIFEI-IESTI01-TinyML-2022.1/blob/main/00_Curse_Folder/1_Fundamentals/Class_09/TF_MNIST_Classification_v2.ipynb)
+
+**Diagnosi medica nel mondo reale:** Usare il deep learning per affrontare l'importante compito della classificazione del cancro al seno. 
+[![](https://colab.research.google.com/assets/colab-badge.png)](https://colab.research.google.com/github/Mjrovai/UNIFEI-IESTI01-TinyML-2022.1/blob/main/00_Curse_Folder/1_Fundamentals/Class_13/docs/WDBC_Project/Breast_Cancer_Classification.ipynb)
+
+:::
+
+#### Convolutional Neural Networks (CNNs)
+
+Le CNN [reti neurali convoluzionali] sono utilizzate principalmente in attività di riconoscimento di immagini e video. Questa architettura è composta da due parti principali: la base convoluzionale e i layer completamente connessi. Nella base convoluzionale, i layer convoluzionali filtrano i dati di input per identificare caratteristiche come bordi, angoli e texture [trame]. Dopo ogni layer convoluzionale, è possibile applicare un layer di pooling [raggruppamento] per ridurre le dimensioni spaziali dei dati, diminuendo così il carico computazionale e concentrando le feature estratte. A differenza degli MLP, che trattano le feature di input come entità piatte e indipendenti, le CNN mantengono le relazioni spaziali tra i pixel, rendendole particolarmente efficaci per i dati di immagini e video. Le feature estratte dalla base convoluzionale vengono poi passate ai layer completamente connessi, simili a quelli utilizzati negli MLP, che eseguono la classificazione in base alle feature estratte dai layer di convoluzione. Le CNN si sono dimostrate altamente efficaci nel riconoscimento delle immagini, nel rilevamento di oggetti e in altre applicazioni di visione artificiale.
+
+@vid-nn spiega come funzionano le reti neurali usando il riconoscimento di cifre scritte a mano come applicazione di esempio. Affronta anche la matematica alla base delle reti neurali.
+
+:::{#vid-nn .callout-important}
+
+# Reti MLP & CNN
+
+{{< video https://www.youtube.com/embed/aircAruvnKk?si=ZRj8jf4yx7ZMe8EK >}}
+
+:::
+
+Le CNN sono fondamentali per le attività di riconoscimento di immagini e video, in cui spesso è necessaria l'elaborazione in tempo reale. Possono essere ottimizzate per i sistemi embedded utilizzando tecniche come la quantizzazione e il "pruning" [potatura] per ridurre al minimo l'utilizzo della memoria e le richieste computazionali, consentendo funzionalità efficienti di rilevamento di oggetti e riconoscimento facciale in dispositivi con risorse computazionali limitate.
+
+:::{.callout-caution #exr-cnn collapse="false"}
+
+### Convolutional Neural Networks (CNNs)
+
+Abbiamo discusso del fatto che le CNN [Reti neurali convoluzionali] sono eccellenti nell'identificare le caratteristiche delle immagini, il che le rende ideali per attività come la classificazione degli oggetti. Ora, si potrà mettere in pratica questa conoscenza! Questo notebook Colab si concentra sulla creazione di una CNN per classificare le immagini dal set di dati CIFAR-10, che include oggetti come aeroplani, automobili e animali. Si impareranno le principali differenze tra CIFAR-10 e il set di dati MNIST che abbiamo esplorato in precedenza e come queste differenze influenzano la scelta del modello. Alla fine di questo notebook si avrà una conoscenza delle CNN per il riconoscimento delle immagini.
+
+[![](https://colab.research.google.com/assets/colab-badge.png)](https://colab.research.google.com/github/Mjrovai/UNIFEI-IESTI01-TinyML-2022.1/blob/main/00_Curse_Folder/1_Fundamentals/Class_11/CNN_Cifar_10.ipynb)
+
+:::
+
+#### Recurrent Neural Networks (RNN)
+
+Le RNN [Reti Neurali Ricorrenti] sono adatte per l'analisi di dati sequenziali, come la previsione di serie temporali e l'elaborazione del linguaggio naturale. In questa architettura, le connessioni tra i nodi formano un grafo diretto lungo una sequenza temporale, consentendo il trasporto delle informazioni attraverso le sequenze tramite vettori di stato nascosti. Le varianti delle RNN includono le Long Short-Term Memory (LSTM) e le Gated Recurrent Units (GRU), progettate per catturare dipendenze più lunghe nei dati sequenziali.
+
+Queste reti possono essere utilizzate nei sistemi di riconoscimento vocale, nella manutenzione predittiva o nei dispositivi IoT in cui sono comuni i pattern di dati sequenziali. Le ottimizzazioni specifiche per le piattaforme embedded possono aiutare a gestirne i requisiti di elaborazione e memoria tipicamente elevati.
+
+#### Generative Adversarial Network (GAN)
+
+Le GAN [Reti Generative Avversarie] sono costituite da due reti, un generatore e un discriminatore, addestrate simultaneamente tramite l'addestramento adversarial [avversario] [@goodfellow2020generative]. Il generatore produce dati che tentano di imitare la distribuzione di quelli reali, mentre il discriminatore distingue tra dati reali e dati generati. Le GAN sono ampiamente utilizzate nella generazione di immagini, nel trasferimento di stile e nell'aumento dei dati.
+
+In contesti embedded, le reti GAN potrebbero essere utilizzate per l'aumento dei dati sul dispositivo per migliorare il training dei modelli direttamente sul dispositivo embedded, consentendo un apprendimento continuo e un adattamento ai nuovi dati senza la necessità di risorse di cloud computing.
+
+#### Autoencoder
+
+Gli autoencoder sono reti neurali per la compressione dei dati e la riduzione del rumore [@bank2023autoencoders]. Sono strutturati per codificare i dati di input in una rappresentazione a dimensione inferiore e quindi decodificarli nella loro forma originale. Varianti come gli Variational Autoencoders (VAE) [Autoencoder Variazionali] introducono livelli probabilistici che consentono proprietà generative, trovando applicazioni nella generazione di immagini e nel rilevamento di anomalie.
+
+L'uso degli autoencoder può aiutare nella trasmissione e nell'archiviazione efficiente dei dati, migliorando le prestazioni complessive dei sistemi embedded con risorse di calcolo e di memoria limitate.
+
+#### Transformer Network
+
+Le "Transformer network" [reti di trasformatori] sono emerse come un'architettura potente, specialmente nell'elaborazione del linguaggio naturale [@vaswani2017attention]. Queste reti utilizzano meccanismi di auto-attenzione per soppesare l'influenza di diverse parole di input su ogni parola di output, consentendo il calcolo parallelo e catturando pattern intricati nei dati. Le reti di trasformatori hanno portato a risultati all'avanguardia in attività come la traduzione linguistica, la sintesi e la generazione di testo.
+
+Queste reti possono essere ottimizzate per eseguire attività correlate alla lingua direttamente sul dispositivo. Ad esempio, i trasformatori possono essere utilizzati nei sistemi embedded per servizi di traduzione in tempo reale o interfacce assistite dalla voce, dove latenza ed efficienza computazionale sono cruciali. Tecniche come la distillazione del modello possono essere impiegate per distribuire queste reti su dispositivi embedded con risorse limitate.
+
+Queste architetture servono a scopi specifici ed eccellono in diversi domini, offrendo un ricco toolkit per affrontare diversi problemi nei sistemi di intelligenza artificiale embedded. Comprendere le sfumature di queste architetture è fondamentale nella progettazione di modelli di deep learning efficaci ed efficienti per varie applicazioni.
+
+### ML Tradizionale vs Deep Learning
+
+Il deep learning estende il machine learning tradizionale utilizzando reti neurali per discernere i pattern nei dati. Al contrario, il machine learning tradizionale si basa su un set di algoritmi consolidati come alberi decisionali, k-nearest neighbor e macchine a vettori di supporto, ma non coinvolge le reti neurali. @fig-ml-dl fornisce un confronto visivo tra Machine Learning e Deep Learning, evidenziandone le principali differenze di approccio e capacità.
+
+![Confronto tra Machine Learning e Deep Learning. Fonte: [Medium](https://aoyilmaz.medium.com/understanding-the-differences-between-deep-learning-and-machine-learning-eb41d64f1732)](images/png/mlvsdl.png){#fig-ml-dl}
+
+Come mostrato nella figura, i modelli di deep learning possono elaborare dati grezzi direttamente ed estrarre automaticamente le feature rilevanti, mentre il machine learning tradizionale richiede spesso l'ingegneria manuale delle feature. La figura illustra anche come i modelli di deep learning possono gestire attività più complesse e set di dati più grandi rispetto ai tradizionali approcci di machine learning.
+
+Per evidenziare ulteriormente le differenze, @tbl-mlvsdl fornisce un confronto più dettagliato delle caratteristiche contrastanti tra ML tradizionale e deep learning. Questa tabella integra la rappresentazione visiva in @fig-ml-dl offrendo punti di confronto specifici tra vari aspetti di questi due approcci.
+
++---------------------------------+--------------------------------------------------------------------------+--------------------------------------------------------------------------------------+
+| Aspetto                         | ML tradizionale                                                          | Deep Learning                                                                        |
++:================================+:============================================================================+:==================================================================================+
+| Requisiti dei dati              | Da basso a moderato (efficiente con set di dati più piccoli)             | Alto (richiede set di dati di grandi dimensioni per un apprendimento adeguato)       |
++---------------------------------+--------------------------------------------------------------------------+--------------------------------------------------------------------------------------+
+| Complessità del modello         | Moderata (adatta a problemi ben definiti)                                | Alta (rileva pattern intricati, adatta a compiti complessi)                          |
++---------------------------------+--------------------------------------------------------------------------+--------------------------------------------------------------------------------------+
+| Risorse di calcolo              | Da basse a moderate (economiche, meno dispendiose in termini di risorse) | Alta (richiede una potenza di calcolo e risorse sostanziali)                         |
++---------------------------------+--------------------------------------------------------------------------+--------------------------------------------------------------------------------------+
+| Velocità di distribuzione       | Veloce (cicli di training e distribuzione più rapidi)                    | Lento (tempi di training più lunghi, in particolare con con set di dati più grandi)  |
++---------------------------------+--------------------------------------------------------------------------+--------------------------------------------------------------------------------------+
+| Interpretabilità                | Alta (chiare intuizioni sui percorsi decisionali)                        | Bassa (strutture complesse a layer, natura "scatola nera")                           |
++---------------------------------+--------------------------------------------------------------------------+--------------------------------------------------------------------------------------+
+| Manutenzione                    | Più facile (semplice da aggiornare e mantenere)                          | Complesso (richiede più sforzi nella manutenzione e negli aggiornamenti)             |
++---------------------------------+--------------------------------------------------------------------------+--------------------------------------------------------------------------------------+
+
+: Confronto tra machine learning tradizionale e deep learning. {#tbl-mlvsdl .striped .hover}
+
+### Scelta tra ML tradizionale e DL
+
+#### Disponibilità e Volume dei Dati
+
+**Quantità di Dati:** Gli algoritmi di machine learning tradizionali, come gli alberi decisionali o Naive Bayes, sono spesso più adatti quando la disponibilità dei dati è limitata. Offrono previsioni affidabili anche con set di dati più piccoli. Ciò è particolarmente vero nella diagnostica medica per la previsione delle malattie e nella segmentazione dei clienti nel marketing.
+
+**Diversità e Qualità dei Dati:** Gli algoritmi di machine learning tradizionali spesso funzionano bene con dati strutturati (l'input del modello è un set di funzionalità, idealmente indipendenti l'una dall'altra) ma possono richiedere un notevole sforzo di pre-elaborazione (ad esempio, la "feature engineering" [progettazione delle funzionalità]). D'altro canto, il deep learning adotta l'approccio di eseguire automaticamente la progettazione delle funzionalità come parte dell'architettura del modello. Questo approccio consente la costruzione di modelli end-to-end in grado di mappare direttamente da dati di input non strutturati (come testo, audio e immagini) all'output desiderato senza fare affidamento su euristiche semplicistiche con efficacia limitata. Tuttavia, ciò si traduce in modelli più grandi che richiedono più dati e risorse computazionali. Nei dati rumorosi, la necessità di set di dati più grandi è ulteriormente enfatizzata quando si utilizza il Deep Learning.
+
+#### Complessità del Problema
+
+**Granularità del Problema:** I problemi che sono semplici o moderatamente complessi, che possono coinvolgere relazioni lineari o polinomiali tra variabili, spesso trovano una migliore aderenza ai metodi tradizionali di apprendimento automatico.
+
+**Rappresentazione Gerarchica delle Feature:** I modelli di deep learning sono eccellenti in attività che richiedono una rappresentazione gerarchica delle feature [caratteristiche], come il riconoscimento di immagini e voce. Tuttavia, non tutti i problemi richiedono questa complessità e gli algoritmi tradizionali di apprendimento automatico possono talvolta offrire soluzioni più semplici e ugualmente efficaci.
+
+#### Risorse Hardware e Computazionali
+
+**Vincoli di Risorse:** La disponibilità di risorse computazionali spesso influenza la scelta tra ML tradizionale e deep learning. Il primo è generalmente meno dispendioso in termini di risorse e quindi preferibile in ambienti con limitazioni hardware o vincoli di budget.
+
+**Scalabilità e Velocità:** Gli algoritmi tradizionali di apprendimento automatico, come le Support Vector Machines (SVM) [macchine a vettori di supporto ], spesso consentono tempi di training più rapidi e una scalabilità più semplice, il che è particolarmente vantaggioso nei progetti con tempistiche ristrette e volumi di dati in crescita.
+
+#### Normativa di Conformità
+
+La conformità normativa è fondamentale in vari settori, e richiede l'aderenza a linee guida e "best practice" come il General Data Protection Regulation (GDPR) [Regolamento generale sulla protezione dei dati] nell'UE. I modelli ML tradizionali, grazie alla loro intrinseca interpretabilità, spesso si allineano meglio a queste normative, soprattutto in settori come la finanza e l'assistenza sanitaria.
+
+#### Interpretabilità
+
+Comprendere il processo decisionale è più facile con le tecniche tradizionali di apprendimento automatico rispetto ai modelli di deep learning, che funzionano come "scatole nere", rendendo difficile tracciare i percorsi decisionali.
+
+### Fare una Scelta Informata
+
+Considerati i vincoli dei sistemi di intelligenza artificiale embedded, comprendere le differenze tra le tecniche di ML tradizionali e il deep learning diventa essenziale. Entrambe le strade offrono vantaggi unici e le loro caratteristiche distintive spesso determinano la scelta dell'una rispetto all'altra in diversi scenari.
+
+Nonostante ciò, il deep learning ha costantemente superato i metodi tradizionali di apprendimento automatico in diverse aree chiave grazie all'abbondanza di dati, ai progressi computazionali e alla comprovata efficacia in attività complesse. Ecco alcuni motivi specifici per cui ci concentriamo sul deep learning:
+
+1. **Prestazioni Superiori in Attività Complesse:** I modelli di deep learning, in particolare le reti neurali profonde, eccellono in attività in cui le relazioni tra i punti dati sono incredibilmente intricate. Attività come il riconoscimento di immagini e parlato, la traduzione linguistica e la riproduzione di giochi complessi come Go e Scacchi hanno visto progressi significativi principalmente attraverso algoritmi di deep learning.
+
+2. **Gestione Efficiente dei Dati non Strutturati:** A differenza dei metodi tradizionali di apprendimento automatico, il deep learning può elaborare in modo più efficace i dati non strutturati. Ciò è fondamentale nel panorama dei dati odierno, in cui la stragrande maggioranza dei dati, come testo, immagini e video, non è strutturata.
+
+3. **Sfruttamento dei Big Data:** Con la disponibilità dei Big Data, i modelli di deep learning possono apprendere e migliorare continuamente. Questi modelli eccellono nell'utilizzare grandi set di dati per migliorare la loro accuratezza predittiva, un limite degli approcci tradizionali di machine-learning.
+
+4. **Progressi Hardware e Calcolo Parallelo:** L'avvento di potenti GPU e la disponibilità di piattaforme di cloud computing hanno consentito il rapido training di modelli di deep learning. Questi progressi hanno affrontato una delle sfide significative del deep learning: la necessità di risorse computazionali sostanziali.
+
+5. **Adattabilità Dinamica e Apprendimento Continuo:** I modelli di deep learning possono adattarsi dinamicamente a nuove informazioni o dati. Possono essere addestrati per generalizzare il loro apprendimento a nuovi dati mai visti, cruciali in campi in rapida evoluzione come la guida autonoma o la traduzione linguistica in tempo reale.
+
+Sebbene il deep learning abbia guadagnato una notevole popolarità, è essenziale comprendere che il machine learning tradizionale è ancora rilevante. Man mano che ci addentriamo nei meandri del deep learning, evidenzieremo anche le situazioni in cui i metodi tradizionali di machine learning potrebbero essere più appropriati, grazie alla loro semplicità, efficienza e interpretabilità. Concentrandoci in questo testo sul deep learning, intendiamo fornire ai lettori le conoscenze e gli strumenti per affrontare problemi moderni e complessi in vari ambiti, fornendo al contempo approfondimenti sui vantaggi comparativi e sugli scenari applicativi appropriati per il deep learning e le tecniche tradizionali di machine learning.
+
+## Conclusione
+
+Il deep learning è diventato un potente set di tecniche per affrontare le complesse sfide del riconoscimento di pattern e della previsione. Iniziando con una panoramica, abbiamo delineato i concetti e i principi fondamentali che governano il deep learning, gettando le basi per studi più avanzati.
+
+Al centro del deep learning, abbiamo esplorato le idee di base delle reti neurali, potenti modelli computazionali ispirati alla struttura neuronale interconnessa del cervello umano. Questa esplorazione ci ha permesso di apprezzare le capacità e il potenziale delle reti neurali nella creazione di algoritmi sofisticati in grado di apprendere e adattarsi dai dati.
+
+Comprendere il ruolo delle librerie e dei framework è stata una parte fondamentale della nostra discussione. Abbiamo offerto approfondimenti sugli strumenti che possono facilitare lo sviluppo e l'implementazione di modelli di deep learning. Queste risorse semplificano l'implementazione delle reti neurali e aprono strade all'innovazione e all'ottimizzazione.
+
+Successivamente, abbiamo affrontato le sfide che si potrebbero incontrare quando si racchiudono algoritmi di deep learning nei sistemi embedded, fornendo una prospettiva critica sulle complessità e sulle considerazioni relative all'introduzione dell'intelligenza artificiale nei dispositivi edge.
+
+Inoltre, abbiamo esaminato i limiti del deep learning. Attraverso le discussioni, abbiamo svelato le sfide affrontate nelle applicazioni del deep learning e delineato scenari in cui l'apprendimento automatico tradizionale potrebbe superare il deep learning. Queste sezioni sono fondamentali per promuovere una visione equilibrata delle capacità e dei limiti del deep learning.
+
+In questo "Avviamento", abbiamo fornito le conoscenze per fare scelte informate tra l'implementazione dell'apprendimento automatico tradizionale o delle tecniche di deep learning, a seconda delle esigenze e dei vincoli unici di un problema specifico.
+
+Concludendo questo capitolo, ci auguriamo che sia stato acquisito il "linguaggio" di base del deep learning e si sia pronti ad approfondire i capitoli successivi con una solida comprensione e una prospettiva critica. Il viaggio che è pieno di entusiasmanti opportunità e sfide nel racchiudere l'intelligenza artificiale nei sistemi.
+
+## Risorse {#sec-deep-learning-primer-resource}
+
+Ecco un elenco curato di risorse per supportare studenti e insegnanti nei loro percorsi di apprendimento e insegnamento. Stiamo lavorando costantemente per espandere questa raccolta e presto aggiungeremo nuovi esercizi.
+
+:::{.callout-note collapse="false"}
+
+#### Slide
+
+Queste slide sono uno strumento prezioso per gli insegnanti per tenere lezioni e per gli studenti per rivedere il materiale secondo il proprio ritmo. Incoraggiamo studenti e docenti a sfruttare queste slide per migliorare la loro comprensione e facilitare un trasferimento efficace delle conoscenze.
+
+* [Past, Present, and Future of ML.](https://docs.google.com/presentation/d/16ensKAKBG8DOUHF4f5thTJklVGTadxjm3kPkdoPyabI/edit#slide=id.g94db9f9f78_0_2)
+
+* [Thinking About Loss.](https://docs.google.com/presentation/d/1X92JqVkUY7k6yJXQcT2u83dpdrx5UzGFAJkkDMDfKe0/edit#slide=id.g94db9f9f78_0_2)
+
+* [Minimizing Loss.](https://docs.google.com/presentation/d/1x3xbZHo4VtaZgoXfueCbOGGXuWRYj0nOsKwAAoGsrD0/edit#slide=id.g94db9f9f78_0_2)
+
+* [First Neural Network.](https://docs.google.com/presentation/d/1zQwhTwF_plXBPQLxluahpzoQg-VdMyJbctaJxSUncag/edit?usp=drive_link)
+
+* [Understanding Neurons.](https://docs.google.com/presentation/d/1jXCAC6IT5f9XFKZbfhJ4p2D5URVTYqgAnkcQR4ALhSk/edit?usp=drive_link&resourcekey=0-K228bxVdwO2w3kr0daV2cw)
+
+* [Intro to CLassification.](https://docs.google.com/presentation/d/1VtWV9LAVLJ0uAkhFMbDJFjsUH6IvBDnPde4lR1cD2mo/edit?usp=drive_link)
+
+* [Training, Validation, and Test Data.](https://docs.google.com/presentation/d/1G56D0-qG9YWnzQQeje9LMpcLSotMgBCiMyfj53yz7lY/edit?usp=drive_link)
+
+* [Intro to Convolutions.](https://docs.google.com/presentation/d/1hQDabWqaKUWRb60Cze-MhAyeUUVyNgyTUMBpLnqhtvc/edit?resourcekey=0-uHZoNwsbjeY3EIMD3fYAfg#slide=id.g94db9f9f78_0_2)
+
+:::
+
+:::{.callout-important collapse="false"}
+
+#### Video
+
+* @vid-nn
+
+* @vid-gd
+
+* @vid-bp
+
+:::
+
+:::{.callout-caution collapse="false"}
+
+#### Esercizi
+
+Per rafforzare i concetti trattati in questo capitolo, abbiamo curato una serie di esercizi che sfidano gli studenti ad applicare le proprie conoscenze e ad approfondire la propria comprensione.
+
+* @exr-mlp
+
+* @exr-cnn
+:::
+
+:::{.callout-warning collapse="false"}
+
+#### Laboratori
+
+* _Prossimamente._
+:::

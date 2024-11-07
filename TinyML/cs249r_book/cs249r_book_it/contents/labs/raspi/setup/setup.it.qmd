@@ -4,7 +4,7 @@
 
 Questo capitolo guiderà attraverso la configurazione dei modelli Raspberry Pi Zero 2 W (*Raspi-Zero*) e Raspberry Pi 5 (*Raspi-5*). Tratteremo la configurazione hardware, l'installazione del sistema operativo, la configurazione iniziale e i test.
 
-> Le istruzioni generali per *Rasp-5* si applicano anche alle versioni più vecchie di Raspberry Pi, come Rasp-3 e Raspi-4.
+> Le istruzioni generali per *Raspi-5* si applicano anche alle versioni più vecchie di Raspberry Pi, come Raspi-3 e Raspi-4.
 
 ## Introduzione
 
@@ -78,6 +78,8 @@ Questo tutorial guiderà nell'impostazione dei modelli Raspberry Pi più comuni,
 - **Porte**: 2 porte micro HDMI, 2 porte USB 3.0, 2 porte USB 2.0, porta fotocamera CSI, porta display DSI
 - **Alimentazione**: 5 V CC tramite connettore USB-C (3 A)
 
+> Nei laboratori, useremo nomi diversi per riferirci al Raspberry: `Raspi`, `Raspi-5`, `Raspi-Zero`, ecc. Di solito, si usa `Raspi` quando le istruzioni o i commenti si applicano a tutti i modelli.
+
 ## Installazione del Sistema Operativo
 
 ### Il sistema operativo (SO)
@@ -127,7 +129,7 @@ Seguire i passaggi per installare il sistema operativo nel Raspi.
 
    ![img](images/png/zero-burn.png)
 
-   > Grazie alla sua SDRAM ridotta (512 MB), il sistema operativo consigliato per Rasp Zero è la versione a 32 bit. Tuttavia, per eseguire alcuni modelli di apprendimento automatico, come YOLOv8 di Ultralitics, dovremmo usare la versione a 64 bit. Sebbene Raspi-Zero possa eseguire un *desktop*, sceglieremo la versione LITE (senza Desktop) per ridurre la RAM necessaria per il normale funzionamento.
+   > Grazie alla ridotta SDRAM (512 MB), il sistema operativo consigliato per Raspi-Zero è la versione a 32 bit. Tuttavia, per eseguire alcuni modelli di apprendimento automatico, come YOLOv8 di Ultralitics, dovremmo usare la versione a 64 bit. Sebbene Raspi-Zero possa eseguire un *desktop*, sceglieremo la versione LITE (senza Desktop) per ridurre la RAM necessaria per il normale funzionamento.
 
    - Per **Raspi-5**: possiamo selezionare la versione completa a 64 bit, che include un desktop:
       `Raspberry Pi OS (64-bit)`
@@ -141,7 +143,7 @@ Seguire i passaggi per installare il sistema operativo nel Raspi.
 
 8. Scrivere l'immagine sulla scheda microSD.
 
-> Negli esempi qui, useremo nomi host diversi: raspi, raspi-5, raspi-Zero, ecc. Lo si deve sostituire con quello in uso.
+> Negli esempi qui, useremo nomi host diversi a seconda del dispositivo utilizzato: raspi, raspi-5, raspi-Zero, ecc. Sarebbe utile se lo si sostituisse con quello in uso.
 
 ### Configurazione Iniziale
 
@@ -155,7 +157,7 @@ Seguire i passaggi per installare il sistema operativo nel Raspi.
 
 ### Accesso SSH
 
-Il modo più semplice per interagire con Rasp-Zero è tramite SSH ("Headless"). Si può usare un terminale (MAC/Linux), [PuTTy (](https://www.putty.org/)Windows) o qualsiasi altro.
+Il modo più semplice per interagire con Raspi-Zero è tramite SSH ("Headless"). Si può usare un terminale (MAC/Linux), [PuTTy (](https://www.putty.org/)Windows) o qualsiasi altro.
 
 1. Trovare l'indirizzo IP del Raspberry Pi (ad esempio, controllando il router).
 
@@ -311,7 +313,7 @@ CONF_SWAPSIZE=2000
 
 E salvare il file.
 
-Quindi, attivare di nuovo lo swapfile e riavviare Rasp-zero:
+Quindi, riattivare lo swapfile e riavviare Raspi-zero:
 
 ```bash
 sudo dphys-swapfile setup
@@ -325,7 +327,7 @@ Quando il dispositivo viene riavviato (so deve entrare di nuovo con SSH), ci si 
 
 ## Installazione di una Fotocamera
 
-Il Raspi è un dispositivo eccellente per applicazioni di visione artificiale; è necessaria una fotocamera. Possiamo installare una webcam USB standard sulla porta micro-USB utilizzando un adattatore USB OTG (Raspi-Zero e Rasp-5) o un modulo fotocamera collegato alla porta Raspi CSI (Camera Serial Interface).
+Il Raspi è un dispositivo eccellente per applicazioni di visione artificiale; è necessaria una fotocamera. Possiamo installare una webcam USB standard sulla porta micro-USB utilizzando un adattatore USB OTG (Raspi-Zero e Raspi-5) oppure un modulo telecamera collegato alla porta Raspi CSI (Camera Serial Interface).
 
 > Le webcam USB hanno generalmente una qualità inferiore rispetto ai moduli fotocamera che si collegano alla porta CSI. Inoltre, non possono essere controllate utilizzando i comandi `raspistill` e `raspivid` nel terminale o il pacchetto di registrazione `picamera` in Python. Tuttavia, potrebbero esserci dei motivi per collegare una telecamera USB al Raspberry Pi, ad esempio perché è molto più facile configurare più telecamere con un singolo Raspberry Pi, cavi lunghi o semplicemente perché si ha una telecamera del genere a portata di mano.
 
@@ -566,16 +568,19 @@ Sebbene abbiamo interagito principalmente con il Raspberry Pi utilizzando comand
 
 ## Considerazioni Specifiche del Modello
 
-### Raspberry Pi Zero
-- Potenza di elaborazione limitata, ideale per progetti leggeri
-- Utilizza la configurazione headless (SSH) per risparmiare risorse.
-- Valutare l'aumento dello spazio di swap per attività che richiedono molta memoria.
+### Raspberry Pi Zero (Raspi-Zero)
 
-### Raspberry Pi 4 o 5
+- Potenza di elaborazione limitata, ideale per progetti leggeri
+- Per risparmiare risorse è meglio utilizzare una configurazione headless (SSH).
+- Valutare l'aumento dello spazio di swap per attività che richiedono molta memoria.
+- Può essere utilizzato per Image Classification e Object Detection Labs ma non per LLM (SLM).
+
+### Raspberry Pi 4 o 5 (Raspi-4 o Raspi-5)
 
 - Adatto per progetti più impegnativi, tra cui IA e apprendimento automatico.
-- Può eseguire senza problemi l'intero ambiente desktop.
-- Per Pi 5, valutare l'utilizzo di un dissipatore attivo per la gestione della temperatura durante attività intensive.
+- Può eseguire l'intero ambiente desktop senza problemi.
+- Raspi-4 può essere utilizzato per Image Classification e Object Detection Labs ma non funzionerà bene con LLM (SLM).
+- Per Raspi-5, prendere in considerazione l'utilizzo di un dissipatore attivo per la gestione della temperatura durante attività intensive, come nel laboratorio LLM (SLM).
 
-Ricordarsi di adattare i requisiti del progetto in base allo specifico modello di Raspberry Pi in uso. Il Pi Zero è ideale per progetti a basso consumo energetico e con limiti di spazio, mentre i modelli Pi 4/5 sono più adatti per attività che richiedono un utilizzo intensivo di risorse di calcolo.
+Ricordarsi di adattare i requisiti del progetto in base allo specifico modello di Raspberry Pi in uso. Raspi-Zero è ottimo per progetti a basso consumo e con vincoli di spazio, mentre i modelli Raspi-4 o 5 sono più adatti per attività più intensive dal punto di vista computazionale.
 

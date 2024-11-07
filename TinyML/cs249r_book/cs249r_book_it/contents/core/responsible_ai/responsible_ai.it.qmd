@@ -1,0 +1,513 @@
+---
+bibliography: responsible_ai.bib
+---
+
+# IA Responsabile {#sec-responsible_ai}
+
+::: {.content-visible when-format="html"}
+Risorse: [Slide](#sec-responsible-ai-resource), [Video](#sec-responsible-ai-resource), [Esercizi](#sec-responsible-ai-resource), [Laboratori](#sec-responsible-ai-resource)
+:::
+
+![_DALL·E 3 Prompt: Illustrazione di un'IA responsabile in un contesto futuristico con l'universo sullo sfondo: Una o più mani umane che coltivano una piantina che cresce in un albero di IA, che simboleggia una rete neurale. L'albero ha rami e foglie digitali, che ricordano una rete neurale, per rappresentare la natura interconnessa dell'IA. Lo sfondo raffigura un universo futuro in cui esseri umani e animali con intelligenza generale collaborano armoniosamente. La scena cattura la coltivazione iniziale dell'IA come piantina, sottolineando lo sviluppo etico della tecnologia di IA in armonia con l'umanità e l'universo._](images/png/cover_responsible_ai.png)
+
+Man mano che i modelli di apprendimento automatico crescono in vari domini, questi algoritmi hanno il potenziale per perpetuare pregiudizi storici, violare la privacy o abilitare decisioni automatizzate non etiche se sviluppati senza un'attenta considerazione dei loro impatti sociali. Anche i sistemi creati con buone intenzioni possono in ultima analisi discriminare determinati gruppi demografici, abilitare la sorveglianza o mancare di trasparenza nei loro comportamenti e processi decisionali. Pertanto, gli ingegneri e le aziende che si occupano di apprendimento automatico hanno la responsabilità etica di garantire in modo proattivo che i principi di equità, responsabilità, sicurezza e trasparenza siano rispecchiati nei loro modelli, per prevenire danni e creare fiducia nel pubblico.
+
+::: {.callout-tip}
+
+## Obiettivi dell'Apprendimento
+
+* Comprendere i principi fondamentali e le motivazioni dell'IA responsabile, tra cui correttezza, trasparenza, privacy, sicurezza e responsabilità.
+
+* Imparare metodi tecnici per implementare i principi dell'IA responsabile, come rilevare pregiudizi nei set di dati, creare modelli interpretabili, aggiungere rumore per la privacy e testare la robustezza del modello.
+
+* Riconoscere le sfide organizzative e sociali per raggiungere l'IA responsabile, tra cui qualità dei dati, obiettivi del modello, comunicazione e impatti sul lavoro.
+
+* Conoscenza di quadri etici e considerazioni per i sistemi di IA, che spaziano dalla sicurezza dell'IA, all'autonomia umana e alle conseguenze economiche.
+
+* Apprezzare la maggiore complessità e i costi dello sviluppo di sistemi di IA etici e affidabili rispetto all'IA senza principi.
+
+:::
+
+## Introduzione
+
+I modelli di apprendimento automatico sono sempre più utilizzati per automatizzare le decisioni in ambiti sociali ad alto rischio come sanità, giustizia penale e occupazione. Tuttavia, senza un'attenzione deliberata, questi algoritmi possono perpetuare pregiudizi, violare la privacy o causare altri danni. Ad esempio, un modello di approvazione di prestiti addestrato esclusivamente su dati provenienti da quartieri ad alto reddito potrebbe svantaggiare i richiedenti provenienti da aree a basso reddito. Ciò motiva la necessità di un apprendimento automatico responsabile, ovvero la creazione di modelli equi, responsabili, trasparenti ed etici.
+
+Diversi principi fondamentali sono alla base di un apprendimento automatico responsabile. L'equità garantisce che i modelli non discriminino in base a genere, razza, età e altri attributi. La spiegabilità consente agli esseri umani di interpretare i comportamenti del modello e migliorare la trasparenza. Le tecniche di robustezza e sicurezza prevengono vulnerabilità come gli esempi avversari. Test e convalide rigorosi aiutano a ridurre le debolezze indesiderate del modello o gli effetti collaterali.
+
+L'implementazione di un apprendimento automatico responsabile presenta sfide sia tecniche che etiche. Gli sviluppatori devono confrontarsi con la definizione matematica dell'equità, bilanciando obiettivi concorrenti come accuratezza e interpretabilità e assicurando dati di training di qualità. Le organizzazioni devono anche allineare incentivi, politiche e cultura per sostenere l'IA etica.
+
+Questo capitolo fornirà gli strumenti per valutare criticamente i sistemi di IA e contribuire allo sviluppo di applicazioni di apprendimento automatico utili ed etiche, coprendo le basi, i metodi e le implicazioni nel mondo reale dell'ML responsabile. I principi dell'ML responsabile discussi sono conoscenze cruciali poiché gli algoritmi mediano più aspetti della società umana.
+
+## Definizione
+
+L'IA responsabile riguarda lo sviluppo di un'IA che abbia un impatto positivo sulla società in base all'etica e ai valori umani. Non esiste una definizione universalmente accettata di "IA responsabile", ma ecco un riassunto di come viene comunemente descritta. L'IA responsabile si riferisce alla progettazione, allo sviluppo e all'implementazione di sistemi di intelligenza artificiale in modo etico e socialmente utile. L'obiettivo principale è creare un'IA affidabile, imparziale, equa, trasparente, responsabile e sicura. Sebbene non esista una definizione canonica, si ritiene generalmente che l'IA responsabile comprenda principi quali:
+
+* **Equità:** Evitare pregiudizi, discriminazioni e potenziali danni a determinati gruppi o popolazioni
+
+* **Spiegabilità:** Consentire agli esseri umani di comprendere e interpretare il modo in cui i modelli di IA prendono decisioni
+
+* **Trasparenza:** Comunicare apertamente come funzionano, sono costruiti e valutati i sistemi di IA
+
+* **Responsabilità:** Avere processi per determinare responsabilità e obblighi per guasti o impatti negativi dell'IA
+
+* **Robustezza:** Garantire che i sistemi di IA siano sicuri, affidabili e si comportino come previsto
+
+* **Privacy:** Proteggere i dati sensibili degli utenti e rispettare le leggi e l'etica sulla privacy
+
+Mettere in pratica questi principi implica tecniche tecniche, politiche aziendali, quadri di governance e filosofia morale. Sono inoltre in corso dibattiti sulla definizione di concetti ambigui come l'equità e sulla determinazione di come bilanciare obiettivi in competizione.
+
+## Principi e Concetti
+
+### Trasparenza e Spiegabilità
+
+I modelli di apprendimento automatico sono spesso criticati come misteriose "scatole nere", sistemi opachi in cui non è chiaro come siano arrivati a particolari previsioni o decisioni. Ad esempio, un sistema di intelligenza artificiale chiamato [COMPAS](https://doc.wi.gov/Pages/AboutDOC/COMPAS.aspx) utilizzato per valutare il rischio di recidiva criminale negli Stati Uniti si è rivelato razzialmente discriminatorio nei confronti degli imputati neri. Tuttavia, l'opacità dell'algoritmo ha reso difficile comprendere e risolvere il problema. Questa mancanza di trasparenza può nascondere pregiudizi, errori e carenze.
+
+Spiegare i comportamenti del modello aiuta a generare fiducia da parte del pubblico e degli esperti del settore e consente di identificare i problemi da affrontare. Tecniche di interpretabilità come [LIME](https://homes.cs.washington.edu/~marcotcr/blog/lime/), valori Shapley e mappe di salienza consentono agli esseri umani di comprendere e convalidare la logica del modello. Anche leggi come il GDPR dell'UE impongono la trasparenza, che richiede la spiegabilità per determinate decisioni automatizzate. Nel complesso, trasparenza e spiegabilità sono pilastri fondamentali dell'intelligenza artificiale responsabile.
+
+### Equità, Bias [pregiudizi] e Discriminazione
+
+I modelli di ML addestrati su dati storicamente distorti spesso perpetuano e amplificano tali pregiudizi. È stato dimostrato che gli algoritmi sanitari svantaggiano i pazienti neri sottostimandone le esigenze [@obermeyer2019dissecting]. Il riconoscimento facciale deve essere più accurato per le donne e le persone di colore. Tale discriminazione algoritmica può avere un impatto negativo profondo sulla vita delle persone.
+
+Esistono anche diverse prospettive filosofiche sull'equità, ad esempio, è più giusto trattare tutti gli individui allo stesso modo o cercare di ottenere risultati uguali per i gruppi? Garantire l'equità richiede di rilevare e mitigare in modo proattivo i pregiudizi nei dati e nei modelli. Tuttavia, raggiungere l'equità perfetta è tremendamente difficile a causa di definizioni matematiche e prospettive etiche contrastanti. Tuttavia, promuovere l'equità algoritmica e la non discriminazione è una responsabilità fondamentale nello sviluppo dell'intelligenza artificiale.
+
+### Privacy e Governance dei Dati
+
+Mantenere la privacy degli individui è un obbligo etico e un requisito legale per le organizzazioni che implementano sistemi di intelligenza artificiale. Regolamentazioni come il GDPR dell'UE impongono protezioni e diritti sulla privacy dei dati, come la possibilità di accedere ed eliminare i propri dati.
+
+Tuttavia, massimizzare l'utilità e l'accuratezza dei dati per i modelli di addestramento può entrare in conflitto con la tutela della privacy: la modellazione della progressione della malattia potrebbe trarre vantaggio dall'accesso ai genomi completi dei pazienti, ma la condivisione di tali dati viola ampiamente la privacy.
+
+Una governance dei dati responsabile implica l'anonimizzazione attenta dei dati, il controllo dell'accesso tramite crittografia, l'ottenimento del consenso informato degli interessati e la raccolta dei dati minimi necessari. Rispettare la privacy è difficile ma fondamentale man mano che le capacità e l'adozione dell'intelligenza artificiale si espandono.
+
+### Sicurezza e Robustezza
+
+Mettere in funzione i sistemi di intelligenza artificiale nel mondo reale richiede di garantire che siano sicuri, affidabili e robusti, soprattutto per gli scenari di interazione umana. Le auto a guida autonoma di [Uber](https://www.nytimes.com/2018/03/19/technology/uber-driverless-fatality.html) e [Tesla](https://www.washingtonpost.com/technology/2022/06/15/tesla-autopilot-crashes/) sono state coinvolte in incidenti mortali a causa di comportamenti non sicuri.
+
+Gli attacchi avversari che alterano in modo sottile i dati di input possono anche ingannare i modelli ML e causare guasti pericolosi se i sistemi non sono resistenti. I deepfake rappresentano un'altra area di minaccia emergente.
+
+@vid-fakeobama è un video deepfake di Barack Obama che è diventato virale qualche anno fa.
+
+:::{#vid-fakeobama .callout-important}
+
+# Fake Obama
+
+{{< video https://www.youtube.com/watch?v=AmUC4m6w1wo&ab_channel=BBCNews >}}
+
+:::
+
+La promozione della sicurezza richiede test approfonditi, analisi dei rischi, supervisione umana e progettazione di sistemi che combinano più modelli deboli per evitare singoli punti di errore. Rigorosi meccanismi di sicurezza sono essenziali per l'implementazione responsabile di un'IA efficiente.
+
+### Responsabilità e Governance
+
+Quando i sistemi di IA alla fine falliscono o producono risultati dannosi, devono esistere meccanismi per affrontare i problemi risultanti, risarcire le parti interessate e assegnare la responsabilità. Sia le politiche di responsabilità aziendale che le normative governative sono indispensabili per una governance responsabile dell'IA. Ad esempio, l'[Artificial Intelligence Video Interview Act dell'Illinois](https://www.ilga.gov/legislation/ilcs/ilcs3.asp?ActID@15&ChapterIDh) richiede alle aziende di divulgare e ottenere il consenso per l'analisi video dell'IA, promuovendo la responsabilità.
+
+Senza una chiara responsabilità, anche i danni causati involontariamente potrebbero rimanere irrisolti, alimentando ulteriormente l'indignazione e la sfiducia pubblica. I comitati di vigilanza, le valutazioni di impatto, i processi di risoluzione dei reclami e gli audit indipendenti promuovono lo sviluppo e l'implementazione responsabili.
+
+## Cloud, Edge e Tiny ML
+
+Sebbene questi principi siano ampiamente applicabili a tutti i sistemi di intelligenza artificiale, alcune considerazioni di IA responsabile sono uniche o pronunciate quando si ha a che fare con l'apprendimento automatico su dispositivi embedded rispetto alla modellazione tradizionale basata su server. Pertanto, presentiamo una tassonomia di alto livello che confronta le considerazioni di intelligenza artificiale responsabile nei sistemi cloud, edge e TinyML.
+
+### Riepilogo
+
+@tbl-ml-principles-comparison riassume come i principi di intelligenza artificiale responsabile si manifestino in modo diverso nelle architetture cloud, edge e TinyML e come le considerazioni fondamentali si leghino alle loro capacità e limitazioni uniche. I vincoli e i compromessi di ogni ambiente modellano il modo in cui affrontiamo la trasparenza, la responsabilità, la governance e altri pilastri dell'intelligenza artificiale responsabile.
+
++----------------+----------------------------------+------------------------------------+-----------------------------+
+| Principio      | Cloud ML                         | Edge ML                            | TinyML                      |
++:===============+:=================================+:===================================+:============================+
+| Spiegabilità   | Modelli complessi supportati     | Leggero richiesto                  | Limiti severi               |
++----------------+----------------------------------+------------------------------------+-----------------------------+
+| Equità         | Dati ampi disponibili            | Distorsioni sul dispositivo        | Etichette dati limitate     |
++----------------+----------------------------------+------------------------------------+-----------------------------+
+| Privacy        | Vulnerabilità dei dati nel cloud | Dati più sensibili                 | Dati dispersi               |
++----------------+----------------------------------+------------------------------------+-----------------------------+
+| Sicurezza      | Minacce di hacking               | Interazione nel mondo reale        | Dispositivi autonomi        |
++----------------+----------------------------------+------------------------------------+-----------------------------+
+| Responsabilità | Politiche aziendali              | Problemi della catena di fornitura | Tracciamento dei componenti |
++----------------+----------------------------------+------------------------------------+-----------------------------+
+| Governance     | Supervisione esterna fattibile   | Autogoverno necessario             | Vincoli del protocollo      |
++----------------+----------------------------------+------------------------------------+-----------------------------+
+
+: Confronto dei principi chiave di Cloud ML, Edge ML e TinyML. {#tbl-ml-principles-comparison .striped .hover}
+
+### Spiegabilità
+
+Per l'apprendimento automatico basato su cloud, le tecniche di spiegabilità possono sfruttare risorse di elaborazione significative, consentendo metodi complessi come valori SHAP o approcci basati sul campionamento per interpretare i comportamenti del modello. Ad esempio, il toolkit [InterpretML di Microsoft](https://www.microsoft.com/en-us/research/uploads/prod/2020/05/InterpretML-Whitepaper.pdf) fornisce tecniche di spiegabilità su misura per gli ambienti cloud.
+
+Tuttavia, l'edge ML opera su dispositivi con risorse limitate, richiedendo metodi di spiegabilità più leggeri che possono essere eseguiti localmente senza latenza eccessiva. Tecniche come LIME [@ribeiro2016should] approssimano le spiegazioni del modello utilizzando modelli lineari o alberi decisionali per evitare calcoli costosi, il che le rende ideali per dispositivi con risorse limitate. Tuttavia, LIME richiede l'addestramento di centinaia o persino migliaia di modelli per generare buone spiegazioni, il che è spesso irrealizzabile dati i vincoli dell'edge computing. Al contrario, i metodi basati sulla salienza sono spesso molto più rapidi nella pratica, richiedendo solo un singolo passaggio in avanti attraverso la rete per stimare l'importanza delle funzionalità. Questa maggiore efficienza rende tali metodi più adatti ai dispositivi edge con risorse di elaborazione limitate, in cui le spiegazioni a bassa latenza sono fondamentali.
+
+Date le ridotte capacità hardware, i sistemi embedded pongono le sfide più significative per la spiegabilità. Modelli più compatti e dati limitati semplificano la trasparenza intrinseca del modello. Spiegare le decisioni potrebbe non essere fattibile su microcontrollori di grandi dimensioni e con potenza ottimizzata. Il programma [Transparent Computing](https://www.darpa.mil/program/transparent-computing) della DARPA cerca di sviluppare una spiegabilità con costi di gestione estremamente bassi, in particolare per i dispositivi TinyML come sensori e dispositivi indossabili.
+
+### Equità
+
+Per il machine learning nel cloud, vasti set di dati e potenza di calcolo consentono di rilevare pregiudizi su grandi popolazioni eterogenee e di mitigarli tramite tecniche come la riponderazione dei campioni di dati. Tuttavia, i pregiudizi possono emergere dagli ampi dati comportamentali utilizzati per addestrare i modelli cloud. Il framework Fairness Flow di Amazon aiuta a valutare l'equità del ML cloud.
+
+Edge ML si basa su dati limitati sul dispositivo, rendendo più difficile l'analisi dei pregiudizi tra gruppi diversi. Tuttavia, i dispositivi edge interagiscono strettamente con gli individui, offrendo un'opportunità di adattamento locale per l'equità. [Federated Learning di Google](https://blog.research.google/2017/04/federated-learning-collaborative.html) distribuisce l'addestramento del modello tra i dispositivi per incorporare le differenze individuali.
+
+TinyML pone sfide uniche per l'equità con hardware specializzato altamente disperso e dati di addestramento minimi. I test sui pregiudizi sono difficili su dispositivi diversi. La raccolta di dati rappresentativi da molti dispositivi per mitigare i pregiudizi presenta ostacoli di scala e privacy. Gli sforzi di [Assured Neuro Symbolic Learning and Reasoning (ANSR) di DARPA](https://www.darpa.mil/news-events/2022-06-03) sono orientati allo sviluppo di tecniche di equità dati i vincoli hardware estremi.
+
+### Sicurezza
+
+I principali rischi per la sicurezza del cloud ML includono hacking dei modelli, avvelenamento dei dati e malware che interrompono i servizi cloud. Le tecniche di robustezza come l'addestramento avversario, il rilevamento delle anomalie e i modelli diversificati mirano a rafforzare il cloud ML contro gli attacchi. La ridondanza può aiutare a prevenire singoli punti di errore.
+
+Edge ML e TinyML interagiscono con il mondo fisico, quindi l'affidabilità e la convalida della sicurezza sono fondamentali. Piattaforme di test rigorose come [Foretellix](https://www.foretellix.com/) generano sinteticamente scenari edge per convalidare la sicurezza. La sicurezza di TinyML è amplificata da dispositivi autonomi con supervisione limitata. La sicurezza di TinyML spesso si basa sul coordinamento collettivo: sciami di droni mantengono la sicurezza tramite ridondanza. Anche le barriere di controllo fisiche limitano i comportamenti non sicuri dei dispositivi TinyML.
+
+In sintesi, la sicurezza è fondamentale ma si manifesta in modo diverso in ogni dominio. Cloud ML protegge dall'hacking, edge ML interagisce fisicamente, quindi l'affidabilità è fondamentale e TinyML sfrutta il coordinamento distribuito per la sicurezza. La comprensione delle sfumature guida le tecniche di sicurezza appropriate.
+
+### Responsabilità
+
+La responsabilità di Cloud ML si concentra su pratiche aziendali come comitati AI responsabili, carte etiche e processi per affrontare incidenti dannosi. Audit di terze parti e supervisione governativa esterna promuovono la responsabilità di Cloud ML.
+
+La responsabilità di Edge ML è più complessa con dispositivi distribuiti e frammentazione della supply chain. Le aziende sono responsabili dei dispositivi, ma i componenti provengono da vari fornitori. Gli standard di settore aiutano a coordinare la responsabilità di Edge ML tra le parti interessate.
+
+Con TinyML, i meccanismi di responsabilità devono essere tracciati attraverso lunghe e complesse supply chain di circuiti integrati, sensori e altro hardware. Gli schemi di certificazione TinyML aiutano a tracciare la provenienza dei componenti. Le associazioni di categoria dovrebbero idealmente promuovere la responsabilità condivisa per TinyML etico.
+
+### Governance
+
+Le organizzazioni istituiscono una governance interna per il cloud ML, come comitati etici, audit e gestione del rischio del modello. Ma anche la governance esterna supervisiona il cloud ML, come le normative su pregiudizi e trasparenza come [AI Bill of Rights](https://www.whitehouse.gov/ostp/ai-bill-of-rights/), [General Data Protection Regulation (GDPR)](https://gdpr-info.eu/) e [California Consumer Protection Act (CCPA)](https://oag.ca.gov/privacy/ccpa). L'audit di terze parti supporta la governance del cloud ML.
+
+Edge ML è più decentralizzato e richiede un'autogovernance responsabile da parte di sviluppatori e aziende che distribuiscono modelli localmente. Le associazioni di settore coordinano la governance tra i fornitori di edge ML e il software aperto aiuta ad allineare gli incentivi per l'edge ML etico.
+
+L'estrema decentralizzazione e complessità rendono la governance esterna impraticabile con TinyML. TinyML si basa su protocolli e standard per l'autogovernance integrati nella progettazione del modello e nell'hardware. La crittografia consente l'affidabilità dimostrabile dei dispositivi TinyML.
+
+### Privacy
+
+Per il cloud ML, grandi quantità di dati utente sono concentrate nel cloud, creando rischi di esposizione tramite violazioni. Le tecniche di privacy differenziali aggiungono rumore ai dati cloud per preservare la privacy. Rigidi controlli di accesso e crittografia proteggono i dati cloud a riposo e in transito.
+
+Edge ML sposta l'elaborazione dei dati sui dispositivi utente, riducendo la raccolta di dati aggregati ma aumentando la potenziale sensibilità poiché i dati personali risiedono sul dispositivo. Apple utilizza ML on-device e privacy differenziale per addestrare modelli riducendo al minimo la condivisione dei dati. L'anonimizzazione dei dati e le enclave sicure proteggono i dati on-device.
+
+TinyML distribuisce i dati su molti dispositivi con risorse limitate, rendendo improbabili le violazioni centralizzate e rendendo difficile l'anonimizzazione su larga scala. La minimizzazione dei dati e l'utilizzo di dispositivi edge come intermediari aiutano la privacy di TinyML.
+
+Quindi, mentre il cloud ML deve proteggere dati centralizzati espansivi, l'edge ML protegge i dati sensibili on-device e TinyML mira a una condivisione minima dei dati distribuiti a causa dei vincoli. Mentre la privacy è fondamentale in tutto, le tecniche devono adattarsi all'ambiente. La comprensione delle sfumature consente di selezionare approcci appropriati per la tutela della privacy.
+
+## Aspetti Tecnici
+
+### Rilevamento e Mitigazione dei Pregiudizi
+
+Un'ampia mole di lavoro ha dimostrato che i modelli di apprendimento automatico possono presentare pregiudizi, da persone con prestazioni inferiori di una certa identità a decisioni che limitano l'accesso dei gruppi a risorse importanti [@buolamwini2018genderShades].
+
+Garantire un trattamento equo e giusto per tutti i gruppi interessati dai sistemi di apprendimento automatico è fondamentale, poiché questi modelli hanno un impatto sempre maggiore sulla vita delle persone in settori come prestiti, assistenza sanitaria e giustizia penale. In genere valutiamo l'equità del modello considerando "attributi di sottogruppo" non correlati all'attività di previsione che catturano identità come razza, genere o religione. Ad esempio, in un modello di previsione di inadempienza del prestito, i sottogruppi potrebbero includere razza, genere o religione. Quando i modelli vengono addestrati ingenuamente per massimizzare l'accuratezza, spesso ignorano le prestazioni del sottogruppo. Tuttavia, ciò può avere un impatto negativo sulle comunità emarginate.
+
+Per illustrare, si immagini un modello che prevede il rimborso del prestito in cui i più (+) rappresentano il rimborso e i cerchi (O) rappresentano l'inadempienza, come mostrato in @fig-fairness-example. L'accuratezza ottimale sarebbe classificare correttamente tutto il Gruppo A, classificando erroneamente alcuni dei richiedenti affidabili del Gruppo B come inadempienti. Se le classificazioni positive consentono l'accesso ai prestiti, il Gruppo A riceverebbe molti più prestiti, il che si tradurrebbe naturalmente in un risultato distorto.
+
+![Equità e accuratezza.](images/png/fairness_cartoon.png){#fig-fairness-example}
+
+In alternativa, correggere i pregiudizi contro il Gruppo B aumenterebbe probabilmente i "falsi positivi" e ridurrebbe l'accuratezza per il Gruppo A. Oppure, potremmo addestrare modelli separati focalizzati sulla massimizzazione dei veri positivi per ciascun gruppo. Tuttavia, ciò richiederebbe l'utilizzo esplicito di attributi sensibili come la razza nel processo decisionale.
+
+Come vediamo, ci sono tensioni intrinseche attorno a priorità come l'accuratezza rispetto all'equità del sottogruppo e se tenere conto esplicitamente delle classi protette. Le persone ragionevoli possono non essere d'accordo sui compromessi appropriati. I vincoli sui costi e le opzioni di implementazione complicano ulteriormente le cose. Nel complesso, garantire l'uso equo ed etico dell'apprendimento automatico implica la navigazione di queste sfide complesse.
+
+Pertanto, la letteratura sull'equità ha proposto tre principali _metriche di equità_ per quantificare quanto sia equo un modello su un set di dati [@hardt2016equality]. Dato un modello h e un set di dati D costituito da campioni (x,y,s), dove x sono le caratteristiche dei dati, y è l'etichetta e s è l'attributo del sottogruppo, e supponiamo che ci siano semplicemente due sottogruppi a e b, possiamo definire quanto segue.
+
+1. **Parità Demografica** chiede quanto è accurato un modello per ogni sottogruppo. In altre parole, P(h(X) = Y  S = a) = P(h(X) = Y  S = b)
+
+2. **Quote Equalizzate** chiede quanto è preciso un modello su campioni positivi e negativi per ogni sottogruppo. P(h(X) = y  S = a, Y = y) = P(h(X) = y  S = b, Y = y)
+
+3. **Uguaglianza di Opportunità** è un caso speciale di probabilità equalizzate che chiede solo quanto è preciso un modello su campioni positivi. Ciò è rilevante in casi come l'allocazione delle risorse, in cui ci preoccupiamo di come le etichette positive (vale a dire, allocate in base alle risorse) siano distribuite tra i gruppi. Ad esempio, ci preoccupiamo che una proporzione uguale di prestiti venga concessa sia agli uomini che alle donne. P(h(X) = 1  S = a, Y = 1) = P(h(X) = 1  S = b, Y = 1)
+
+Nota: Queste definizioni spesso adottano una visione ristretta quando si considerano confronti binari tra due sottogruppi. Un altro filone di ricerca di apprendimento automatico equo incentrato su _multi-calibrazione_ e _multi-accuratezza_ considera le interazioni tra un numero arbitrario di identità, riconoscendo l'intersezionalità intrinseca delle identità individuali nel mondo reale [@hebert2018multicalibration].
+
+#### Il Contesto è Importante
+
+Prima di prendere qualsiasi decisione tecnica per sviluppare un algoritmo ML imparziale, dobbiamo comprendere il contesto che circonda il nostro modello. Ecco alcune delle domande chiave su cui riflettere:
+
+* Per chi prenderà decisioni questo modello?
+* Chi è rappresentato nei dati di training?
+* Chi è rappresentato e chi manca al tavolo di ingegneri, progettisti e manager?
+* Che tipo di impatti duraturi potrebbe avere questo modello? Ad esempio, avrà un impatto sulla sicurezza finanziaria di un individuo su scala generazionale, come la determinazione delle ammissioni al college o l'ammissione di un prestito per una casa?
+* Quali pregiudizi storici e sistematici sono presenti in questo contesto e sono presenti nei dati di training da cui il modello generalizzerà?
+
+Comprendere il background sociale, etico e storico di un sistema è fondamentale per prevenire danni e dovrebbe informare le decisioni durante tutto il ciclo di sviluppo del modello. Dopo aver compreso il contesto, si possono prendere varie decisioni tecniche per rimuovere i pregiudizi. Innanzitutto, si deve decidere quale metrica di equità è il criterio più appropriato per l'ottimizzazione. Successivamente, ci sono generalmente tre aree principali in cui si può intervenire per eliminare i pregiudizi di un sistema ML.
+
+Innanzitutto, la preelaborazione è quando si bilancia un set di dati per garantire una rappresentazione equa o addirittura si aumenta il peso su determinati gruppi sottorappresentati per garantire che il modello funzioni bene. In secondo luogo, nell'elaborazione si tenta di modificare il processo di training di un sistema ML per garantire che dia priorità all'equità. Questo può essere semplice come aggiungere un regolarizzatore di equità [@lowy2021fermi] al training di un insieme di modelli e campionarli in un modo specifico [@agarwal2018reductions].
+
+Infine, la post-elaborazione degrada un modello dopo il fatto, prendendo un modello addestrato e modificandone le previsioni in un modo specifico per garantire che l'equità venga preservata [@alghamdi2022beyond; @hardt2016equality]. La post-elaborazione si basa sulle fasi di pre-elaborazione e in-elaborazione offrendo un'altra opportunità per affrontare i problemi di bias [pregiudizi] e equità nel modello dopo che è già stato addestrato.
+
+Il processo in tre fasi di pre-elaborazione, in-elaborazione e post-elaborazione fornisce un framework per intervenire in diverse fasi dello sviluppo del modello per mitigare i problemi relativi a pregiudizi ed equità. Mentre la pre-elaborazione e l'in-elaborazione si concentrano sui dati e sul training, la post-elaborazione consente di apportare modifiche dopo che il modello è stato completamente formato. Insieme, questi tre approcci offrono molteplici opportunità per rilevare e rimuovere pregiudizi ingiusti.
+
+#### Distribuzione Ponderata
+
+L'ampiezza delle definizioni di equità e degli interventi di debiasing esistenti sottolinea la necessità di una valutazione ponderata prima di distribuire sistemi ML. Come ricercatori e sviluppatori ML, lo sviluppo responsabile del modello richiede di istruirci in modo proattivo sul contesto del mondo reale, consultare esperti del settore e utenti finali e concentrarci sulla prevenzione dei danni.
+
+Invece di vedere le considerazioni sull'equità come una casella da spuntare, dobbiamo impegnarci profondamente con le implicazioni sociali uniche e i compromessi etici attorno a ogni modello che costruiamo. Ogni scelta tecnica su set di dati, architetture di modelli, metriche di valutazione e vincoli di distribuzione incorpora valori. Ampliando la nostra prospettiva oltre le metriche tecniche ristrette, valutando attentamente i compromessi e ascoltando le voci interessate, possiamo lavorare per garantire che i nostri sistemi espandano le opportunità anziché codificare i pregiudizi.
+
+La strada da seguire non risiede in una checklist di "debiasing" arbitraria, ma nell'impegno a comprendere e sostenere la nostra responsabilità etica a ogni passo. Questo impegno inizia con l'educazione proattiva di noi stessi e la consultazione degli altri, piuttosto che limitarci a seguire i movimenti di una checklist di equità. Richiede un profondo impegno nei compromessi etici nelle nostre scelte tecniche, la valutazione degli impatti su diversi gruppi e l'ascolto delle voci maggiormente interessate.
+
+In definitiva, i sistemi di intelligenza artificiale responsabili ed etici non derivano dal "debiasing" delle caselle di controllo, ma dal rispetto del nostro dovere di valutare i danni, ampliare le prospettive, comprendere i compromessi e garantire di offrire opportunità a tutti i gruppi. Questa responsabilità etica dovrebbe guidare ogni passo.
+
+Il collegamento tra i paragrafi è che il primo stabilisce la necessità di una valutazione ponderata delle questioni di equità piuttosto che di un approccio basato su caselle di controllo. Il secondo paragrafo si sofferma poi su come si presenta in pratica questa valutazione ponderata, ovvero impegnarsi con i compromessi, valutare gli impatti sui gruppi e ascoltare le voci interessate. Infine, l'ultimo paragrafo fa riferimento all'evitare una "checklist di debiasing arbitraria" e impegnarsi nella responsabilità etica attraverso la valutazione, la comprensione dei compromessi e l'offerta di opportunità.
+
+### Preservare la Privacy
+
+Incidenti recenti hanno fatto luce su come i modelli di intelligenza artificiale possano memorizzare dati sensibili degli utenti in modi che violano la privacy. @carlini2023extracting_llm dimostra che i modelli linguistici tendono a memorizzare i dati di addestramento e possono persino riprodurre esempi di addestramento specifici. Questi rischi sono amplificati con sistemi ML personalizzati distribuiti in ambienti intimi come case o dispositivi indossabili. Prendiamo in considerazione uno smart speaker che usa le nostre conversazioni per migliorare la qualità del servizio per gli utenti che apprezzano tali miglioramenti. Sebbene potenzialmente vantaggioso, questo crea anche rischi per la privacy, poiché i malintenzionati potrebbero tentare di estrarre ciò che lo speaker "ricorda". Il problema si estende oltre i modelli linguistici. @fig-diffusion-model-example mostra come i modelli di diffusione possono memorizzare e generare esempi di training individuali [@carlini2023extracting], dimostrando ulteriormente i potenziali rischi per la privacy associati ai sistemi di intelligenza artificiale che apprendono dai dati degli utenti.
+
+![Modelli di diffusione che memorizzano campioni dai dati di training. Fonte: @carlini2023extracting_llm.](images/png/diffusion_memorization.png){#fig-diffusion-model-example}
+
+Man mano che l'intelligenza artificiale si integra sempre di più nella nostra vita quotidiana, sta diventando sempre più importante che le preoccupazioni sulla privacy e le solide misure di sicurezza per proteggere le informazioni degli utenti siano sviluppate con occhio critico. La sfida sta nel bilanciare i vantaggi dell'intelligenza artificiale personalizzata con il diritto fondamentale alla privacy.
+
+Gli avversari possono usare queste capacità di memorizzazione e addestrare modelli per rilevare se specifici dati di addestramento hanno influenzato un modello target. Ad esempio, gli attacchi di inferenza di appartenenza addestrano un modello secondario che impara a rilevare un cambiamento negli output del modello target quando si effettuano inferenze sui dati su cui è stato addestrato rispetto a quelli su cui non è stato addestrato [@shokri2017membership].
+
+I dispositivi ML sono particolarmente vulnerabili perché sono spesso personalizzati sui dati degli utenti e vengono distribuiti in contesti ancora più intimi come la casa. Le tecniche di apprendimento automatico privato si sono evolute per stabilire misure di sicurezza contro gli avversari, come menzionato nel capitolo [Sicurezza e Privacy](../privacy_security/privacy_security.it.qmd) per combattere questi problemi di privacy. Metodi come la privacy differenziale aggiungono rumore matematico durante l'addestramento per oscurare l'influenza dei singoli punti dati sul modello. Tecniche popolari come DP-SGD [@abadi2016deep] tagliano anche i gradienti per limitare ciò che il modello trapelerà sui dati. Tuttavia, gli utenti dovrebbero anche avere la possibilità di eliminare l'impatto dei propri dati in un secondo momento.
+
+### Machine Unlearning
+
+Con dispositivi ML personalizzati per singoli utenti e poi distribuiti su edge remoti senza connettività, sorge una sfida: come possono i modelli "dimenticare" in modo reattivo i dati dopo la distribuzione? Se gli utenti richiedono che i loro dati vengano rimossi da un modello personalizzato, la mancanza di connettività rende impossibile la riqualificazione. Pertanto, un'efficiente dimenticanza dei dati sul dispositivo è necessaria, ma pone degli ostacoli.
+
+Gli approcci iniziali di disapprendimento hanno incontrato delle limitazioni in questo contesto. Date le limitazioni delle risorse, recuperare modelli da zero sul dispositivo per dimenticare i dati si rivela inefficiente o addirittura impossibile. La riqualificazione completa richiede anche di conservare tutti i dati di training originali sul dispositivo, il che comporta dei rischi per la sicurezza e la privacy. Le comuni tecniche di "machine unlearning" [disapprendimento automatico] [@bourtoule2021machine] per sistemi ML embedded remoti non riescono a consentire la rimozione dei dati reattiva e sicura.
+
+Tuttavia, metodi più recenti sembrano promettenti nel modificare i modelli per dimenticare approssimativamente i dati [?] senza una riqualificazione completa. Sebbene la perdita di accuratezza derivante dall'evitare ricostruzioni complete sia modesta, garantire la privacy dei dati dovrebbe comunque essere la priorità quando si gestiscono eticamente le informazioni sensibili degli utenti. Anche una minima esposizione a dati privati può violare la fiducia degli utenti. Poiché i sistemi ML diventano profondamente personalizzati, efficienza e privacy devono essere abilitate fin dall'inizio, non ripensamenti.
+
+Le recenti discussioni sulle politiche, che includono [European Union's General Data](https://gdpr-info.eu), [Protection Regulation  (GDPR)](https://gdpr-info.eu), il [California Consumer Privacy Act (CCPA)](https://oag.ca.gov/privacy/ccpa), l'[Act on the Protection of Personal Information (APPI)](https://www.dataguidance.com/notes/japan-data-protection-overview) e il [Consumer Privacy Protection Act (CPPA)](https://blog.didomi.io/en-us/canada-data-privacy-law) proposto dal Canada, richiedono l'eliminazione delle informazioni private. Queste politiche, insieme a incidenti di intelligenza artificiale come la memorizzazione dei dati degli artisti da parte di Stable Diffusion, hanno sottolineato la necessità etica degli utenti di eliminare i propri dati dai modelli dopo l'addestramento.
+
+Il diritto di rimuovere i dati nasce da preoccupazioni sulla privacy relative alle aziende o agli avversari che abusano delle informazioni sensibili degli utenti. L'unlearning automatico si riferisce alla rimozione dell'influenza di punti specifici da un modello già addestrato. Ingenuamente, ciò comporta una riqualificazione completa senza i dati eliminati. Tuttavia, i vincoli di connettività spesso rendono la riqualificazione non fattibile per i sistemi ML personalizzati e distribuiti su edge remoti. Se uno smart speaker impara da conversazioni domestiche private, è importante mantenere l'accesso per eliminare tali dati.
+
+Sebbene limitati, i metodi si stanno evolvendo per consentire approssimazioni efficienti della riqualificazione per l'unlearning. Modificando il tempo di inferenza dei modelli, possono imitare i dati "dimenticati" senza accesso completo ai dati di addestramento. Tuttavia, la maggior parte delle tecniche attuali è limitata a modelli semplici, ha ancora costi di risorse e scambia una certa accuratezza. Sebbene i metodi si stiano evolvendo, consentire una rimozione efficiente dei dati e rispettare la privacy degli utenti rimane fondamentale per una distribuzione TinyML responsabile.
+
+### Esempi Avversari e Robustezza
+
+I modelli di apprendimento automatico, in particolare le reti neurali profonde, hanno un tallone d'Achille ben documentato: spesso si rompono quando vengono apportate anche piccole perturbazioni ai loro input [@szegedy2013intriguing]. Questa sorprendente fragilità evidenzia un importante divario di robustezza che minaccia l'implementazione nel mondo reale in domini ad alto rischio. Apre anche la porta ad attacchi avversari progettati per ingannare deliberatamente i modelli.
+
+I modelli di apprendimento automatico possono mostrare una sorprendente fragilità: piccole modifiche agli input possono causare malfunzionamenti scioccanti, anche nelle reti neurali profonde all'avanguardia [@szegedy2013intriguing]. Questa imprevedibilità sui dati fuori campione sottolinea le lacune nella generalizzazione e nella robustezza del modello. Data la crescente ubiquità dell'apprendimento automatico, consente anche minacce avversarie che sfruttano i punti ciechi dei modelli.
+
+Le reti neurali profonde dimostrano una doppia natura quasi paradossale: competenza umana nelle distribuzioni di training abbinata a un'estrema fragilità alle piccole perturbazioni di input [@szegedy2013intriguing]. Questa lacuna di vulnerabilità avversaria ne evidenzia altre nelle procedure ML standard e minacce all'affidabilità nel mondo reale. Allo stesso tempo, può essere sfruttata: gli aggressori possono trovare punti di rottura del modello che gli umani non percepirebbero.
+
+@fig-adversarial-example include un esempio di una piccola perturbazione insignificante che modifica una previsione del modello. Questa fragilità ha impatti nel mondo reale: la mancanza di robustezza mina la fiducia nell'implementazione di modelli per applicazioni ad alto rischio come auto a guida autonoma o diagnosi mediche. Inoltre, la vulnerabilità porta a minacce alla sicurezza: gli aggressori possono creare deliberatamente esempi avversari che sono percettivamente indistinguibili dai dati normali ma causano errori del modello.
+
+![Effetto della perturbazione sulla previsione. Fonte: [Microsoft.](https://www.microsoft.com/en-us/research/blog/adversarial-robustness-as-a-prior-for-better-transfer-learning/)](images/png/adversarial_robustness.png){#fig-adversarial-example}
+
+Ad esempio, lavori passati mostrano attacchi riusciti che ingannano i modelli per attività come il rilevamento NSFW [@bhagoji2018practical], il blocco degli annunci [@tramer2019adversarial] e il riconoscimento vocale [@carlini2016hidden]. Sebbene gli errori in questi domini rappresentino già dei rischi per la sicurezza, il problema si estende oltre la sicurezza IT. Di recente, la robustezza avversaria è stata proposta come metrica di prestazioni aggiuntiva approssimando il comportamento del caso peggiore.
+
+La sorprendente fragilità del modello evidenziata sopra mette in dubbio l'affidabilità nel mondo reale e apre la porta alla manipolazione avversaria. Questa crescente vulnerabilità sottolinea diverse esigenze. In primo luogo, le valutazioni della robustezza morale sono essenziali per quantificare le vulnerabilità del modello prima dell'implementazione. L'approssimazione del comportamento del caso peggiore fa emergere punti ciechi.
+
+In secondo luogo, devono essere sviluppate difese efficaci in tutti i domini per colmare queste lacune di robustezza. Con la sicurezza in gioco, gli sviluppatori non possono ignorare la minaccia di attacchi che sfruttano le debolezze del modello. Inoltre, non possiamo permetterci guasti indotti dalla fragilità per applicazioni critiche per la sicurezza come veicoli a guida autonoma e diagnosi mediche. Sono in gioco delle vite.
+
+Infine, la comunità di ricerca continua a mobilitarsi rapidamente in risposta. L'interesse per l'apprendimento automatico avversario è esploso poiché gli attacchi rivelano la necessità di colmare il divario di robustezza tra dati sintetici e dati del mondo reale. Le conferenze ora comunemente presentano difese per proteggere e stabilizzare i modelli. La comunità riconosce che la fragilità del modello è un problema critico che deve essere affrontato tramite test di robustezza, sviluppo di difese e ricerca continua. Evidenziando i punti ciechi e rispondendo con difese basate su principi, possiamo lavorare per garantire affidabilità e sicurezza per i sistemi di apprendimento automatico, specialmente in domini ad alto rischio.
+
+### Creazione di Modelli Interpretabili
+
+Poiché i modelli vengono distribuiti più frequentemente in contesti ad alto rischio, professionisti, sviluppatori, utenti finali a valle e una regolamentazione crescente hanno evidenziato la necessità di spiegabilità nell'apprendimento automatico. L'obiettivo di molti metodi di interpretabilità e spiegabilità è fornire ai professionisti maggiori informazioni sul comportamento complessivo dei modelli o sul comportamento dato un input specifico. Ciò consente agli utenti di decidere se l'output o la previsione di un modello sono affidabili o meno.
+
+Tale analisi può aiutare gli sviluppatori a eseguire il debug dei modelli e migliorare le prestazioni evidenziando distorsioni, correlazioni spurie e modalità di errore dei modelli. Nei casi in cui i modelli possono superare le prestazioni umane in un'attività, l'interpretabilità può aiutare utenti e ricercatori a comprendere meglio le relazioni nei loro dati e pattern precedentemente sconosciuti.
+
+Esistono molte classi di metodi di spiegabilità/interpretabilità, tra cui la spiegabilità post hoc, l'interpretabilità intrinseca e l'interpretabilità meccanicistica. Questi metodi mirano a rendere più comprensibili i modelli di apprendimento automatico complessi e a garantire che gli utenti possano fidarsi delle previsioni del modello, soprattutto in contesti critici. Fornendo trasparenza nel comportamento del modello, le tecniche di spiegabilità sono uno strumento importante per sviluppare sistemi di intelligenza artificiale sicuri, equi e affidabili.
+
+#### Spiegabilità Post Hoc
+
+I metodi di spiegabilità "post hoc" in genere spiegano il comportamento di output di un modello black-box su un input specifico. metodi più diffusi includono spiegazioni controfattuali, metodi di attribuzione delle caratteristiche e spiegazioni basate sui concetti.
+
+**Spiegazioni controfattuali**, spesso chiamate anche ricorso algoritmico, "Se X non si fosse verificato, Y non si sarebbe verificato" [@wachter2017counterfactual]. Ad esempio, si consideri una persona che richiede un prestito bancario la cui richiesta viene respinta da un modello. Potrebbe chiedere alla propria banca un ricorso o come modificare per essere idonea a un prestito. Una spiegazione controfattuale indicherebbe loro quali caratteristiche devono modificare e di quanto, in modo che la previsione del modello cambi.
+
+**I metodi di attribuzione delle caratteristiche** evidenziano le caratteristiche di input che sono importanti o necessarie per una particolare previsione. Per un modello di visione artificiale, ciò significherebbe evidenziare i singoli pixel che hanno contribuito maggiormente all'etichetta prevista dell'immagine. Si noti che questi metodi non spiegano in che modo quei pixel/caratteristiche influenzano la previsione, ma solo che lo fanno. I metodi comuni includono gradienti di input, GradCAM [@selvaraju2017grad], SmoothGrad [@smilkov2017smoothgrad], LIME [@ribeiro2016should] e SHAP [@lundberg2017unified].
+
+Fornendo esempi di modifiche alle caratteristiche di input che altererebbero una previsione (controfattuali) o indicando le caratteristiche più influenti per una data previsione (attribuzione), queste tecniche di spiegazione post hoc fanno luce sul comportamento del modello per input individuali. Questa trasparenza granulare aiuta gli utenti a determinare se possono fidarsi e agire su output di modelli specifici.
+
+**Le spiegazioni basate sui concetti** mirano a spiegare il comportamento del modello e gli output utilizzando un set predefinito di concetti semantici (ad esempio, il modello riconosce la classe di scena "camera da letto" in base alla presenza dei concetti "letto" e "cuscino"). Lavori recenti mostrano che gli utenti spesso preferiscono queste spiegazioni a quelle basate sull'attribuzione e sugli esempi perché "assomigliano al ragionamento e alle spiegazioni umane" [@ramaswamy2023ufo]. I metodi di spiegazione basati sui concetti più diffusi includono TCAV [@kim2018interpretability], Network Dissection [@bau2017network] e decomposizione della base interpretabile [@zhou2018interpretable].
+
+Si noti che questi metodi sono estremamente sensibili alla dimensione e alla qualità del set di concetti e c'è un compromesso tra la loro accuratezza e fedeltà e la loro interpretabilità o comprensibilità per gli esseri umani [@ramaswamy2023overlooked]. Tuttavia, mappando le previsioni del modello su concetti comprensibili per gli esseri umani, le spiegazioni basate sui concetti possono fornire trasparenza nel ragionamento alla base degli output del modello.
+
+#### Interpretabilità Intrinseca
+
+I modelli intrinsecamente interpretabili sono costruiti in modo tale che le loro spiegazioni siano parte dell'architettura del modello e siano quindi naturalmente fedeli, il che a volte li rende preferibili alle spiegazioni post-hoc applicate ai modelli black-box, specialmente in domini ad alto rischio in cui la trasparenza è fondamentale [@rudin2019stop]. Spesso, questi modelli sono vincolati in modo che le relazioni tra le caratteristiche di input e le previsioni siano facili da seguire per gli esseri umani (modelli lineari, alberi decisionali, set di decisioni, modelli k-NN) o obbediscano alla conoscenza strutturale del dominio, come la monotonicità [@gupta2016monotonic], la causalità o l'additività [@lou2013accurate; @beck1998beyond].
+
+Tuttavia, lavori più recenti hanno allentato le restrizioni sui modelli intrinsecamente interpretabili, utilizzando modelli black-box per l'estrazione delle caratteristiche e un modello intrinsecamente interpretabile più semplice per la classificazione, consentendo spiegazioni fedeli che collegano le caratteristiche di alto livello alla previsione. Ad esempio, i Concept Bottleneck Models [@koh2020concept] prevedono un set di concetti c che viene passato in un classificatore lineare. I ProtoPNets [@chen2019looks] sezionano gli input in combinazioni lineari di somiglianze con parti prototipiche del set di training.
+
+#### Interpretabilità Meccanicistica
+
+I metodi di interpretabilità meccanicistica cercano di effettuare il reverse engineering delle reti neurali, spesso paragonandoli a come si potrebbe effettuare quello di un binario compilato o a come i neuroscienziati tentano di decodificare la funzione di singoli neuroni e circuiti nel cervello. La maggior parte delle ricerche sull'interpretabilità meccanicistica vede i modelli come un grafo computazionale [@geiger2021causal] e i circuiti sono sottografi con funzionalità distinte [@wang2022interpretability]. Gli attuali approcci all'estrazione di circuiti dalle reti neurali e alla comprensione della loro funzionalità si basano sull'ispezione manuale umana delle visualizzazioni prodotte dai circuiti [@olah2020zoom].
+
+In alternativa, alcuni approcci creano autoencoder sparsi che incoraggiano i neuroni a codificare caratteristiche interpretabili districate [@bricken2023towards]. Questo campo è molto più nuovo rispetto alle aree esistenti in spiegabilità e interpretabilità e, in quanto tale, la maggior parte dei lavori è generalmente esplorativa piuttosto che orientata alla soluzione.
+
+Ci sono molti problemi nell'interpretabilità meccanicistica, tra cui la polisemanticità di neuroni e circuiti, l'inconveniente e la soggettività dell'etichettatura umana e lo spazio di ricerca esponenziale per l'identificazione dei circuiti in grandi modelli con miliardi o trilioni di neuroni.
+
+#### Sfide e Considerazioni
+
+Man mano che i metodi per interpretare e spiegare i modelli progrediscono, è importante notare che gli esseri umani si fidano troppo e abusano degli strumenti di interpretabilità [@kaur2020interpreting] e che la fiducia di un utente in un modello dovuta a una spiegazione può essere indipendente dalla correttezza delle spiegazioni [@lakkaraju2020fool]. Pertanto, è necessario che oltre a valutare la fedeltà/correttezza delle spiegazioni, i ricercatori debbano anche garantire che i metodi di interpretabilità siano sviluppati e implementati tenendo a mente un utente specifico e che vengano eseguiti studi sugli utenti per valutarne l'efficacia e l'utilità nella pratica.
+
+Inoltre, le spiegazioni devono essere adattate alle competenze dell'utente, all'attività per cui stanno utilizzando la spiegazione e alla corrispondente quantità minima di informazioni richieste affinché la spiegazione sia utile per prevenire il sovraccarico di informazioni.
+
+Mentre interpretabilità/spiegabilità sono aree popolari nella ricerca sull'apprendimento automatico, pochissimi lavori studiano la loro intersezione con TinyML ed edge computing. Dato che un'applicazione significativa di TinyML è l'assistenza sanitaria, che spesso richiede elevata trasparenza e interpretabilità, le tecniche esistenti devono essere testate per scalabilità ed efficienza relativamente ai dispositivi edge. Molti metodi si basano su passaggi aggiuntivi "forward" e "backward" e alcuni richiedono persino un training approfondito nei modelli proxy, che non sono fattibili su microcontrollori con risorse limitate.
+
+Detto questo, i metodi di spiegabilità possono essere molto utili nello sviluppo di modelli per dispositivi edge, in quanto possono fornire informazioni su come i dati di input e i modelli possono essere compressi e su come le rappresentazioni possono cambiare dopo la compressione. Inoltre, molti modelli interpretabili sono spesso più piccoli delle loro controparti black-box, il che potrebbe essere utile per le applicazioni TinyML.
+
+### Monitoraggio delle Prestazioni del Modello
+
+Mentre gli sviluppatori possono addestrare modelli che sembrano avversarialmente robusti, equi e interpretabili prima della distribuzione, è fondamentale che sia gli utenti sia i proprietari del modello ne continuino a monitorare le prestazioni e l'affidabilità durante l'intero ciclo di vita. I dati cambiano frequentemente nella pratica, il che può spesso comportare cambiamenti nella distribuzione. Questi cambiamenti nella distribuzione possono avere un impatto profondo sulle prestazioni predittive "vanilla" del modello e sulla sua affidabilità (equità, robustezza e interpretabilità) nei dati del mondo reale.
+
+Inoltre, le definizioni di equità cambiano frequentemente nel tempo, come ciò che la società considera un attributo protetto, e anche le competenze degli utenti che chiedono spiegazioni possono cambiare.
+
+Per garantire che i modelli rimangano aggiornati con tali cambiamenti nel mondo reale, gli sviluppatori devono valutare continuamente i loro modelli su dati e standard attuali e rappresentativi e aggiornare i modelli quando necessario.
+
+## Sfide di Implementazione
+
+### Strutture Organizzative e Culturali
+
+Sebbene innovazione e regolamentazione siano spesso viste come interessi contrapposti, molti paesi hanno ritenuto necessario fornire supervisione man mano che i sistemi di intelligenza artificiale si espandono in più settori. Come mostrato in @fig-human-centered-ai, questa supervisione è diventata cruciale poiché questi sistemi continuano a permeare vari settori e ad avere un impatto sulla vita delle persone (vedere [AI incentrata sull'uomo, Capitolo 8 "Interventi e normative governative"](https://academic-oup-com.ezp-prod1.hul.harvard.edu/book/41126/chapter/350465542).
+
+![Come vari gruppi influenzano l'AI incentrata sull'uomo. Fonte: @schneiderman2020.](images/png/human_centered_ai.png){#fig-human-centered-ai}
+
+Tra questi vi sono:
+
+* [Responsible Use of Artificial Intelligence](https://www.canada.ca/en/government/system/digital-government/digital-government-innovations/responsible-use-ai.html) del Canada
+
+* [General Data Protection Regulation (GDPR)](https://gdpr-info.eu/) dell'Unione Europea
+
+* [White Paper on Artificial Intelligence: a European approach to excellence and trust](https://commission.europa.eu/publications/white-paper-artificial-intelligence-european-approach-excellence-and-trust_en) della Commissione Europea
+
+* L'Information Commissioner's Office del Regno Unito e la [Consultation on Explaining AI Decisions Guidance](https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/artificial-intelligence/explaining-decisions-made-with-artificial-intelligence) dell'Alan Turing Institute hanno co-badgetato la guida da parte degli individui interessati da esse.
+
+### Ottenere Dati di Qualità e Rappresentativi
+
+Come discusso nel capitolo [Data Engineering](../data_engineering/data_engineering.it.qmd), la progettazione responsabile dell'IA deve avvenire in tutte le fasi della pipeline, inclusa la raccolta dei dati. Ciò solleva la domanda: cosa significa che i dati siano di alta qualità e rappresentativi? Consideriamo i seguenti scenari che _ostacolano_ la rappresentatività dei dati:
+
+#### Squilibrio dei Sottogruppi
+
+Questo è probabilmente ciò che viene in mente quando si sente parlare di "dati rappresentativi". Lo squilibrio dei sottogruppi significa che il set di dati contiene relativamente più dati da un sottogruppo rispetto a un altro. Questo squilibrio può influire negativamente sul modello ML a valle, facendolo sovradimensionare per un sottogruppo di persone e con prestazioni scadenti per un altro.
+
+Un esempio di conseguenza dello squilibrio dei sottogruppi è la discriminazione razziale nella tecnologia di riconoscimento facciale [@buolamwini2018genderShades]; gli algoritmi commerciali di riconoscimento facciale hanno tassi di errore fino al 34% peggiori sulle donne dalla pelle scura rispetto agli uomini dalla pelle chiara.
+
+Si noti che lo squilibrio dei dati è reciproco e i sottogruppi possono anche essere _sovrarappresentati_ in modo dannoso nel set di dati. Ad esempio, l'Allegheny Family Screening Tool (AFST) prevede la probabilità che un bambino venga alla fine allontanato da una casa. L'AFST produce [punteggi sproporzionati per diversi sottogruppi](https://www.aclu.org/the-devil-is-in-the-details-interrogating-values-embedded-in-the-allegheny-family-screening-tool#4-2-the-more-data-the-better), uno dei motivi è che è basato su dati storicamente distorti, provenienti da sistemi legali penali minorili e per adulti, agenzie di assistenza pubblica e agenzie e programmi di salute comportamentale.
+
+#### Quantificazione dei Risultati Target
+
+Ciò si verifica in applicazioni in cui l'etichetta di verità di base non può essere misurata o è difficile da rappresentare in una singola quantità. Ad esempio, un modello ML in un'applicazione mobile per il benessere potrebbe voler prevedere i livelli di stress individuali. Le vere etichette di stress sono impossibili da ottenere direttamente e devono essere dedotte da altri segnali biologici, come la variabilità della frequenza cardiaca e i dati auto-riportati dall'utente. In queste situazioni, il rumore è incorporato nei dati per progettazione, rendendo questo un compito ML impegnativo.
+
+#### Spostamento della Distribuzione
+
+I dati potrebbero non rappresentare più un compito se un evento esterno importante causa un drastico cambiamento della fonte dati. Il modo più comune di pensare alle "distribution shift" [spostamenti della distribuzione] è rispetto al tempo; ad esempio, i dati sulle abitudini di acquisto dei consumatori raccolti prima del Covid potrebbero non essere più presenti nel comportamento dei consumatori oggi.
+
+Il trasferimento provoca un'altra forma di spostamento della distribuzione. Ad esempio, quando si applica un sistema di triage addestrato sui dati di un ospedale a un altro, potrebbe verificarsi uno spostamento nella distribuzione se i due ospedali sono molto diversi.
+
+#### Raccolta Dati
+
+Una soluzione ragionevole per molti dei problemi di cui sopra con dati non rappresentativi o di bassa qualità è raccoglierne di più; possiamo raccogliere più dati mirati a un sottogruppo sottorappresentato o dall'ospedale target a cui il nostro modello potrebbe essere trasferito. Tuttavia, per alcune ragioni, raccogliere più dati è una soluzione inappropriata o non fattibile per il compito da svolgere.
+
+* _La raccolta dati può essere dannosa._ Questo è il _paradosso dell'esposizione_, la situazione in cui coloro che traggono un guadagno significativo dalla raccolta dei propri dati sono anche coloro che sono messi a rischio dal processo di raccolta (@d2023dataFeminism, Capitolo 4). Ad esempio, raccogliere più dati su individui non binari può essere importante per garantire l'equità dell'applicazione ML, ma li espone anche a rischi, a seconda di chi raccoglie i dati e di come (se i dati sono facilmente identificabili, contengono contenuti sensibili, ecc.).
+
+* _La raccolta dati può essere costosa._ In alcuni ambiti, come l'assistenza sanitaria, ottenere dati può essere costoso in termini di tempo e denaro.
+
+* _Raccolta dati distorta._ Le cartelle cliniche elettroniche sono un'enorme fonte di dati per le applicazioni sanitarie basate su ML. A parte i problemi di rappresentazione dei sottogruppi, i dati stessi possono essere raccolti in modo distorto. Ad esempio, il linguaggio negativo ("non aderente", "non disposto") è utilizzato in modo sproporzionato sui pazienti neri [@himmelstein2022examination].
+
+Concludiamo con diverse strategie aggiuntive per mantenere la qualità dei dati. Innanzitutto, è fondamentale promuovere una comprensione più approfondita dei dati. Ciò può essere ottenuto tramite l'implementazione di etichette e misure standardizzate della qualità dei dati, come nel [Data Nutrition Project](https://datanutrition.org/). Collaborare con le organizzazioni responsabili della raccolta dei dati aiuta a garantire che i dati vengano interpretati correttamente. In secondo luogo, è importante impiegare strumenti efficaci per l'esplorazione dei dati. Le tecniche di visualizzazione e le analisi statistiche possono rivelare problemi con i dati. Infine, stabilire un ciclo di feedback all'interno della pipeline ML è essenziale per comprendere le implicazioni reali dei dati. Le metriche, come le misure di equità, ci consentono di definire la "qualità dei dati" nel contesto dell'applicazione downstream; il miglioramento dell'equità può migliorare direttamente la qualità delle previsioni che gli utenti finali ricevono.
+
+### Bilanciamento di Accuratezza e Altri Obiettivi
+
+I modelli di apprendimento automatico vengono spesso valutati solo in base all'accuratezza, ma questa singola metrica non riesce a catturare completamente le prestazioni del modello e i compromessi per i sistemi di intelligenza artificiale responsabili. Altre dimensioni etiche, come correttezza, robustezza, interpretabilità e privacy, possono competere con la pura accuratezza predittiva durante lo sviluppo del modello. Ad esempio, modelli intrinsecamente interpretabili come piccoli alberi decisionali o classificatori lineari con funzionalità semplificate barattano intenzionalmente una certa accuratezza per la trasparenza nel comportamento del modello e nelle previsioni. Mentre questi modelli semplificati raggiungono una minore accuratezza non catturando tutta la complessità nel set di dati, una migliore interpretabilità crea fiducia consentendo l'analisi diretta da parte di professionisti umani.
+
+Inoltre, alcune tecniche pensate per migliorare la robustezza avversaria, come esempi di training avversario o riduzione della dimensionalità, possono degradare l'accuratezza dei dati di convalida puliti. In applicazioni sensibili come l'assistenza sanitaria, concentrarsi strettamente sull'accuratezza all'avanguardia comporta rischi etici se consente ai modelli di fare più affidamento su correlazioni spurie che introducono distorsioni o utilizzano ragionamenti opachi. Pertanto, gli obiettivi di prestazione appropriati dipendono in larga misura dal contesto socio-tecnico.
+
+Metodologie come [Value Sensitive Design](https://vsdesign.org/) forniscono framework per valutare formalmente le priorità di vari stakeholder all'interno del sistema di distribuzione nel mondo reale. Ciò spiega le tensioni tra valori quali accuratezza, interpretabilità ed equità, che possono quindi orientare decisioni di compromesso responsabili. Per un sistema di diagnosi medica, raggiungere la massima accuratezza potrebbe non essere l'obiettivo unico: migliorare la trasparenza per creare fiducia nei professionisti o ridurre i pregiudizi verso i gruppi minoritari potrebbe giustificare piccole perdite di accuratezza. L'analisi del contesto socio-tecnico è fondamentale per stabilire questi obiettivi.
+
+Adottando una visione olistica, possiamo bilanciare responsabilmente l'accuratezza con altri obiettivi etici per il successo del modello. Il monitoraggio continuo delle prestazioni lungo più dimensioni è fondamentale man mano che il sistema si evolve dopo la distribuzione.
+
+## Considerazioni Etiche Nella Progettazione dell'IA
+
+Dobbiamo discutere almeno di alcune delle numerose questioni etiche in gioco nella progettazione e nell'applicazione di sistemi di intelligenza artificiale e di diversi framework per affrontare tali questioni, tra cui quelle relative alla sicurezza dell'intelligenza artificiale, all'interazione uomo-computer (HCI) e alla scienza, tecnologia e società (STS).
+
+### Sicurezza dell'Intelligenza Artificiale e Allineamento dei Valori
+
+Nel 1960, Norbert Weiner scrisse: "'se utilizziamo, per raggiungere i nostri scopi, un'agenzia meccanica con il cui funzionamento non possiamo interferire efficacemente... faremmo meglio ad essere abbastanza sicuri che lo scopo attribuito alla macchina sia lo scopo che desideriamo" [@wiener1960some].
+
+Negli ultimi anni, poiché le capacità dei modelli di deep learning hanno raggiunto, e talvolta persino superato, le capacità umane, la questione della creazione di sistemi di intelligenza artificiale che agiscano in accordo con le intenzioni umane invece di perseguire obiettivi non intenzionali o indesiderati è diventata fonte di preoccupazione [@russell2021human]. Nel campo della sicurezza dell'IA, un obiettivo particolare riguarda "l'allineamento dei valori", ovvero il problema di come codificare lo scopo "giusto" nelle macchine [Intelligenza artificiale compatibile con gli esseri umani](https://people.eecs.berkeley.edu/~russell/papers/mi19book-hcai.pdf). L'attuale ricerca sull'IA presuppone che conosciamo gli obiettivi che vogliamo raggiungere e "studia la capacità di raggiungere gli obiettivi, non la progettazione di tali obiettivi".
+
+Tuttavia, i complessi contesti di distribuzione nel mondo reale rendono difficile definire esplicitamente "lo scopo giusto" per le macchine, richiedendo quadri per l'impostazione di obiettivi responsabili ed etici. Metodologie come [Value Sensitive Design](https://vsdesign.org/) forniscono meccanismi formali per far emergere le tensioni tra i valori e le priorità delle parti interessate.
+
+Adottando una visione socio-tecnica olistica, possiamo garantire meglio che i sistemi intelligenti perseguano obiettivi che si allineano con ampie intenzioni umane anziché massimizzare metriche ristrette come la sola accuratezza. Raggiungere questo obiettivo nella pratica rimane una questione di ricerca aperta e critica man mano che le capacità dell'IA avanzano rapidamente.
+
+L'assenza di questo allineamento può portare a diversi problemi di sicurezza dell'IA, come documentato in una varietà di [modelli di deep learning](https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/). Una caratteristica comune dei sistemi che ottimizzano per un obiettivo è che le variabili non direttamente incluse nell'obiettivo possono essere impostate su valori estremi per aiutare a ottimizzare per quell'obiettivo, portando a problemi caratterizzati come gioco di specifiche, hacking di ricompensa, ecc., nel "reinforcement learning (RL)" [apprendimento per rinforzo].
+
+Negli ultimi anni, un'implementazione particolarmente popolare di RL è stata quella dei modelli pre-addestrati utilizzando apprendimento auto-supervisionato e "Reinforcement Learning From Human Feedback (RLHF)" [apprendimento per rinforzo fine-tuned da feedback umano] [@christiano2017deep]. Ngo 2022 [@ngo2022alignment] sostiene che premiando i modelli per apparire innocui ed etici e massimizzando al contempo i risultati utili, RLHF potrebbe incoraggiare l'emergere di tre proprietà problematiche: hacking della ricompensa consapevole della situazione, in cui le politiche sfruttano la fallibilità umana per ottenere un'elevata ricompensa, obiettivi rappresentati internamente non allineati che si generalizzano oltre la distribuzione di messa a punto RLHF e strategie di ricerca del potere.
+
+Allo stesso modo, @amodei2016concrete delinea sei problemi concreti per la sicurezza dell'IA, tra cui evitare effetti collaterali negativi, evitare hacking della ricompensa, supervisione scalabile per aspetti dell'obiettivo che sono troppo costosi per essere valutati frequentemente durante il training, strategie di esplorazione sicure che incoraggiano la creatività prevenendo al contempo i danni e robustezza allo spostamento distributivo in ambienti di test invisibili.
+
+### Sistemi Autonomi e Controllo [e Fiducia]
+
+Le conseguenze dei sistemi autonomi che agiscono indipendentemente dalla supervisione umana e spesso al di fuori del giudizio umano sono state ampiamente documentate in diversi settori e casi d'uso. Più di recente, il Dipartimento dei veicoli a motore della California ha sospeso i permessi di distribuzione e collaudo di Cruise per i suoi veicoli autonomi, citando ["rischi irragionevoli per la sicurezza pubblica"](https://www.cnbc.com/2023/10/24/california-dmv-suspends-cruises-self-driving-car-permits.html). Uno di questi [incidenti](https://www.cnbc.com/2023/10/17/cruise-under-nhtsa-probe-into-autonomous-driving-pedestrian-injuries.html) si è verificato quando un veicolo ha colpito un pedone che stava attraversando le strisce pedonali dopo che il semaforo era diventato verde e al veicolo è stato permesso di procedere. Nel 2018, un pedone che attraversava la strada con la sua bicicletta è morto quando un'auto Uber a guida autonoma, che operava in modalità autonoma, [non è riuscita a classificare accuratamente il suo corpo in movimento come un oggetto da evitare](https://www.bbc.com/news/technology-54175359).
+
+Anche i sistemi autonomi oltre ai veicoli a guida autonoma sono suscettibili a tali problemi, con conseguenze potenzialmente più gravi, poiché i droni alimentati da remoto stanno già [rimodellando la guerra](https://www.reuters.com/technology/human-machine-teams-driven-by-ai-are-about-reshape-warfare-2023-09-08/). Sebbene tali incidenti sollevino importanti questioni etiche su [chi dovrebbe essere ritenuto responsabile](https://www.cigionline.org/articles/who-responsible-when-autonomous-systems-fail/) quando questi sistemi falliscono, evidenziano anche le sfide tecniche nel dare il pieno controllo di attività complesse e reali alle macchine.
+
+In sostanza, c'è una tensione tra autonomia umana e delle macchine. Le discipline ingegneristiche e informatiche hanno teso a concentrarsi sull'autonomia delle macchine. Ad esempio, a partire dal 2019, una ricerca della parola "autonomia" nella Digital Library dell'Association for Computing Machinery (ACM) rivela che dei 100 articoli più citati, il 90% riguarda l'autonomia delle macchine [@calvo2020supporting]. Nel tentativo di costruire sistemi a beneficio dell'umanità, queste discipline hanno assunto, senza dubbio, l'aumento della produttività, dell'efficienza e dell'automazione come strategie primarie per il beneficio dell'umanità.
+
+Questi obiettivi pongono l'automazione delle macchine in prima linea, spesso a spese dell'uomo. Questo approccio soffre di sfide intrinseche, come notato fin dai primi giorni dell'IA attraverso il "Frame problem" [specifica degli effetti] e il "qualification problem" [qualificazione delle precondizioni] (cfr. http://www.diag.uniroma1.it/~nardi/Didattica/RC/lezioni/sitcalc-1.pdf), che formalizza l'osservazione che è impossibile specificare tutte le precondizioni necessarie per il successo di un'azione nel mondo reale [@mccarthy1981epistemological].
+
+Queste limitazioni logiche hanno dato origine ad approcci matematici come la "Responsibility-sensitive safety (RSS)" [sicurezza sensibile alla responsabilità] [@shalev2017formal], che mira a scomporre l'obiettivo finale di un sistema di guida automatizzato (vale a dire la sicurezza) in condizioni concrete e verificabili che possono essere rigorosamente formulate in termini matematici. L'obiettivo dell'RSS è che tali norme di sicurezza garantiscano la sicurezza del "Automated Driving System (ADS)" [sistema di guida autonoma] nella rigorosa forma di dimostrazione matematica. Tuttavia, tali approcci tendono a utilizzare l'automazione per affrontare i problemi dell'automazione e sono suscettibili a molti degli stessi problemi.
+
+Un altro approccio per combattere questi problemi è concentrarsi sulla progettazione "human-centered" di sistemi interattivi che incorporano il controllo umano. Il design sensibile al valore [@friedman1996value] ha descritto tre fattori di progettazione chiave per un'interfaccia utente che hanno un impatto sull'autonomia, tra cui capacità del sistema, complessità, rappresentazione errata e fluidità. Un modello più recente, chiamato METUX (A Model for Motivation, Engagement, and Thriving in the User Experience), sfrutta le intuizioni della "Self-determination Theory (SDT)" in psicologia per identificare sei sfere distinte dell'esperienza tecnologica che contribuiscono ai sistemi di progettazione che promuovono il benessere e la prosperità umana [@peters2018designing]. SDT definisce l'autonomia come agire in base ai propri obiettivi e valori, il che è distinto dall'uso dell'autonomia come semplice sinonimo di indipendenza o di controllo [@ryan2000self].
+
+@calvo2020supporting elabora METUX e le sue sei "sfere di esperienza tecnologica" nel contesto dei sistemi di raccomandazione AI. Propongono queste sfere (Adozione, Interfaccia, Attività, Comportamento, Vita e Società) come un modo per organizzare il pensiero e la valutazione della progettazione tecnologica al fine di catturare in modo appropriato gli impatti contraddittori e a valle sull'autonomia umana quando interagisce con i sistemi AI.
+
+### Impatti Economici su Posti di Lavoro, Competenze, Salari
+
+Una delle principali preoccupazioni dell'attuale ascesa delle tecnologie AI è la disoccupazione diffusa. Con l'espansione delle capacità dei sistemi AI, molti temono che queste tecnologie causeranno una perdita assoluta di posti di lavoro, poiché sostituiranno i lavoratori attuali e supereranno ruoli occupazionali alternativi in tutti i settori. Tuttavia, il cambiamento dei panorami economici per mano dell'automazione non è una novità e, storicamente, si è scoperto che riflette pattern di _spostamento_ piuttosto che di sostituzione [@shneiderman2022human]---Capitolo 4. In particolare, l'automazione di solito riduce i costi e aumenta la qualità, aumentando notevolmente l'accesso e la domanda. La necessità di servire questi mercati in crescita spinge la produzione, creando nuovi posti di lavoro.
+
+Inoltre, gli studi hanno scoperto che i tentativi di raggiungere un'automazione "lights-out", ovvero un'automazione produttiva e flessibile con un numero minimo di lavoratori umani, non hanno avuto successo. I tentativi di farlo hanno portato a quella che la task force del MIT Work of the Future ha definito ["automazione a somma zero"](https://hbr.org/2023/03/a-smarter-strategy-for-using-robots), in cui la flessibilità dei processi viene sacrificata per aumentare la produttività.
+
+Al contrario, la task force propone un approccio di "automazione a somma positiva" in cui la flessibilità viene aumentata progettando una tecnologia che incorpora strategicamente gli esseri umani dove sono molto necessari, rendendo più facile per i dipendenti della linea addestrare e correggere i robot, utilizzando un approccio bottom-up per identificare quali attività dovrebbero essere automatizzate; e scegliendo le giuste metriche per misurare il successo (vedi [Work of the Future](https://workofthefuture-mit-edu.ezp-prod1.hul.harvard.edu/wp-content/uploads/2021/01/2020-Final-Report4.pdf) del MIT).
+
+Tuttavia, l'ottimismo delle prospettive di alto livello non esclude danni individuali, specialmente per coloro le cui competenze e lavori saranno resi obsoleti dall'automazione. La pressione pubblica e legislativa, così come gli sforzi di responsabilità sociale delle aziende, dovranno essere diretti alla creazione di politiche che condividano i vantaggi dell'automazione con i lavoratori e si traducano in salari minimi e benefici più elevati.
+
+### Comunicazione Scientifica e Alfabetizzazione IA
+
+Un sondaggio del 1993 sulle convinzioni di 3000 adulti nordamericani sulla "macchina pensante elettronica" ha rivelato due prospettive principali del primo computer: la prospettiva dello "strumento utile dell'uomo" e la prospettiva della "macchina pensante fantastica". Gli atteggiamenti che contribuiscono alla visione della "macchina pensante fantastica" in questo e altri studi hanno rivelato una caratterizzazione dei computer come "cervelli intelligenti, più intelligenti delle persone, illimitati, veloci, misteriosi e spaventosi" [@martin1993myth]. Questi timori evidenziano una componente facilmente trascurata dell'IA responsabile, specialmente in mezzo alla corsa alla commercializzazione di tali tecnologie: la comunicazione scientifica che comunica accuratamente le capacità _e_ le limitazioni di questi sistemi, fornendo al contempo trasparenza sui limiti della conoscenza degli esperti su questi sistemi.
+
+Man mano che le capacità dei sistemi di IA si espandono oltre la comprensione della maggior parte delle persone, c'è una tendenza naturale a presumere i tipi di mondi apocalittici dipinti dai nostri media. Ciò è dovuto in parte all'apparente difficoltà di assimilare informazioni scientifiche, persino in culture tecnologicamente avanzate, che porta i prodotti della scienza a essere percepiti come magia, "comprensibili solo in termini di ciò che hanno fatto, non di come hanno funzionato" [@handlin1965science].
+
+Mentre le aziende tecnologiche dovrebbero essere ritenute responsabili per aver limitato le affermazioni grandiose e non essere cadute in cicli di clamore, la ricerca che studia la comunicazione scientifica, in particolare per quanto riguarda l'intelligenza artificiale (generativa), sarà utile anche per tracciare e correggere la comprensione pubblica di queste tecnologie. Un'analisi del database accademico Scopus ha scoperto che tale ricerca è scarsa, con solo una manciata di articoli che menzionano sia "comunicazione scientifica" che "intelligenza artificiale" [@schafer2023notorious].
+
+La ricerca che espone le prospettive, i "frame" e le immagini del futuro promosse da istituzioni accademiche, aziende tecnologiche, stakeholder, enti regolatori, giornalisti, ONG e altri aiuterà anche a identificare potenziali lacune nell'alfabetizzazione AI tra gli adulti [@lindgren2023handbook]. Una maggiore attenzione all'alfabetizzazione AI da parte di tutti gli stakeholder sarà importante per aiutare le persone le cui competenze sono rese obsolete dall'automazione AI [@ng2021ai].
+
+_"Ma anche coloro che non acquisiscono mai quella comprensione hanno bisogno di rassicurazioni sul fatto che esista una connessione tra gli obiettivi della scienza e il loro benessere e, soprattutto, che lo scienziato non sia un uomo completamente a parte, ma uno che condivide parte del loro valore."_ (Handlin, 1965)
+
+## Conclusione
+
+Un'intelligenza artificiale responsabile è fondamentale poiché i sistemi di apprendimento automatico esercitano una crescente influenza nei settori sanitario, lavorativo, finanziario e della giustizia penale. Mentre l'intelligenza artificiale promette immensi benefici, i modelli progettati in modo sconsiderato rischiano di perpetrare danni attraverso pregiudizi, violazioni della privacy, comportamenti indesiderati e altre insidie.
+
+Mantenere i principi di equità, spiegabilità, responsabilità, sicurezza e trasparenza consente lo sviluppo di un'intelligenza artificiale etica allineata ai valori umani. Tuttavia, l'implementazione di questi principi comporta il superamento di complesse sfide tecniche e sociali relative al rilevamento di pregiudizi nei set di dati, alla scelta di appropriati compromessi nei modelli, alla protezione di dati di training di qualità e altro ancora. Framework come la progettazione sensibile al valore guidano il bilanciamento dell'accuratezza rispetto ad altri obiettivi in base alle esigenze delle parti interessate.
+
+Guardando al futuro, il progresso dell'intelligenza artificiale responsabile richiede una ricerca continua e l'impegno del settore. Sono necessari benchmark più standardizzati per confrontare pregiudizi e robustezza dei modelli. Man mano che il TinyML personalizzato si espande, abilitare una trasparenza efficiente e il controllo dell'utente per i dispositivi edge giustifica l'attenzione. Le strutture e le politiche di incentivazione riviste devono incoraggiare uno sviluppo deliberato ed etico prima di un'implementazione sconsiderata. L'istruzione sulla cultura dell'intelligenza artificiale e sui suoi limiti contribuirà ulteriormente alla comprensione pubblica.
+
+I metodi responsabili sottolineano che, mentre l'apprendimento automatico offre un potenziale immenso, un'applicazione sconsiderata rischia di avere conseguenze negative. La collaborazione interdisciplinare e la progettazione incentrata sull'uomo sono essenziali affinché l'intelligenza artificiale possa promuovere un ampio beneficio sociale. Il percorso da seguire non risiede in una checklist arbitraria, ma in un impegno costante per comprendere e sostenere la nostra responsabilità etica a ogni passo. Intraprendendo un'azione coscienziosa, la comunità dell'apprendimento automatico può guidare l'intelligenza artificiale verso l'emancipazione di tutte le persone in modo equo e sicuro.
+
+## Risorse {#sec-responsible-ai-resource}
+
+Ecco un elenco curato di risorse per supportare studenti e insegnanti nei loro percorsi di apprendimento e insegnamento. Stiamo lavorando costantemente per espandere questa raccolta e presto aggiungeremo nuovi esercizi.
+
+:::{.callout-note collapse="false"}
+
+#### Slide
+
+Queste slide sono uno strumento prezioso per gli insegnanti per tenere lezioni e per gli studenti per rivedere il materiale secondo il proprio ritmo. Incoraggiamo studenti e docenti a sfruttare queste slide per migliorare la loro comprensione e facilitare un trasferimento efficace delle conoscenze.
+
+* [What am I building? What is the goal?](https://docs.google.com/presentation/d/1Z9VpUKGOOfUIg6x04aXLVYl-9QoablElOlxhTLkAVno/edit?usp=drive_link&resourcekey=0-Nr9tvJ9KGgaL44O_iJpe4A)
+
+* [Who is the audience?](https://docs.google.com/presentation/d/1IwIXrTQNf6MLlXKV-qOuafZhWS9saTxpY2uawQUHKfg/edit?usp=drive_link&resourcekey=0-Jc1kfKFb4OOhs919kyR2mA)
+
+* [What are the consequences?](https://docs.google.com/presentation/d/1UDmrEZAJtH5LkHA_mDuFovOh6kam9FnC3uBAAah4RJo/edit?usp=drive_link&resourcekey=0-HFb4nRGGNRxJHz8wHXpgtg)
+
+* [Responsible Data Collection.](https://docs.google.com/presentation/d/1vcmuhLVNFT2asKSCSGh_Ix9ht0mJZxMii8MufEMQhFA/edit?resourcekey=0-_pYLcW5aF3p3Bvud0PPQNg#slide=id.ga4ca29c69e_0_195)
+
+:::
+
+:::{.callout-important collapse="false"}
+
+#### Video
+
+* @vid-fakeobama
+
+:::
+
+:::{.callout-caution collapse="false"}
+
+#### Esercizi
+
+Per rafforzare i concetti trattati in questo capitolo, abbiamo curato una serie di esercizi che sfidano gli studenti ad applicare le proprie conoscenze e ad approfondire la propria comprensione.
+
+* _Prossimamente._
+:::
+
+:::{.callout-warning collapse="false"}
+
+#### Laboratori
+
+Oltre agli esercizi, offriamo una serie di laboratori pratici che consentono agli studenti di acquisire esperienza pratica con le tecnologie di intelligenza artificiale embedded. Questi laboratori forniscono una guida passo dopo passo, consentendo agli studenti di sviluppare le proprie competenze in un ambiente strutturato e di supporto. Siamo lieti di annunciare che presto saranno disponibili nuovi laboratori, che arricchiranno ulteriormente l'esperienza di apprendimento.
+
+* _Prossimamente._
+:::
+
+

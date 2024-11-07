@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.56">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5&nbsp; Data Engineering – Machine Learning Systems</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../contents/core/frameworks/frameworks.it.html" rel="next">
+<link href="../../../contents/core/workflow/workflow.it.html" rel="prev">
+<link href="../../../favicon.png" rel="icon" type="image/png">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "~",
+    "/"
+  ],
+  "language": {
+    "search-no-results-text": "Nessun risultato",
+    "search-matching-documents-text": "documenti trovati",
+    "search-copy-link-title": "Copiare il link nella ricerca",
+    "search-hide-matches-text": "Nascondere i risultati aggiuntivi",
+    "search-more-match-text": "ci sono altri risultati in questo documento",
+    "search-more-matches-text": "ulteriori risultati in questo documento",
+    "search-clear-button-title": "Pulire",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancellare",
+    "search-submit-button-title": "Inviare",
+    "search-label": "Ricerca"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-M21L0CBCVN"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-M21L0CBCVN', { 'anonymize_ip': true});
+</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-M21L0CBCVN"></script>
+<script src="../../../scripts/ai_menu/dist/bundle.js" defer=""></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">Machine Learning Systems</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-wide tools-end">
+    <a href="https://github.com/harvard-edge/cs249r_book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="../../../Machine-Learning-Systems.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://www.facebook.com/sharer/sharer.php?u=|url|">
+              <i class="bi bi-facebook pe-1"></i>
+            Facebook
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Attiva/disattiva la modalità oscura"><i class="bi"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Attiva/disattiva la modalità lettore">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Attiva/disattiva la barra laterale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../contents/core/data_engineering/data_engineering.it.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data Engineering</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Attiva/disattiva la barra laterale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Ricerca" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Ricerca"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefazione</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/copyright.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Copyright</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/dedication.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dedica</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/acknowledgements/acknowledgements.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ringraziamenti</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/contributors.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Collaboratori e Ringraziamenti</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/about.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Informazioni sul Libro</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/introduction/introduction.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduzione</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/ml_systems/ml_systems.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Sistemi di ML</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/dl_primer/dl_primer.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Avvio al Deep Learning</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/workflow/workflow.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Workflow dell’IA</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/data_engineering/data_engineering.it.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data Engineering</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/frameworks/frameworks.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Framework di IA</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/training/training.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Addestramento dell’IA</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/efficient_ai/efficient_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">IA Efficiente</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/optimizations/optimizations.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Ottimizzazioni dei Modelli</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/hw_acceleration/hw_acceleration.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Accelerazione IA</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/benchmarking/benchmarking.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Benchmarking dell’IA</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/ondevice_learning/ondevice_learning.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Apprendimento On-Device</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/ops/ops.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Operazioni di ML</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/privacy_security/privacy_security.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Sicurezza e Privacy</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/responsible_ai/responsible_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">IA Responsabile</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/sustainable_ai/sustainable_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">IA Sostenibile</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/robust_ai/robust_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">IA Robusta</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/generative_ai/generative_ai.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">IA Generativa</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/ai_for_good/ai_for_good.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">AI for Good</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/core/conclusion/conclusion.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Conclusione</span></span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../contents/labs/labs.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LABORATORI</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/part_LABS.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">LABORATORI</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/overview.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Panoramica</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/getting_started.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Guida Introduttiva</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../contents/labs/arduino/nicla_vision/nicla_vision.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Nicla Vision</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/arduino/nicla_vision/part_nicla_vision.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">part_nicla_vision.it.html</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/arduino/nicla_vision/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/arduino/nicla_vision/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/arduino/nicla_vision/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/arduino/nicla_vision/kws/kws.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keyword Spotting (KWS)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/arduino/nicla_vision/motion_classification/motion_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione del Movimento e Rilevamento delle Anomalie</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../contents/labs/seeed/xiao_esp32s3/xiao_esp32s3.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">XIAO ESP32S3</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/seeed/xiao_esp32s3/part_xiao_esp32s3.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">part_xiao_esp32s3.it.html</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/seeed/xiao_esp32s3/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/seeed/xiao_esp32s3/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/seeed/xiao_esp32s3/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/seeed/xiao_esp32s3/kws/kws.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keyword Spotting (KWS)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/seeed/xiao_esp32s3/motion_classification/motion_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione del Movimento e Rilevamento delle Anomalie</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../contents/labs/raspi/raspi.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Raspberry Pi</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/raspi/part_raspi.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">part_raspi.it.html</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/raspi/setup/setup.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Setup</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/raspi/image_classification/image_classification.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Classificazione delle Immagini</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/raspi/object_detection/object_detection.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Rilevamento degli Oggetti</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/raspi/llm/llm.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Small Language Models (SLM)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../contents/labs/shared/shared.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lab Condivisi</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/shared/part_shared.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">part_shared.it.html</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/shared/kws_feature_eng/kws_feature_eng.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">KWS Feature Engineering</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../contents/labs/shared/dsp_spectral_features_block/dsp_spectral_features_block.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Blocco delle Feature Spettrali DSP</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">RIFERIMENTI</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Attiva/disattiva sezione">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../references.it.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Riferimenti</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Indice</h2>
+   
+  <ul>
+  <li><a href="#introduzione" id="toc-introduzione" class="nav-link active" data-scroll-target="#introduzione"><span class="header-section-number">5.1</span> Introduzione</a></li>
+  <li><a href="#definizione-del-problema" id="toc-definizione-del-problema" class="nav-link" data-scroll-target="#definizione-del-problema"><span class="header-section-number">5.2</span> Definizione del Problema</a></li>
+  <li><a href="#ricerca-dei-dati." id="toc-ricerca-dei-dati." class="nav-link" data-scroll-target="#ricerca-dei-dati."><span class="header-section-number">5.3</span> Ricerca dei Dati.</a>
+  <ul>
+  <li><a href="#dataset-preesistenti" id="toc-dataset-preesistenti" class="nav-link" data-scroll-target="#dataset-preesistenti"><span class="header-section-number">5.3.1</span> Dataset preesistenti</a></li>
+  <li><a href="#web-scraping" id="toc-web-scraping" class="nav-link" data-scroll-target="#web-scraping"><span class="header-section-number">5.3.2</span> Web Scraping</a></li>
+  <li><a href="#crowdsourcing" id="toc-crowdsourcing" class="nav-link" data-scroll-target="#crowdsourcing"><span class="header-section-number">5.3.3</span> Crowdsourcing</a></li>
+  <li><a href="#dati-sintetici" id="toc-dati-sintetici" class="nav-link" data-scroll-target="#dati-sintetici"><span class="header-section-number">5.3.4</span> Dati Sintetici</a></li>
+  </ul></li>
+  <li><a href="#archiviazione-dati" id="toc-archiviazione-dati" class="nav-link" data-scroll-target="#archiviazione-dati"><span class="header-section-number">5.4</span> Archiviazione Dati</a></li>
+  <li><a href="#elaborazione-dei-dati" id="toc-elaborazione-dei-dati" class="nav-link" data-scroll-target="#elaborazione-dei-dati"><span class="header-section-number">5.5</span> Elaborazione dei Dati</a></li>
+  <li><a href="#etichettatura-dei-dati" id="toc-etichettatura-dei-dati" class="nav-link" data-scroll-target="#etichettatura-dei-dati"><span class="header-section-number">5.6</span> Etichettatura dei Dati</a>
+  <ul>
+  <li><a href="#tipi-di-etichette" id="toc-tipi-di-etichette" class="nav-link" data-scroll-target="#tipi-di-etichette"><span class="header-section-number">5.6.1</span> Tipi di Etichette</a></li>
+  <li><a href="#metodi-di-annotazione" id="toc-metodi-di-annotazione" class="nav-link" data-scroll-target="#metodi-di-annotazione"><span class="header-section-number">5.6.2</span> Metodi di Annotazione</a></li>
+  <li><a href="#garantire-la-qualità-delletichetta" id="toc-garantire-la-qualità-delletichetta" class="nav-link" data-scroll-target="#garantire-la-qualità-delletichetta"><span class="header-section-number">5.6.3</span> Garantire la Qualità dell’Etichetta</a></li>
+  <li><a href="#annotazione-assistita-dallintelligenza-artificiale" id="toc-annotazione-assistita-dallintelligenza-artificiale" class="nav-link" data-scroll-target="#annotazione-assistita-dallintelligenza-artificiale"><span class="header-section-number">5.6.4</span> Annotazione assistita dall’intelligenza artificiale</a></li>
+  </ul></li>
+  <li><a href="#controllo-della-versione-dei-dati" id="toc-controllo-della-versione-dei-dati" class="nav-link" data-scroll-target="#controllo-della-versione-dei-dati"><span class="header-section-number">5.7</span> Controllo della Versione dei Dati</a></li>
+  <li><a href="#ottimizzazione-dei-dati-per-lia-embedded" id="toc-ottimizzazione-dei-dati-per-lia-embedded" class="nav-link" data-scroll-target="#ottimizzazione-dei-dati-per-lia-embedded"><span class="header-section-number">5.8</span> Ottimizzazione dei Dati per l’IA Embedded</a></li>
+  <li><a href="#sec-data-transparency" id="toc-sec-data-transparency" class="nav-link" data-scroll-target="#sec-data-transparency"><span class="header-section-number">5.9</span> Trasparenza dei Dati</a></li>
+  <li><a href="#licenze" id="toc-licenze" class="nav-link" data-scroll-target="#licenze"><span class="header-section-number">5.10</span> Licenze</a></li>
+  <li><a href="#conclusione" id="toc-conclusione" class="nav-link" data-scroll-target="#conclusione"><span class="header-section-number">5.11</span> Conclusione</a></li>
+  <li><a href="#sec-data-engineering-resource" id="toc-sec-data-engineering-resource" class="nav-link" data-scroll-target="#sec-data-engineering-resource"><span class="header-section-number">5.12</span> Risorse</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/harvard-edge/cs249r_book/edit/dev/contents/core/data_engineering/data_engineering.it.qmd" class="toc-action"><i class="bi bi-github"></i>Modifica questa pagina</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/issues/new" class="toc-action"><i class="bi empty"></i>Segnala un problema</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/blob/dev/contents/core/data_engineering/data_engineering.it.qmd" class="toc-action"><i class="bi empty"></i>Mostra il codice</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-data_engineering" class="quarto-section-identifier"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Data Engineering</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Risorse: <a href="#sec-data-engineering-resource">Slide</a>, <a href="#sec-data-engineering-resource">Video</a>, <a href="#sec-data-engineering-resource">Esercizi</a>, <a href="#sec-data-engineering-resource">Laboratori</a></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/png/cover_data_engineering.png" class="img-fluid figure-img"></p>
+<figcaption><em>DALL·E 3 Prompt: Creare un’illustrazione rettangolare che visualizzi il concetto di data engineering. Includere elementi quali fonti di dati grezzi, pipeline di elaborazione dati, sistemi di archiviazione e set di dati raffinati. Mostrare come i dati grezzi vengono trasformati tramite pulizia, elaborazione e archiviazione per diventare informazioni preziose che possono essere analizzate e utilizzate per il processo decisionale.</em></figcaption>
+</figure>
+</div>
+<p>I dati sono la linfa vitale dei sistemi di intelligenza artificiale. Senza buoni dati, anche gli algoritmi di apprendimento automatico più avanzati non avranno successo. Tuttavia, i modelli TinyML operano su dispositivi con potenza di elaborazione e memoria limitate. Questa sezione esplora le complessità della creazione di set di dati di alta qualità per alimentare i nostri modelli di intelligenza artificiale. Il data engineering implica la raccolta, l’archiviazione, l’elaborazione e la gestione dei dati per addestrare modelli di apprendimento automatico.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Obiettivi dell’Apprendimento
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>Comprendere l’importanza di definire chiaramente il problema e gli obiettivi quando si intraprende un progetto di ML.</p></li>
+<li><p>Riconoscere varie tecniche di sourcing dei dati, come web scraping, crowdsourcing e generazione di dati sintetici, insieme ai loro vantaggi e limiti.</p></li>
+<li><p>Comprendere la necessità di un’etichettatura dei dati ponderata, utilizzando approcci manuali o assistiti dall’intelligenza artificiale, per creare set di dati di training di alta qualità.</p></li>
+<li><p>Imparare brevemente diversi metodi per archiviare e gestire i dati, come database, data warehouse e data lake.</p></li>
+<li><p>Comprendere il ruolo della trasparenza attraverso la documentazione di metadati e set di dati e il monitoraggio della provenienza dei dati per facilitare l’etica, l’audit e la riproducibilità.</p></li>
+<li><p>Comprendere come i protocolli di licenza regolano l’accesso e l’utilizzo dei dati legali, richiedendo un’attenta conformità.</p></li>
+<li><p>Riconoscere le principali sfide nell’ingegneria dei dati, tra cui rischi per la privacy, lacune di rappresentazione, restrizioni legali sull’accesso ai dati e bilanciamento delle priorità concorrenti.</p></li>
+</ul>
+</div>
+</div>
+<section id="introduzione" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="introduzione"><span class="header-section-number">5.1</span> Introduzione</h2>
+<p>Si immagini un mondo in cui l’intelligenza artificiale può diagnosticare malattie con una precisione senza precedenti, ma solo se i dati utilizzati per addestrarla sono imparziali e affidabili. È qui che entra in gioco il “data engineering” [ingegneria dei dati]. Sebbene oltre il 90% dei dati mondiali sia stato creato negli ultimi due decenni, questa enorme quantità di informazioni è utile solo per creare modelli di intelligenza artificiale efficaci con un’elaborazione e una preparazione adeguate. L’ingegneria dei dati colma questa lacuna trasformando i dati grezzi in un formato di alta qualità che alimenta l’innovazione dell’intelligenza artificiale. Nel mondo odierno basato sui dati, proteggere la privacy degli utenti è fondamentale. Che siano obbligatorie per legge o guidate dalle preoccupazioni degli utenti, le tecniche di anonimizzazione come la privacy differenziale e l’aggregazione sono fondamentali per mitigare i rischi per la privacy. Tuttavia, un’implementazione attenta è fondamentale per garantire che questi metodi non compromettano l’utilità dei dati. I creatori di set di dati affrontano complesse sfide di privacy e rappresentazione quando creano dati di addestramento di alta qualità, in particolare per domini sensibili come l’assistenza sanitaria. Dal punto di vista legale, i creatori potrebbero dover rimuovere identificatori diretti come nomi ed età. Anche senza obblighi legali, la rimozione di tali informazioni può aiutare a creare fiducia negli utenti. Tuttavia, un’eccessiva anonimizzazione può compromettere l’utilità del set di dati. Tecniche come la privacy differenziale<span class="math inline">\(^{1}\)</span>, l’aggregazione e la riduzione dei dettagli forniscono alternative per bilanciare privacy e utilità, ma hanno degli svantaggi. I creatori devono trovare un equilibrio ponderato in base al caso d’uso.</p>
+<p>Sebbene la privacy sia fondamentale, garantire modelli di intelligenza artificiale equi e solidi richiede di affrontare le lacune (gap) della rappresentazione nei dati. È fondamentale ma non sufficiente garantire la diversità tra variabili individuali come genere, razza e accento. Queste combinazioni, a volte chiamate lacune (gap) di ordine superiore, possono influire in modo significativo sulle prestazioni del modello. Ad esempio, un set di dati medico potrebbe avere dati bilanciati su genere, età e diagnosi individualmente, ma non ha abbastanza casi per catturare donne anziane con una condizione specifica. Tali <a href="https://blog.google/technology/health/healthcare-ai-systems-put-people-center/">higher-order gaps</a> [lacune di ordine superiore] non sono immediatamente evidenti, ma possono influire in modo critico sulle prestazioni del modello.</p>
+<p>La creazione di dati di training utili ed etici richiede una considerazione globale dei rischi per la privacy e delle lacune di rappresentazione. Le soluzioni perfette elusive necessitano di pratiche di ingegneria dei dati coscienziose come l’anonimizzazione, l’aggregazione, il sotto-campionamento di gruppi sovrarappresentati e la generazione di dati sintetizzati per bilanciare esigenze contrastanti. Ciò facilita modelli che sono sia accurati che socialmente responsabili. La collaborazione interfunzionale e i controlli esterni possono anche rafforzare i dati di training. Le sfide sono molteplici ma superabili con uno sforzo ponderato.</p>
+<p>Iniziamo discutendo della raccolta dati: Dove reperiamo i dati e come li raccogliamo? Le opzioni spaziano dall’estrazione di dati dal web, all’accesso alle API e all’utilizzo di sensori e dispositivi IoT, fino alla conduzione di sondaggi e alla raccolta di input dagli utenti. Questi metodi riflettono pratiche del mondo reale. Successivamente, approfondiremo l’etichettatura dei dati, tenendo conto anche del coinvolgimento umano. Discuteremo i compromessi e le limitazioni dell’etichettatura umana ed esploreremo i metodi emergenti per l’etichettatura automatizzata. Successivamente, affronteremo la pulizia e la preelaborazione dei dati, un passaggio cruciale ma spesso sottovalutato nella preparazione dei dati grezzi per l’addestramento del modello di intelligenza artificiale. Segue l’aumento dei dati, una strategia per migliorare set di dati limitati generando campioni sintetici. Ciò è particolarmente pertinente per i sistemi embedded, poiché molti casi d’uso necessitano di ampi repository di dati prontamente disponibili per la cura [https://it.wikipedia.org/wiki/Data_curation]. La generazione di dati sintetici emerge come un’alternativa praticabile con vantaggi e svantaggi. Parleremo anche del versioning del dataset, sottolineando l’importanza di tracciare le modifiche dei dati nel tempo. I dati sono in continua evoluzione; quindi, è fondamentale ideare strategie per gestire e archiviare dataset espansivi. Alla fine di questa sezione, si avrà una comprensione completa dell’intera pipeline di dati, dalla raccolta all’archiviazione, essenziale per rendere operativi i sistemi di intelligenza artificiale. Intraprendiamo questo viaggio!</p>
+</section>
+<section id="definizione-del-problema" class="level2 page-columns page-full" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="definizione-del-problema"><span class="header-section-number">5.2</span> Definizione del Problema</h2>
+<p>In molti domini di machine learning, algoritmi sofisticati sono al centro dell’attenzione, mentre l’importanza fondamentale della qualità dei dati viene spesso trascurata. Questa negligenza dà origine a <a href="https://research.google/pubs/pub49953/">“Data Cascades”</a> di <span class="citation" data-cites="sambasivan2021everyone">Sambasivan et al. (<a href="#ref-sambasivan2021everyone" role="doc-biblioref">2021</a>)</span>, eventi in cui le lacune nella qualità dei dati si sommano, portando a conseguenze negative a valle come previsioni errate, cessazioni di progetti e persino potenziali danni alle comunità.</p>
+<div class="no-row-height column-margin column-container"></div><p><a href="#fig-cascades" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-cascades</span></a> illustra queste potenziali insidie nei dati in ogni fase e come influenzano l’intero processo lungo la linea. L’influenza degli errori nella raccolta dei dati è particolarmente pronunciata. Come illustrato nella figura, qualsiasi lacuna in questa fase iniziale diventerà evidente nelle fasi successive (nella valutazione e nell’implementazione del modello) e potrebbe portare a conseguenze costose, come l’abbandono dell’intero modello e il riavvio da zero. Pertanto, investire in tecniche di ingegneria dei dati fin dall’inizio ci aiuterà a rilevare gli errori in anticipo, mitigando gli effetti a cascata illustrati nella figura.</p>
+<div id="fig-cascades" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-cascades-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/png/data_engineering_cascades.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cascades-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.1: Data cascades: costi composti. Fonte: <span class="citation" data-cites="sambasivan2021everyone">Sambasivan et al. (<a href="#ref-sambasivan2021everyone" role="doc-biblioref">2021</a>)</span>.
+</figcaption>
+<div class="no-row-height column-margin column-container"><div id="ref-sambasivan2021everyone" class="csl-entry" role="listitem">
+Sambasivan, Nithya, Shivani Kapania, Hannah Highfill, Diana Akrong, Praveen Paritosh, e Lora M Aroyo. 2021. <span>«<span><span>“</span>Everyone</span> wants to do the model work, not the data work<span>”</span>: <span>Data</span> Cascades in High-Stakes <span>AI</span>»</span>. In <em>Proceedings of the 2021 CHI Conference on Human Factors in Computing Systems</em>, 1–15.
+</div></div></figure>
+</div>
+<p>Nonostante molti professionisti del ML riconoscano l’importanza dei dati, altri segnalano di dover affrontare queste “cascate”. Ciò evidenzia un problema sistemico: mentre il fascino dello sviluppo di modelli avanzati rimane, i dati spesso devono essere maggiormente apprezzati.</p>
+<p>Keyword Spotting (KWS) fornisce un esempio eccellente di TinyML in azione, come illustrato in <a href="#fig-keywords" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-keywords</span></a>. Questa tecnologia è fondamentale per le interfacce abilitate alla voce su dispositivi endpoint come gli smartphone. In genere funzionando come motori di wake-word leggeri, i sistemi KWS sono costantemente attivi, in ascolto di una frase specifica per attivare ulteriori azioni. Come illustrato nella figura, quando diciamo “OK, Google” o “Alexa”, questo avvia un processo su un microcontrollore embedded nel dispositivo. Nonostante le loro risorse limitate, questi microcontrollori svolgono un ruolo importante nel consentire interazioni vocali senza interruzioni con i dispositivi, spesso operando in ambienti con elevato rumore ambientale. L’unicità della wake-word, come mostrato nella figura, aiuta a ridurre al minimo i falsi positivi, assicurando che il sistema non venga attivato inavvertitamente.</p>
+<div id="fig-keywords" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-keywords-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/png/data_engineering_kws.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-keywords-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.2: Esempio di individuazione delle “Keyword Spotting”: interazione con Alexa. Fonte: Amazon.
+</figcaption>
+</figure>
+</div>
+<p>È importante comprendere che queste tecnologie di individuazione delle “parole chiave” non sono isolate; si integrano perfettamente in sistemi più grandi, elaborando segnali in modo continuo e gestendo al contempo un basso consumo energetico. Questi sistemi vanno oltre il semplice riconoscimento delle parole chiave, evolvendosi per facilitare diversi rilevamenti di suoni, come la rottura di un vetro. Questa evoluzione è orientata alla creazione di dispositivi intelligenti in grado di comprendere e rispondere ai comandi vocali, annunciando un futuro in cui anche gli elettrodomestici possono essere controllati tramite interazioni vocali.</p>
+<p>Creare un modello KWS affidabile è un compito complesso. Richiede una profonda comprensione dello scenario di distribuzione, che comprenda dove e come funzioneranno questi dispositivi. Ad esempio, l’efficacia di un modello KWS non riguarda solo il riconoscimento di una parola; riguarda la sua distinzione tra vari accenti e rumori di sottofondo, che si tratti di un bar affollato o del suono stridulo di una televisione in un soggiorno o in una cucina dove questi dispositivi sono comunemente presenti. Riguarda la garanzia che un sussurrato “Alexa” nel cuore della notte o un urlato “OK Google” in un mercato rumoroso vengano riconosciuti con la stessa precisione.</p>
+<p>Inoltre, molti degli attuali assistenti vocali KWS supportano un numero limitato di lingue, lasciando una parte sostanziale della diversità linguistica mondiale non rappresentata. Questa limitazione è in parte dovuta alla difficoltà di raccogliere e monetizzare i dati per le lingue parlate da popolazioni più piccole. La distribuzione “long-tail” [https://it.wikipedia.org/wiki/Coda_lunga] delle lingue implica che molte lingue hanno dati limitati, rendendo difficile lo sviluppo di tecnologie di supporto.</p>
+<p>Questo livello di accuratezza e robustezza dipende dalla disponibilità e dalla qualità dei dati, dalla capacità di etichettare correttamente i dati e dalla trasparenza dei dati per l’utente finale prima che vengano utilizzati per addestrare il modello. Tuttavia, tutto inizia con una chiara comprensione della dichiarazione o definizione del problema.</p>
+<p>In genere, in ML, la definizione del problema ha alcuni passaggi chiave:</p>
+<ol type="1">
+<li><p>Identificare chiaramente la definizione del problema</p></li>
+<li><p>Definire obiettivi chiari</p></li>
+<li><p>Stabilire un benchmark [riferimento] di successo</p></li>
+<li><p>Comprendere l’impegno/l’uso dell’utente finale</p></li>
+<li><p>Comprendere i vincoli e le limitazioni dell’implementazione</p></li>
+<li><p>Seguito infine dalla raccolta dati.</p></li>
+</ol>
+<p>Una solida base di progetto è essenziale per la sua traiettoria e il suo successo finale. Al centro di questa base c’è innanzitutto l’identificazione di un problema chiaro, come garantire che i comandi vocali nei sistemi di assistenza vocale siano riconosciuti in modo coerente in diversi ambienti. Obiettivi chiari, come la creazione di set di dati rappresentativi per scenari diversi, forniscono una direzione unificata. I benchmark, come l’accuratezza del sistema nel rilevamento delle parole chiave, offrono risultati misurabili per valutare i progressi. Il coinvolgimento delle parti interessate, dagli utenti finali agli investitori, fornisce informazioni preziose e garantisce l’allineamento con le esigenze del mercato. Inoltre, quando si esplorano ambiti come l’assistenza vocale, è importante comprendere i limiti della piattaforma. I sistemi embedded, come i microcontrollori, sono dotati di limitazioni intrinseche di potenza di elaborazione, memoria ed efficienza energetica. Riconoscere queste limitazioni garantisce che le funzionalità, come il rilevamento delle parole chiave, siano personalizzate per funzionare in modo ottimale, bilanciando le prestazioni col risparmio delle risorse.</p>
+<p>In questo contesto, usando KWS come esempio, possiamo suddividere ciascuno dei passaggi come segue:</p>
+<ol type="1">
+<li><p><strong>Identificazione del Problema:</strong> In sostanza, KWS rileva parole chiave specifiche tra suoni ambientali e altre parole pronunciate. Il problema principale è progettare un sistema in grado di riconoscere queste parole chiave con elevata accuratezza, bassa latenza e minimi falsi positivi o negativi, soprattutto se distribuito su dispositivi con risorse di elaborazione limitate.</p></li>
+<li><p><strong>Impostazione di Obiettivi Chiari:</strong> Gli obiettivi per un sistema KWS potrebbero includere:</p>
+<ul>
+<li>Raggiungimento di un tasso di accuratezza specifico (ad esempio, accuratezza del 98% nel rilevamento delle parole chiave).</li>
+<li>Garanzia di bassa latenza (ad esempio, rilevamento delle parole chiave e risposta entro 200 millisecondi).</li>
+<li>Riduzione al minimo del consumo di energia per estendere la durata della batteria sui dispositivi embedded.</li>
+<li>Garanzia che le dimensioni del modello siano ottimizzate per la memoria disponibile sul dispositivo.</li>
+</ul></li>
+<li><p><strong>Benchmark per il successo:</strong> Stabilire metriche chiare per misurare il successo del sistema KWS. Questo potrebbe includere:</p>
+<ul>
+<li>Tasso di Veri Positivi: La percentuale di parole chiave identificate correttamente.</li>
+<li>Tasso di Falsi Positivi: La percentuale di parole chiave non identificate erroneamente come parole chiave.</li>
+<li>Tempo di Risposta: Il tempo impiegato dall’enunciazione della parola chiave alla risposta del sistema.</li>
+<li>Consumo Energetico: Potenza media utilizzata durante il rilevamento della parola chiave.</li>
+</ul></li>
+<li><p><strong>Coinvolgimento e Comprensione delle Parti Interessate::</strong> Coinvolgere le parti interessate, tra cui produttori di dispositivi, sviluppatori di hardware e software e utenti finali. Comprendere le loro esigenze, capacità e vincoli. Ad esempio:</p>
+<ul>
+<li>I produttori di dispositivi potrebbero dare priorità al basso consumo energetico.</li>
+<li>Gli sviluppatori di software potrebbero enfatizzare la facilità di integrazione.</li>
+<li>Gli utenti finali darebbero priorità all’accuratezza e alla reattività.</li>
+</ul></li>
+<li><p><strong>Comprensione dei Vincoli e delle Limitazioni dei Sistemi Embedded:</strong> I dispositivi embedded presentano una serie di problematiche:</p>
+<ul>
+<li>Limiti della Memoria: I modelli KWS devono essere leggeri per adattarsi ai vincoli di memoria dei dispositivi embedded. In genere, i modelli KWS devono essere piccoli quanto 16 KB per adattarsi alla “isola always-on” [porzione sempre attiva] del SoC. Inoltre, questa è solo la dimensione del modello. Anche il codice applicativo aggiuntivo per la pre-elaborazione potrebbe dover rientrare nei vincoli di memoria.</li>
+<li>Potenza di Elaborazione: Le capacità di calcolo dei dispositivi embedded sono limitate (alcune centinaia di MHz di velocità di clock), quindi il modello KWS deve essere ottimizzato per l’efficienza.</li>
+<li>Consumo Energetico: Poiché molti dispositivi embedded sono alimentati a batteria, il sistema KWS deve essere efficiente dal punto di vista energetico.</li>
+<li>Vincoli Ambientali: I dispositivi potrebbero essere distribuiti in vari ambienti, dalle silenziose camere da letto agli ambienti industriali rumorosi. Il sistema KWS deve essere sufficientemente robusto per funzionare efficacemente in questi scenari.</li>
+</ul></li>
+<li><p><strong>Raccolta e Analisi dei Dati:</strong> Per un sistema KWS, la qualità e la diversità dei dati sono fondamentali. Le considerazioni potrebbero includere:</p>
+<ul>
+<li>Varietà di Accenti: Raccogliere dati da parlanti con accenti diversi per garantire un riconoscimento ad ampio raggio.</li>
+<li>Rumori di Sottofondo: Includere campioni di dati con diversi rumori ambientali per addestrare il modello per scenari del mondo reale.</li>
+<li>Variazioni delle Parole Chiave: Le persone potrebbero pronunciare le parole chiave in modo diverso o avere leggere variazioni nella parola di attivazione stessa. Assicurarsi che il set di dati catturi queste sfumature.</li>
+</ul></li>
+<li><p><strong>Feedback e Perfezionamento Iterativo:</strong> Una volta sviluppato un prototipo di sistema KWS, è fondamentale testarlo in scenari del mondo reale, raccogliere feedback e perfezionare iterativamente il modello. Ciò garantisce che il sistema rimanga allineato con il problema e gli obiettivi definiti. Ciò è importante perché gli scenari di distribuzione cambiano nel tempo man mano che le cose si evolvono.</p></li>
+</ol>
+<div id="exr-kws" class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Esercizio&nbsp;5.1: Keyword Spotting con TensorFlow Lite Micro
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Esplorare una guida pratica per la creazione e l’implementazione di sistemi Keyword Spotting utilizzando TensorFlow Lite Micro. Seguire i passaggi dalla raccolta dati all’addestramento del modello e all’implementazione nei microcontrollori. Imparare a creare modelli KWS efficienti che riconoscono parole chiave specifiche in mezzo al rumore di fondo. Perfetto per chi è interessato all’apprendimento automatico sui sistemi embedded. Sbloccare il potenziale dei dispositivi “voice-enabled” con TensorFlow Lite Micro!</p>
+<p><a href="https://colab.research.google.com/drive/17I7GL8WTieGzXYKRtQM2FrFi3eLQIrOM"><img src="https://colab.research.google.com/assets/colab-badge.png" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<p>Il capitolo corrente sottolinea il ruolo essenziale della qualità dei dati nell’apprendimento automatico, utilizzando come esempio i sistemi Keyword Spotting. Descrive i passaggi chiave, dalla definizione del problema al coinvolgimento delle parti interessate, sottolineando il feedback iterativo. Il prossimo capitolo approfondirà la gestione della qualità dei dati, discutendone le conseguenze e le tendenze future, concentrandosi sull’importanza di dati diversificati e di alta qualità nello sviluppo di sistemi di intelligenza artificiale, affrontando considerazioni etiche e metodi di reperimento dei dati.</p>
+</section>
+<section id="ricerca-dei-dati." class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="ricerca-dei-dati."><span class="header-section-number">5.3</span> Ricerca dei Dati.</h2>
+<p>La qualità e la diversità dei dati raccolti sono importanti per sviluppare sistemi di intelligenza artificiale accurati e robusti. Il reperimento di dati di training di alta qualità richiede un’attenta considerazione degli obiettivi, delle risorse e delle implicazioni etiche. I dati possono essere ottenuti da varie fonti a seconda delle esigenze del progetto:</p>
+<section id="dataset-preesistenti" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="dataset-preesistenti"><span class="header-section-number">5.3.1</span> Dataset preesistenti</h3>
+<p>Piattaforme come <a href="https://www.kaggle.com/">Kaggle</a> e <a href="https://archive.ics.uci.edu/">UCI Machine Learning Repository</a> forniscono un comodo punto di partenza. I dataset preesistenti sono preziosi per ricercatori, sviluppatori e aziende. Uno dei loro principali vantaggi è l’efficienza dei costi. Creare un set di dati da zero può richiedere molto tempo ed essere costoso, quindi accedere a dati già pronti può far risparmiare risorse significative. Inoltre, molti set di dati, come <a href="https://www.image-net.org/">ImageNet</a>, sono diventati parametri di riferimento standard nella comunità di apprendimento automatico, consentendo confronti di prestazioni coerenti tra diversi modelli e algoritmi. Questa disponibilità di dati significa che gli esperimenti possono essere avviati immediatamente senza ritardi nella raccolta e nella preelaborazione dei dati. In un campo in rapida evoluzione come il ML, questa praticità è importante.</p>
+<p>La garanzia di qualità che deriva dai dataset preesistenti più diffusi è importante da considerare perché diversi set di dati contengono errori. Ad esempio, <a href="https://arxiv.org/abs/2103.14749">nel set di dati ImageNet è stato riscontrato oltre il 6,4% di errori</a>. Dato il loro uso diffuso, la comunità spesso identifica e corregge eventuali errori o distorsioni in questi set di dati. Questa garanzia è particolarmente utile per studenti e nuovi arrivati nel campo, in quanto possono concentrarsi sull’apprendimento e sulla sperimentazione senza preoccuparsi dell’integrità dei dati. La documentazione di supporto che spesso accompagna i set di dati esistenti è inestimabile, sebbene ciò si applichi generalmente solo a quelli ampiamente utilizzati. Una buona documentazione fornisce approfondimenti sul processo di raccolta dati e sulle definizioni delle variabili e talvolta offre persino prestazioni del modello di base. Queste informazioni non solo aiutano la comprensione, ma promuovono anche la riproducibilità nella ricerca, un pilastro dell’integrità scientifica; attualmente, c’è una crisi attorno al <a href="https://arxiv.org/abs/2003.12206">miglioramento della riproducibilità nei sistemi di apprendimento automatico</a>. Quando altri ricercatori hanno accesso agli stessi dati, possono convalidare i risultati, testare nuove ipotesi o applicare metodologie diverse, consentendoci così di basarci più rapidamente sul lavoro reciproco.</p>
+<p>Sebbene piattaforme come Kaggle e UCI Machine Learning Repository siano risorse inestimabili, è essenziale comprendere il contesto in cui sono stati raccolti i dati. I ricercatori dovrebbero fare attenzione al potenziale “overfitting” quando utilizzano set di dati popolari, poiché potrebbero essere stati addestrati più modelli su di essi, portando a metriche di prestazioni gonfiate. A volte, questi <a href="https://venturebeat.com/uncategorized/3-big-problems-with-datasets-in-ai-and-machine-learning/">set di dati non riflettono i dati del mondo reale</a>.</p>
+<p>Negli ultimi anni, si è sviluppata una crescente consapevolezza dei problemi di “bias” [distorsione], validità e riproducibilità che possono esistere nei set di dati di apprendimento automatico. <a href="#fig-misalignment" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-misalignment</span></a> illustra un’altra preoccupazione critica: il potenziale di disallineamento quando si utilizza lo stesso set di dati per addestrare modelli diversi.</p>
+<div id="fig-misalignment" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-misalignment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/png/dataset_myopia.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-misalignment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.3: Addestrare modelli diversi con lo stesso set di dati. Fonte: (icons from left to right: Becris; Freepik; Freepik; Paul J; SBTS2018).
+</figcaption>
+</figure>
+</div>
+<p>Come mostrato in <a href="#fig-misalignment" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-misalignment</span></a>, addestrare più modelli utilizzando lo stesso set di dati può comportare un “disallineamento” tra i modelli e il mondo. Questo disallineamento crea un intero ecosistema di modelli che riflette solo un sottoinsieme ristretto di dati del mondo reale. Un tale scenario può portare a una generalizzazione limitata e a risultati potenzialmente distorti in varie applicazioni che utilizzano questi modelli.</p>
+</section>
+<section id="web-scraping" class="level3" data-number="5.3.2">
+<h3 data-number="5.3.2" class="anchored" data-anchor-id="web-scraping"><span class="header-section-number">5.3.2</span> Web Scraping</h3>
+<p>Il “web scraping” si riferisce a tecniche automatizzate per l’estrazione di dati dai siti Web. In genere comporta l’invio di richieste HTTP ai server Web, il recupero di contenuti HTML e l’analisi di tali contenuti per estrarre informazioni rilevanti. Gli strumenti e i framework più diffusi per il web scraping includono Beautiful Soup, Scrapy e Selenium. Questi strumenti offrono diverse funzionalità, dall’analisi dei contenuti HTML all’automazione delle interazioni con i browser Web, in particolare per i siti Web che caricano i contenuti in modo dinamico tramite JavaScript.</p>
+<p>Il web scraping può raccogliere efficacemente grandi set di dati per l’addestramento di modelli di apprendimento automatico, in particolare quando i dati etichettati da esseri umani sono scarsi. Per la ricerca sulla visione artificiale, il web scraping consente la raccolta di enormi volumi di immagini e video. I ricercatori hanno utilizzato questa tecnica per creare set di dati influenti come <a href="https://www.image-net.org/">ImageNet</a> e <a href="https://storage.googleapis.com/openimages/web/index.html">OpenImages</a>. Ad esempio, si potrebbero effettuare scraping di siti di e-commerce per accumulare foto di prodotti per il riconoscimento di oggetti o piattaforme di social media per raccogliere caricamenti di utenti per l’analisi facciale. Anche prima di ImageNet, il progetto <a href="https://people.csail.mit.edu/torralba/publications/labelmeApplications.pdf">LabelMe</a> di Stanford ha raschiato (scraped) Flickr per oltre 63.000 immagini annotate che coprono centinaia di categorie di oggetti.</p>
+<p>Oltre alla visione artificiale, lo scraping web supporta la raccolta di dati testuali per il linguaggio naturale. I ricercatori possono “raschiare” siti di notizie per dati di analisi del “sentiment”, forum e siti di recensioni per la ricerca sui sistemi di dialogo o social media per la modellazione di argomenti. Ad esempio, i dati di training per il chatbot ChatGPT sono stati ottenuti tramite scraping di gran parte dell’Internet pubblico. I repository GitHub sono stati sottoposti a scraping per addestrare l’assistente di codifica Copilot AI di GitHub.</p>
+<p>Il web scraping può anche raccogliere dati strutturati, come prezzi delle azioni, dati meteorologici o informazioni sui prodotti, per applicazioni analitiche. Una volta che i dati sono stati “raschiati”, è essenziale archiviarli in modo strutturato, spesso utilizzando database o data warehouse. Una corretta gestione dei dati garantisce l’usabilità dei dati raccolti per analisi e applicazioni future.</p>
+<p>Tuttavia, mentre il web scraping offre numerosi vantaggi, ci sono limitazioni significative e considerazioni etiche da sostenere. Non tutti i siti Web consentono lo scraping e la violazione di queste restrizioni può portare a ripercussioni legali. Anche lo scraping di materiale protetto da copyright o comunicazioni private è immorale e potenzialmente illegale. Il web scraping etico impone l’aderenza al file ‘robots.txt’ di un sito web, che delinea le sezioni del sito a cui è possibile accedere e che possono essere scansionate dai bot automatizzati.</p>
+<p>Per scoraggiare lo scraping automatizzato, molti siti web implementano limiti di velocità. Se un bot invia troppe richieste in un breve periodo, potrebbe essere temporaneamente bloccato, limitando la velocità di accesso ai dati. Inoltre, la natura dinamica dei contenuti web implica che i dati estratti a intervalli diversi potrebbero richiedere maggiore coerenza, ponendo sfide per gli studi a lungo termine. Tuttavia, ci sono tendenze emergenti come la <a href="https://arxiv.org/abs/1812.09195">Web Navigation</a> in cui gli algoritmi di apprendimento automatico possono navigare automaticamente nel sito web per accedere ai contenuti dinamici.</p>
+<p>Il volume di dati pertinenti disponibili per lo scraping potrebbe essere limitato per argomenti di nicchia. Ad esempio, mentre lo scraping per argomenti comuni come immagini di gatti e cani potrebbe produrre dati abbondanti, la ricerca di condizioni mediche rare potrebbe essere meno fruttuosa. Inoltre, i dati ottenuti tramite scraping sono spesso non strutturati e rumorosi, il che richiede un’accurata pre-elaborazione e pulizia. È fondamentale comprendere che non tutti i dati raccolti saranno di alta qualità o accuratezza. L’impiego di metodi di verifica, come il riferimento incrociato con fonti alternative di dati, può migliorare l’affidabilità dei dati.</p>
+<p>Quando si esegue lo scraping di dati personali, sorgono problemi di privacy, sottolineando la necessità di anonimizzazione. Pertanto, è fondamentale aderire ai “Termini del Servizio” di un sito Web, limitare la raccolta di dati a quelli di dominio pubblico e garantire l’anonimato di tutti i dati personali acquisiti.</p>
+<p>Mentre il web scraping può essere un metodo scalabile per accumulare grandi set di dati di training per sistemi di intelligenza artificiale, la sua applicabilità è limitata a tipi di dati specifici. Ad esempio, il web scraping rende più complessa la ricerca di dati per unità di misura inerziali (IMU) per il riconoscimento dei gesti. Al massimo, si può effettuare lo scraping di un set di dati esistente.</p>
+<p>La raccolta dal Web può produrre dati incoerenti o imprecisi. Ad esempio, la foto in <a href="#fig-traffic-light" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-traffic-light</span></a> viene visualizzata quando si cerca “semaforo” su Google Images. È un’immagine del 1914 che mostra semafori obsoleti, che sono anche appena distinguibili a causa della scarsa qualità dell’immagine. Questo può essere problematico per i set di dati estratti dal Web, poiché lo inquina con campioni di dati non applicabili (vecchi).</p>
+<div id="fig-traffic-light" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-traffic-light-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/jpg/1914_traffic.jpeg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-traffic-light-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.4: Un’immagine di vecchi semafori (1914). Fonte: <a href="https://www.vox.com/2015/8/5/9097713/when-was-the-first-traffic-light-installed">Vox.</a>
+</figcaption>
+</figure>
+</div>
+<div id="exr-ws" class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Esercizio&nbsp;5.2: Web Scraping
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Scoprire la potenza del web scraping con Python usando librerie come Beautiful Soup e Pandas. Questo esercizio estrarrà la documentazione Python per i nomi e le descrizioni delle funzioni ed esplorerà le statistiche dei giocatori NBA. Alla fine, si avranno le competenze per estrarre e analizzare dati da siti Web reali. Pronti all’immersione? Accedere al notebook Google Colab qui sotto e iniziare a fare pratica!</p>
+<p><a href="https://colab.research.google.com/github/Andy-Pham-72/Web-Scraping-with-BeautifulSoup-and-Pandas/blob/master/Web_scraping_with_beautiful_soup_and_pandas_complete.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.png" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+</section>
+<section id="crowdsourcing" class="level3" data-number="5.3.3">
+<h3 data-number="5.3.3" class="anchored" data-anchor-id="crowdsourcing"><span class="header-section-number">5.3.3</span> Crowdsourcing</h3>
+<p>Il crowdsourcing per i dataset è la pratica di ottenere dati utilizzando i servizi di molte persone, sia da una comunità specifica che dal pubblico in generale, in genere tramite Internet. Invece di affidarsi a un piccolo team o a un’organizzazione specifica per raccogliere o etichettare i dati, il crowdsourcing sfrutta lo sforzo collettivo di un vasto gruppo distribuito di partecipanti. Servizi come Amazon Mechanical Turk consentono la distribuzione di attività di annotazione a una forza lavoro ampia e diversificata. Questo facilita la raccolta di etichette per attività complesse come l’analisi del “sentiment” o il riconoscimento delle immagini che richiedono il giudizio umano.</p>
+<p>Il crowdsourcing è emerso come un approccio efficace per la raccolta di dati e la risoluzione dei problemi. Uno dei principali vantaggi del crowdsourcing è la scalabilità: distribuendo le attività a un ampio pool globale di collaboratori su piattaforme digitali, i progetti possono elaborare rapidamente enormi volumi di dati. Ciò rende il crowdsourcing ideale per l’etichettatura, la raccolta e l’analisi di dati su larga scala.</p>
+<p>Inoltre, il crowdsourcing attinge a un gruppo eterogeneo di partecipanti, apportando un’ampia gamma di prospettive, intuizioni culturali e capacità linguistiche che possono arricchire i dati e migliorare la risoluzione creativa dei problemi in modi che un gruppo più omogeneo potrebbe non fare. Poiché il crowdsourcing attinge da un vasto pubblico oltre i canali tradizionali, è più conveniente rispetto ai metodi convenzionali, soprattutto per microattività più semplici.</p>
+<p>Le piattaforme di crowdsourcing consentono anche una grande flessibilità, poiché i parametri delle attività possono essere modificati in tempo reale in base ai risultati iniziali. Ciò crea un ciclo di feedback per miglioramenti iterativi al processo di raccolta dati. I lavori complessi possono essere suddivisi in microattività e distribuiti a più persone, con risultati convalidati in modo incrociato assegnando versioni ridondanti della stessa attività. Se gestito in modo ponderato, il crowdsourcing consente il coinvolgimento della comunità attorno a un progetto collaborativo, in cui i partecipanti trovano una ricompensa nel contribuire.</p>
+<p>Tuttavia, mentre il crowdsourcing offre numerosi vantaggi, è essenziale affrontarlo con una strategia chiara. Mentre fornisce l’accesso a un set diversificato di annotatori, introduce anche variabilità nella qualità delle annotazioni. Inoltre, piattaforme come Mechanical Turk potrebbero non sempre catturano uno spettro demografico completo; spesso, gli individui esperti di tecnologia sono sovra-rappresentati, mentre i bambini e gli anziani potrebbero essere sotto-rappresentati. Fornire istruzioni chiare e formazione per gli annotatori è fondamentale. Controlli periodici e convalide dei dati etichettati aiutano a mantenere la qualità. Ciò si ricollega all’argomento della chiara definizione del problema di cui abbiamo discusso in precedenza. Il crowdsourcing per i set di dati richiede anche una particolare attenzione alle considerazioni etiche. È fondamentale assicurarsi che i partecipanti siano informati su come verranno utilizzati i loro dati e che la loro privacy sia protetta. Il controllo di qualità tramite protocolli dettagliati, trasparenza nell’approvvigionamento e verifica è essenziale per garantire risultati affidabili.</p>
+<p>Per TinyML, il crowdsourcing può presentare alcune sfide uniche. I dispositivi TinyML sono altamente specializzati per attività particolari entro vincoli rigorosi. Di conseguenza, i dati di cui hanno bisogno tendono a essere molto specifici. Ottenere tali dati specializzati da un pubblico generico può essere difficile tramite crowdsourcing. Ad esempio, le applicazioni TinyML spesso si basano su dati raccolti da determinati sensori o hardware. Il crowdsourcing richiederebbe ai partecipanti di avere accesso a dispositivi molto specifici e coerenti, come i microfoni, con le stesse frequenze di campionamento. Queste sfumature hardware presentano ostacoli anche per semplici attività audio come l’individuazione di parole chiave.</p>
+<p>Oltre all’hardware, i dati stessi necessitano di elevata granularità e qualità, dati i limiti di TinyML. Può essere difficile garantire ciò quando si fa crowdsourcing da chi non ha familiarità con il contesto e i requisiti dell’applicazione. Ci sono anche potenziali problemi relativi alla privacy, alla raccolta in tempo reale, alla standardizzazione e alle competenze tecniche. Inoltre, la natura ristretta di molte attività TinyML semplifica l’etichettatura accurata dei dati con la giusta comprensione. I partecipanti potrebbero aver bisogno di un contesto completo per fornire annotazioni affidabili.</p>
+<p>Pertanto, mentre il crowdsourcing può funzionare bene in molti casi, le esigenze specializzate di TinyML introducono sfide uniche per i dati. È richiesta un’attenta pianificazione per linee guida, targeting e controllo di qualità. Per alcune applicazioni, il crowdsourcing potrebbe essere fattibile, ma altre potrebbero richiedere più lavoro per la raccolta dati più mirati per ottenere dati di training pertinenti e di alta qualità.</p>
+</section>
+<section id="dati-sintetici" class="level3" data-number="5.3.4">
+<h3 data-number="5.3.4" class="anchored" data-anchor-id="dati-sintetici"><span class="header-section-number">5.3.4</span> Dati Sintetici</h3>
+<p>La generazione di dati sintetici può essere una soluzione preziosa per affrontare le limitazioni della raccolta dati. <a href="#fig-synthetic-data" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-synthetic-data</span></a> illustra come funziona questo processo: i dati sintetici vengono uniti ai dati storici per creare un set di dati più ampio e diversificato per l’addestramento del modello.</p>
+<div id="fig-synthetic-data" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-synthetic-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/jpg/synthetic_data.jpg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-synthetic-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.5: Aumento delle dimensioni dei dati di training con la generazione di dati sintetici. Fonte: <a href="https://www.anylogic.com/features/artificial-intelligence/synthetic-data/">AnyLogic</a>.
+</figcaption>
+</figure>
+</div>
+<p>Come mostrato nella figura, i dati sintetici implicano la creazione di informazioni che non sono state originariamente catturate o osservate, ma vengono generate utilizzando algoritmi, simulazioni o altre tecniche per assomigliare ai dati del mondo reale. Questo approccio è diventato particolarmente prezioso in campi in cui i dati del mondo reale sono scarsi, costosi o eticamente difficili da ottenere, come nelle applicazioni TinyML. Varie tecniche, tra cui le “Generative Adversarial Networks (GAN)”, possono produrre dati sintetici di alta qualità quasi indistinguibili dai dati reali. Questi metodi hanno fatto notevoli progressi, rendendo la generazione di dati sintetici sempre più realistica e affidabile.</p>
+<p>Potrebbe essere necessario disporre di più dati del mondo reale per l’analisi o l’addestramento di modelli di apprendimento automatico in molti domini, in particolare quelli emergenti. I dati sintetici possono colmare questa lacuna producendo grandi volumi di dati che imitano scenari del mondo reale. Ad esempio, rilevare il suono di un vetro che si rompe potrebbe essere difficile nelle applicazioni di sicurezza in cui un dispositivo TinyML sta cercando di identificare le effrazioni. La raccolta di dati del mondo reale richiederebbe la rottura di numerose finestre, il che è poco pratico e costoso.</p>
+<p>Inoltre, avere un set di dati diversificato è fondamentale nell’apprendimento automatico, in particolare nel deep learning. I dati sintetici possono aumentare i set di dati esistenti introducendo varianti, migliorando così la robustezza dei modelli. Ad esempio, SpecAugment è un’eccellente tecnica di aumento dei dati per i sistemi di “Automatic Speech Recognition” (ASR).</p>
+<p>Anche la privacy e la riservatezza sono grandi problemi. I set di dati contenenti informazioni sensibili o personali sollevano problemi di privacy quando vengono condivisi o utilizzati. I dati sintetici, essendo generati artificialmente, non hanno questi legami diretti con individui reali, consentendo un utilizzo più sicuro preservando al contempo le proprietà statistiche essenziali.</p>
+<p>La generazione di dati sintetici, in particolare una volta stabiliti i meccanismi di generazione, può essere un’alternativa più conveniente. I dati sintetici eliminano la necessità di rompere più finestre per raccogliere dati rilevanti nello scenario applicativo di sicurezza di cui sopra.</p>
+<p>Molti casi d’uso embedded riguardano situazioni uniche, come gli impianti di produzione, che sono difficili da simulare. I dati sintetici consentono ai ricercatori il controllo completo sul processo di generazione dei dati, consentendo la creazione di scenari o condizioni specifici che sono difficili da catturare nella vita reale.</p>
+<p>Sebbene i dati sintetici offrano numerosi vantaggi, è essenziale utilizzarli giudiziosamente. Bisogna fare attenzione a garantire che i dati generati rappresentino accuratamente le distribuzioni sottostanti del mondo reale e non introducano distorsioni indesiderate.</p>
+<div id="exr-sd" class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Esercizio&nbsp;5.3: Dati Sintetici
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Scopriamo la generazione di dati sintetici utilizzando le Generative Adversarial Network (GAN) su dati tabellari. Adotteremo un approccio pratico, immergendoci nel funzionamento del modello CTGAN e applicandolo al set di dati Synthea dal dominio sanitario. Dalla pre-elaborazione dei dati al training e valutazione del modello, procederemo passo dopo passo, imparando come creare dati sintetici, valutarne la qualità e sbloccare il potenziale delle GAN per l’aumento dei dati e le applicazioni del mondo reale.</p>
+<p><a href="https://colab.research.google.com/drive/1nwbvkg32sOUC69zATCfXOygFUBeo0dsx?usp=sharing#scrollTo=TkwYknr44eFn"><img src="https://colab.research.google.com/assets/colab-badge.png" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="archiviazione-dati" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="archiviazione-dati"><span class="header-section-number">5.4</span> Archiviazione Dati</h2>
+<p>L’approvvigionamento e l’archiviazione dei dati vanno di pari passo e i dati devono essere archiviati in un formato che faciliti l’accesso e l’elaborazione. A seconda del caso d’uso, possono essere utilizzati vari tipi di sistemi di archiviazione dati per archiviare i set di dati. Alcuni esempi sono mostrati in <a href="#tbl-storage" class="quarto-xref">Tabella&nbsp;<span class="quarto-unresolved-ref">tbl-storage</span></a>.</p>
+<div id="tbl-storage" class="striped hover quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-storage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabella&nbsp;5.1: Panoramica comparativa del database, del data warehouse e del data lake.
+</figcaption>
+<div aria-describedby="tbl-storage-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="table-striped table-hover caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 22%">
+<col style="width: 61%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Database</th>
+<th style="text-align: left;">Data Warehouse</th>
+<th style="text-align: left;">Data Lake</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Scopo</td>
+<td style="text-align: left;">Operativo e transazionale</td>
+<td style="text-align: left;">Analitico</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Tipo di dati</td>
+<td style="text-align: left;">Strutturato</td>
+<td style="text-align: left;">Strutturato, semi-strutturato e/o non strutturato</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Scala</td>
+<td style="text-align: left;">Da piccoli a grandi volumi di dati</td>
+<td style="text-align: left;">Grandi volumi di dati integrati Grandi volumi di dati diversi</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Esempi</td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Google BigQuery, Amazon Redshift, Microsoft Azure Synapse, Google Cloud Storage, AWS S3, Azure Data Lake Storage</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>I dati archiviati sono spesso accompagnati da metadati, definiti come “dati sui dati”. Forniscono informazioni contestuali dettagliate sui dati, come mezzi di creazione dei dati, ora di creazione, licenza di utilizzo dei dati allegata, ecc. <a href="#fig-data-collection" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-data-collection</span></a> illustra i pilastri chiave della raccolta dati e i metodi associati, evidenziando l’importanza della gestione dei dati strutturati. Ad esempio, <a href="https://huggingface.co/">Hugging Face</a> ha implementato le <a href="https://huggingface.co/docs/hub/datasets-cards">Dataset Cards</a> per promuovere un utilizzo responsabile dei dati. Queste “card” [schede], che si allineano al pilastro della documentazione mostrato in <a href="#fig-data-collection" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-data-collection</span></a>, consentono ai creatori di dataset di rivelare potenziali bias e di istruire gli utenti sui contenuti e le limitazioni di un dataset.</p>
+<p>Le “dataset card” forniscono un contesto importante sull’utilizzo appropriato del dataset evidenziando “bia” [pregiudizi] e altri dettagli importanti. Avere questo tipo di metadati strutturati può anche consentire un rapido recupero, allineandosi ai principi di gestione efficiente dei dati illustrati nella figura. Una volta sviluppato e distribuito il modello sui dispositivi edge, i sistemi di storage possono continuare a memorizzare dati in arrivo, aggiornamenti del modello o risultati analitici, utilizzando potenzialmente metodi da più pilastri mostrati in <a href="#fig-data-collection" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-data-collection</span></a>. Questo processo continuo di raccolta e gestione dei dati garantisce che il modello rimanga aggiornato e pertinente nel suo ambiente operativo.</p>
+<div id="fig-data-collection" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-data-collection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/png/datacollection.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-collection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.6: Pilastri della raccolta dati. Fonte: <a href="https://www.altexsoft.com/blog/data-collection-machine-learning/">Alexsoft</a>
+</figcaption>
+</figure>
+</div>
+<p><strong>Data Governance:</strong> Con una grande quantità di archiviazione dati, è anche fondamentale disporre di policy e pratiche (ad esempio, “governance” [gestione] dei dati) che aiutino a gestire i dati durante il loro ciclo di vita, dall’acquisizione allo smaltimento. La governance dei dati descrive il modo in cui i dati vengono gestiti e include l’adozione di decisioni chiave in merito al loro accesso e controllo. <a href="#fig-governance" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-governance</span></a> illustra i diversi domini coinvolti nella governance dei dati. Implica l’esercizio dell’autorità e l’assunzione di decisioni sui dati per mantenerne la qualità, garantire la conformità, mantenere la sicurezza e ricavarne valore. La governance dei dati è resa operativa sviluppando politiche, incentivi e sanzioni, coltivando una cultura che percepisce i dati come un bene prezioso. Procedure specifiche e autorità assegnate vengono implementate per salvaguardare la qualità dei dati e monitorarne l’utilizzo e i rischi correlati.</p>
+<div id="fig-governance" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-governance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/jpg/data_governance.jpg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-governance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.7: Una panoramica del framework di governance dei dati. Fonte: <a href="https://www.groundwatergovernance.org/the-importance-of-governance-for-all-stakeholders/">StarCIO.</a>.
+</figcaption>
+</figure>
+</div>
+<p>La governance dei dati utilizza tre approcci integrativi: pianificazione e controllo, organizzativo e basato sul rischio.</p>
+<ul>
+<li><p><strong>L’approccio di pianificazione e controllo</strong>, comune nell’IT, allinea business e tecnologia attraverso cicli annuali e continui aggiustamenti, concentrandosi su una governance verificabile e basata su policy.</p></li>
+<li><p><strong>L’approccio organizzativo</strong> enfatizza la struttura, stabilendo ruoli autorevoli come Chief Data Officer e garantendo responsabilità e rendicontazione nella governance.</p></li>
+<li><p><strong>L’approccio basato sul rischio</strong>, intensificato dai progressi dell’IA, si concentra sull’identificazione e la gestione dei rischi intrinseci nei dati e negli algoritmi. Affronta in particolare i problemi specifici dell’IA attraverso valutazioni regolari e strategie di gestione proattiva del rischio, consentendo azioni incidentali e preventive per mitigare gli impatti indesiderati degli algoritmi.</p></li>
+</ul>
+<p>Ecco alcuni esempi di governance dei dati in diversi settori:</p>
+<ul>
+<li><p><strong>Medicina:</strong> <a href="https://www.healthit.gov/topic/health-it-and-health-information-exchange-basics/what-hie">Gli Health Information Exchanges (HIE) [scambi di informazioni sanitarie]</a> consentono la condivisione di informazioni sanitarie tra diversi operatori sanitari per migliorare l’assistenza ai pazienti. Implementano rigorose pratiche di governance dei dati per mantenere l’accuratezza, l’integrità, la privacy e la sicurezza dei dati, rispettando normative come l’<a href="https://www.cdc.gov/phlp/publications/topic/hipaa.html">Health Insurance Portability and Accountability Act (HIPAA)</a>. Le policy di governance assicurano che i dati dei pazienti siano condivisi solo con entità autorizzate e che i pazienti possano controllare l’accesso alle proprie informazioni.</p></li>
+<li><p><strong>Finanza:</strong> <a href="https://www.bis.org/bcbs/basel3.htm">Basilea III Framework</a> è un quadro normativo internazionale per le banche. Garantisce che le banche stabiliscano policy, pratiche e responsabilità chiare per la gestione dei dati, assicurandone accuratezza, completezza e tempestività. Non solo consente alle banche di soddisfare la conformità normativa, ma previene anche le crisi finanziarie gestendo i rischi in modo più efficace.</p></li>
+<li><p><strong>Governo:</strong> Le agenzie governative che gestiscono i dati dei cittadini, i registri pubblici e le informazioni amministrative implementano la governance dei dati per gestire i dati in modo trasparente e sicuro. Il sistema di previdenza sociale negli Stati Uniti e il sistema Aadhar in India sono buoni esempi di tali sistemi di governance.</p></li>
+</ul>
+<p><strong>Considerazioni speciali sull’archiviazione dei dati per TinyML</strong></p>
+<p><em><strong>Formati di Archiviazione Audio Efficienti:</strong></em> I sistemi di individuazione delle parole chiave necessitano di formati di archiviazione audio specializzati per consentire una rapida ricerca delle parole chiave nei dati audio. I formati tradizionali come WAV e MP3 archiviano forme d’onda audio complete, che richiedono un’elaborazione estesa per la ricerca. L’individuazione delle parole chiave utilizza un archivio compresso ottimizzato per la ricerca basata su frammenti. Un approccio consiste nell’archiviazione di caratteristiche acustiche compatte anziché audio grezzo. Tale flusso di lavoro implicherebbe:</p>
+<ul>
+<li><p><strong>Estrazione di Caratteristiche Acustiche:</strong> I coefficienti Mel-frequency cepstral (MFCC) rappresentano comunemente importanti caratteristiche audio.</p></li>
+<li><p><strong>Creazione di Embedding:</strong> Gli “embedding” trasformano le caratteristiche acustiche estratte in spazi vettoriali continui, consentendo un’archiviazione dei dati più compatta e rappresentativa. Questa rappresentazione è essenziale per convertire dati ad alta dimensionalità, come l’audio, in un formato più gestibile ed efficiente per l’elaborazione e l’archiviazione.</p></li>
+<li><p><strong>Quantizzazione vettoriale:</strong> Questa tecnica rappresenta dati ad alta dimensionalità, come gli embedding, con vettori a bassa dimensionalità, riducendo le esigenze di archiviazione. Inizialmente, un codebook viene generato dai dati di training per definire un set di vettori di codice che rappresentano i vettori di dati originali. Successivamente, ogni vettore di dati viene abbinato alla “codeword” più vicina in base al codebook, garantendo una perdita minima di informazioni.</p></li>
+<li><p><strong>Archiviazione sequenziale:</strong> L’audio viene frammentato in frame brevi e le feature [caratteristiche] quantizzate (o embedded) per ogni frame vengono archiviate in sequenza per mantenere l’ordine temporale, preservando la coerenza e il contesto dei dati audio.</p></li>
+</ul>
+<p>Questo formato consente di decodificare le feature frame per frame per la corrispondenza delle parole chiave. La ricerca delle caratteristiche è più rapida della decompressione dell’audio completo.</p>
+<p><em><strong>Selective Network Output Storage:</strong></em> [Archiviazione selettiva dell’output di rete] Un’altra tecnica per ridurre l’archiviazione consiste nell’eliminare le caratteristiche audio intermedie archiviate durante l’addestramento ma non richieste durante l’inferenza. La rete viene eseguita su audio completo durante l’addestramento. Tuttavia, solo gli output finali vengono archiviati durante l’inferenza.</p>
+</section>
+<section id="elaborazione-dei-dati" class="level2 page-columns page-full" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="elaborazione-dei-dati"><span class="header-section-number">5.5</span> Elaborazione dei Dati</h2>
+<p>Il “Data processing” <a href="#elaborazione-dei-dati">elaborazione dei dati</a> si riferisce ai passaggi necessari per trasformare i dati grezzi in un formato adatto per l’inserimento negli algoritmi di apprendimento automatico. È una fase cruciale in qualsiasi flusso di lavoro ML, ma spesso trascurata. Con un’elaborazione dei dati adeguata, è probabile che i modelli ML raggiungano prestazioni ottimali. <a href="#fig-data-engineering" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-data-engineering</span></a> mostra una ripartizione dell’allocazione del tempo di uno scienziato dei dati, evidenziando la parte significativa spesa per la pulizia e l’organizzazione dei dati (%60).</p>
+<div id="fig-data-engineering" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-data-engineering-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/jpg/data_engineering_features.jpg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-engineering-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.8: Ripartizione delle attività dei “Data scientist” in base al tempo impiegato. Fonte: <a href="https://www.forbes.com/sites/gilpress/2016/03/23/data-preparation-most-time-consuming-least-enjoyable-data-science-task-survey-says/?sh=20c55a266f63">Forbes.</a>
+</figcaption>
+</figure>
+</div>
+<p>Una corretta pulizia dei dati è un passaggio cruciale che influisce direttamente sulle prestazioni del modello. I dati del mondo reale sono spesso sporchi, contengono errori, valori mancanti, rumore, anomalie e incongruenze. La pulizia dei dati comporta il rilevamento e la correzione di questi problemi per preparare dati di alta qualità per la modellazione. Selezionando attentamente le tecniche appropriate, i data scientist possono migliorare l’accuratezza del modello, ridurre l’overfitting e addestrare gli algoritmi per apprendere pattern più solidi. Nel complesso, un’elaborazione dei dati ponderata consente ai sistemi di apprendimento automatico di scoprire meglio le informazioni e di fare previsioni dai dati del mondo reale.</p>
+<p>I dati spesso provengono da fonti diverse e possono essere non strutturati o semi-strutturati. Pertanto, elaborarli e standardizzarli è essenziale, assicurando che aderiscano a un formato uniforme. Tali trasformazioni possono includere:</p>
+<ul>
+<li>Normalizzazione di variabili numeriche</li>
+<li>Codifica di variabili categoriali</li>
+<li>Utilizzo di tecniche come la riduzione della dimensionalità</li>
+</ul>
+<p>La convalida dei dati svolge un ruolo più ampio rispetto alla garanzia di aderenza a determinati standard, come impedire che i valori di temperatura scendano sotto lo zero assoluto. Questi problemi si verificano in TinyML perché i sensori potrebbero funzionare male o produrre temporaneamente letture errate; tali transienti non sono rari. Pertanto, è fondamentale rilevare gli errori nei dati in anticipo prima che si propaghino attraverso la pipeline dei dati. Rigorosi processi di convalida, tra cui la verifica delle pratiche di annotazione iniziali, il rilevamento di valori anomali e la gestione dei valori mancanti tramite tecniche come l’imputazione della media, contribuiscono direttamente alla qualità dei set di dati. Ciò, a sua volta, influisce sulle prestazioni, la correttezza e la sicurezza dei modelli addestrati su di essi.</p>
+<p>Diamo un’occhiata a <a href="#fig-data-engineering-kws2" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-data-engineering-kws2</span></a> per un esempio di pipeline di elaborazione dei dati. Nel contesto di TinyML, il Multilingual Spoken Words Corpus (MSWC) è un esempio di pipeline di elaborazione dei dati, flussi di lavoro sistematici e automatizzati per la trasformazione, l’archiviazione e l’elaborazione dei dati. I dati di input (che sono una raccolta di brevi registrazioni) attraversano diverse fasi di elaborazione, come l’allineamento audio-parola e l’estrazione di parole chiave.</p>
+<p>MSWC semplifica il flusso di dati, dai dati grezzi ai set di dati utilizzabili, le pipeline di dati migliorano la produttività e facilitano lo sviluppo rapido di modelli di apprendimento automatico. MSWC è una raccolta ampia e in continua espansione di registrazioni audio di parole pronunciate in 50 lingue diverse, utilizzate collettivamente da oltre 5 miliardi di persone. Questo set di dati è destinato allo studio accademico e all’uso aziendale in aree come l’identificazione di parole chiave e la ricerca basata sul parlato. È concesso in licenza aperta con Creative Commons Attribution 4.0 per un ampio utilizzo.</p>
+<div id="fig-data-engineering-kws2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-data-engineering-kws2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/png/data_engineering_kws2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-engineering-kws2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.9: Una panoramica della pipeline di elaborazione dati del Multilingual Spoken Words Corpus (MSWC). Fonte: <span class="citation" data-cites="mazumder2021multilingual">Mazumder et al. (<a href="#ref-mazumder2021multilingual" role="doc-biblioref">2021</a>)</span>.
+</figcaption>
+<div class="no-row-height column-margin column-container"><div id="ref-mazumder2021multilingual" class="csl-entry" role="listitem">
+Mazumder, Mark, Sharad Chitlangia, Colby Banbury, Yiping Kang, Juan Manuel Ciro, Keith Achorn, Daniel Galvez, et al. 2021. <span>«Multilingual spoken words corpus»</span>. In <em>Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2)</em>.
+</div></div></figure>
+</div>
+<p>Il MSWC ha utilizzato un metodo di <a href="https://montreal-forced-aligner.readthedocs.io/en/latest/">allineamento forzato</a> per estrarre automaticamente singole registrazioni di parole per addestrare modelli di individuazione delle parole chiave dal progetto <a href="https://commonvoice.mozilla.org/">Common Voice</a>, che presenta registrazioni a livello di frase in crowdsourcing. L’allineamento forzato si riferisce a metodi di lunga data nell’elaborazione del parlato che prevedono quando fenomeni del parlato come sillabe, parole o frasi iniziano e finiscono all’interno di una registrazione audio. Nei dati MSWC, le registrazioni in crowdsourcing spesso presentano rumori di sottofondo, come elettricità statica e vento. A seconda dei requisiti del modello, questi rumori possono essere rimossi o mantenuti intenzionalmente.</p>
+<p>Mantenere l’integrità dell’infrastruttura dati è uno lavoro continuo. Ciò comprende archiviazione dei dati, sicurezza, gestione degli errori e rigoroso controllo delle versioni. Gli aggiornamenti periodici sono fondamentali, soprattutto in ambiti dinamici come l’individuazione delle parole chiave, per adattarsi alle tendenze linguistiche in evoluzione e alle integrazioni dei dispositivi.</p>
+<p>C’è un boom nelle pipeline di elaborazione dati, comunemente presenti nelle toolchain delle operazioni ML, di cui parleremo nel capitolo MLOps. In breve, questi includono framework come MLOps di Google Cloud. Fornisce metodi per l’automazione e il monitoraggio in tutte le fasi della costruzione del sistema ML, tra cui integrazione, test, rilascio, distribuzione e gestione dell’infrastruttura. Diversi meccanismi si concentrano sull’elaborazione dati, parte integrante di questi sistemi.</p>
+<div id="exr-dp" class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Esercizio&nbsp;5.4: Elaborazione dei Dati
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Esploriamo due progetti significativi nell’elaborazione dei dati vocali e nell’apprendimento automatico. MSWC è un vasto set di dati audio con oltre 340.000 parole chiave e 23,4 milioni di esempi parlati di 1 secondo. Viene utilizzato in varie applicazioni come dispositivi voice-enabled e automazione dei call center. Il progetto Few-Shot Keyword Spotting introduce un nuovo approccio per l’individuazione delle parole chiave in diverse lingue, ottenendo risultati impressionanti con dati di addestramento minimi. Esamineremo il set di dati MSWC, impareremo come strutturarlo in modo efficace e poi addestreremo un modello di individuazione di parole chiave con la tecnica “few-shot” [https://www.ibm.com/it-it/topics/few-shot-learning]. Cominciamo!</p>
+<p><a href="https://colab.research.google.com/github/harvard-edge/multilingual_kws/blob/main/multilingual_kws_intro_tutorial.ipynb#scrollTo=ApnPyIlYNFYD"><img src="https://colab.research.google.com/assets/colab-badge.png" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+</section>
+<section id="etichettatura-dei-dati" class="level2 page-columns page-full" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="etichettatura-dei-dati"><span class="header-section-number">5.6</span> Etichettatura dei Dati</h2>
+<p>Il “Data labeling” <a href="#etichettatura-dei-dati">etichettatura dei dati</a> è importante per creare set di dati di training di alta qualità per modelli di apprendimento automatico. Le etichette forniscono informazioni di base, consentendo ai modelli di apprendere relazioni tra input e output desiderati. Questa sezione copre considerazioni chiave per la selezione di tipi di etichette, formati e contenuti per acquisire le informazioni necessarie per le attività. Discute approcci di annotazione comuni, dall’etichettatura manuale al crowdsourcing ai metodi assistiti dall’intelligenza artificiale, e le “best practice” per garantire la qualità delle etichette tramite formazione, linee guida e controlli di qualità. Sottolineiamo anche il trattamento etico degli annotatori umani. Viene anche esplorata l’integrazione dell’intelligenza artificiale per accelerare e aumentare l’annotazione umana. Comprendere le esigenze, le sfide e le strategie di etichettatura è essenziale per costruire dataset affidabili e utili per addestrare sistemi di apprendimento automatico performanti e affidabili.</p>
+<section id="tipi-di-etichette" class="level3 page-columns page-full" data-number="5.6.1">
+<h3 data-number="5.6.1" class="anchored" data-anchor-id="tipi-di-etichette"><span class="header-section-number">5.6.1</span> Tipi di Etichette</h3>
+<p>Le etichette contengono informazioni su attività o concetti chiave. <a href="#fig-labels" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-labels</span></a> include alcuni tipi di etichette comuni: una “classification label” [etichetta di classificazione] viene utilizzata per categorizzare le immagini con etichette (etichettando un’immagine con “dog” [cane] e presenta un cane); un “bounding box” [riquadro delimitatore] identifica la posizione dell’oggetto (disegnando un riquadro attorno al cane); una “segmentation map” [mappa di segmentazione] classifica gli oggetti a livello di pixel (evidenziando il cane con un colore distinto); una “caption” [didascalia] fornisce annotazioni descrittive (descrivendo le azioni, la posizione, il colore, ecc. del cane); e una “transcript” [trascrizione] denota il contenuto audio. La scelta del formato dell’etichetta dipende dal caso d’uso e dai vincoli di risorse, poiché etichette più dettagliate richiedono un lavoro maggiore per la raccolta <span class="citation" data-cites="10.1109/ICRA.2017.7989092">(<a href="#ref-10.1109/ICRA.2017.7989092" role="doc-biblioref">Johnson-Roberson et al. 2017</a>)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-10.1109/ICRA.2017.7989092" class="csl-entry" role="listitem">
+Johnson-Roberson, Matthew, Charles Barto, Rounak Mehta, Sharath Nittur Sridhar, Karl Rosaen, e Ram Vasudevan. 2017. <span>«Driving in the Matrix: <span>Can</span> virtual worlds replace human-generated annotations for real world tasks?»</span> In <em>2017 IEEE International Conference on Robotics and Automation (ICRA)</em>, 746–53. Singapore, Singapore: IEEE. <a href="https://doi.org/10.1109/icra.2017.7989092">https://doi.org/10.1109/icra.2017.7989092</a>.
+</div></div><div id="fig-labels" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-labels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/png/CS249r_Labels.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-labels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.10: Una panoramica dei tipi di etichette comuni.
+</figcaption>
+</figure>
+</div>
+<p>A meno che non si concentri sull’apprendimento auto-supervisionato, un set di dati fornirà probabilmente etichette che affrontano una o più attività di interesse. Date le loro limitazioni di risorse uniche, i creatori di set di dati devono considerare quali informazioni le etichette dovrebbero catturare e come possono ottenere praticamente le etichette necessarie. I creatori devono prima decidere quali tipi di etichette di contenuto dovrebbero catturare. Ad esempio, un creatore interessato al rilevamento delle auto vorrebbe etichettare le auto nel suo dataset. Tuttavia, potrebbe anche considerare se raccogliere simultaneamente etichette per altre attività per cui il set di dati potrebbe essere potenzialmente utilizzato, come il rilevamento dei pedoni.</p>
+<p>Inoltre, gli annotatori possono fornire metadati per le informazioni su come il set di dati rappresenta diverse caratteristiche di interesse (cfr. <a href="#sec-data-transparency" class="quarto-xref"><span class="quarto-unresolved-ref">sec-data-transparency</span></a>). Il dataset Common Voice, ad esempio, include vari tipi di metadati che forniscono informazioni sugli oratori, sulle registrazioni e sulla qualità del set di dati per ciascuna lingua rappresentata <span class="citation" data-cites="ardila2020common">(<a href="#ref-ardila2020common" role="doc-biblioref">Ardila et al. 2020</a>)</span>. Includono suddivisioni demografiche che mostrano il numero di registrazioni per fascia di età e genere del parlante. Questo ci consente di vedere chi ha contribuito alle registrazioni per ogni lingua. Includono anche statistiche come la durata media delle registrazioni e il numero totale di ore di registrazioni convalidate. Queste forniscono informazioni sulla natura e le dimensioni dei set di dati per ogni lingua.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-ardila2020common" class="csl-entry" role="listitem">
+Ardila, Rosana, Megan Branson, Kelly Davis, Michael Kohler, Josh Meyer, Michael Henretty, Reuben Morais, Lindsay Saunders, Francis Tyers, e Gregor Weber. 2020. <span>«Common Voice: <span>A</span> Massively-Multilingual Speech Corpus»</span>. In <em>Proceedings of the Twelfth Language Resources and Evaluation Conference</em>, 4218–22. Marseille, France: European Language Resources Association. <a href="https://aclanthology.org/2020.lrec-1.520">https://aclanthology.org/2020.lrec-1.520</a>.
+</div></div><p>Inoltre, le metriche di controllo qualità come la percentuale di registrazioni convalidate sono utili per sapere quanto siano completi e puliti i set di dati. I metadati includono anche suddivisioni demografiche normalizzate scalate al 100% per il confronto tra le lingue. Questo evidenzia le differenze di rappresentazione tra lingue con risorse più elevate e più basse.</p>
+<p>Successivamente, i creatori devono determinare il formato di tali etichette. Ad esempio, un creatore interessato al rilevamento delle auto potrebbe scegliere tra etichette di classificazione binaria che indicano se è presente un’auto, riquadri di delimitazione che mostrano le posizioni generali di tutte le auto o etichette di segmentazione pixel per pixel che mostrano la posizione esatta di ogni auto. La scelta del formato dell’etichetta può dipendere dal caso d’uso e dai vincoli di risorse, poiché le etichette più dettagliate sono in genere più costose e richiedono più tempo per essere acquisite.</p>
+</section>
+<section id="metodi-di-annotazione" class="level3 page-columns page-full" data-number="5.6.2">
+<h3 data-number="5.6.2" class="anchored" data-anchor-id="metodi-di-annotazione"><span class="header-section-number">5.6.2</span> Metodi di Annotazione</h3>
+<p>Gli approcci comuni all’annotazione includono etichettatura manuale, crowdsourcing e tecniche semi-automatiche. L’etichettatura manuale da parte di esperti produce alta qualità ma necessita di maggiore scalabilità. Il crowdsourcing consente ai non esperti di distribuire annotazioni, spesso tramite piattaforme dedicate <span class="citation" data-cites="victor2019machine">(<a href="#ref-victor2019machine" role="doc-biblioref">Sheng e Zhang 2019</a>)</span>. Metodi debolmente supervisionati e programmatici possono ridurre il lavoro manuale generando etichette in modo euristico o automatico <span class="citation" data-cites="ratner2018snorkel">(<a href="#ref-ratner2018snorkel" role="doc-biblioref">Ratner et al. 2018</a>)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-victor2019machine" class="csl-entry" role="listitem">
+Sheng, Victor S., e Jing Zhang. 2019. <span>«Machine Learning with Crowdsourcing: <span>A</span> Brief Summary of the Past Research and Future Directions»</span>. <em>Proceedings of the AAAI Conference on Artificial Intelligence</em> 33 (01): 9837–43. <a href="https://doi.org/10.1609/aaai.v33i01.33019837">https://doi.org/10.1609/aaai.v33i01.33019837</a>.
+</div><div id="ref-ratner2018snorkel" class="csl-entry" role="listitem">
+Ratner, Alex, Braden Hancock, Jared Dunnmon, Roger Goldman, e Christopher Ré. 2018. <span>«Snorkel <span>MeTaL</span>: Weak Supervision for Multi-Task Learning»</span>. In <em>Proceedings of the Second Workshop on Data Management for End-To-End Machine Learning</em>. ACM. <a href="https://doi.org/10.1145/3209889.3209898">https://doi.org/10.1145/3209889.3209898</a>.
+</div></div><p>Dopo aver deciso il contenuto e il formato desiderati per le etichette, i creatori iniziano il processo di annotazione. Per raccogliere un gran numero di etichette da annotatori umani, i creatori si affidano spesso a piattaforme di annotazione dedicate, che possono metterli in contatto con team di annotatori umani. Quando utilizzano queste piattaforme, i creatori potrebbero aver bisogno di maggiori informazioni sui background degli annotatori e sui livelli di esperienza con argomenti di interesse. Tuttavia, alcune piattaforme offrono l’accesso ad annotatori con competenze specifiche (ad esempio, medici).</p>
+<div id="exr-bl" class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Esercizio&nbsp;5.5: Etichette Autoprodotte
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Esploriamo Wake Vision, un set di dati completo progettato per il rilevamento di persone con TinyML. Questo set di dati deriva da un set di dati più ampio e generico, Open Images <span class="citation" data-cites="kuznetsova2020open">(<a href="#ref-kuznetsova2020open" role="doc-biblioref">Kuznetsova et al. 2020</a>)</span>, e specificamente adattato per il rilevamento binario di persone.</p>
+<p>Il processo di trasformazione comporta il filtraggio e la rietichettatura delle etichette e dei riquadri di delimitazione esistenti in Open Images utilizzando una pipeline automatizzata. Questo metodo non solo consente di risparmiare tempo e risorse, ma garantisce anche che il set di dati soddisfi i requisiti specifici delle applicazioni TinyML.</p>
+<p>Inoltre, generiamo metadati per confrontare la correttezza e la robustezza dei modelli in scenari difficili.</p>
+<p>Cominciamo!</p>
+<p><a href="https://colab.research.google.com/drive/1HC5lkBblrdRZ4vaT5M5061TKKep0MS-M?usp=sharing"><img src="https://colab.research.google.com/assets/colab-badge.png" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<div class="no-row-height column-margin column-container"><div id="ref-kuznetsova2020open" class="csl-entry" role="listitem">
+Kuznetsova, Alina, Hassan Rom, Neil Alldrin, Jasper Uijlings, Ivan Krasin, Jordi Pont-Tuset, Shahab Kamali, et al. 2020. <span>«The open images dataset v4: <span>Unified</span> image classification, object detection, and visual relationship detection at scale»</span>. <em>International journal of computer vision</em> 128 (7): 1956–81.
+</div></div></section>
+<section id="garantire-la-qualità-delletichetta" class="level3 page-columns page-full" data-number="5.6.3">
+<h3 data-number="5.6.3" class="anchored" data-anchor-id="garantire-la-qualità-delletichetta"><span class="header-section-number">5.6.3</span> Garantire la Qualità dell’Etichetta</h3>
+<p>Non vi è alcuna garanzia che le etichette dei dati siano effettivamente corrette. <a href="#fig-hard-labels" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-hard-labels</span></a> mostra alcuni esempi di casi di etichettatura rigida: alcuni errori derivano da immagini sfocate che le rendono difficili da identificare (l’immagine della rana), e altri derivano da una mancanza di conoscenza del dominio (il caso della cicogna nera). È possibile che nonostante le migliori istruzioni fornite agli etichettatori, etichettino ancora in modo errato alcune immagini <span class="citation" data-cites="northcutt2021pervasive">(<a href="#ref-northcutt2021pervasive" role="doc-biblioref">Northcutt, Athalye, e Mueller 2021</a>)</span>. Strategie come controlli di qualità, formazione degli annotatori e raccolta di più etichette per ciascun elemento possono aiutare a garantire la qualità delle etichette. Per attività ambigue, più annotatori possono aiutare a identificare i punti dati controversi e quantificare i livelli di disaccordo.</p>
+<div class="no-row-height column-margin column-container"></div><div id="fig-hard-labels" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-hard-labels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://raw.githubusercontent.com/cleanlab/assets/master/cleanlab/label-errors-examples.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-hard-labels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.11: Alcuni esempi di casi di etichettatura rigida. Fonte: <span class="citation" data-cites="northcutt2021pervasive">Northcutt, Athalye, e Mueller (<a href="#ref-northcutt2021pervasive" role="doc-biblioref">2021</a>)</span>.
+</figcaption>
+<div class="no-row-height column-margin column-container"><div id="ref-northcutt2021pervasive" class="csl-entry" role="listitem">
+Northcutt, Curtis G, Anish Athalye, e Jonas Mueller. 2021. <span>«Pervasive Label Errors in Test Sets Destabilize Machine Learning Benchmarks»</span>. <em>arXiv</em>. https://doi.org/<a href="https://doi.org/10.48550/arXiv.2103.14749 arXiv-issued DOI via DataCite">https://doi.org/10.48550/arXiv.2103.14749 arXiv-issued DOI via DataCite</a>.
+</div></div></figure>
+</div>
+<p>Quando si lavora con annotatori umani, è importante offrire un compenso equo e dare priorità al trattamento etico, poiché gli annotatori possono essere sfruttati o danneggiati durante il processo di etichettatura (Perrigo, 2023). Ad esempio, se è probabile che un set di dati contenga contenuti inquietanti, gli annotatori potrebbero trarre vantaggio dall’avere la possibilità di visualizzare le immagini in scala di grigi <span class="citation" data-cites="googleinformation">(<a href="#ref-googleinformation" role="doc-biblioref">Google, s.d.</a>)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-googleinformation" class="csl-entry" role="listitem">
+Google. s.d. <span>«Information quality content moderation»</span>. <a href="https://blog.google/documents/83/">https://blog.google/documents/83/</a>.
+</div></div></section>
+<section id="annotazione-assistita-dallintelligenza-artificiale" class="level3 page-columns page-full" data-number="5.6.4">
+<h3 data-number="5.6.4" class="anchored" data-anchor-id="annotazione-assistita-dallintelligenza-artificiale"><span class="header-section-number">5.6.4</span> Annotazione assistita dall’intelligenza artificiale</h3>
+<p>Il ML ha una domanda insaziabile di dati. Pertanto, sono necessari più dati. Ciò solleva la questione di come possiamo ottenere più dati etichettati. Invece di generare e curare sempre i dati manualmente, possiamo fare affidamento sui modelli di intelligenza artificiale esistenti per etichettare i set di dati in modo più rapido ed economico, anche se spesso con una qualità inferiore rispetto all’annotazione umana. Questo può essere fatto in vari modi come mostrato in <a href="#fig-weak-supervision" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-weak-supervision</span></a>, tra cui i seguenti:</p>
+<ul>
+<li><strong>Pre-annotazione:</strong> I modelli di intelligenza artificiale possono generare etichette preliminari per un set di dati utilizzando metodi come l’apprendimento semi-supervisionato <span class="citation" data-cites="chapelle2009semisupervised">(<a href="#ref-chapelle2009semisupervised" role="doc-biblioref">Chapelle, Scholkopf, e Zien 2009</a>)</span>, che gli esseri umani possono poi esaminare e correggere. Questo può far risparmiare una notevole quantità di tempo, soprattutto per set di dati di grandi dimensioni.</li>
+<li><strong>Apprendimento attivo:</strong> I modelli di intelligenza artificiale possono identificare i dati più informativi in un dataset, che possono quindi essere riordinati per priorità per l’annotazione umana. Questo può aiutare a migliorare la qualità del set di dati etichettato riducendo al contempo il tempo di annotazione complessivo.</li>
+<li><strong>Controllo qualità:</strong> I modelli di intelligenza artificiale possono identificare e segnalare potenziali errori nelle annotazioni umane, contribuendo a garantire l’accuratezza e la coerenza del set di dati etichettato.</li>
+</ul>
+<div class="no-row-height column-margin column-container"><div id="ref-chapelle2009semisupervised" class="csl-entry" role="listitem">
+Chapelle, O., B. Scholkopf, e A. Zien Eds. 2009. <span>«Semi-Supervised Learning <span>(Chapelle,</span> <span>O.</span> et al., Eds.; 2006) <span>[Book</span> reviews]»</span>. <em>IEEE Trans. Neural Networks</em> 20 (3): 542–42. <a href="https://doi.org/10.1109/tnn.2009.2015974">https://doi.org/10.1109/tnn.2009.2015974</a>.
+</div></div><div id="fig-weak-supervision" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-weak-supervision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://ai.stanford.edu/blog//assets/img/posts/2019-03-03-weak_supervision/WS_mapping.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-weak-supervision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.12: Strategie per acquisire ulteriori dati di addestramento etichettati. Fonte: <a href="https://ai.stanford.edu/blog/weak-supervision/">Standford AI Lab.</a>
+</figcaption>
+</figure>
+</div>
+<p>Ecco alcuni esempi di come l’annotazione assistita dall’intelligenza artificiale è stata proposta come utile:</p>
+<ul>
+<li><strong>Immagini mediche:</strong> L’annotazione assistita dall’intelligenza artificiale etichetta le immagini mediche, come scansioni MRI (Magnetic Resonance Imaging) e raggi X <span class="citation" data-cites="krishnan2022selfsupervised">(<a href="#ref-krishnan2022selfsupervised" role="doc-biblioref">Krishnan, Rajpurkar, e Topol 2022</a>)</span>. Annotare attentamente i set di dati medici è estremamente impegnativo, soprattutto su larga scala, poiché gli esperti del settore sono scarsi e diventano costosi. Ciò può aiutare ad addestrare i modelli di intelligenza artificiale per diagnosticare malattie e altre condizioni mediche in modo più accurato ed efficiente.</li>
+<li><strong>Auto a guida autonoma:</strong> L’annotazione assistita dall’intelligenza artificiale viene utilizzata per etichettare immagini e video di auto a guida autonoma. Ciò può aiutare ad addestrare i modelli di intelligenza artificiale per identificare oggetti sulla strada, come altri veicoli, pedoni e segnali stradali.</li>
+<li><strong>Social media:</strong> L’annotazione assistita dall’intelligenza artificiale etichetta i post sui social media come immagini e video. Ciò può aiutare ad addestrare i modelli di intelligenza artificiale a identificare e classificare diversi tipi di contenuti, come notizie, pubblicità e post personali.</li>
+</ul>
+<div class="no-row-height column-margin column-container"><div id="ref-krishnan2022selfsupervised" class="csl-entry" role="listitem">
+Krishnan, Rayan, Pranav Rajpurkar, e Eric J. Topol. 2022. <span>«Self-supervised learning in medicine and healthcare»</span>. <em>Nat. Biomed. Eng.</em> 6 (12): 1346–52. <a href="https://doi.org/10.1038/s41551-022-00914-1">https://doi.org/10.1038/s41551-022-00914-1</a>.
+</div></div></section>
+</section>
+<section id="controllo-della-versione-dei-dati" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="controllo-della-versione-dei-dati"><span class="header-section-number">5.7</span> Controllo della Versione dei Dati</h2>
+<p>I sistemi di produzione sono costantemente inondati da volumi di dati fluttuanti e in aumento, che determinano la rapida comparsa di numerose repliche di dati. Questi dati in aumento servono come base per l’addestramento di modelli di apprendimento automatico. Ad esempio, un’azienda di vendita globale impegnata nella previsione delle vendite riceve continuamente dati sul comportamento dei consumatori. Allo stesso modo, i sistemi sanitari che formulano modelli predittivi per la diagnosi delle malattie acquisiscono costantemente nuovi dati sui pazienti. Le applicazioni TinyML, come l’individuazione delle parole chiave, sono molto affamate di dati per quanto riguarda la quantità di dati generati. Di conseguenza, è fondamentale un monitoraggio meticoloso delle versioni dei dati e delle prestazioni del modello corrispondente.</p>
+<p>Il “Data Version Control” [controllo delle versioni dei dati] offre una metodologia strutturata per gestire in modo efficiente alterazioni e versioni di set di dati. Facilita il monitoraggio delle modifiche, conserva più versioni e garantisce riproducibilità e tracciabilità nei progetti incentrati sui dati. Inoltre, il controllo delle versioni dei dati offre la versatilità di rivedere e utilizzare versioni specifiche in base alle necessità, garantendo che ogni fase dell’elaborazione dei dati e dello sviluppo del modello possa essere riesaminata e verificata in modo preciso e semplice. Ha una varietà di usi pratici -</p>
+<p><strong>Gestione del Rischio:</strong> Il controllo della versione dei dati consente trasparenza e responsabilità monitorando le versioni del set di dati.</p>
+<p><strong>Collaborazione ed Efficienza:</strong> Un facile accesso a diverse versioni del set di dati in un unico posto può migliorare la condivisione dei dati di controllo specifici e consentire una collaborazione efficiente.</p>
+<p><strong>Riproducibilità:</strong> Il controllo della versione dei dati consente di monitorare le prestazioni dei modelli riguardanti diverse versioni dei dati, e quindi di abilitare la riproducibilità.</p>
+<p><strong>Concetti Chiave</strong></p>
+<ul>
+<li><p><strong>Commit:</strong> È un’istantanea immutabile dei dati in un momento specifico, che rappresenta una versione univoca. Ogni commit è associato a un identificatore univoco per consentire</p></li>
+<li><p><strong>Branch:</strong> I “branch” [rami] consentono a sviluppatori e specialisti dei data di discostarsi dalla linea di sviluppo principale e continuare a lavorare in modo indipendente senza influenzare altri rami. Ciò è particolarmente utile quando si sperimentano nuove funzionalità o modelli, consentendo sviluppo e sperimentazione paralleli senza il rischio di danneggiare il ramo principale stabile.</p></li>
+<li><p><strong>Merge:</strong> I “Merge” [unioni] aiutano a integrare le modifiche da rami diversi mantenendo l’integrità dei dati.</p></li>
+</ul>
+<p>Con il controllo della versione dei dati in atto, possiamo tracciare le modifiche mostrate in <a href="#fig-data-version-ctrl" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-data-version-ctrl</span></a>, riprodurre i risultati precedenti ripristinando le versioni precedenti e collaborare in modo sicuro ramificando e isolando le modifiche.</p>
+<div id="fig-data-version-ctrl" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-data-version-ctrl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/png/data_version_ctrl.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-version-ctrl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.13: Data versioning.
+</figcaption>
+</figure>
+</div>
+<p><strong>Sistemi di Data Version Control più Diffusi</strong></p>
+<p><a href="https://dvc.org/doc"><strong>[DVC]</strong></a>: È l’acronimo di Data Version Control ed è uno strumento open source e leggero che funziona su Git Hub e supporta tutti i tipi di formati di dati. Può integrarsi perfettamente nel flusso di lavoro se Git viene utilizzato per gestire il codice. Cattura le versioni dei dati e dei modelli nei commit Git mentre li archivia in locale o sul cloud (ad esempio, AWS, Google Cloud, Azure). Questi dati e modelli (ad esempio, artefatti di ML) sono definiti nei file di metadati, che vengono aggiornati a ogni commit. Può consentire il monitoraggio delle metriche dei modelli su diverse versioni dei dati.</p>
+<p><strong><a href="https://docs.lakefs.io/">lakeFS</a>:</strong> È uno strumento open source che supporta il controllo della versione dei dati sui “data lake”. Supporta molte operazioni simili a git, come i “branch” e il “merge” dei dati, nonché il ripristino delle versioni precedenti dei dati. Ha anche una funzionalità UI unica, che semplifica notevolmente l’esplorazione e la gestione dei dati.</p>
+<p><strong><a href="https://git-lfs.com/">Git LFS</a>:</strong> È utile per il controllo della versione dei dataset di dimensioni ridotte. Utilizza le funzionalità di “branch” e “merge” native di Git, ma è limitato nel tracciamento delle metriche, nel ripristino delle versioni precedenti o nell’integrazione con i “data lake”.</p>
+</section>
+<section id="ottimizzazione-dei-dati-per-lia-embedded" class="level2" data-number="5.8">
+<h2 data-number="5.8" class="anchored" data-anchor-id="ottimizzazione-dei-dati-per-lia-embedded"><span class="header-section-number">5.8</span> Ottimizzazione dei Dati per l’IA Embedded</h2>
+<p>I creatori che lavorano su sistemi embedded potrebbero avere priorità insolite quando puliscono i loro dataset. Da un lato, i modelli potrebbero essere sviluppati per casi d’uso insolitamente specifici, che richiedono un filtraggio intensivo dei dataset. Mentre altri modelli di linguaggio naturale possono essere in grado di trasformare qualsiasi discorso in testo, un modello per un sistema embedded può essere incentrato su un singolo compito limitato, come il rilevamento di una parola chiave. Di conseguenza, i creatori possono filtrare in modo aggressivo grandi quantità di dati perché devono affrontare un determinato compito. Un sistema di intelligenza artificiale embedded può anche essere legato a specifici dispositivi hardware o ambienti. Ad esempio, un modello video potrebbe dover elaborare immagini da un singolo tipo di telecamera, che verrà montata solo sui campanelli nei quartieri residenziali. In questo scenario, i creatori possono scartare le immagini se provengono da un diverso tipo di telecamera, mostrano il tipo sbagliato di scenario o sono state scattate dall’altezza o dall’angolazione sbagliate.</p>
+<p>D’altra parte, ci si aspetta spesso che i sistemi di IA embedded forniscano prestazioni particolarmente accurate in contesti imprevedibili del mondo reale. Ciò può portare i creatori a progettare set di dati per rappresentare variazioni nei potenziali input e promuovere la robustezza del modello. Di conseguenza, possono definire un ambito ristretto per il loro progetto ma poi puntare a una copertura approfondita entro quei limiti. Ad esempio, i creatori del modello del campanello menzionato sopra potrebbero provare a coprire le variazioni nei dati derivanti da:</p>
+<ul>
+<li>Quartieri geograficamente, socialmente e architettonicamente diversi</li>
+<li>Diversi tipi di illuminazione artificiale e naturale</li>
+<li>Diverse stagioni e condizioni meteorologiche</li>
+<li>Ostruzioni (ad esempio gocce di pioggia o scatole di consegna che oscurano la visuale della telecamera)</li>
+</ul>
+<p>Come descritto sopra, i creatori possono prendere in considerazione il crowdsourcing o la generazione sintetica di dati per includere queste varianti.</p>
+</section>
+<section id="sec-data-transparency" class="level2 page-columns page-full" data-number="5.9">
+<h2 data-number="5.9" class="anchored" data-anchor-id="sec-data-transparency"><span class="header-section-number">5.9</span> Trasparenza dei Dati</h2>
+<p>Fornendo una documentazione chiara e dettagliata, i creatori possono aiutare gli sviluppatori a capire come utilizzare al meglio i loro set di dati. Diversi gruppi hanno suggerito formati di documentazione standardizzati per i set di dati, come Data Cards <span class="citation" data-cites="pushkarna2022data">(<a href="#ref-pushkarna2022data" role="doc-biblioref">Pushkarna, Zaldivar, e Kjartansson 2022</a>)</span>, datasheet <span class="citation" data-cites="gebru2021datasheets">(<a href="#ref-gebru2021datasheets" role="doc-biblioref">Gebru et al. 2021</a>)</span>, data statement <span class="citation" data-cites="bender2018data">(<a href="#ref-bender2018data" role="doc-biblioref">Bender e Friedman 2018</a>)</span>, o Data Nutrition Labels <span class="citation" data-cites="holland2020dataset">(<a href="#ref-holland2020dataset" role="doc-biblioref">Holland et al. 2020</a>)</span>. Quando rilasciano un dataset, i creatori possono descrivere quali tipi di dati hanno raccolto, come li hanno raccolti ed etichettati e quali tipi di casi d’uso potrebbero essere adatti o meno al set di dati. Quantitativamente, potrebbe essere opportuno mostrare quanto bene il set di dati rappresenti gruppi diversi (ad esempio, gruppi di genere diversi, telecamere diverse).</p>
+<div class="no-row-height column-margin column-container"><div id="ref-gebru2021datasheets" class="csl-entry" role="listitem">
+Gebru, Timnit, Jamie Morgenstern, Briana Vecchione, Jennifer Wortman Vaughan, Hanna Wallach, Hal Daumé III, e Kate Crawford. 2021. <span>«Datasheets for datasets»</span>. <em>Commun. ACM</em> 64 (12): 86–92. <a href="https://doi.org/10.1145/3458723">https://doi.org/10.1145/3458723</a>.
+</div><div id="ref-bender2018data" class="csl-entry" role="listitem">
+Bender, Emily M., e Batya Friedman. 2018. <span>«Data Statements for Natural Language Processing: <span>Toward</span> Mitigating System Bias and Enabling Better Science»</span>. <em>Transactions of the Association for Computational Linguistics</em> 6 (dicembre): 587–604. <a href="https://doi.org/10.1162/tacl_a_00041">https://doi.org/10.1162/tacl_a_00041</a>.
+</div><div id="ref-holland2020dataset" class="csl-entry" role="listitem">
+Holland, Sarah, Ahmed Hosny, Sarah Newman, Joshua Joseph, e Kasia Chmielinski. 2020. <span>«The Dataset Nutrition Label: A Framework to Drive Higher Data Quality Standards»</span>. In <em>Data Protection and Privacy</em>. Hart Publishing. <a href="https://doi.org/10.5040/9781509932771.ch-001">https://doi.org/10.5040/9781509932771.ch-001</a>.
+</div></div><p><a href="#fig-data-card" class="quarto-xref">Figura&nbsp;<span class="quarto-unresolved-ref">fig-data-card</span></a> mostra un esempio di una scheda dati per un set di dati di computer vision (CV). Include alcune informazioni di base sul set di dati e istruzioni su come utilizzarlo, inclusi i “bias” noti.</p>
+<div id="fig-data-card" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-data-card-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/png/data_card.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-card-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figura&nbsp;5.14: Data card che descrive un dataset CV. Fonte: <span class="citation" data-cites="pushkarna2022data">Pushkarna, Zaldivar, e Kjartansson (<a href="#ref-pushkarna2022data" role="doc-biblioref">2022</a>)</span>.
+</figcaption>
+<div class="no-row-height column-margin column-container"><div id="ref-pushkarna2022data" class="csl-entry" role="listitem">
+Pushkarna, Mahima, Andrew Zaldivar, e Oddur Kjartansson. 2022. <span>«Data Cards: <span>Purposeful</span> and Transparent Dataset Documentation for Responsible <span>AI</span>»</span>. In <em>2022 ACM Conference on Fairness, Accountability, and Transparency</em>. ACM. <a href="https://doi.org/10.1145/3531146.3533231">https://doi.org/10.1145/3531146.3533231</a>.
+</div></div></figure>
+</div>
+<p>Tenere traccia della provenienza dei dati, essenzialmente le origini e il viaggio di ogni dato attraverso la pipeline dei dati, non è solo una buona pratica, ma un requisito essenziale per la qualità. La provenienza dei dati contribuisce in modo significativo alla trasparenza dei sistemi di machine learning. I sistemi trasparenti semplificano l’analisi dei dati, consentendo una migliore identificazione e rettifica di errori, bias o incongruenze. Ad esempio, se un modello di ML addestrato su dati medici non è performante in aree specifiche, tracciare la provenienza può aiutare a identificare se il problema riguarda i metodi di raccolta dati, i gruppi demografici rappresentati nei dati o altri fattori. Questo livello di trasparenza non aiuta solo a eseguire il debug del sistema, ma svolge anche un ruolo cruciale nel migliorare la qualità complessiva dei dati. Migliorando l’affidabilità e la credibilità del set di dati, la provenienza dei dati migliora anche le prestazioni del modello e la sua accettabilità tra gli utenti finali.</p>
+<p>Quando si produce la documentazione, i creatori devono anche specificare come gli utenti possono accedere al dataset e come questo verrà mantenuto nel tempo. Ad esempio, gli utenti potrebbero dover sottoporsi a una formazione o ricevere un’autorizzazione speciale dai creatori prima di accedere a un set di dati di informazioni protette, come con molti dataset medici. In alcuni casi, gli utenti potrebbero non accedere direttamente ai dati. Devono invece inviare il loro modello per essere addestrato sull’hardware dei creatori del set di dati, seguendo una configurazione di apprendimento “federato” <span class="citation" data-cites="aledhari2020federated">(<a href="#ref-aledhari2020federated" role="doc-biblioref">Aledhari et al. 2020</a>)</span>. I creatori possono anche descrivere per quanto tempo il dataset rimarrà accessibile, come gli utenti possono inviare feedback su eventuali errori che scoprono e se ci sono piani per aggiornare il set di dati.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-aledhari2020federated" class="csl-entry" role="listitem">
+Aledhari, Mohammed, Rehma Razzak, Reza M. Parizi, e Fahad Saeed. 2020. <span>«Federated Learning: <span>A</span> Survey on Enabling Technologies, Protocols, and Applications»</span>. <em>#IEEE_O_ACC#</em> 8: 140699–725. <a href="https://doi.org/10.1109/access.2020.3013541">https://doi.org/10.1109/access.2020.3013541</a>.
+</div></div><p>Alcune leggi e normative promuovono anche la trasparenza dei dati attraverso nuovi requisiti per le organizzazioni:</p>
+<ul>
+<li>Il “General Data Protection Regulation (GDPR)” nell’Unione Europea: Stabilisce requisiti rigorosi per l’elaborazione e la protezione dei dati personali dei cittadini dell’UE. Impone policy sulla privacy in linguaggio semplice che spiegano chiaramente quali dati vengono raccolti, perché vengono utilizzati, per quanto tempo vengono archiviati e con chi vengono condivisi. Il GDPR impone inoltre che le informative sulla privacy debbano includere dettagli sulla base giuridica per l’elaborazione, i trasferimenti di dati, i periodi di conservazione, i diritti di accesso e cancellazione e le informazioni di contatto per i responsabili del trattamento dei dati.</li>
+<li>Il “California’s Consumer Privacy Act” (CCPA): Il CCPA richiede policy sulla privacy chiare e diritti di esclusione per vendere dati personali. In modo significativo, stabilisce anche i diritti dei consumatori di essere interpellati per la divulgazione dei propri dati specifici. Le aziende devono fornire copie delle informazioni personali raccolte e dettagli su come vengono utilizzate, quali categorie vengono raccolte e cosa ricevono le terze parti. I consumatori possono identificare dati che ritengono debbano essere più accurati. La legge rappresenta un importante passo avanti nel potenziamento dell’accesso ai dati personali.</li>
+</ul>
+<p>Garantire la trasparenza dei dati presenta diverse sfide, soprattutto perché richiede molto tempo e risorse finanziarie. I sistemi di dati sono anche piuttosto complessi e la trasparenza completa può richiedere tempo. La trasparenza completa può anche sopraffare i consumatori con troppi dettagli. Infine, è anche importante bilanciare il compromesso tra trasparenza e privacy.</p>
+</section>
+<section id="licenze" class="level2" data-number="5.10">
+<h2 data-number="5.10" class="anchored" data-anchor-id="licenze"><span class="header-section-number">5.10</span> Licenze</h2>
+<p>Molti dataset di alta qualità provengono da fonti proprietarie o contengono informazioni protette da copyright. Ciò introduce le licenze come una competenza legale impegnativa. Le aziende desiderose di addestrare sistemi di ML devono impegnarsi in trattative per ottenere licenze che garantiscano l’accesso legale a questi dataset. Inoltre, i termini delle licenze possono imporre restrizioni sulle applicazioni dei dati e sui metodi di condivisione. Il mancato rispetto di queste licenze può avere gravi conseguenze.</p>
+<p>Ad esempio, ImageNet, uno dei dataset più ampiamente utilizzati per la ricerca sulla visione artificiale, è un caso emblematico. La maggior parte delle sue immagini è stata ottenuta da fonti online pubbliche senza esplicita autorizzazione, suscitando preoccupazioni etiche (Prabhu e Birhane, 2020). L’accesso al set di dati ImageNet per le aziende richiede la registrazione e l’adesione ai suoi termini di utilizzo, che limitano l’uso commerciale (<a href="https://www.image-net.org/#">ImageNet</a>, 2021). I principali attori come Google e Microsoft investono in modo significativo nella concessione di licenze per i set di dati per migliorare i loro sistemi di visione di ML. Tuttavia, il fattore costo limita l’accessibilità per i ricercatori di aziende più piccole con budget limitati.</p>
+<p>Il dominio legale della concessione di licenze per i dati ha visto casi importanti che aiutano a definire i parametri di utilizzo corretto. Un esempio importante è <em>Authors Guild, Inc.&nbsp;contro Google, Inc.</em> Questa causa del 2005 sosteneva che il progetto di scansione di libri di Google violava i diritti d’autore visualizzando frammenti senza autorizzazione. Tuttavia, i tribunali alla fine si sono pronunciati a favore di Google, sostenendo il “fair use” [correttezza] in base alla natura trasformativa della creazione di un indice ricercabile e della visualizzazione di estratti limitati di testo. Questo precedente fornisce alcune basi legali per sostenere che le protezioni del “fair use” si applicano all’indicizzazione di set di dati e alla generazione di campioni rappresentativi per l’apprendimento automatico. Tuttavia, le restrizioni di licenza rimangono vincolanti, quindi un’analisi completa dei termini di licenza è fondamentale. Il caso dimostra perché le negoziazioni con i fornitori di dati sono importanti per consentire un utilizzo legale entro limiti accettabili.</p>
+<p><strong>Nuove Normative sui Dati e le Loro Implicazioni</strong></p>
+<p>Anche le nuove normative sui dati hanno un impatto sulle pratiche di licenza. Il panorama legislativo si sta evolvendo con normative come l’<a href="https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence">Artificial Intelligence Act</a> dell’UE, che è pronto a regolamentare lo sviluppo e l’uso dei sistemi di intelligenza artificiale all’interno dell’Unione Europea (UE). Questa legislazione:</p>
+<ol type="1">
+<li><p>Classifica i sistemi di IA in base al rischio.</p></li>
+<li><p>Impone prerequisiti di sviluppo e utilizzo.</p></li>
+<li><p>Sottolinea la qualità dei dati, la trasparenza, la supervisione umana e la responsabilità.</p></li>
+</ol>
+<p>Inoltre, l’EU Act affronta le dimensioni etiche e le sfide operative in settori quali sanità e finanza. Gli elementi chiave includono il divieto di sistemi di intelligenza artificiale che presentano rischi “inaccettabili”, condizioni rigorose per sistemi ad alto rischio e obblighi minimi per sistemi di intelligenza artificiale a “rischio limitato”. Il proposto “European AI Board” supervisionerà e garantirà l’implementazione di una regolamentazione efficiente.</p>
+<p><strong>Problemi nell’Assemblaggio di Dataset di Training ML</strong></p>
+<p>Problemi complessi di licenza relativi a dati proprietari, leggi sul copyright e normative sulla privacy limitano le opzioni per l’assemblaggio dei set di dati di training ML. Tuttavia, espandere l’accessibilità tramite licenze più aperte o collaborazioni di dati pubblico-private potrebbe accelerare notevolmente il progresso del settore e gli standard etici.</p>
+<p>A volte, alcune parti di un dataset potrebbero dover essere rimosse o oscurate per rispettare gli accordi di utilizzo dei dati o proteggere informazioni sensibili. Ad esempio, un set di dati di informazioni utente potrebbe contenere nomi, dettagli di contatto e altri dati identificativi che potrebbero dover essere rimossi dal set di dati; questo avviene molto tempo dopo che il set di dati è già stato attivamente reperito e utilizzato per l’addestramento dei modelli. Analogamente, un dataset che include contenuti protetti da copyright o segreti commerciali potrebbe dover filtrare tali parti prima di essere distribuito. Leggi come il General Data Protection Regulation (GDPR), il California Consumer Privacy Act (CCPA) e L’Amended Act on the Protection of Personal Information (<a href="https://www.ppc.go.jp/files/pdf/280222_amendedlaw.pdf">APPI</a>) sono state approvate per garantire il diritto all’oblio. Queste normative impongono legalmente ai fornitori di modelli di cancellare i dati degli utenti su richiesta.</p>
+<p>I raccoglitori e i fornitori di dati devono essere in grado di adottare misure appropriate per de-identificare o filtrare qualsiasi informazione proprietaria, concessa in licenza, riservata o regolamentata, se necessario. A volte, gli utenti possono richiedere esplicitamente che i loro dati vengano rimossi.</p>
+<p>La possibilità di aggiornare il set di dati rimuovendo i dati consentirà ai creatori di rispettare gli obblighi legali ed etici relativi al loro utilizzo e alla privacy. Tuttavia, la capacità di rimuovere i dati presenta alcune limitazioni importanti. Dobbiamo considerare che alcuni modelli potrebbero essere già stati addestrati sul dataset e non esiste un modo chiaro o noto per eliminare l’effetto di un particolare campione di dati dalla rete addestrata. Non esiste un meccanismo di cancellazione. Quindi, ciò solleva la questione: il modello dovrebbe essere riaddestrato da zero ogni volta che viene rimosso un campione? Questa è un’opzione costosa. Una volta che i dati sono stati utilizzati per addestrare un modello, la semplice rimozione dal set di dati originale potrebbe non eliminare completamente il suo impatto sul comportamento del modello. Sono necessarie nuove ricerche sugli effetti della rimozione dei dati sui modelli già addestrati e se sia necessario un ri-addestramento completo per evitare di conservare artefatti di dati eliminati. Ciò presenta una considerazione importante quando si bilanciano gli obblighi di licenza dei dati con l’efficienza e la praticità in un sistema di ML in evoluzione e distribuito.</p>
+<p>La licenza del dataset è un dominio poliedrico che interseca tecnologia, etica e legge. Comprendere queste complessità diventa fondamentale per chiunque crei set di dati durante l’ingegneria dei dati, man mano che il mondo si evolve.</p>
+</section>
+<section id="conclusione" class="level2" data-number="5.11">
+<h2 data-number="5.11" class="anchored" data-anchor-id="conclusione"><span class="header-section-number">5.11</span> Conclusione</h2>
+<p>I dati sono il componente fondamentale dei sistemi di intelligenza artificiale. Senza dati di qualità, anche gli algoritmi di apprendimento automatico più avanzati falliranno. L’ingegneria dei dati comprende il processo end-to-end di raccolta, archiviazione, elaborazione e gestione dei dati per alimentare lo sviluppo di modelli di apprendimento automatico. Si inizia con la definizione chiara del problema principale e degli obiettivi, che guidano una raccolta dati efficace. I dati possono essere reperiti da diversi mezzi, tra cui dataset esistenti, web scraping, crowdsourcing e generazione di dati sintetici. Ogni approccio comporta compromessi tra costi, velocità, privacy e specificità. Una volta raccolti i dati, un’etichettatura ponderata tramite annotazione manuale o assistita dall’intelligenza artificiale consente la creazione di set di dati di training di alta qualità. Un’archiviazione adeguata in database, “warehouse” o “lake” facilita l’accesso e l’analisi. I metadati forniscono dettagli contestuali sui dati. L’elaborazione dei dati trasforma i dati grezzi in un formato pulito e coerente per lo sviluppo di modelli di apprendimento automatico. In tutta questa pipeline, la trasparenza attraverso la documentazione e il tracciamento della provenienza è fondamentale per l’etica, la verificabilità e la riproducibilità. I protocolli di licenza dei dati regolano anche l’accesso e l’uso legale dei dati. Le principali sfide nell’ingegneria dei dati includono rischi per la privacy, lacune di rappresentazione, restrizioni legali sui dati proprietari e la necessità di bilanciare vincoli concorrenti come velocità e qualità. Progettando attentamente dati di training di alta qualità, i professionisti dell’apprendimento automatico possono sviluppare sistemi di intelligenza artificiale accurati, robusti e responsabili, tra cui applicazioni embedded e TinyML.</p>
+</section>
+<section id="sec-data-engineering-resource" class="level2" data-number="5.12">
+<h2 data-number="5.12" class="anchored" data-anchor-id="sec-data-engineering-resource"><span class="header-section-number">5.12</span> Risorse</h2>
+<p>Ecco un elenco curato di risorse per supportare studenti e insegnanti nei loro percorsi di apprendimento e insegnamento. Lavoriamo continuamente per espandere questa raccolta e presto aggiungeremo nuovi esercizi.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Slide
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Queste slide sono uno strumento prezioso per gli insegnanti per tenere lezioni e per gli studenti per rivedere il materiale secondo il proprio ritmo. Incoraggiamo studenti e docenti a sfruttare queste slide per migliorare la loro comprensione e facilitare un trasferimento efficace delle conoscenze.</p>
+<ul>
+<li><p><a href="https://docs.google.com/presentation/d/1jlIfD6RtQWG8314jCAu1qdnG7YyESy60Yt5-zXhEsVA/edit#slide=id.g202a7c05d1a_0_0">Data Engineering: Overview.</a></p></li>
+<li><p><a href="https://docs.google.com/presentation/d/1AIM1H-GfvjNPHQw9urxJz3vtMgb_9kizfthbymISPR4/edit#slide=id.g202a83498d1_0_0">Feature engineering.</a></p></li>
+<li><p><a href="https://docs.google.com/presentation/d/1qDoHc7yzZ2lEha9NTMZ07Ls4tkIz-1f7kUYRlvjzsI4/edit?usp=drive_link&amp;resourcekey=0-ol4Oqk_y706P_zIB5mbu7Q">Data Standards: Speech Commands.</a></p></li>
+<li><p><a href="https://docs.google.com/presentation/d/1d3KUit64L-4dXecCNBpikCxx7VO0xIJ13r9v1Ad22S4/edit#slide=id.ga4ca29c69e_0_179">Crowdsourcing Data for the Long Tail.</a></p></li>
+<li><p><a href="https://docs.google.com/presentation/d/1mHecDoCYHQD9nWSRYCrXXG0IOp9wYQk-fbxhoNIsGMY/edit#slide=id.ga4ca29c69e_0_206">Reusing and Adapting Existing Datasets.</a></p></li>
+<li><p><a href="https://docs.google.com/presentation/d/1vcmuhLVNFT2asKSCSGh_Ix9ht0mJZxMii8MufEMQhFA/edit?resourcekey=0-_pYLcW5aF3p3Bvud0PPQNg#slide=id.ga4ca29c69e_0_195">Responsible Data Collection.</a></p></li>
+<li><p>Rilevamento Dati Anomali:</p>
+<ul>
+<li><p><a href="https://docs.google.com/presentation/d/1R8A_5zKDZDZOdAb1XF9ovIOUTLWSIuFWDs20-avtxbM/edit?resourcekey=0-pklEaPv8PmLQ3ZzRYgRNxw#slide=id.g94db9f9f78_0_2">Anomaly Detection: Overview.</a></p></li>
+<li><p><a href="https://docs.google.com/presentation/d/1JZxx2kLaO1a8O6z6rRVFpK0DN-8VMkaSrNnmk_VGbI4/edit#slide=id.g53eb988857_0_91">Anomaly Detection: Challenges.</a></p></li>
+<li><p><a href="https://docs.google.com/presentation/d/1wPDhp4RxVrOonp6pU0Capk0LWXZOGZ3x9BzW_VjpTQw/edit?resourcekey=0-y6wKAnuxrLWqhleq9ruLOA#slide=id.g53eb988857_0_91">Anomaly Detection: Datasets.</a></p></li>
+<li><p><a href="https://docs.google.com/presentation/d/1Q4h7XrayNRIP0r52Hlk5VjxRcli-GY2xmyZ53nCd6CI/edit#slide=id.g53eb988857_0_91">Anomaly Detection: Using Autoencoders.</a></p></li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Video
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<ul>
+<li><em>Prossimamente.</em></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Esercizi
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Per rafforzare i concetti trattati in questo capitolo, abbiamo curato una serie di esercizi che sfidano gli studenti ad applicare le proprie conoscenze e ad approfondire la propria comprensione.</p>
+<ul>
+<li><p><a href="#exr-kws" class="quarto-xref">Esercizio&nbsp;<span class="quarto-unresolved-ref">exr-kws</span></a></p></li>
+<li><p><a href="#exr-ws" class="quarto-xref">Esercizio&nbsp;<span class="quarto-unresolved-ref">exr-ws</span></a></p></li>
+<li><p><a href="#exr-sd" class="quarto-xref">Esercizio&nbsp;<span class="quarto-unresolved-ref">exr-sd</span></a></p></li>
+<li><p><a href="#exr-dp" class="quarto-xref">Esercizio&nbsp;<span class="quarto-unresolved-ref">exr-dp</span></a></p></li>
+<li><p><a href="#exr-bl" class="quarto-xref">Esercizio&nbsp;<span class="quarto-unresolved-ref">exr-bl</span></a></p></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Laboratori
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>Oltre agli esercizi, offriamo una serie di laboratori pratici che consentono agli studenti di acquisire esperienza pratica con le tecnologie di intelligenza artificiale embedded. Questi laboratori forniscono una guida passo dopo passo, consentendo agli studenti di sviluppare le proprie competenze in un ambiente strutturato e di supporto. Siamo lieti di annunciare che presto saranno disponibili nuovi laboratori, che arricchiranno ulteriormente l’esperienza di apprendimento.</p>
+<ul>
+<li><em>Prossimamente.</em></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiato!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiato!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="harvard-edge/cs249r_book" data-repo-id="R_kgDOKQSOaw" data-category="General" data-category-id="DIC_kwDOKQSOa84CZ8Ry" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="dark">
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../contents/core/workflow/workflow.it.html" class="pagination-link" aria-label="Workflow dell'IA">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Workflow dell’IA</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../contents/core/frameworks/frameworks.it.html" class="pagination-link" aria-label="Framework di IA">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Framework di IA</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Scritto, modificato e curato dal Prof.&nbsp;Vijay Janapa Reddi (Harvard University)</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/harvard-edge/cs249r_book/edit/dev/contents/core/data_engineering/data_engineering.it.qmd" class="toc-action"><i class="bi bi-github"></i>Modifica questa pagina</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/issues/new" class="toc-action"><i class="bi empty"></i>Segnala un problema</a></li><li><a href="https://github.com/harvard-edge/cs249r_book/blob/dev/contents/core/data_engineering/data_engineering.it.qmd" class="toc-action"><i class="bi empty"></i>Mostra il codice</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Questo libro è stato creato con <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
