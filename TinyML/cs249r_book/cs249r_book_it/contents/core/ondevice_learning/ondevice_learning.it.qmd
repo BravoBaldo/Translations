@@ -5,7 +5,7 @@ bibliography: ondevice_learning.bib
 # Apprendimento On-Device {#sec-ondevice_learning}
 
 ::: {.content-visible when-format="html"}
-Risorse: [Slide](#sec-on-device-learning-resource), [Video](#sec-on-device-learning-resource), [Esercizi](#sec-on-device-learning-resource), [Laboratori](#sec-on-device-learning-resource)
+Risorse: [Slide](#sec-on-device-learning-resource), [Video](#sec-on-device-learning-resource), [Esercizi](#sec-on-device-learning-resource)
 :::
 
 ![_DALL·E 3 Prompt: Disegno di uno smartphone con i suoi componenti interni esposti, che mostra diversi ingegneri in miniatura di diversi sessi e tonalità di pelle che lavorano attivamente sul modello di ML. Gli ingegneri, tra cui uomini, donne e individui non binari, stanno regolando i parametri, riparando le connessioni e migliorando la rete al volo. I dati fluiscono nel modello ML, vengono elaborati in tempo reale e generano inferenze di output._](images/png/cover_ondevice_learning.png)
@@ -28,15 +28,15 @@ L'apprendimento "On-device" [sul dispositivo] rappresenta un'innovazione signifi
 
 :::
 
-## Introduzione
+## Panoramica
 
 L'apprendimento su dispositivo si riferisce all'addestramento di modelli ML direttamente sul dispositivo in cui vengono distribuiti, al contrario dei metodi tradizionali in cui i modelli vengono addestrati su server potenti e poi distribuiti sui dispositivi. Questo metodo è particolarmente rilevante per TinyML, in cui i sistemi ML sono integrati in dispositivi minuscoli e con risorse limitate.
 
 Un esempio di apprendimento su dispositivo può essere visto in un termostato intelligente che si adatta al comportamento dell'utente nel tempo. Inizialmente, il termostato può avere un modello generico che comprende pattern di utilizzo di base. Tuttavia, poiché è esposto a più dati, come gli orari in cui l'utente è a casa o fuori, le temperature preferite e le condizioni meteorologiche esterne, il termostato può perfezionare il suo modello direttamente sul dispositivo per fornire un'esperienza personalizzata. Tutto ciò avviene senza inviare dati a un server centrale per l'elaborazione.
 
-Un altro esempio è nel testo predittivo sugli smartphone. Mentre gli utenti digitano, il telefono impara dai pattern linguistici dell'utente e suggerisce parole o frasi che probabilmente verranno utilizzate in seguito. Questo apprendimento avviene direttamente sul dispositivo e il modello si aggiorna in tempo reale man mano che vengono raccolti più dati. Un esempio pratico di apprendimento su dispositivo ampiamente utilizzato è [Gboard](https://play.google.com/store/apps/details?id=com.google.android.inputmethod.latin). Su un telefono Android, Gboard [impara da modelli di digitazione e dettatura](https://research.google/blog/federated-learning-collaborative-machine-learning-without-centralized-training-data/) per migliorare l'esperienza per tutti gli utenti. L'apprendimento "On-device" è anche chiamato "apprendimento federato".
+Un altro esempio è nel testo predittivo sugli smartphone. Mentre gli utenti digitano, il telefono impara dai pattern linguistici dell'utente e suggerisce parole o frasi che probabilmente verranno utilizzate in seguito. Questo apprendimento avviene direttamente sul dispositivo e il modello si aggiorna in tempo reale man mano che vengono raccolti più dati. Un esempio pratico di apprendimento su dispositivo ampiamente utilizzato è [Gboard](https://play.google.com/store/apps/details?id=com.google.android.inputmethod.latin). Su un telefono Android, Gboard [impara da modelli di digitazione e dettatura](https://research.google/blog/federated-learning-collaborative-machine-learning-without-centralized-training-data/) per migliorare l'esperienza per tutti gli utenti.
 
-@fig-federated-cycle mostra il ciclo di apprendimento federato sui dispositivi mobili: *A.* il dispositivo impara dai pattern utente; *B.* gli aggiornamenti del modello locale vengono comunicati al cloud; *C.* il server cloud aggiorna il modello globale e invia il nuovo modello a tutti i dispositivi.
+In alcuni casi, l'apprendimento sul dispositivo può essere abbinato a una configurazione di apprendimento federato, in cui ogni dispositivo perfeziona il proprio modello localmente utilizzando solo i dati archiviati su quel dispositivo. Questo approccio consente al modello di apprendere dai dati univoci di ogni dispositivo senza trasmetterne nessuno a un server centrale. Come mostrato in @fig-federated-cycle, l'apprendimento federato preserva la privacy mantenendo tutti i dati personali sul dispositivo, assicurando che il processo di addestramento rimanga interamente sul dispositivo, con solo aggiornamenti riepilogativi del modello condivisi tra i dispositivi.
 
 ![Ciclo di apprendimento federato. Fonte: [Google Research.](https://ai.googleblog.com/2017/04/federated-learning-collaborative.html)](images/png/ondevice_intro.png){#fig-federated-cycle}
 
@@ -44,7 +44,7 @@ Un altro esempio è nel testo predittivo sugli smartphone. Mentre gli utenti dig
 
 L'apprendimento su dispositivo offre diversi vantaggi rispetto al tradizionale ML basato su cloud. Mantenendo dati e modelli sul dispositivo, elimina la necessità di costose trasmissioni di dati e risolve i problemi di privacy. Ciò consente esperienze più personalizzate e reattive, poiché il modello può adattarsi in tempo reale al comportamento dell'utente.
 
-Tuttavia, l'apprendimento su dispositivo presenta anche dei compromessi. Le limitate risorse di elaborazione sui dispositivi dei consumatori possono rendere difficile l'esecuzione di modelli complessi in locale. Anche i set di dati sono più limitati poiché sono costituiti solo da dati generati dall'utente da un singolo dispositivo. Inoltre, l'aggiornamento dei modelli richiede l'invio di nuove versioni anziché aggiornamenti cloud senza interruzioni.
+Tuttavia, l'apprendimento sul dispositivo presenta anche degli svantaggi. Le limitate risorse di elaborazione sui dispositivi dei consumatori possono rendere difficile l'esecuzione di modelli complessi in locale. Anche i set di dati sono più limitati poiché sono costituiti solo da dati generati dall'utente da un singolo dispositivo. Inoltre, l'aggiornamento dei modelli su ogni dispositivo può essere più complicato, poiché spesso richiede di distribuire le nuove versioni su ogni dispositivo singolarmente, anziché aggiornare senza problemi un singolo modello nel cloud.
 
 L'apprendimento su dispositivo apre nuove possibilità abilitando l'intelligenza artificiale offline mantenendo al contempo la privacy dell'utente. Tuttavia, richiede una gestione attenta della complessità dei modelli e dei dati entro i limiti dei dispositivi dei consumatori. Trovare il giusto equilibrio tra localizzazione e offload dal cloud è fondamentale per ottimizzare le esperienze su dispositivo.
 
@@ -58,7 +58,7 @@ Le violazioni dei server sono tutt'altro che rare, con milioni di record comprom
 
 Regolamenti come l'Health Insurance Portability and Accountability Act ([HIPAA](https://www.cdc.gov/phlp/publications/topic/hipaa.html)) e il General Data Protection Regulation ([GDPR](https://gdpr.eu/tag/gdpr/)) impongono rigorosi requisiti di riservatezza dei dati che l'apprendimento sul dispositivo affronta abilmente. Garantendo che i dati rimangano localizzati e non vengano trasferiti ad altri sistemi, l'apprendimento sul dispositivo facilita la [conformità a tali regolamenti](https://www.researchgate.net/publication/321515854_The_EU_General_Data_Protection_Regulation_GDPR_A_Practical_Guide).
 
-L'apprendimento sul dispositivo non è solo vantaggioso per i singoli utenti; ha implicazioni significative per le organizzazioni e i settori che gestiscono dati altamente sensibili. Ad esempio, in ambito militare, l'apprendimento sul dispositivo consente ai sistemi di prima linea di adattare modelli e funzioni indipendentemente dalle connessioni ai server centrali che potrebbero essere potenzialmente compromessi. Le informazioni critiche e sensibili sono saldamente protette dalla localizzazione dell'elaborazione e dell'apprendimento dei dati. Tuttavia, ciò comporta il compromesso che i singoli dispositivi assumono più valore e possono incentivare furti o distruzioni poiché diventano gli unici vettori di modelli di intelligenza artificiale specializzati. È necessario prestare attenzione alla protezione dei dispositivi stessi durante la transizione all'apprendimento sul dispositivo.
+L'apprendimento sul dispositivo non è solo vantaggioso per i singoli utenti; ha implicazioni significative per le organizzazioni e i settori che gestiscono dati altamente sensibili. Ad esempio, in ambito militare, l'apprendimento sul dispositivo consente ai sistemi di prima linea di adattare modelli e funzioni indipendentemente dalle connessioni ai server centrali che potrebbero essere potenzialmente compromessi. Le informazioni critiche e sensibili sono saldamente protette dalla localizzazione dell'elaborazione e dell'apprendimento dei dati. Tuttavia, lo svantaggio è che i singoli dispositivi assumono un valore maggiore e possono incentivarne il furto o la distruzione, poiché diventano gli unici portatori di modelli di IA specializzati. È necessario prestare attenzione alla protezione dei dispositivi stessi durante la transizione all'apprendimento sul dispositivo.
 
 È inoltre importante preservare la privacy, la sicurezza e la conformità normativa dei dati personali e sensibili. Invece che nel cloud, i modelli di training e operativi aumentano sostanzialmente le misure di privacy a livello locale, assicurando che i dati degli utenti siano protetti da potenziali minacce.
 
@@ -79,13 +79,17 @@ Le principali normative sulla privacy impongono restrizioni sullo spostamento tr
 
 Uno dei principali vantaggi dell'apprendimento su dispositivo è la significativa riduzione dell'utilizzo della larghezza di banda e dei costi associati all'infrastruttura cloud. Mantenendo i dati localizzati per l'addestramento del modello anziché trasmettere dati grezzi al cloud, l'apprendimento su dispositivo può comportare notevoli risparmi di larghezza di banda. Ad esempio, una rete di telecamere che analizzano i filmati video può ottenere significative riduzioni nel trasferimento di dati addestrando i modelli sul dispositivo anziché trasmettere in streaming tutti i filmati video al cloud per l'elaborazione.
 
-Questa riduzione nella trasmissione dei dati consente di risparmiare larghezza di banda e si traduce in costi inferiori per server, reti e archiviazione dei dati nel cloud. Le grandi organizzazioni, che potrebbero spendere milioni in infrastrutture cloud per addestrare modelli di dati sui dispositivi, possono sperimentare drastiche riduzioni dei costi tramite l'apprendimento on-device. Nell'era dell'intelligenza artificiale generativa, in cui [i costi sono aumentati in modo significativo](https://epochai.org/blog/trends-in-the-dollar-training-cost-of-machine-learning-systems), trovare modi per contenere le spese è diventato sempre più importante.
+Questa riduzione nella trasmissione dei dati consente di risparmiare larghezza di banda e si traduce in costi inferiori per server, reti e archiviazione dei dati nel cloud. Le grandi organizzazioni, che potrebbero spendere milioni in infrastrutture cloud per addestrare i modelli, possono riscontrare notevoli riduzioni dei costi grazie all'apprendimento sul dispositivo. Nell'era dell'intelligenza artificiale generativa, in cui [i costi sono aumentati in modo significativo](https://epochai.org/blog/trends-in-the-dollar-training-cost-of-machine-learning-systems), trovare modi per contenere le spese è diventato sempre più importante.
 
 Inoltre, anche i costi energetici e ambientali della gestione di grandi server farm sono diminuiti. I data center consumano grandi quantità di energia, contribuendo alle emissioni di gas serra. Riducendo la necessità di un'ampia infrastruttura basata su cloud, l'apprendimento sui dispositivi contribuisce a mitigare l'impatto ambientale dell'elaborazione dei dati [@wu2022sustainable].
 
 Specificamente per le applicazioni endpoint [finali], l'apprendimento sui dispositivi riduce al minimo il numero di chiamate API di rete necessarie per eseguire l'inferenza tramite un provider cloud. I costi cumulativi associati alla larghezza di banda e alle chiamate API possono aumentare rapidamente per le applicazioni con milioni di utenti. Al contrario, eseguire training e inferenze localmente è notevolmente più efficiente e conveniente. Con ottimizzazioni all'avanguardia, è stato dimostrato che l'apprendimento on-device riduce i requisiti di memoria del training, migliora drasticamente l'efficienza della memoria e riduce fino al 20% la latenza per iterazione [@dhar2021survey].
 
-Un altro vantaggio fondamentale dell'apprendimento sul dispositivo è la possibilità per i dispositivi IoT di adattare continuamente il loro modello ML a nuovi dati per un apprendimento continuo e permanente. I modelli sul dispositivo possono rapidamente diventare obsoleti man mano che il comportamento dell'utente, i pattern di dati e le preferenze cambiano. L'apprendimento continuo consente al modello di adattarsi in modo efficiente a nuovi dati e miglioramenti e di mantenere elevate prestazioni del modello nel tempo.
+#### Addestramento Permanente
+
+Uno dei principali vantaggi dell'apprendimento sul dispositivo è la sua capacità di supportare l'addestramento permanente, consentendo ai modelli di adattarsi continuamente ai nuovi dati e all'evoluzione del comportamento dell'utente direttamente sul dispositivo. In ambienti dinamici, i modelli di dati possono cambiare nel tempo, un fenomeno noto come deriva dei dati, che può degradare l'accuratezza e la pertinenza del modello se questo rimane statico. Ad esempio, le preferenze dell'utente, le tendenze stagionali o persino le condizioni esterne (come i modelli di traffico di rete o le condizioni meteorologiche) possono evolversi, richiedendo ai modelli di adattarsi per mantenere prestazioni ottimali.
+
+L'apprendimento sul dispositivo consente ai modelli di affrontare questo problema adattandosi in modo incrementale man mano che diventano disponibili nuovi dati. Questo processo di adattamento continuo consente ai modelli di rimanere pertinenti ed efficaci, riducendo la necessità di frequenti aggiornamenti cloud. Gli adattamenti locali riducono la necessità di trasmettere grandi set di dati al cloud per la riqualificazione, risparmiando larghezza di banda e garantendo la privacy dei dati.
 
 ### Limitazioni
 
@@ -113,7 +117,7 @@ Nel cloud, i modelli vengono addestrati su dataset enormi e diversi come ImageNe
 
 L'apprendimento sul dispositivo si basa invece su "data silos" più piccoli e decentralizzati, unici per ogni dispositivo. Il rullino fotografico di uno smartphone potrebbe contenere solo migliaia di foto degli interessi e degli ambienti degli utenti.
 
-Questi dati decentralizzati portano alla necessità di dati IID (indipendenti e distribuiti in modo identico). Ad esempio, due amici potrebbero scattare molte foto degli stessi luoghi e oggetti, il che significa che le loro distribuzioni di dati sono altamente correlate piuttosto che indipendenti.
+Nell'apprendimento automatico, un training efficace del modello spesso presuppone che i dati siano "independent and identically distributed (IID)" [indipendenti e distribuiti in modo identico]. Ciò significa che ogni punto dati viene generato in modo indipendente (senza influenzare altri punti) e segue la stessa distribuzione statistica del resto dei dati. Quando i dati sono IID, i modelli addestrati su di essi hanno maggiori probabilità di generalizzare bene a nuovi dati simili. Tuttavia, nell'apprendimento su dispositivo, questa condizione IID è raramente soddisfatta, poiché i dati sono altamente specifici per singoli utenti e contesti. Ad esempio, due amici possono scattare foto simili degli stessi luoghi, creando dati correlati che non rappresentano una popolazione più ampia o la varietà necessaria per la generalizzazione.
 
 Motivi per cui i dati potrebbero essere non IID nelle impostazioni sul dispositivo:
 
@@ -129,15 +133,9 @@ I dati limitati e le ottimizzazioni richieste per l'apprendimento on-device poss
 * I dati rumorosi generati dall'utente riducono la qualità. Il rumore del sensore o l'etichettatura impropria dei dati da parte di non esperti possono degradare l'addestramento.
 * Ottimizzazioni come la potatura e la quantizzazione compromettono la precisione per l'efficienza. Un modello quantizzato a 8 bit funziona più velocemente ma meno accuratamente di un modello a 32 bit.
 
-Quindi, mentre i modelli cloud raggiungono un'elevata precisione con enormi set di dati e senza vincoli, i modelli su dispositivo possono avere difficoltà a generalizzare. Alcuni studi dimostrano che il training sul dispositivo corrisponde all'accuratezza del cloud su determinate attività. Tuttavia, le prestazioni sui carichi di lavoro reali richiedono ulteriori studi [@lin2022device].
+Quindi, mentre i modelli cloud raggiungono un'elevata precisione con enormi set di dati e senza vincoli, i modelli su dispositivo possono avere difficoltà a generalizzare. Alcuni studi dimostrano che il training sul dispositivo corrisponde all'accuratezza del cloud su determinate attività. Tuttavia, le prestazioni sui carichi di lavoro reali richiedono ulteriori studi [@lin2022device]. Ad esempio, un modello cloud può rilevare con precisione la polmonite nelle radiografie del torace di migliaia di ospedali. Tuttavia, un modello sul dispositivo addestrato solo su una piccola popolazione locale di pazienti potrebbe non riuscire a generalizzare. Ciò limita l'applicabilità pratica dell'apprendimento sui dispositivi per utilizzi critici come la diagnosi delle malattie o i veicoli a guida autonoma.
 
-Ad esempio, un modello cloud può rilevare con precisione la polmonite nelle radiografie del torace di migliaia di ospedali. Tuttavia, un modello sul dispositivo addestrato solo su una piccola popolazione locale di pazienti potrebbe non riuscire a generalizzare.
-
-Un'accuratezza inaffidabile limita l'applicabilità nel mondo reale dell'apprendimento sul dispositivo per usi critici come la diagnosi di malattie o i veicoli a guida autonoma.
-
-Il training sul dispositivo è anche più lento del cloud a causa delle risorse limitate. Anche se ogni iterazione è più veloce, il processo di training complessivo richiede più tempo.
-
-Ad esempio, un'applicazione di robotica in tempo reale potrebbe richiedere aggiornamenti del modello entro millisecondi. L'On-device training su un piccolo hardware embedded potrebbe richiedere secondi o minuti per l'aggiornamento, troppo lento per l'uso in tempo reale.
+Il training sul dispositivo è anche più lento del cloud a causa delle risorse limitate. Anche se ogni iterazione è più veloce, il processo di training complessivo richiede più tempo. Ad esempio, un'applicazione di robotica in tempo reale potrebbe richiedere aggiornamenti del modello entro millisecondi. L'On-device training su un piccolo hardware embedded potrebbe richiedere secondi o minuti per l'aggiornamento, troppo lento per l'uso in tempo reale.
 
 Le sfide relative a precisione, generalizzazione e velocità pongono ostacoli all'adozione dell'apprendimento on-device per sistemi di produzione reali, soprattutto quando affidabilità e bassa latenza sono fondamentali.
 
@@ -169,11 +167,9 @@ Con alcuni perfezionamenti, questi algoritmi ML classici possono essere adattati
 
 #### Pruning
 
-Il "pruning" [potatura] è una tecnica per ridurre le dimensioni e la complessità di un modello ML per migliorarne l'efficienza e le prestazioni di generalizzazione. Ciò è utile per l'addestramento di modelli su dispositivi edge, in cui vogliamo ridurre al minimo l'utilizzo delle risorse mantenendo un'accuratezza competitiva.
+Come discusso in @sec-pruning, la potatura è una tecnica fondamentale per ridurre le dimensioni e la complessità dei modelli ML. Per l'apprendimento su dispositivo, la potatura è particolarmente preziosa, poiché riduce al minimo il consumo di risorse mantenendo un'accuratezza competitiva. Rimuovendo i componenti meno informativi di un modello, la potatura consente ai modelli ML di funzionare in modo più efficiente su dispositivi con risorse limitate.
 
-L'obiettivo principale della potatura è rimuovere parti del modello che non contribuiscono in modo significativo al suo potere predittivo, mantenendo al contempo gli aspetti più informativi. Nel contesto degli alberi decisionali, la potatura comporta la rimozione di alcuni rami (sottoalberi) dall'albero, portando a un albero più piccolo e semplice. Allo stesso modo, quando applicato alle Deep Neural Networks (DNN), il pruning riduce il numero di neuroni (unità) o connessioni nella rete. Questo processo è illustrato in @fig-ondevice-pruning, che dimostra come il pruning può semplificare la struttura di una rete neurale eliminando connessioni o unità meno importanti, con conseguente creazione di un modello più compatto ed efficiente.
-
-![Potatura della rete.](images/jpg/pruning.jpeg){#fig-ondevice-pruning}
+Nel contesto dell'apprendimento su dispositivo, la potatura viene applicata per adattare modelli di deep learning complessi alla memoria limitata e alla potenza di elaborazione dei dispositivi edge. Ad esempio, la potatura può ridurre il numero di neuroni o connessioni in una DNN, con conseguente consumo di meno memoria e minori calcoli. Questo approccio semplifica la struttura della rete neurale, con conseguente modello più compatto ed efficiente.
 
 #### Riduzione della Complessità dei Modelli di Deep Learning
 
@@ -211,7 +207,7 @@ QAS viene utilizzato per superare le difficoltà di ottimizzazione dei modelli s
 
 Sebbene QAS consenta l'ottimizzazione di un modello quantizzato, utilizza una grande quantità di memoria, il che non è realistico per l'addestramento sul dispositivo. Quindi, gli aggiornamenti "spare" vengono utilizzati per ridurre l'ingombro di memoria del calcolo "full backward". Invece di potare i pesi per l'inferenza, l'aggiornamento sparso pota il gradiente durante la "backward propagation " [propagazione all'indietro] per aggiornare il modello in modo sparso. In altre parole, l'aggiornamento sparso salta i gradienti del calcolo di layer e sottotensori meno importanti.
 
-Tuttavia, determinare lo schema di un aggiornamento sparso ottimale dato un budget di memoria vincolante può essere difficile a causa dell'ampio spazio di ricerca. Ad esempio, il modello MCUNet ha 43 layer convoluzionali e uno spazio di ricerca di circa 1030. Una tecnica per affrontare questo problema è l'analisi del contributo. L'analisi del contributo misura il miglioramento dell'accuratezza dai bias (aggiornamento degli ultimi bias rispetto al solo aggiornamento del classificatore) e pesi (aggiornamento del peso di un layer extra rispetto al solo aggiornamento del bias). Cercando di massimizzare questi miglioramenti, l'analisi del contributo deriva automaticamente uno schema di aggiornamento sparso ottimale per abilitare l'addestramento sul dispositivo.
+Tuttavia, determinare lo schema di un aggiornamento sparso ottimale dato un budget di memoria vincolante può essere difficile a causa dell'ampio spazio di ricerca. Ad esempio, il modello MCUNet ha 43 layer convoluzionali e uno spazio di ricerca di circa $10^{30}$. Una tecnica per affrontare questo problema è l'analisi del contributo. L'analisi del contributo misura il miglioramento dell'accuratezza dai bias (aggiornamento degli ultimi bias rispetto al solo aggiornamento del classificatore) e pesi (aggiornamento del peso di un layer extra rispetto al solo aggiornamento del bias). Cercando di massimizzare questi miglioramenti, l'analisi del contributo deriva automaticamente uno schema di aggiornamento sparso ottimale per abilitare l'addestramento sul dispositivo.
 
 #### Training Layer-Wise
 
@@ -250,7 +246,7 @@ Il transfer learning è importante per rendere praticabile l'intelligenza artifi
 
 Il transfer learning ha rivoluzionato il modo in cui i modelli vengono sviluppati e distribuiti, sia nel cloud che nell'edge. Il transfer learning viene utilizzato nel mondo reale. Un esempio del genere è l'uso del transfer learning per sviluppare modelli di intelligenza artificiale in grado di rilevare e diagnosticare malattie da immagini mediche, come raggi X, scansioni MRI [risonanza magnetica] e TAC. Ad esempio, i ricercatori della Stanford University hanno sviluppato un modello di apprendimento di trasferimento in grado di rilevare il cancro nelle immagini della pelle con una precisione del 97% [@esteva2017dermatologist]. Questo modello è stato pre-addestrato su 1.28 milioni di immagini per classificare un'ampia gamma di oggetti e poi specializzato per il rilevamento del cancro tramite l'addestramento su un set di dati di immagini della pelle curato da dermatologi.
 
-L'implementazione negli scenari di produzione può essere ampiamente categorizzata in due fasi: pre-distribuzione e post-distribuzione.
+In contesti di produzione, l'implementazione del transfer learning in genere comporta due fasi chiave: pre-distribuzione e post-distribuzione. La pre-distribuzione si concentra sulla preparazione del modello per il suo compito specializzato prima del rilascio, mentre la post-distribuzione consente al modello di adattarsi ulteriormente in base ai dati dei singoli utenti, migliorando la personalizzazione e l'accuratezza nel tempo.
 
 ### Specializzazione Pre-Distribuzione
 
@@ -261,7 +257,7 @@ Questo modello pre-addestrato funge da solida base e contiene una vasta conoscen
 Ecco come funziona in pratica:
 
 * **Inizia con un Modello Pre-Addestrato:** Si inizia selezionando un modello che è già stato addestrato su un set di dati completo, solitamente correlato a un'attività generale. Questo modello funge da base per l'attività in questione.
-* **Finetuning:** Il modello pre-addestrato viene quindi perfezionato su un set di dati più piccolo e specifico per l'attività desiderata. Questo passaggio consente al modello di adattare e specializzare la sua conoscenza ai requisiti specifici dell'applicazione.
+* **Fine-tuning:** Il modello pre-addestrato viene poi perfezionato su un set di dati più piccolo e specifico per l'attività desiderata. Questo passaggio consente al modello di adattare e specializzare la sua conoscenza ai requisiti specifici dell'applicazione.
 * **Validazione:** Dopo la messa a punto, il modello viene convalidato per garantire che soddisfi i criteri di prestazione per l'attività specializzata.
 * **Deployment:** Una volta convalidato, il modello specializzato viene distribuito nell'ambiente di produzione.
 
@@ -276,9 +272,9 @@ Consideriamo un'applicazione reale in cui un genitore desidera identificare il p
 Ecco come funziona:
 
 1. **Raccolta Dati:** Il sistema embedded raccoglie immagini che includono il bambino, idealmente con l'input del genitore per garantire accuratezza e pertinenza. Ciò può essere fatto direttamente sul dispositivo, mantenendo la privacy dei dati dell'utente.
-2. **Fine Tuning del Modello:** Il modello di riconoscimento facciale preesistente, che è stato addestrato su un set di dati ampio e diversificato, viene quindi perfezionato utilizzando le immagini del bambino appena raccolte. Questo processo adatta il modello per riconoscere le caratteristiche facciali specifiche del bambino, distinguendolo dagli altri bambini nelle immagini.
+2. **Perfezionamento sul Dispositivo:** Il modello di riconoscimento facciale preesistente, che è stato addestrato su un set di dati ampio e diversificato, viene poi perfezionato utilizzando le nuove immagini raccolte del bambino. Questo processo adatta il modello per riconoscere le caratteristiche facciali specifiche del bambino, distinguendolo dagli altri bambini nelle immagini.
 3. **Validazione:** Il modello rifinito viene poi convalidato per garantire che riconosca accuratamente il bambino in varie immagini. Ciò può comportare che il genitore verifichi le prestazioni del modello e fornisca feedback per ulteriori miglioramenti.
-4. **Deployment:** Una volta convalidato, il modello adattato viene distribuito sul dispositivo, consentendo al genitore di identificare facilmente il proprio figlio nelle immagini senza doverle esaminare manualmente.
+4. **Uso Localizzato:** Una volta adattato, il modello è in grado di localizzare istantaneamente il bambino nelle foto, offrendo un'esperienza personalizzata senza dover ricorrere a risorse cloud o al trasferimento di dati.
 
 Questa personalizzazione al volo migliora l'efficacia del modello per il singolo utente, assicurando che tragga vantaggio dalla personalizzazione ML. Questo è, in parte, il modo in cui iPhotos o Google Photos funzionano quando ci chiedono di riconoscere un volto e poi, in base a queste informazioni, indicizzano tutte le foto di quel volto. Poiché l'apprendimento e l'adattamento avvengono sul dispositivo stesso, non ci sono rischi per la privacy personale. Le immagini dei genitori non vengono caricate su un server cloud o condivise con terze parti, proteggendo la privacy della famiglia e continuando a raccogliere i benefici di un modello ML personalizzato. Questo approccio rappresenta un significativo passo avanti nella ricerca per fornire agli utenti soluzioni ML personalizzate che rispettino e sostengano la loro privacy.
 
@@ -286,13 +282,13 @@ Questa personalizzazione al volo migliora l'efficacia del modello per il singolo
 
 Il transfer learning è diventato una tecnica importante in ML e intelligenza artificiale, ed è particolarmente prezioso per diversi motivi.
 
-1. **Scarsità di Dati:** In molti scenari reali, acquisire un set di dati etichettato sufficientemente grande per addestrare un modello ML da zero è complicato. Il transfer learning mitiga questo problema consentendo l'uso di modelli pre-addestrati che hanno già appreso funzionalità preziose da un vasto set di dati.
+1. **Scarsità di Dati:** In molte applicazioni del mondo reale, raccogliere un ampio set di dati etichettato per addestrare un modello ML da zero è difficile, costoso e richiede molto tempo. Il transfer learning affronta questa sfida consentendo l'uso di modelli pre-addestrati che hanno già appreso funzionalità preziose da vasti set di dati etichettati, riducendo così la necessità di dati annotati estesi nella nuova attività.
 2. **Spese Computazionali:** Addestrare un modello da zero richiede risorse computazionali e tempo significativi, specialmente per modelli complessi come reti neurali profonde. Utilizzando il transfer learning, possiamo sfruttare il calcolo che è già stato eseguito durante l'addestramento del modello sorgente, risparmiando così tempo e potenza computazionale.
-3. **Dati Annotati Limitati:** Per alcune attività specifiche, potrebbero essere disponibili ampi dati grezzi, ma il processo di etichettatura di tali dati per l'apprendimento supervisionato può essere costoso e richiedere molto tempo. Il transfer learning ci consente di utilizzare modelli pre-addestrati su un'attività correlata con dati etichettati, quindi richiedendo meno dati annotati per la nuova attività.
+
 
 Ci sono vantaggi nel riutilizzare le funzionalità:
 
-1. **Hierarchical Feature Learning:** I modelli di deep learning, in particolare le reti neurali convoluzionali (CNN), possono apprendere funzionalità gerarchiche. I layer inferiori in genere apprendono funzionalità generiche come bordi e forme, mentre quelli superiori apprendono funzionalità più complesse e specifiche per l'attività. Il transfer learning ci consente di riutilizzare le funzionalità generiche apprese da un modello e di perfezionare i livelli superiori per la nostra attività specifica.
+1. **Apprendimento di Feature Gerarchiche:** I modelli di deep learning, in particolare le CNN, possono apprendere feature gerarchiche. I layer inferiori in genere apprendono funzionalità generiche come bordi e forme, mentre quelli superiori apprendono funzionalità più complesse e specifiche per l'attività. Il transfer learning ci consente di riutilizzare le funzionalità generiche apprese da un modello e di perfezionare i livelli superiori per la nostra attività specifica.
 2. **Aumento delle Prestazioni:** È stato dimostrato che il transfer learning aumenta le prestazioni dei modelli su attività con dati limitati. La conoscenza acquisita dall'attività dall'attività sorgente può fornire un prezioso punto di partenza e portare a una convergenza più rapida e a una maggiore accuratezza nell'attività target.
 
 :::{#exr-tlb .callout-caution collapse="true"}
@@ -381,11 +377,11 @@ Quando si intraprende un apprendimento per trasferimento, ci sono diversi fattor
 
 #### Somiglianza dei Domini
 
-La similarità di dominio si riferisce a quanto strettamente correlati sono i domini di origine e di destinazione. Più simili sono i domini, più è probabile che l'apprendimento per trasferimento abbia successo. Trasferire la conoscenza da un modello addestrato su immagini di scene esterne (dominio di origine) a un nuovo compito che prevede il riconoscimento di oggetti in scene interne (dominio di destinazione) potrebbe avere più successo rispetto al trasferire la conoscenza da scene esterne a un compito che prevede l'analisi del testo, poiché i domini (immagini vs. testo) sono piuttosto diversi.
+La similarità di dominio si riferisce al grado di somiglianza tra i tipi di dati utilizzati nelle applicazioni di origine e di destinazione. Più simili sono i domini, più è probabile che l'apprendimento per trasferimento abbia successo. Ad esempio, trasferire la conoscenza da un modello addestrato su immagini esterne (dominio di origine) a una nuova applicazione che coinvolge immagini interne (dominio di destinazione) è più fattibile che trasferire la conoscenza da immagini esterne a un'applicazione basata su testo. Poiché immagini e testo sono fondamentalmente tipi di dati diversi, i domini sono dissimili, rendendo l'apprendimento per trasferimento più impegnativo.
 
 #### Similarità dell'Attività
 
-La similarità dell'attività si riferisce a quanto strettamente correlati sono le attività di origine e di destinazione. È probabile che attività simili traggano maggiori benefici dall'apprendimento per trasferimento. Un modello addestrato per riconoscere diverse razze di cani (attività di origine) può essere adattato più facilmente per riconoscere diverse razze di gatti (attività di destinazione) rispetto a quanto possa essere adattato per eseguire un'attività completamente diversa come la traduzione di una lingua.
+La similarità dell'attività, d'altra parte, si riferisce a quanto sono simili gli obiettivi o le funzioni delle attività di origine e di destinazione. Se le attività sono simili, è più probabile che l'apprendimento per trasferimento sia efficace. Ad esempio, un modello addestrato per classificare diverse razze di cani (attività di origine) può essere adattato più facilmente per classificare diverse razze di gatti (attività di destinazione) rispetto a quanto potrebbe essere adattato a un'attività meno correlata, come l'identificazione di immagini satellitari. Poiché entrambi i compiti comportano la classificazione visiva degli animali, la somiglianza dei compiti favorisce un trasferimento efficace, mentre il passaggio a un compito non correlato potrebbe rendere l'apprendimento tramite trasferimento meno efficace.
 
 #### Qualità e Quantità dei Dati
 
@@ -397,7 +393,7 @@ La sovrapposizione dello spazio delle feature si riferisce a quanto bene le feat
 
 #### Complessità del Modello
 
-Anche la complessità del modello sorgente può influire sul successo dell'apprendimento per trasferimento. A volte, un modello più semplice potrebbe trasferirsi meglio di uno complesso, poiché è meno probabile che si adatti eccessivamente all'attività di origine. Ad esempio, un semplice modello di rete neurale convoluzionale (CNN) addestrato su dati di immagini (attività di origine) può essere trasferito con maggiore successo a una nuova attività di classificazione di immagini (attività di destinazione) rispetto a una CNN complessa con molti layer, poiché è meno probabile che il modello più semplice si adatti eccessivamente all'attività di origine.
+Anche la complessità del modello sorgente può influire sul successo dell'apprendimento per trasferimento. A volte, un modello più semplice potrebbe trasferirsi meglio di uno complesso, poiché è meno probabile che si adatti eccessivamente all'attività di origine. Ad esempio, un semplice modello CNN addestrato su dati di immagini (attività di origine) può essere trasferito con maggiore successo a una nuova attività di classificazione di immagini (attività di destinazione) rispetto a una CNN complessa con molti layer, poiché è meno probabile che il modello più semplice si adatti eccessivamente all'attività di origine.
 
 Considerando questi fattori, i professionisti del ML possono prendere decisioni informate su quando e come utilizzare l'apprendimento per trasferimento, portando infine a prestazioni del modello più efficaci nell'attività di destinazione. Il successo dell'apprendimento per trasferimento dipende dal grado di similarità tra i domini di origine e di destinazione. L'overfitting [adattamento eccessivo] è rischioso, soprattutto quando la messa a punto avviene su un set di dati limitato. Sul fronte computazionale, alcuni modelli pre-addestrati, a causa delle loro dimensioni, potrebbero non adattarsi comodamente ai vincoli di memoria di alcuni dispositivi o potrebbero essere eseguiti in modo proibitivamente lento. Nel tempo, con l'evoluzione dei dati, c'è il potenziale per la "drift" [deriva] del modello, che indica la necessità di un riaddestramento periodico o di un adattamento continuo.
 
@@ -458,9 +454,11 @@ Esistono molti metodi per condividere selettivamente gli aggiornamenti. Il princ
 
 Tuttavia, non possiamo semplicemente ridurre la comunicazione inviando parti di quei gradienti da ogni client al server perché i gradienti fanno parte di un intero aggiornamento necessario per migliorare il modello. Invece, si deve progettare architettonicamente il modello in modo che ogni client addestri solo una piccola parte del modello più ampio, riducendo la comunicazione totale e ottenendo comunque il vantaggio dell'addestramento sui dati del client. @shi2022data applica questo concetto a una CNN suddividendo il modello globale in due parti: una superiore e una inferiore, come mostrato in @chen2023learning.
 
-![Suddivisione dell'architettura del modello per la condivisione selettiva. Fonte: Shi et al., ([2022](https://doi.org/10.1145/3517207.3526980)).](images/png/ondevice_split_model.png){#fig-split-model}
+![Apprendimento federato con addestramento del modello diviso. Il modello è diviso in una parte inferiore, addestrata localmente su ogni client, e una parte superiore, perfezionata sul server. I client eseguono aggiornamenti locali, generando mappe di attivazione dai loro dati, che vengono inviati al server anziché dati grezzi per garantire la privacy. Il server utilizza queste mappe di attivazione per aggiornare la parte superiore, poi combina entrambe le parti e ridistribuisce il modello aggiornato ai client. Questa configurazione riduce al minimo la comunicazione, preserva la privacy e adatta il modello ai diversi dati dei client. Fonte: Shi et al., ([2022](https://doi.org/10.1145/3517207.3526980)).](images/png/ondevice_split_model.png){#fig-split-model}
 
-La parte inferiore è progettata per concentrarsi sulle funzionalità generiche nel set di dati, mentre la parte superiore, addestrata su tali funzionalità generiche, è progettata per essere più sensibile alle mappe di attivazione. Ciò significa che la parte inferiore del modello viene addestrata tramite la media federata standard su tutti i client. Nel frattempo, la parte superiore del modello viene addestrata interamente sul lato server dalle mappe di attivazione generate dai client. Questo approccio riduce drasticamente la comunicazione per il modello, rendendo comunque la rete robusta a vari tipi di input trovati nei dati sui dispositivi client.
+La parte inferiore del modello, responsabile dell'estrazione di feature generiche, viene addestrata direttamente su ciascun dispositivo client. Utilizzando la media federata, questa parte inferiore apprende funzionalità fondamentali condivise su tutti i client, consentendole di generalizzare bene su dati diversi. Nel frattempo, la parte superiore del modello, che cattura modelli più specifici e complessi, viene addestrata sul server. Invece di inviare dati grezzi al server, ogni client genera mappe di attivazione, una rappresentazione compressa delle feature più rilevanti dei suoi dati locali, e le invia al server. Il server utilizza queste mappe di attivazione per perfezionare la parte superiore del modello, consentendogli di diventare più sensibile alle diverse distribuzioni di dati riscontrate nei client senza compromettere la privacy dell'utente.
+
+Questo approccio riduce significativamente il carico di comunicazione, poiché vengono trasmesse solo mappe di attivazione riepilogative anziché set di dati completi. Concentrandosi sull'addestramento condiviso per la parte inferiore e sulla messa a punto specializzata per la parte superiore, il sistema raggiunge un equilibrio: riduce al minimo il trasferimento di dati, preserva la privacy e rende il modello robusto ai vari tipi di input riscontrati sui dispositivi client.
 
 ### Aggregazione Ottimizzata
 
@@ -548,7 +546,7 @@ Esistono diverse tecniche di attacco di avvelenamento dei dati:
 
 * **Label Flipping:** Comporta l'applicazione di etichette errate ai campioni. Ad esempio, nella classificazione delle immagini, le foto di gatti possono essere etichettate come cani per confondere il modello. Anche capovolgere il [10% delle etichette](https://proceedings.mlr.press/v139/schwarzschild21a.html) può avere conseguenze significative sul modello.
 * **Inserimento dei Dati:** Introduce input falsi o distorti nel set di training. Ciò potrebbe includere immagini pixelate, audio rumoroso o testo distorto.
-* **Corruzione Logica:** Altera i [pattern] sottostanti (<https://www.worldscientific.com/doi/10.1142/S0218001414600027>) nei dati per fuorviare il modello. Nell'analisi del "sentiment", le recensioni altamente negative possono essere contrassegnate come positive tramite questa tecnica. Per questo motivo, recenti sondaggi hanno dimostrato che molte aziende hanno più [paura dell'avvelenamento dei dati](https://proceedings.mlr.press/v139/schwarzschild21a.html) rispetto ad altre preoccupazioni di ML avversarie.
+* **Corruzione logica:** Altera i [pattern](<https://www.worldscientific.com/doi/10.1142/S0218001414600027>) sottostanti nei dati per confondere il modello. Nell'analisi del "sentiment", le recensioni altamente negative possono essere contrassegnate come positive tramite questa tecnica. Per questo motivo, recenti sondaggi hanno dimostrato che molte aziende hanno più [paura dell'avvelenamento dei dati](https://proceedings.mlr.press/v139/schwarzschild21a.html) rispetto ad altre preoccupazioni di ML avversarie.
 
 Ciò che rende l'avvelenamento dei dati allarmante è il modo in cui sfrutta la discrepanza tra set di dati curati e dati di training in tempo reale. Consideriamo un set di dati di foto di gatti raccolti da Internet. Nelle settimane successive, quando questi dati addestrano un modello on-device, le nuove foto di gatti sul Web differiscono in modo significativo.
 
@@ -686,7 +684,7 @@ Tiny Transfer Learning (TinyTL) consente un training efficiente in termini di me
 
 Per ridurre questo sovraccarico di memoria, TinyTL congela la maggior parte dei pesi in modo che non debbano essere aggiornati durante il training. Ciò elimina la necessità di archiviare le attivazioni intermedie per le parti congelate della rete. TinyTL ottimizza solo i termini di bias, che sono molto più piccoli dei pesi. Una panoramica del flusso di lavoro TinyTL è mostrata in @fig-tinytl-workflow.
 
-![Flusso di lavoro di TinyTL. Fonte: @cai2020tinytl.)](images/png/ondevice_transfer_tinytl.png){#fig-tinytl-workflow}
+![Flusso di lavoro di TinyTL. In (a), l'apprendimento per trasferimento convenzionale ottimizza sia i pesi che i bias, richiedendo una grande quantità di memoria (mostrata in blu) per le mappe di attivazione durante la retropropagazione. In (b), TinyTL riduce le esigenze di memoria fissando i pesi e ottimizzando solo i bias, consentendo l'apprendimento per trasferimento su dispositivi più piccoli. Infine, in (c), TinyTL aggiunge un componente di apprendimento residuo "lite" per compensare i pesi fissi, utilizzando convoluzioni di gruppo efficienti ed evitando colli di bottiglia pesanti in termini di memoria, ottenendo un'elevata efficienza con una memoria minima. Fonte: @cai2020tinytl.)](images/png/ondevice_transfer_tinytl.png){#fig-tinytl-workflow}
 
 I pesi di congelamento si applicano a layer completamente connessi, nonché a layer di normalizzazione e convoluzionali. Tuttavia, solo l'adattamento dei bias limita la capacità del modello di apprendere e adattarsi a nuovi dati.
 
@@ -803,13 +801,4 @@ Per rafforzare i concetti trattati in questo capitolo, abbiamo curato una serie 
 * @exr-flg
 
 * @exr-fli
-:::
-
-:::{.callout-warning collapse="false"}
-
-#### Laboratori
-
-Oltre agli esercizi, offriamo anche una serie di laboratori pratici che consentono agli studenti di acquisire esperienza pratica con le tecnologie di intelligenza artificiale embedded. Questi laboratori forniscono una guida passo dopo passo, consentendo agli studenti di sviluppare le proprie competenze in un ambiente strutturato e di supporto. Siamo lieti di annunciare che presto saranno disponibili nuovi laboratori, che arricchiranno ulteriormente l'esperienza di apprendimento.
-
-* _Prossimamente._
 :::

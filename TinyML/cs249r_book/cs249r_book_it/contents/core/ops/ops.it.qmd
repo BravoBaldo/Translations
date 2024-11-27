@@ -5,12 +5,12 @@ bibliography: ops.bib
 # Operazioni di ML {#sec-mlops}
 
 ::: {.content-visible when-format="html"}
-Risorse: [Slide](#sec-embedded-aiops-resource), [Video](#sec-embedded-aiops-resource), [Esercizi](#sec-embedded-aiops-resource), [Laboratori](#sec-embedded-aiops-resource)
+Risorse: [Slide](#sec-embedded-aiops-resource), [Video](#sec-embedded-aiops-resource), [Esercizi](#sec-embedded-aiops-resource)
 :::
 
 ![_DALL·E 3 Prompt: Crea un'illustrazione rettangolare ampia e dettagliata di un flusso di lavoro di IA. L'immagine dovrebbe mostrare il processo in sei fasi, con un flusso da sinistra a destra: 1. Raccolta dati, con individui diversi come sesso e discendenza che utilizzano una varietà di dispositivi come laptop, smartphone e sensori per raccogliere dati. 2. Elaborazione dati, che mostra un data center con server attivi e database con luci luminose. 3. Training del modello, rappresentata da uno schermo di computer con codice, diagrammi di reti neurali e indicatori di avanzamento. 4. Valutazione del modello, con persone che esaminano l'analisi dei dati su grandi monitor. 5. Distribuzione, in cui l'IA è integrata in robotica, app mobili e apparecchiature industriali. 6. Monitoraggio, che mostra professionisti che monitorano le metriche delle prestazioni dell'IA su dashboard per verificare l'accuratezza e la deriva del concetto nel tempo. Ogni fase dovrebbe essere contrassegnata in modo distinto e lo stile dovrebbe essere pulito, elegante e moderno con una combinazione di colori dinamica e informativa._](images/png/cover_ml_ops.png)
 
-Questo capitolo esplora le pratiche e le architetture necessarie per sviluppare, distribuire e gestire efficacemente i modelli ML durante il loro intero ciclo di vita. Esaminiamo le varie fasi del processo ML, tra cui raccolta dati, addestramento del modello, valutazione, distribuzione e monitoraggio. Anche l'importanza dell'automazione, della collaborazione e del miglioramento continuo è un argomento di cui discutiamo. Mettiamo a confronto diversi ambienti per la distribuzione del modello ML, dai server cloud ai dispositivi edge embedded, e analizziamo i loro vincoli distinti. Mostriamo come personalizzare la progettazione e le operazioni del sistema ML attraverso esempi concreti per prestazioni del modello affidabili e ottimizzate in qualsiasi ambiente target. L'obiettivo è fornire ai lettori una comprensione completa della gestione del modello ML in modo che possano creare ed eseguire con successo applicazioni ML che forniscano valore in modo sostenibile.
+In questo capitolo, approfondiremo le pratiche e i framework necessari per sviluppare, distribuire e gestire con successo modelli di machine learning dall'inizio alla fine. Si imparerà a conoscere ogni fase del flusso di lavoro ML, dalla raccolta dati e dall'addestramento del modello alla valutazione, distribuzione e monitoraggio continuo. Discuteremo il ruolo dell'automazione, della collaborazione e del miglioramento continuo, evidenziando perché sono essenziali per mantenere i sistemi ML efficienti e affidabili. Esploreremo anche diversi ambienti di distribuzione, dai potenti server cloud ai dispositivi edge con risorse limitate, esaminando le sfide uniche che ciascuno presenta. Attraverso esempi concreti, si vedrà come progettare e gestire sistemi ML che offrono prestazioni costanti e affidabili, indipendentemente da dove vengono distribuiti. Alla fine di questo capitolo, si avrà una solida conoscenza della gestione dei modelli ML e si sarà pronti a creare e gestire applicazioni ML che forniscono valore duraturo.
 
 ::: {.callout-tip}
 
@@ -32,7 +32,7 @@ Questo capitolo esplora le pratiche e le architetture necessarie per sviluppare,
 
 :::
 
-## Introduzione
+## Panoramica
 
 Machine Learning Operations (MLOps) è un approccio sistematico che combina machine learning (ML), data science e ingegneria del software per automatizzare il ciclo di vita end-to-end di ML. Ciò include tutto, dalla preparazione dei dati e dal training del modello alla distribuzione e alla manutenzione. MLOps garantisce che i modelli ML siano sviluppati, distribuiti e mantenuti in modo efficiente ed efficace.
 
@@ -103,7 +103,7 @@ Scoprire di più sui cicli di vita ML tramite un "case study" che presenta il ri
 
 ## Componenti Chiave di MLOps
 
-In questo capitolo, forniremo una panoramica dei componenti principali di MLOps, un set emergente di pratiche che consente una distribuzione solida e una gestione del ciclo di vita dei modelli ML in produzione. Sebbene alcuni elementi MLOps, come l'automazione e il monitoraggio, siano stati trattati nei capitoli precedenti, li integreremo in un framework e approfondiremo funzionalità aggiuntive, come la governance. Inoltre, descriveremo e collegheremo gli strumenti più diffusi utilizzati in ogni componente, come [LabelStudio](https://labelstud.io/) per l'etichettatura dei dati. Alla fine, speriamo che abbiate compreso la metodologia MLOps end-to-end che porta i modelli dall'ideazione alla creazione di valore sostenibile all'interno delle organizzazioni.
+I componenti principali di MLOps formano un framework completo che supporta il ciclo di vita end-to-end dei modelli ML in produzione, dallo sviluppo iniziale all'implementazione e alla gestione continua. In questa sezione, ci basiamo su argomenti come l'automazione e il monitoraggio dei capitoli precedenti, integrandoli in un framework più ampio e introducendo anche ulteriori pratiche chiave come la "governance". Ogni componente contribuisce a operazioni ML più fluide e snelle, con strumenti popolari che aiutano i team ad affrontare attività specifiche all'interno di questo ecosistema. Insieme, questi elementi rendono MLOps un approccio solido alla gestione dei modelli ML e alla creazione di valore a lungo termine all'interno delle organizzazioni.
 
 @fig-ops-layers illustra lo stack completo del sistema MLOps. Mostra i vari layer coinvolti nelle operazioni di apprendimento automatico. In cima allo stack ci sono modelli/applicazioni ML, come BERT, seguiti da framework/piattaforme ML come PyTorch. Il livello MLOps principale, etichettato come Model Orchestration, comprende diversi componenti chiave: Data Management, CI/CD, Model Training, Model Evaluation, Deployment e Model Serving. Alla base del livello MLOps c'è il livello Infrastructure, rappresentato da tecnologie come Kubernetes. Questo livello gestisce aspetti come Job Scheduling, Resource Management, Capacity Management e Monitoring, tra gli altri. A tenere tutto insieme c'è il layer Hardware, che fornisce le risorse computazionali necessarie per le operazioni ML.
 
@@ -113,19 +113,15 @@ Questo approccio a "layer" [strati] in @fig-ops-layers dimostra come MLOps integ
 
 ### Gestione dei Dati {#sec-ops-data-mgmt}
 
-Una gestione dei dati solida e l'ingegneria dei dati potenziano attivamente implementazioni [MLOps](https://cloud.google.com/solutions/machine-learning/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning) di successo. I team acquisiscono, archiviano e preparano correttamente i dati grezzi da sensori, database, app e altri sistemi per il training e la distribuzione dei modelli.
+I dati nella loro forma grezza, siano essi raccolti da sensori, database, app o altri sistemi, spesso richiedono una preparazione significativa prima di poter essere utilizzati per l'addestramento o l'inferenza.  Problemi come formati incoerenti, valori mancanti e convenzioni di etichettatura in evoluzione possono portare a inefficienze e scarse prestazioni del modello se non affrontati sistematicamente. Solide pratiche di gestione dei dati garantiscono che i dati rimangano di alta qualità, tracciabili e facilmente accessibili durante l'intero ciclo di vita del ML, costituendo la base di sistemi di apprendimento automatico scalabili.
 
-I team monitorano attivamente le modifiche ai set di dati nel tempo utilizzando il controllo delle versioni con [Git](https://git-scm.com/) e strumenti come [GitHub](https://github.com/) o [GitLab](https://about.gitlab.com/). Gli scienziati dei dati collaborano alla cura dei set di dati unendo le modifiche di più collaboratori. I team possono rivedere o ripristinare ogni iterazione di un set di dati, se necessario.
+Un aspetto chiave della gestione dei dati è il controllo delle versioni. Strumenti come [Git](https://git-scm.com/), [GitHub](https://github.com/) e [GitLab](https://about.gitlab.com/) consentono ai team di tenere traccia delle modifiche ai set di dati, collaborare alla loro cura e ripristinare le versioni precedenti quando necessario. Oltre al versioning, l'annotazione e l'etichettatura dei set di dati sono fondamentali per le attività di apprendimento supervisionato. Software come [LabelStudio](https://labelstud.io/) aiutano i team distribuiti a etichettare i dati in modo coerente su set di dati su larga scala, mantenendo al contempo l'accesso alle versioni precedenti man mano che le convenzioni di etichettatura si evolvono. Queste pratiche non solo migliorano la collaborazione, ma garantiscono anche che i modelli vengano addestrati su dati affidabili e ben organizzati.
 
-I team etichettano e annotano meticolosamente i dati utilizzando un software di etichettatura come [LabelStudio](https://labelstud.io/), che consente ai team distribuiti di lavorare insieme all'etichettatura dei set di dati. Man mano che le variabili target e le convenzioni di etichettatura si evolvono, i team mantengono l'accessibilità alle versioni precedenti.
+Una volta preparati, i set di dati vengono in genere archiviati su soluzioni cloud scalabili come [Amazon S3](https://aws.amazon.com/s3/) o [Google Cloud Storage](https://cloud.google.com/storage). Questi servizi forniscono versioning, resilienza e controlli di accesso granulari, salvaguardando i dati sensibili e mantenendo al contempo la flessibilità per l'analisi e la modellazione. Per semplificare la transizione dai dati grezzi ai formati pronti per l'analisi, i team creano pipeline automatizzate utilizzando strumenti come [Prefect](https://www.prefect.io/), [Apache Airflow](https://airflow.apache.org/) e [dbt](https://www.getdbt.com/). Queste pipeline automatizzano attività come l'estrazione, la pulizia, la de-duplicazione e la trasformazione dei dati, riducendo il sovraccarico manuale e migliorando l'efficienza.
 
-I team archiviano il set di dati non elaborato e tutte le risorse derivate su servizi cloud come [Amazon S3](https://aws.amazon.com/s3/) o [Google Cloud Storage](https://cloud.google.com/storage). Questi servizi forniscono un'archiviazione scalabile e resiliente con funzionalità di controllo delle versioni. I team possono impostare autorizzazioni di accesso granulari.
+Ad esempio, una pipeline di dati potrebbe acquisire informazioni da database [PostgreSQL](https://www.postgresql.org/), API REST e file CSV archiviati in S3, applicando trasformazioni per produrre set di dati puliti e aggregati. L'output può essere memorizzato in archivi di funzionalità come [Tecton](https://www.tecton.ai/) o [Feast](https://feast.dev/), che forniscono un accesso a bassa latenza sia per il training che per le previsioni. In uno scenario di manutenzione predittiva industriale, i dati dei sensori potrebbero essere elaborati insieme ai record di manutenzione, con conseguenti set di dati arricchiti archiviati in Feast per consentire ai modelli di accedere alle informazioni più recenti senza problemi.
 
-Le pipeline di dati robuste create dai team automatizzano l'estrazione, l'unione, la pulizia e la trasformazione dei dati grezzi in set di dati pronti per l'analisi. [Prefect](https://www.prefect.io/), [Apache Airflow](https://airflow.apache.org/) e [dbt](https://www.getdbt.com/) sono orchestratori di flussi di lavoro che consentono agli ingegneri di sviluppare pipeline di elaborazione dati flessibili e riutilizzabili.
-
-Ad esempio, una pipeline può acquisire dati da database [PostgreSQL](https://www.postgresql.org/), API REST e CSV archiviati su S3 [Simple Storage Service]. Può filtrare, deduplicare e aggregare i dati, gestire gli errori e salvare l'output su S3. La pipeline può anche spingere i dati trasformati in un feature store come [Tecton](https://www.tecton.ai/) o [Feast](https://feast.dev/) per un accesso a bassa latenza.
-
-In un caso d'uso di manutenzione predittiva industriale, i dati dei sensori vengono acquisiti dai dispositivi in S3. Una pipeline perfetta elabora i dati dei sensori, unendoli ai record di manutenzione. Il set di dati arricchito è archiviato in Feast in modo che i modelli possano recuperare facilmente i dati più recenti per l'addestramento e le previsioni.
+Integrando il controllo delle versioni, gli strumenti di annotazione, le soluzioni di archiviazione e le pipeline automatizzate, la gestione dei dati diventa un abilitatore fondamentale per [MLOps](https://cloud.google.com/solutions/machine-learning/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning) efficaci. Queste pratiche garantiscono che i dati non siano solo puliti e accessibili, ma anche costantemente allineati con le mutevoli esigenze del progetto, consentendo ai sistemi di machine learning di fornire prestazioni affidabili e scalabili negli ambienti di produzione.
 
 @vid-datapipe di seguito riporta una breve panoramica delle pipeline di dati.
 
@@ -153,55 +149,43 @@ Le pipeline CI/CD consentono ai team di iterare e distribuire rapidamente modell
 
 ### Addestramento del Modello
 
-Nella fase di training del modello, gli scienziati dei dati sperimentano attivamente diverse architetture e algoritmi ML per creare modelli ottimizzati che estraggono informazioni e pattern dai dati. MLOps introduce best practice e automazione per rendere questo processo iterativo più efficiente e riproducibile.
+L'addestramento del modello è una fase critica in cui gli scienziati dei dati sperimentano varie architetture e algoritmi ML per ottimizzare i modelli che estraggono informazioni dai dati. MLOps introduce best practice e automazione per rendere questo processo iterativo più efficiente e riproducibile. I moderni framework ML come [TensorFlow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/) e [Keras](https://keras.io/) forniscono componenti predefiniti che semplificano la progettazione di reti neurali e altre architetture di modelli. Questi strumenti consentono agli scienziati dei dati di concentrarsi sulla creazione di modelli ad alte prestazioni utilizzando moduli integrati per layer, attivazioni e funzioni di perdita.
 
-I moderni framework ML come [TensorFlow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/) e [Keras](https://keras.io/) forniscono componenti predefiniti che semplificano la progettazione di reti neurali e altre architetture di modelli. Gli scienziati dei dati sfruttano moduli integrati per layer, attivazioni, perdite, ecc. e API di alto livello come Keras per concentrarsi maggiormente sull'architettura del modello.
+Per rendere il processo di addestramento efficiente e riproducibile, MLOps introduce best practice come il controllo delle versioni del codice di addestramento tramite Git e l'hosting in repository come GitHub. Gli ambienti riproducibili, spesso gestiti tramite strumenti interattivi come i notebook [Jupyter](https://jupyter.org/), consentono ai team di raggruppare l'ingestione dei dati, la pre-elaborazione, lo sviluppo del modello e la valutazione in un unico documento. Questi notebook non sono solo controllati per la versione, ma possono anche essere integrati in pipeline automatizzate per un riaddestramento continuo.
 
-MLOps consente ai team di impacchettare il codice di training del modello in script e notebook riutilizzabili e tracciati. Man mano che i modelli vengono sviluppati, funzionalità come [ottimizzazione degli iperparametri](https://cloud.google.com/ai-platform/training/docs/hyperparameter-tuning-overview), [ricerca dell'architettura neurale](https://arxiv.org/abs/1808.05377) e [selezione automatica delle funzionalità](https://scikit-learn.org/stable/modules/feature_selection.html) si ripetono rapidamente per trovare le configurazioni più performanti.
+L'automazione svolge un ruolo significativo nella standardizzazione dei flussi di lavoro di addestramento. Funzionalità come [ottimizzazione degli iperparametri](https://cloud.google.com/ai-platform/training/docs/hyperparameter-tuning-overview), [ricerca dell'architettura neurale](https://arxiv.org/abs/1808.05377) e [selezione automatica delle feature](https://scikit-learn.org/stable/modules/feature_selection.html) sono comunemente integrate nelle pipeline MLOps per iterare rapidamente e trovare configurazioni ottimali. Le pipeline CI/CD orchestrano i flussi di lavoro di addestramento automatizzando attività come la pre-elaborazione dei dati, l'addestramento del modello, la valutazione e la registrazione. Ad esempio, una pipeline Jenkins può attivare uno script Python per riaddestrare un modello TensorFlow, convalidarne le prestazioni rispetto a metriche predefinite e distribuirlo se vengono superate delle soglie.
 
-I team utilizzano Git per controllare le versioni del codice di training e ospitarlo in repository come GitHub per tenere traccia delle modifiche nel tempo. Ciò consente una collaborazione fluida tra i data scientist.
-
-Notebook come [Jupyter](https://jupyter.org/) creano un eccellente ambiente di sviluppo di modelli interattivi. I notebook contengono l'inserimento dei dati, la pre-elaborazione, la dichiarazione del modello, il ciclo di training, la valutazione e il codice di esportazione in un documento riproducibile.
-
-Infine, i team orchestrano il training del modello come parte di una pipeline CI/CD per l'automazione. Ad esempio, una pipeline Jenkins può attivare uno script Python per caricare nuovi dati di training, riaddestrare un classificatore TensorFlow, valutare le metriche del modello e registrare automaticamente il modello se vengono raggiunte le soglie di prestazione.
+I servizi di addestramento gestiti dal cloud hanno rivoluzionato l'accessibilità di hardware ad alte prestazioni per i modelli di training. Questi servizi forniscono accesso on-demand all'infrastruttura accelerata da GPU, rendendo l'addestramento avanzato fattibile anche per piccoli team. A seconda del provider, gli sviluppatori possono gestire autonomamente il flusso di lavoro di training o affidarsi a opzioni completamente gestite come [Vertex AI Fine Tuning](https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models), che può perfezionare automaticamente un modello di base utilizzando un set di dati etichettato. Tuttavia, è importante notare che la domanda di hardware GPU spesso supera l'offerta e la disponibilità può variare in base alla regione o agli accordi contrattuali, ponendo potenziali colli di bottiglia per i team che si affidano ai servizi cloud.
 
 Un esempio di flusso di lavoro prevede che uno scienziato dei dati utilizzi un notebook PyTorch per sviluppare un modello CNN per la classificazione delle immagini. La libreria [fastai](https://www.fast.ai/) fornisce API di alto livello per semplificare l'addestramento delle CNN sui set di dati delle immagini. Il notebook addestra il modello sui dati campione, valuta le metriche di accuratezza e ottimizza gli iperparametri come la velocità di apprendimento e i layer per ottimizzare le prestazioni. Questo notebook riproducibile è controllato dalla versione e integrato in una pipeline di riaddestramento.
 
-L'automazione e la standardizzazione dell'addestramento del modello consentono ai team di accelerare la sperimentazione e raggiungere il rigore necessario per produrre sistemi ML.
+Automatizzando e standardizzando l'addestramento dei modelli, sfruttando i servizi cloud gestiti e integrando framework moderni, i team possono accelerare la sperimentazione e creare modelli di apprendimento automatico solidi e pronti per la produzione.
 
 ### Valutazione del Modello
 
-Prima di distribuire i modelli, i team eseguono una valutazione e dei test rigorosi per convalidare i benchmark delle prestazioni e la prontezza per il rilascio. MLOps introduce le best practice relative alla convalida, all'audit e ai [test canary](https://martinfowler.com/bliki/CanaryRelease.html) dei modelli.
+Prima di distribuire i modelli, i team eseguono una valutazione e dei test rigorosi per convalidare i benchmark delle prestazioni e la prontezza per il rilascio. MLOps fornisce le best practice per la convalida del modello, l'audit e i metodi di test controllati per ridurre al minimo i rischi durante la distribuzione.
 
-In genere, i team valutano i modelli rispetto ai [dataset di test](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets) di holdout che non vengono utilizzati durante il training. I dati di test provengono dalla stessa distribuzione dei dati di produzione. I team calcolano metriche come [accuratezza](https://en.wikipedia.org/wiki/Accuracy_and_precision), [AUC](https://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve), [precisione](https://en.wikipedia.org/wiki/Precision_and_recall), [richiamo](https://en.wikipedia.org/wiki/Precision_and_recall) e [punteggio F1](https://en.wikipedia.org/wiki/F1_score).
+Il processo di valutazione inizia con il test dei modelli rispetto ai [set di dati di test](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets) che sono indipendenti dai dati di training ma provengono dalla stessa distribuzione dei dati di produzione. Metriche chiave come [accuratezza](https://en.wikipedia.org/wiki/Accuracy_and_precision), [AUC](https://en.wikipedia.org/wiki/Receiver_operating_characteristic#Area_under_the_curve), [precisione](https://en.wikipedia.org/wiki/Precision_and_recall), [richiamo](https://en.wikipedia.org/wiki/Precision_and_recall) e [punteggio F1](https://en.wikipedia.org/wiki/F1_score) vengono calcolate per quantificare le prestazioni del modello. Il monitoraggio di queste metriche nel tempo aiuta i team a identificare tendenze e potenziali degradazioni nel comportamento del modello, in particolare quando i dati di valutazione provengono da flussi di produzione live. Ciò è fondamentale per rilevare il [data drift](https://www.ibm.com/cloud/learn/data-drift) [deriva dei dati], in cui le modifiche nelle distribuzioni dei dati di input possono erodere l'accuratezza del modello.
 
-I team monitorano inoltre le stesse metriche nel tempo rispetto ai campioni di dati di test. Se i dati di valutazione provengono da flussi di produzione live, questo rileva le [derive dei dati](https://www.ibm.com/cloud/learn/data-drift) che degradano le prestazioni del modello nel tempo.
+Per convalidare le prestazioni nel mondo reale, il [test canary](https://martinfowler.com/bliki/CanaryRelease.html) distribuisce il modello a un piccolo sottoinsieme di utenti. Questa distribuzione graduale consente ai team di monitorare le metriche in un ambiente live e di individuare potenziali problemi prima della distribuzione su vasta scala. Aumentando gradualmente il traffico verso il nuovo modello, i team possono valutare con sicurezza il suo impatto sull'esperienza dell'utente finale. Ad esempio, un rivenditore potrebbe testare un modello di raccomandazione personalizzato confrontando le sue metriche di accuratezza e diversità con i dati storici. Durante la fase di test, il team monitora le metriche delle prestazioni live e identifica un leggero calo dell'accuratezza nell'arco di due settimane. Per garantire la stabilità, il modello viene inizialmente distribuito al 5% del traffico web, monitorato per potenziali problemi e distribuito ampiamente solo dopo aver dimostrato la sua solidità in produzione.
 
-La supervisione umana per il rilascio del modello rimane importante. Gli scienziati dei dati esaminano le prestazioni nei segmenti e nelle sezioni chiave. L'analisi degli errori aiuta a identificare i punti deboli del modello per guidare il miglioramento. team applicano tecniche di [equità](https://developers.google.com/machine-learning/fairness-overview) e [rilevamento di bias](https://developers.google.com/machine-learning/fairness-overview).
+I modelli ML distribuiti sul cloud traggono vantaggio dalla connettività Internet costante e dalla capacità di registrare ogni richiesta e risposta. Ciò rende possibile riprodurre o generare richieste sintetiche per confrontare diversi modelli e versioni. Alcuni provider offrono strumenti che automatizzano parti del processo di valutazione, come il monitoraggio degli esperimenti di iperparametri o il confronto delle esecuzioni del modello. Ad esempio, piattaforme come [Weights and Biases](https://wandb.ai/) semplificano questo processo automatizzando il monitoraggio degli esperimenti e generando artefatti dalle esecuzioni di training.
 
-Il test Canary rilascia un modello a un piccolo sottoinsieme di utenti per valutare le prestazioni nel mondo reale prima di un'ampia distribuzione. I team indirizzano gradualmente il traffico alla versione canary monitorando i problemi.
-
-Ad esempio, un rivenditore valuta un modello di raccomandazione di prodotto personalizzato rispetto ai dati di test storici, esaminando le metriche di accuratezza e diversità. I team calcolano anche le metriche sui dati dei clienti in tempo reale nel tempo, rilevando una riduzione dell'accuratezza nelle ultime 2 settimane. Prima dell'implementazione completa, il nuovo modello viene rilasciato al 5% del traffico web per garantire che non vi sia alcun degrado.
-
-L'automazione della valutazione e delle versioni canary riduce i rischi di distribuzione. Tuttavia, la revisione umana deve ancora essere più critica per valutare le dinamiche meno quantificabili del comportamento del modello. Una rigorosa convalida pre-distribuzione fornisce sicurezza nell'immissione dei modelli in produzione.
+L'automazione dei processi di valutazione e test, combinata con un attento test canary, riduce i rischi di distribuzione. Mentre i processi di valutazione automatizzati rilevano molti problemi, la supervisione umana rimane essenziale per esaminare le prestazioni su specifici segmenti di dati e identificare sottili debolezze. Questa combinazione di rigorosa convalida pre-distribuzione e test nel mondo reale fornisce ai team sicurezza quando mettono i modelli in produzione.
 
 ### Distribuzione del Modello
 
 I team devono confezionare, testare e tracciare correttamente i modelli ML per distribuirli in modo affidabile in produzione. MLOps introduce framework e procedure per il versioning attivo, la distribuzione, il monitoraggio e l'aggiornamento dei modelli in modi sostenibili.
 
-I team containerizzano i modelli utilizzando [Docker](https://www.docker.com/), che raggruppa codice, librerie e dipendenze in un'unità standardizzata. I container consentono una portabilità fluida tra gli ambienti.
+Un approccio comune alla distribuzione prevede la containerizzazione dei modelli tramite strumenti come [Docker](https://www.docker.com/), che impacchettano codice, librerie e dipendenze in unità standardizzate. I container garantiscono una portabilità fluida tra gli ambienti, rendendo la distribuzione coerente e prevedibile. Framework come [TensorFlow Serving](https://www.tensorflow.org/tfx/guide/serving) e [BentoML](https://bentoml.org/) aiutano a servire le previsioni dai modelli distribuiti tramite API ottimizzate per le prestazioni. Questi framework gestiscono il versioning, il ridimensionamento e il monitoraggio.
 
-Framework come [TensorFlow Serving](https://www.tensorflow.org/tfx/guide/serving) e [BentoML](https://bentoml.org/) aiutano a servire le previsioni dai modelli distribuiti tramite API ottimizzate per le prestazioni. Questi framework gestiscono il versioning, il ridimensionamento e il monitoraggio.
+Prima del rollout su larga scala, i team distribuiscono modelli aggiornati in ambienti di staging o QA per testare rigorosamente le prestazioni. Tecniche come le distribuzioni shadow o canary vengono utilizzate per convalidare i nuovi modelli in modo incrementale. Ad esempio, le distribuzioni canary indirizzano una piccola percentuale di traffico al nuovo modello monitorando attentamente le prestazioni. Se non si verificano problemi, il traffico verso il nuovo modello aumenta gradualmente. Procedure di rollback robuste sono essenziali per gestire problemi imprevisti, ripristinando i sistemi alla versione precedente del modello stabile per garantire un'interruzione minima. L'integrazione con pipeline CI/CD automatizza ulteriormente il processo di distribuzione e rollback, consentendo cicli di iterazione efficienti.
 
-I team distribuiscono prima i modelli aggiornati in ambienti di staging o QA per i test prima del rollout completo in produzione. Le distribuzioni shadow o canary instradano un campione di traffico per testare le varianti del modello. I team aumentano gradualmente l'accesso ai nuovi modelli.
+Per mantenere la discendenza e la verificabilità, i team tengono traccia degli artefatti del modello, inclusi script, pesi, log e metriche, utilizzando strumenti come [MLflow](https://mlflow.org/). I registri dei modelli, come [il registro dei modelli di Vertex AI](https://cloud.google.com/vertex-ai/docs/model-registry/introduction), fungono da repository centralizzati per l'archiviazione e la gestione dei modelli addestrati. Questi registri non solo facilitano i confronti delle versioni, ma spesso includono anche l'accesso ai modelli di base, che possono essere open source, proprietari o ibridi (ad esempio, [LLAMA](https://ai.meta.com/llama/)). La distribuzione di un modello dal registro a un endpoint di inferenza è semplificata, gestendo il provisioning delle risorse, il peso dei download del modello e l'hosting.
 
-I team creano solide procedure di rollback nel caso in cui emergano problemi. I rollback ripristinano l'ultima versione valida del modello. L'integrazione con pipeline CI/CD semplifica la ridistribuzione, se necessario.
+Gli endpoint di inferenza in genere espongono il modello distribuito tramite API REST per previsioni in tempo reale. A seconda dei requisiti di prestazioni, i team possono configurare risorse, come acceleratori GPU, per soddisfare gli obiettivi di latenza e produttività. Alcuni provider offrono anche opzioni flessibili come inferenza serverless o batch, eliminando la necessità di endpoint persistenti e consentendo distribuzioni scalabili ed economiche. Ad esempio, [AWS SageMaker Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/deploy-model.html) supporta tali configurazioni.
 
-I team monitorano attentamente gli artefatti del modello, come script, pesi, log e metriche, per ogni versione con strumenti di metadati ML come [MLflow](https://mlflow.org/). Ciò mantiene la discendenza e la verificabilità.
-
-Ad esempio, un rivenditore inserisce in un "contenitore" un modello di raccomandazione di prodotto in [TensorFlow Serving](https://www.tensorflow.org/tfx/guide/serving) e lo distribuisce in un cluster di staging [Kubernetes](https://kubernetes.io/). Dopo aver monitorato e approvato le prestazioni sul traffico di esempio, Kubernetes sposta il 10% del traffico di produzione al nuovo modello. Se non vengono rilevati problemi dopo alcuni giorni, il nuovo modello occupa il 100% del traffico. Tuttavia, i team dovrebbero mantenere la versione precedente accessibile per il rollback, se necessario.
-
-I processi di distribuzione del modello consentono ai team di rendere i sistemi ML resilienti in produzione tenendo conto di tutti gli stati di transizione.
+Sfruttando questi strumenti e pratiche, i team possono distribuire modelli ML in modo resiliente, garantendo transizioni fluide tra le versioni, mantenendo la stabilità della produzione e ottimizzando le prestazioni in diversi casi d'uso.
 
 ### Model Serving
 
@@ -240,7 +224,7 @@ I container e gli orchestratori come Docker e Kubernetes consentono ai team di i
 
 Sfruttando l'elasticità del cloud, i team aumentano o diminuiscono le risorse per soddisfare i picchi nei carichi di lavoro come i lavori di ottimizzazione degli iperparametri o i picchi nelle richieste di previsione. [Auto-scaling](https://aws.amazon.com/autoscaling/) consente un'efficienza dei costi ottimizzata.
 
-L'infrastruttura si estende su dispositivi on-prem, cloud ed edge. Uno stack tecnologico robusto offre flessibilità e resilienza. Gli strumenti di monitoraggio consentono ai team di osservare l'utilizzo delle risorse.
+L'infrastruttura si estende su dispositivi on-premise, cloud e edge. Uno stack tecnologico robusto offre flessibilità e resilienza. Gli strumenti di monitoraggio consentono ai team di osservare l'utilizzo delle risorse.
 
 Ad esempio, una configurazione Terraform può distribuire un cluster GCP Kubernetes per ospitare modelli TensorFlow addestrati esposti come microservizi di previsione. Il cluster aumenta i pod per gestire un traffico maggiore. L'integrazione CI/CD distribuisce senza problemi nuovi contenitori di modelli.
 
@@ -402,7 +386,7 @@ Sebbene il debito finanziario sia una buona metafora per comprendere i compromes
 
 Il documento [Hidden Technical Debt of Machine Learning Systems](https://papers.nips.cc/paper_files/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf) diffonde la consapevolezza delle sfumature del debito tecnologico specifico del sistema ML. Incoraggia un ulteriore sviluppo nell'ampia area del ML manutenibile.
 
-## Ruoli e Responsabilità
+## Ruoli e Responsabilità {#sec-roles-and_resp-ops}
 
 Data la vastità di MLOps, l'implementazione di successo di sistemi ML richiede competenze diversificate e una stretta collaborazione tra persone con diverse aree di competenza. Mentre gli scienziati dei dati creano i modelli ML di base, è necessario un lavoro di squadra interfunzionale per distribuire con successo questi modelli in ambienti di produzione e consentire loro di fornire un valore aziendale sostenibile.
 
@@ -456,7 +440,7 @@ Il team di ingegneria ML consente ai modelli di data science di progredire senza
 
 ### DevOps Engineer
 
-Gli "ingegneri DevOps" abilitano MLOps creando e gestendo l'infrastruttura sottostante per lo sviluppo, la distribuzione e il monitoraggio dei modelli ML. Forniscono l'architettura cloud e le pipeline di automazione. Le loro principali responsabilità includono:
+Gli "ingegneri DevOps" abilitano MLOps creando e gestendo l'infrastruttura sottostante per lo sviluppo, la distribuzione e il monitoraggio dei modelli ML. In quanto branca specializzata dell'ingegneria del software, DevOps si concentra sulla creazione di pipeline di automazione, architettura cloud e framework operativi. Le loro principali responsabilità includono:
 
 * Approvvigionare e gestire l'infrastruttura cloud per i flussi di lavoro ML utilizzando strumenti IaC come Terraform, Docker e Kubernetes.
 * Sviluppare pipeline CI/CD per il riaddestramento, la convalida e la distribuzione del modello. Integrare strumenti ML nella pipeline, come MLflow e Kubeflow.
@@ -484,55 +468,9 @@ Ad esempio, un project manager creerebbe un piano di progetto per sviluppare e m
 
 I project manager qualificati consentono ai team MLOps di lavorare in sinergia per fornire rapidamente il massimo valore aziendale dagli investimenti ML. La loro leadership e organizzazione si allineano con team diversi.
 
-## Sfide dei Sistemi Embedded
-
-Sulla base della nostra discussione su [L'apprendimento "On-device"](../ondevice_learning/ondevice_learning.it.qmd) nel capitolo precedente, ora rivolgiamo la nostra attenzione al contesto più ampio dei sistemi embedded in MLOps. I vincoli e i requisiti unici degli ambienti embedded hanno un impatto significativo sull'implementazione di modelli e operazioni di apprendimento automatico. Per preparare il terreno per le sfide specifiche che emergono con MLOps embedded, è importante esaminare prima le sfide generali associate ai sistemi embedded. Questa panoramica fornirà una base per comprendere come questi vincoli si intersecano e modellano le pratiche di MLOps in scenari di edge computing con risorse limitate.
-
-### Risorse di Elaborazione Limitate
-
-I dispositivi embedded come i microcontrollori e i telefoni cellulari hanno una potenza di elaborazione molto più limitata rispetto alle macchine dei data center o alle GPU. Un tipico microcontrollore può avere solo KB di RAM, velocità della CPU MHz e nessuna GPU. Ad esempio, un microcontrollore in uno smartwatch può avere solo un processore a 32 bit in esecuzione a 120 MHz con 320 KB di RAM [@stm2021l4]. Ciò consente modelli ML semplici come piccole regressioni lineari o foreste casuali, ma reti neurali profonde più complesse sarebbero irrealizzabili. Le strategie per mitigare questo includono quantizzazione, potatura, architetture di modelli efficienti e scaricamento di determinati calcoli sul cloud quando la connettività lo consente.
-
-### Memoria Limitata
-
-Memorizzare grandi modelli ML e set di dati direttamente su dispositivi embedded è spesso impossibile con una memoria limitata. Ad esempio, un modello di rete neurale profonda può facilmente occupare centinaia di MB, il che supera la capacità di archiviazione di molti sistemi embedded. Si consideri questo esempio. Una fotocamera per la fauna selvatica che cattura immagini per rilevare animali può avere solo una scheda di memoria da 2 GB. Ne serve di più per memorizzare un modello di deep learning per la classificazione delle immagini che spesso ha una dimensione di centinaia di MB. Di conseguenza, ciò richiede l'ottimizzazione dell'utilizzo della memoria tramite compressione dei pesi, numeri di precisione inferiore e pipeline di inferenza in streaming.
-
-### Connettività Intermittente
-
-Molti dispositivi embedded operano in ambienti remoti senza una connettività Internet affidabile. Dobbiamo fare affidamento su qualcosa di diverso dall'accesso cloud costante per un comodo riaddestramento, monitoraggio e distribuzione. Al contrario, abbiamo bisogno di strategie intelligenti sia di pianificazione che si memorizzazione nella cache per ottimizzare le connessioni intermittenti. Ad esempio, un modello che prevede la resa del raccolto in una fattoria remota potrebbe dover fare previsioni giornaliere ma avere connettività al cloud solo una volta alla settimana quando l'agricoltore si reca in città. Il modello deve funzionare in modo indipendente tra una connessione e l'altra.
-
-### Limitazioni della Potenza
-
-I dispositivi embedded come telefoni, dispositivi indossabili e sensori remoti sono alimentati a batteria. L'inferenza e la comunicazione continue possono esaurire rapidamente le batterie, limitandone la funzionalità. Ad esempio, un collare intelligente che contrassegna gli animali in via di estinzione funziona con una piccola batteria. L'esecuzione continua di un modello di tracciamento GPS scaricherebbe la batteria nel giro di pochi giorni. Il collare deve pianificare con attenzione quando attivare il modello. Pertanto, l'ML integrato deve gestire attentamente le attività per risparmiare energia. Le tecniche includono acceleratori hardware ottimizzati, caching delle previsioni ed esecuzione di modelli adattivi.
-
-### Gestione della Flotta
-
-Per i dispositivi embedded prodotti in serie, milioni di unità possono essere distribuite sul campo per orchestrare gli aggiornamenti. Ipoteticamente, l'aggiornamento di un modello di rilevamento delle frodi su 100 milioni di carte di credito (future intelligenti) richiede l'invio sicuro degli aggiornamenti a ciascun dispositivo distribuito anziché a un data center centralizzato. Una scala così distribuita rende la gestione dell'intera flotta molto più difficile di un cluster di server centralizzato. Richiede protocolli intelligenti per aggiornamenti "over-the-air", gestione dei problemi di connettività e monitoraggio dei vincoli di risorse tra i dispositivi.
-
-### Raccolta Dati On-Device
-
-La raccolta di dati di training utili richiede la progettazione sia dei sensori sul dispositivo sia delle pipeline software. Questo è diverso dai server, dove possiamo estrarre dati da fonti esterne. Le sfide includono la gestione del rumore dei sensori. I sensori su una macchina industriale rilevano vibrazioni e temperatura per prevedere le esigenze di manutenzione. Ciò richiede la messa a punto dei sensori e delle frequenze di campionamento per acquisire dati utili.
-
-### Personalizzazione Specifica del Dispositivo
-
-Uno smart speaker impara i pattern vocali e la cadenza del parlato di un singolo utente per migliorare la precisione del riconoscimento proteggendo al contempo la privacy. Adattare i modelli ML a dispositivi e utenti specifici è importante, ma ciò pone sfide per la privacy. L'apprendimento sul dispositivo consente la personalizzazione senza trasmettere così tanti dati privati. Tuttavia, bilanciare il miglioramento del modello, la tutela della privacy e i vincoli richiede nuove tecniche.
-
-### Considerazioni sulla Sicurezza
-
-Se un ML embedded estremamente grande in sistemi come i veicoli a guida autonoma non viene progettato con attenzione, ci sono seri rischi per la sicurezza. Per garantire un funzionamento sicuro prima dell'implementazione, le auto a guida autonoma devono essere sottoposte a test approfonditi in pista in scenari simulati di pioggia, neve e ostacoli. Ciò richiede una convalida approfondita, dispositivi di sicurezza, simulatori e conformità agli standard prima dell'implementazione.
-
-### Diversi Target Hardware
-
-Esiste una vasta gamma di processori embedded, tra cui ARM, x86, acceleratori AI specializzati, FPGA, ecc. Supportare questa eterogeneità rende difficile l'implementazione. Abbiamo bisogno di strategie come framework standardizzati, test approfonditi e messa a punto del modello per ogni piattaforma. Ad esempio, un modello di rilevamento degli oggetti necessita di implementazioni efficienti su dispositivi embedded come Raspberry Pi, Nvidia Jetson e Google Edge TPU.
-
-### Copertura dei Test
-
-Testare rigorosamente i casi limite è difficile con risorse di simulazione embedded limitate, ma test esaustivi sono fondamentali in sistemi come le auto a guida autonoma. Testare esaustivamente un modello di pilota automatico richiede milioni di chilometri simulati, esponendolo a eventi rari come guasti dei sensori. Pertanto, strategie come la generazione di dati sintetici, la simulazione distribuita e l'ingegneria del caos aiutano a migliorare la copertura.
-
-### Rilevamento della Deriva del Concetto
-
-Con dati di monitoraggio limitati da ogni dispositivo remoto, rilevare cambiamenti nei dati di input nel tempo è molto più difficile. La deriva può portare a degradazioni delle prestazioni del modello. Sono necessari metodi "leggeri" per identificare quando è necessario un riaddestramento. Un modello che prevede i carichi della rete elettrica mostra un calo delle prestazioni man mano che i pattern di utilizzo cambiano nel tempo. Con i soli dati locali sui dispositivi, questa tendenza è difficile da individuare.
-
 ## MLOps Tradizionali e MLOps Embedded
+
+Sulla base della nostra discussione su [L'apprendimento "On-device"](../ondevice_learning/ondevice_learning.it.qmd) nel capitolo precedente, ora rivolgiamo la nostra attenzione al contesto più ampio dei sistemi embedded in MLOps. I vincoli e i requisiti unici degli ambienti embedded hanno un impatto significativo sull'implementazione di modelli e operazioni di apprendimento automatico. Come abbiamo discusso nei capitoli precedenti, i sistemi embedded introducono sfide uniche per MLOps a causa delle loro risorse limitate, della connettività intermittente e della necessità di un calcolo efficiente e consapevole del consumo energetico. A differenza degli ambienti cloud con abbondanti capacità di calcolo e storage, i dispositivi embedded spesso operano con capacità di memoria, potenza e elaborazione limitate, il che richiede un'attenta ottimizzazione dei flussi di lavoro. Queste limitazioni influenzano tutti gli aspetti di MLOps, dall'implementazione e raccolta dati al monitoraggio e agli aggiornamenti.
 
 Negli MLOps tradizionali, i modelli ML vengono in genere distribuiti in ambienti basati su cloud o server, con risorse abbondanti come potenza di calcolo e memoria. Questi ambienti facilitano il funzionamento regolare di modelli complessi che richiedono risorse di calcolo significative. Ad esempio, un modello di riconoscimento delle immagini basato su cloud potrebbe essere utilizzato da una piattaforma di social media per contrassegnare automaticamente le foto con etichette pertinenti. In questo caso, il modello può sfruttare le vaste risorse disponibili nel cloud per elaborare in modo efficiente grandi quantità di dati.
 
@@ -581,7 +519,7 @@ Il volume di dati aggregati è molto più basso, spesso richiedendo tecniche com
 
 Inoltre, i modelli devono utilizzare architetture semplificate ottimizzate per hardware edge a bassa potenza. Date le limitazioni di elaborazione, le GPU di fascia alta sono inaccessibili per un deep learning intensivo. L'addestramento sfrutta server edge e cluster a bassa potenza con approcci distribuiti per spartire il carico.
 
-Il "transfer learning" emerge come una strategia cruciale per affrontare la scarsità di dati e l'irregolarità nell'apprendimento automatico, in particolare negli scenari di edge computing. Come illustrato in @fig-transfer-learning-mlops, questo approccio prevede il pre-training di modelli su grandi set di dati pubblici e la loro successiva messa a punto su dati edge specifici del dominio. La figura raffigura una rete neurale in cui i layer iniziali (da W_{A1} a W_{A4}), responsabili dell'estrazione delle feature generali, sono congelati (indicati da una linea tratteggiata verde). Questi layer conservano la conoscenza delle attività precedenti, accelerando l'apprendimento e riducendo i requisiti di risorse. Gli ultimi livelli (da W_{A5} a W_{A7}), oltre la linea tratteggiata blu, sono messi a punto per l'attività specifica, concentrandosi sull'apprendimento delle feature specifiche dell'attività.
+Il "transfer learning" emerge come una strategia cruciale per affrontare la scarsità di dati e l'irregolarità nell'apprendimento automatico, in particolare negli scenari di edge computing. Come illustrato in @fig-transfer-learning-mlops, questo approccio prevede il pre-training di modelli su grandi set di dati pubblici e la loro successiva messa a punto su dati edge specifici del dominio. La figura rappresenta una rete neurale in cui gli strati iniziali (da $W_{A1}$ a $W_{A4}$), responsabili dell'estrazione delle caratteristiche generali, sono congelati (indicati da una linea tratteggiata verde). Questi layer conservano la conoscenza delle attività precedenti, accelerando l'apprendimento e riducendo i requisiti di risorse. Gli ultimi layer (da $W_{A5}$ a $W_{A7}$), oltre la linea tratteggiata blu, sono ottimizzati per l'attività specifica, concentrandosi sull'apprendimento delle feature specifiche dell'attività.
 
 ![Trasferimento dell'apprendimento in MLOps. Fonte: HarvardX.](images/png/transfer_learning.png){#fig-transfer-learning-mlops}
 
@@ -713,35 +651,7 @@ La governance MLOps embedded deve comprendere privacy, sicurezza, protezione, tr
 
 Quindi, mentre Embedded MLOps condivide i principi fondamentali di MLOps, si trova ad affrontare vincoli unici nell'adattare flussi di lavoro e infrastrutture specificamente per dispositivi edge con risorse limitate.
 
-### MLOps Tradizionali
-
-Google, Microsoft e Amazon offrono la loro versione di servizi ML gestiti. Questi includono servizi che gestiscono il training e la sperimentazione dei modelli, l'hosting e il ridimensionamento dei modelli e il monitoraggio. Queste offerte sono disponibili tramite un'API e SDK client, nonché tramite interfacce utente Web. Sebbene sia possibile creare le proprie soluzioni MLOps end-to-end utilizzando parti di ciascuno, i maggiori vantaggi in termini di facilità d'uso derivano dal rimanere all'interno di un singolo ecosistema di provider per sfruttare le integrazioni tra servizi.
-
-Le sezioni seguenti presentano una rapida panoramica dei servizi che rientrano in ogni parte del ciclo di vita MLOps descritto sopra, fornendo esempi da diversi provider. È importante notare che lo spazio MLOps si sta evolvendo rapidamente; nuove aziende e prodotti stanno entrando in scena a un ritmo rapido. Gli esempi menzionati non intendono fungere da approvazione delle offerte di aziende specifiche, ma piuttosto illustrare i tipi di soluzioni disponibili sul mercato.
-
-#### Gestione dei Dati
-
-L'archiviazione dei dati e il versioning sono elementi essenziali per qualsiasi offerta commerciale e la maggior parte sfrutta le soluzioni di archiviazione generiche esistenti come S3. Altri utilizzano opzioni più specializzate come l'archiviazione basata su git (ad esempio: [Hugging Face's Dataset Hub](https://huggingface.co/datasets)). Questa è un'area in cui i provider semplificano il supporto delle opzioni di archiviazione dati dei concorrenti, poiché non vogliono che ciò rappresenti una barriera per l'adozione del resto dei loro servizi MLOps. Ad esempio, la pipeline di addestramento di Vertex AI supporta senza problemi i set di dati archiviati in S3, Google Cloud Buckets o Dataset Hub di Hugging Face.
-
-#### Addestramento del Modello
-
-I servizi di training gestiti sono il punto di forza dei provider cloud, in quanto forniscono accesso on-demand a hardware che è fuori dalla portata della maggior parte delle aziende più piccole. Fatturano solo l'hardware per il tempo del training, accelerato con GPU accessibili anche ai team di sviluppatori più piccoli. Il controllo che gli sviluppatori hanno sul loro flusso di lavoro del training può variare notevolmente a seconda delle loro esigenze. Alcuni provider hanno servizi che forniscono poco più dell'accesso alle risorse e si affidano allo sviluppatore per gestire autonomamente il ciclo di training, il logging e l'archiviazione dei modelli. Altri servizi sono semplici come puntare a un modello di base e a un set di dati etichettato per avviare un lavoro di messa a punto completamente gestito (ad esempio: [Vertex AI Fine Tuning](https://cloud.google.com/vertex-ai/docs/generative-ai/models/tune-models)).
-
-Una parola di avvertimento: A partire dal 2023, la domanda di hardware GPU supera di gran lunga l'offerta e, di conseguenza, i provider cloud stanno razionando l'accesso alle loro GPU. In alcune regioni dei data center, le GPU potrebbero non essere disponibili o richiedere contratti a lungo termine.
-
-#### Valutazione del Modello
-
-Le attività di valutazione del modello in genere comportano il monitoraggio dell'accuratezza, della latenza e dell'utilizzo delle risorse dei modelli sia nelle fasi di test che di produzione. A differenza dei sistemi embedded, i modelli ML distribuiti sul cloud beneficiano di una connettività Internet costante e di capacità di logging illimitate. Di conseguenza, è spesso possibile acquisire e loggare ogni richiesta e risposta. Ciò rende trattabile la riproduzione o la generazione di richieste sintetiche per confrontare modelli e versioni diversi.
-
-Alcuni provider offrono anche servizi che automatizzano il monitoraggio degli esperimenti di modifica degli iperparametri del modello. Tracciano le esecuzioni e le prestazioni e generano artefatti da queste esecuzioni di training del modello. Esempio: [WeightsAndBiases](https://wandb.ai/)
-
-#### Distribuzione del Modello
-
-Ogni provider in genere ha un servizio denominato "model registry", in cui vengono archiviati e a cui si accede ai modelli di training. Spesso, questi registri possono anche fornire accesso a modelli di base che sono open source o forniti da grandi aziende tecnologiche (o, in alcuni casi, come [LLAMA](https://ai.meta.com/llama/), entrambi!). Questi registri dei modelli costituiscono un luogo comune per confrontare tutti i modelli e le loro versioni per consentire un facile processo decisionale su quale scegliere per un dato caso d'uso. Esempio: [Vertex AI's model registry](https://cloud.google.com/vertex-ai/docs/model-registry/introduction)
-
-Dal registro dei modelli, distribuire un modello a un endpoint di inferenza è rapido e semplice, e gestisce il provisioning delle risorse, il download del peso del modello e l'hosting di un dato modello. Questi servizi in genere forniscono accesso al modello tramite un'API REST con cui possono essere inviate richieste di inferenza. A seconda del tipo di modello, è possibile configurare risorse specifiche, ad esempio quale tipo di acceleratore GPU potrebbe essere necessario per raggiungere le prestazioni desiderate. Alcuni provider possono anche offrire opzioni di inferenza "serverless" o batch che non necessitano di un endpoint persistente per accedere al modello. Esempio: [AWS SageMaker Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/deploy-model.html)
-
-### MLOps Embedded
+### Servizi MLOps Embedded
 
 Nonostante la proliferazione di nuovi strumenti MLOps in risposta all'aumento della domanda, le sfide descritte in precedenza hanno limitato la disponibilità di tali strumenti negli ambienti dei sistemi embedded. Più di recente, nuovi strumenti come Edge Impulse [@janapa2023edge] hanno reso il processo di sviluppo un po' più semplice, come descritto di seguito.
 
@@ -1015,13 +925,3 @@ Per rafforzare i concetti trattati in questo capitolo, abbiamo curato una serie 
 
 * @exr-ei
 :::
-
-:::{.callout-warning collapse="false"}
-
-#### Laboratori
-
-Oltre agli esercizi, offriamo anche una serie di laboratori pratici che consentono agli studenti di acquisire esperienza pratica con le tecnologie di intelligenza artificiale embedded. Questi laboratori forniscono una guida passo dopo passo, consentendo agli studenti di sviluppare le proprie competenze in un ambiente strutturato e di supporto. Siamo lieti di annunciare che presto saranno disponibili nuovi laboratori, che arricchiranno ulteriormente l'esperienza di apprendimento.
-
-* _Prossimamente._
-:::
-

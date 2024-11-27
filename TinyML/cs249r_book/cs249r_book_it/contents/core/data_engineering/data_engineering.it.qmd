@@ -5,7 +5,7 @@ bibliography: data_engineering.bib
 # Data Engineering {#sec-data_engineering}
 
 ::: {.content-visible when-format="html"}
-Risorse: [Slide](#sec-data-engineering-resource), [Video](#sec-data-engineering-resource), [Esercizi](#sec-data-engineering-resource), [Laboratori](#sec-data-engineering-resource)
+Risorse: [Slide](#sec-data-engineering-resource), [Video](#sec-data-engineering-resource), [Esercizi](#sec-data-engineering-resource)
 :::
 
 ![_DALL·E 3 Prompt: Creare un'illustrazione rettangolare che visualizzi il concetto di data engineering. Includere elementi quali fonti di dati grezzi, pipeline di elaborazione dati, sistemi di archiviazione e set di dati raffinati. Mostrare come i dati grezzi vengono trasformati tramite pulizia, elaborazione e archiviazione per diventare informazioni preziose che possono essere analizzate e utilizzate per il processo decisionale._](images/png/cover_data_engineering.png)
@@ -32,7 +32,7 @@ I dati sono la linfa vitale dei sistemi di intelligenza artificiale. Senza buoni
 
 :::
 
-## Introduzione
+## Panoramica
 
 Si immagini un mondo in cui l'intelligenza artificiale può diagnosticare malattie con una precisione senza precedenti, ma solo se i dati utilizzati per addestrarla sono imparziali e affidabili. È qui che entra in gioco il "data engineering" [ingegneria dei dati]. Sebbene oltre il 90% dei dati mondiali sia stato creato negli ultimi due decenni, questa enorme quantità di informazioni è utile solo per creare modelli di intelligenza artificiale efficaci con un'elaborazione e una preparazione adeguate. L'ingegneria dei dati colma questa lacuna trasformando i dati grezzi in un formato di alta qualità che alimenta l'innovazione dell'intelligenza artificiale.
 Nel mondo odierno basato sui dati, proteggere la privacy degli utenti è fondamentale. Che siano obbligatorie per legge o guidate dalle preoccupazioni degli utenti, le tecniche di anonimizzazione come la privacy differenziale e l'aggregazione sono fondamentali per mitigare i rischi per la privacy. Tuttavia, un'implementazione attenta è fondamentale per garantire che questi metodi non compromettano l'utilità dei dati. I creatori di set di dati affrontano complesse sfide di privacy e rappresentazione quando creano dati di addestramento di alta qualità, in particolare per domini sensibili come l'assistenza sanitaria. Dal punto di vista legale, i creatori potrebbero dover rimuovere identificatori diretti come nomi ed età. Anche senza obblighi legali, la rimozione di tali informazioni può aiutare a creare fiducia negli utenti. Tuttavia, un'eccessiva anonimizzazione può compromettere l'utilità del set di dati. Tecniche come la privacy differenziale$^{1}$, l'aggregazione e la riduzione dei dettagli forniscono alternative per bilanciare privacy e utilità, ma hanno degli svantaggi. I creatori devono trovare un equilibrio ponderato in base al caso d'uso.
@@ -281,17 +281,17 @@ Ecco alcuni esempi di governance dei dati in diversi settori:
 
 **Considerazioni speciali sull'archiviazione dei dati per TinyML**
 
-_**Formati di Archiviazione Audio Efficienti:**_ I sistemi di individuazione delle parole chiave necessitano di formati di archiviazione audio specializzati per consentire una rapida ricerca delle parole chiave nei dati audio. I formati tradizionali come WAV e MP3 archiviano forme d'onda audio complete, che richiedono un'elaborazione estesa per la ricerca. L'individuazione delle parole chiave utilizza un archivio compresso ottimizzato per la ricerca basata su frammenti. Un approccio consiste nell'archiviazione di caratteristiche acustiche compatte anziché audio grezzo. Tale flusso di lavoro implicherebbe:
+_**Formati di Archiviazione Audio Efficienti:**_ I sistemi di individuazione delle parole chiave necessitano di formati di archiviazione audio specializzati per consentire una rapida ricerca delle parole chiave nei dati audio. I formati tradizionali come WAV e MP3 archiviano forme d'onda audio complete, che richiedono un'elaborazione estesa per la ricerca. L'individuazione delle parole chiave utilizza un archivio compresso ottimizzato per la ricerca basata su frammenti. Un approccio consiste nell'archiviazione di feature acustiche compatte anziché audio grezzo. Tale flusso di lavoro implicherebbe:
 
-* **Estrazione di Caratteristiche Acustiche:** I coefficienti Mel-frequency cepstral (MFCC) rappresentano comunemente importanti caratteristiche audio.
+* **Estrazione di Feature Acustiche:** I coefficienti Mel-frequency cepstral (MFCC) rappresentano comunemente importanti caratteristiche audio.
 
-* **Creazione di Embedding:** Gli "embedding" trasformano le caratteristiche acustiche estratte in spazi vettoriali continui, consentendo un'archiviazione dei dati più compatta e rappresentativa. Questa rappresentazione è essenziale per convertire dati ad alta dimensionalità, come l'audio, in un formato più gestibile ed efficiente per l'elaborazione e l'archiviazione.
+* **Creazione di Embedding:** Gli "embedding" trasformano le feature acustiche estratte in spazi vettoriali continui, consentendo un'archiviazione dei dati più compatta e rappresentativa. Questa rappresentazione è essenziale per convertire dati ad alta dimensionalità, come l'audio, in un formato più gestibile ed efficiente per l'elaborazione e l'archiviazione.
 
 * **Quantizzazione vettoriale:** Questa tecnica rappresenta dati ad alta dimensionalità, come gli embedding, con vettori a bassa dimensionalità, riducendo le esigenze di archiviazione. Inizialmente, un codebook viene generato dai dati di training per definire un set di vettori di codice che rappresentano i vettori di dati originali. Successivamente, ogni vettore di dati viene abbinato alla "codeword" più vicina in base al codebook, garantendo una perdita minima di informazioni.
 
 * **Archiviazione sequenziale:** L'audio viene frammentato in frame brevi e le feature [caratteristiche] quantizzate (o embedded) per ogni frame vengono archiviate in sequenza per mantenere l'ordine temporale, preservando la coerenza e il contesto dei dati audio.
 
-Questo formato consente di decodificare le feature frame per frame per la corrispondenza delle parole chiave. La ricerca delle caratteristiche è più rapida della decompressione dell'audio completo.
+Questo formato consente di decodificare le feature frame per frame per la corrispondenza delle parole chiave. La ricerca delle feature è più rapida della decompressione dell'audio completo.
 
 _**Selective Network Output Storage:**_ [Archiviazione selettiva dell'output di rete] Un'altra tecnica per ridurre l'archiviazione consiste nell'eliminare le caratteristiche audio intermedie archiviate durante l'addestramento ma non richieste durante l'inferenza. La rete viene eseguita su audio completo durante l'addestramento. Tuttavia, solo gli output finali vengono archiviati durante l'inferenza.
 
@@ -553,15 +553,3 @@ Per rafforzare i concetti trattati in questo capitolo, abbiamo curato una serie 
 * @exr-bl
 
 :::
-
-:::{.callout-warning collapse="false"}
-
-#### Laboratori
-
-Oltre agli esercizi, offriamo una serie di laboratori pratici che consentono agli studenti di acquisire esperienza pratica con le tecnologie di intelligenza artificiale embedded. Questi laboratori forniscono una guida passo dopo passo, consentendo agli studenti di sviluppare le proprie competenze in un ambiente strutturato e di supporto. Siamo lieti di annunciare che presto saranno disponibili nuovi laboratori, che arricchiranno ulteriormente l'esperienza di apprendimento.
-
-* _Prossimamente._
-:::
-
-
-

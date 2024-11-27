@@ -10,16 +10,16 @@ rename index.qmd   index_org.qmd
 
 copy "%SRCDIR%_quarto.yml"                                                                              "."
 copy "%SRCDIR%index.qmd"                                                                                "."
-copy "%SRCDIR%references.it.qmd"                                                                        "."
-copy "%SRCDIR%Italian-reference-doc.docx"                                                               "."
-
-copy "%SRCDIR%contents\dedication.it.qmd"                                                               ".\contents\"
-copy "%SRCDIR%contents\contributors.it.qmd"                                                             ".\contents\"
-copy "%SRCDIR%contents\copyright.it.qmd"                                                                ".\contents\"
-copy "%SRCDIR%contents\about.it.qmd"                                                                    ".\contents\"
-Rem copy "%SRCDIR%contents\conventions.it.qmd"                                                              ".\contents\"
 
 copy "%SRCDIR%contents\core\acknowledgements\acknowledgements.it.qmd"                                   ".\contents\core\acknowledgements\"
+copy "%SRCDIR%contents\core\about\about.it.qmd"                                                         ".\contents\core\about\"
+copy "%SRCDIR%contents\ai\socratiq.it.qmd"                                                              ".\contents\ai\"
+
+Rem copy "%SRCDIR%contents\dedication.it.qmd"                                                               ".\contents\"
+Rem copy "%SRCDIR%contents\contributors.it.qmd"                                                             ".\contents\"
+Rem copy "%SRCDIR%contents\copyright.it.qmd"                                                                ".\contents\"
+Rem copy "%SRCDIR%contents\conventions.it.qmd"                                                              ".\contents\"
+
 copy "%SRCDIR%contents\core\introduction\introduction.it.qmd"                                           ".\contents\core\introduction\"
 copy "%SRCDIR%contents\core\ml_systems\ml_systems.it.qmd"                                               ".\contents\core\ml_systems\"
 copy "%SRCDIR%contents\core\dl_primer\dl_primer.it.qmd"                                                 ".\contents\core\dl_primer\"
@@ -69,12 +69,16 @@ copy "%SRCDIR%contents\labs\shared\shared.it.qmd"                               
 copy "%SRCDIR%contents\labs\shared\kws_feature_eng\kws_feature_eng.it.qmd"                              ".\contents\labs\shared\kws_feature_eng\"
 copy "%SRCDIR%contents\labs\shared\dsp_spectral_features_block\dsp_spectral_features_block.it.qmd"      ".\contents\labs\shared\dsp_spectral_features_block\"
 
+copy "%SRCDIR%references.it.qmd"                                                                        "."
+
 Rem copy "%SRCDIR%contents\tools.it.qmd"                                                                    ".\contents\"
 Rem copy "%SRCDIR%contents\zoo_datasets.it.qmd"                                                             ".\contents\"
 Rem copy "%SRCDIR%contents\zoo_models.it.qmd"                                                               ".\contents\"
 Rem copy "%SRCDIR%contents\learning_resources.it.qmd"                                                       ".\contents\"
 Rem copy "%SRCDIR%contents\community.it.qmd"                                                                ".\contents\"
 Rem copy "%SRCDIR%contents\case_studies.it.qmd"                                                             ".\contents\"
+
+copy "%SRCDIR%Italian-reference-doc.docx"                                                               "."
 
 copy "%SRCDIR%part_LABS.it.qmd"                                             ".\contents\labs\"
 copy "%SRCDIR%part_nicla_vision.it.qmd"                                     ".\contents\labs\arduino\nicla_vision\"
