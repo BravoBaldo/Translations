@@ -19,3 +19,6 @@
 
 ### TinyML
 *  [TinyML Made Easy by Marcelo Rovai](https://github.com/Mjrovai/TinyML_Made_Easy_NiclaV_eBook.git)
+
+### [LVGL](https://lvgl.io/)
+*  [LVGL](https://lvgl.io/) (Light and Versatile Graphics Library)
