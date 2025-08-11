@@ -2,6 +2,7 @@ Rem I suppose to be in LVGL of git clone https://github.com/BravoBaldo/Translati
 Rem LVGL\LVGL_TradIta (OmegaT Folder for translation memories
 Rem LVGL\LVGL_Italiano (The resulting files)
 Rem @echo off
+cls
 
 Rem ****************************************
 Rem Sphinx and sphinx-intl are required
@@ -14,6 +15,7 @@ Rem ****************************************
 Rem npm install -g @mermaid-js/mermaid-cli
 
 git clone https://github.com/lvgl/lvgl.git
+Rem ToDo: Check cloning!
 
 Rem ****************************************
 Rem First build of lvgl's docs
@@ -26,6 +28,7 @@ Rem **************************************************
 Rem First build, and intermediate directory creation
 Rem **************************************************
 python build.py clean html
+Rem ToDo: Check intermediate directory exists!
 
 Rem *** To avoid "mmdc" command not found in Latex *************************************
 echo off
@@ -68,10 +71,12 @@ echo on
 Rem *********************************************************************************
 
 Rem Continue with other builds for references
+Rem Note: The original build of the Latex version crashes 4 times due to "warning" errors.
 python build.py latex
 python build.py singlehtml
 python build.py gettext
 Rem ****************************************
+Rem ToDo: Check files exists!
 
 cd ..\..
 
@@ -100,12 +105,16 @@ mklink /D "..\LVGL_TradIta\source\it"             "..\..\Sphinx_LVGL\source\loca
 rmdir      .\source\locale\it
 mklink /D ".\source\locale\it"                    "..\..\..\..\LVGL_TradIta\target\it"     
 
-cls & sphinx-build -v -b html       -D language=it ./source build/html/it
-cls & sphinx-build -v -b singlehtml -D language=it ./source build/singlehtml/it
-cls & sphinx-build -v -b latex      -D language=it ./source build/latex/it
-cls & PUSHD .\build\latex\it
+Rem cls
+sphinx-build -v -b html       -D language=it ./source build/html/it
+Rem cls & sphinx-build -v -b singlehtml -D language=it ./source build/singlehtml/it
+Rem cls
+sphinx-build -v -b latex      -D language=it ./source build/latex/it
+PUSHD .\build\latex\it
 FOR /R  %%F in (*.tex) do lualatex --interaction=nonstopmode %%~F
 FOR /R . %%F in (*.tex) do lualatex --interaction=nonstopmode %%~F
 POPD
-
+Rem cd ..
+Rem rmdir /S /Q lvgl
+Rem rmdir /S /Q Sphinx_LVGL
 
