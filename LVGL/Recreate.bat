@@ -3,6 +3,9 @@ Rem LVGL\LVGL_TradIta (OmegaT Folder for translation memories
 Rem LVGL\LVGL_Italiano (The resulting files)
 Rem @echo off
 cls
+rmdir /S /Q lvgl
+rmdir /S /Q Sphinx_LVGL
+del /S /Q LVGL_Italiano
 
 Rem ****************************************
 Rem Sphinx and sphinx-intl are required
@@ -42,6 +45,26 @@ echo #                                                        >> ".\intermediate
 echo on
 Rem *********************************************************************************
 
+
+echo.                                                             >> ".\intermediate\conf.py"
+echo.                                                             >> ".\intermediate\conf.py"
+Echo # ####### Trick to reduce the font size of the code   ##########    >> ".\intermediate\conf.py"
+Echo from sphinx.highlighting import PygmentsBridge                      >> ".\intermediate\conf.py"
+Echo from pygments.formatters.latex import LatexFormatter                >> ".\intermediate\conf.py"
+Echo.                                                                    >> ".\intermediate\conf.py"
+Echo class CustomLatexFormatter(LatexFormatter):                         >> ".\intermediate\conf.py"
+Echo     def __init__(self, **options):                                  >> ".\intermediate\conf.py"
+Echo         super(CustomLatexFormatter, self).__init__(**options)       >> ".\intermediate\conf.py"
+Echo         self.verboptions = r"formatcom=\tiny"                       >> ".\intermediate\conf.py"
+Echo.                                                                    >> ".\intermediate\conf.py"
+Echo PygmentsBridge.latex_formatter = CustomLatexFormatter               >> ".\intermediate\conf.py"
+Echo ################################################################    >> ".\intermediate\conf.py"
+echo.                                                             >> ".\intermediate\conf.py"
+echo.                                                             >> ".\intermediate\conf.py"
+
+
+
+
 Rem *** Added for Translations **********
 echo off
 Rem # For Latex
@@ -51,7 +74,7 @@ echo.                                                             >> ".\intermed
 echo locale_dirs = ['locale/']                                    >> ".\intermediate\conf.py"
 echo import sys                                                   >> ".\intermediate\conf.py"
 echo import time                                                  >> ".\intermediate\conf.py"
-echo TitleVersion = time.strftime("%Y%m%d")                       >> ".\intermediate\conf.py"
+echo TitleVersion = time.strftime("%%Y%%m%%d")                    >> ".\intermediate\conf.py"
 echo print("")                                                    >> ".\intermediate\conf.py"
 echo print("Added for Translations!")                             >> ".\intermediate\conf.py"
 echo print("Version. " + version)                                 >> ".\intermediate\conf.py"
@@ -66,7 +89,7 @@ echo     version = version + TitleVersion + ' (Ita)'              >> ".\intermed
 echo     latex_elements.update({"papersize": "a4paper"})          >> ".\intermediate\conf.py"
 echo     latex_elements.update({"pointsize": "10pt"})             >> ".\intermediate\conf.py"
 echo     latex_elements.update({'release': release + " (Ita)"})   >> ".\intermediate\conf.py"
-echo     latex_documents = [(master_doc, 'LVGL_'+release+'_Italiano.tex', 'Documentazione di LVGL v' + version, author + '\\\\\large(Traduzione: \sphinxhref{https://github.com/BravoBaldo}{Baldassarre Cesarano})', 'manual', 1),]   >> ".\intermediate\conf.py"
+echo     latex_documents = [(master_doc, 'LVGL_'+release+'_Italiano.tex', 'Documentazione di LVGL v' + version, author + '\\\\\\large(Traduzione: \\sphinxhref{https://github.com/BravoBaldo/Translations/tree/main/LVGL/}{Baldassarre Cesarano})', 'manual', 1),]   >> ".\intermediate\conf.py"
 echo on
 Rem *********************************************************************************
 
