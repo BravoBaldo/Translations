@@ -3,9 +3,10 @@ Rem LVGL\LVGL_TradIta (OmegaT Folder for translation memories
 Rem LVGL\LVGL_Italiano (The resulting files)
 Rem @echo off
 cls
-rmdir /S /Q lvgl
-rmdir /S /Q Sphinx_LVGL
-del /S /Q LVGL_Italiano
+rmdir /S /Q lvgl > NUL
+rmdir /S /Q Sphinx_LVGL  > NUL
+Rem del /S /Q LVGL_Italiano  > NUL
+rmdir /S /Q LVGL_Italiano & mkdir LVGL_Italiano  > NUL
 
 Rem ****************************************
 Rem Sphinx and sphinx-intl are required
@@ -17,8 +18,15 @@ Rem Note: Node.js is required
 Rem ****************************************
 Rem npm install -g @mermaid-js/mermaid-cli
 
-git clone https://github.com/lvgl/lvgl.git
-Rem ToDo: Check cloning!
+
+IF NOT EXIST ".\lvgl_org\" (
+   git clone https://github.com/lvgl/lvgl.git
+) ELSE (
+    XCOPY ".\lvgl_org\" ".\lvgl\" /E    > NUL
+)
+
+
+IF NOT EXIST ".\lvgl\" GOTO ErrNoCloning 
 
 Rem ****************************************
 Rem First build of lvgl's docs
@@ -30,8 +38,33 @@ pip install -r requirements.txt
 Rem **************************************************
 Rem First build, and intermediate directory creation
 Rem **************************************************
+ECHO OFF
+
+echo.
+echo.
+echo **************************************************
+echo Start Original Docs Buildings
+echo **************************************************
+echo.
+echo.
+
+echo.
+echo **************************************************
+echo Building HTML
+echo **************************************************
+echo.
 python build.py clean html
-Rem ToDo: Check intermediate directory exists!
+Rem Continue with other builds for references
+Rem Note: The original build of the Latex version crashes 4 times due to "warning" errors.
+
+
+echo.
+echo.
+echo **************************************************
+echo Add patch for mermaid
+echo **************************************************
+echo.
+echo.
 
 Rem *** To avoid "mmdc" command not found in Latex *************************************
 echo off
@@ -44,6 +77,33 @@ echo mermaid_cmd = os.getenv('APPDATA') + "\\npm\\mmdc"       >> ".\intermediate
 echo #                                                        >> ".\intermediate\conf.py"
 echo on
 Rem *********************************************************************************
+
+
+
+
+echo.
+echo **************************************************
+echo Building LATEX
+echo **************************************************
+echo.
+python build.py latex
+echo.
+echo **************************************************
+echo Building GETTEXT
+echo **************************************************
+echo.
+python build.py gettext
+
+IF NOT EXIST ".\intermediate\" GOTO ErrNoIntermediate 
+
+
+echo.
+echo.
+echo **************************************************
+echo Conf.py Customization
+echo **************************************************
+echo.
+echo.
 
 
 echo.                                                             >> ".\intermediate\conf.py"
@@ -95,11 +155,12 @@ Rem ****************************************************************************
 
 Rem Continue with other builds for references
 Rem Note: The original build of the Latex version crashes 4 times due to "warning" errors.
-python build.py latex
-python build.py singlehtml
-python build.py gettext
+Rem python build.py latex
+Rem python build.py gettext
+
+
 Rem ****************************************
-Rem ToDo: Check files exists!
+Rem ToDo: Check files exists! IF [NOT] EXIST filename command
 
 cd ..\..
 
@@ -107,6 +168,11 @@ cd ..\..
 Rem ****************************************
 Rem Sphinx
 Rem ****************************************
+echo.
+echo.
+echo Sphinx-build Preparation
+echo.
+echo.
 
 mkdir Sphinx_LVGL && cd Sphinx_LVGL
 sphinx-quickstart --sep -p "LVGL" -a "LVGL Community" -r "2025" -l "en" --extensions "sphinx.ext.autodoc,sphinx.ext.extlinks,sphinx.ext.intersphinx,sphinx.ext.todo,sphinx.ext.viewcode,sphinx_copybutton,breathe,sphinx_sitemap,lv_example,sphinx_design,sphinxcontrib.mermaid'"
@@ -129,9 +195,14 @@ rmdir      .\source\locale\it
 mklink /D ".\source\locale\it"                    "..\..\..\..\LVGL_TradIta\target\it"     
 
 Rem cls
+echo.
+echo.
+echo Building Translations
+echo.
+echo.
+
+
 sphinx-build -v -b html       -D language=it ./source build/html/it
-Rem cls & sphinx-build -v -b singlehtml -D language=it ./source build/singlehtml/it
-Rem cls
 sphinx-build -v -b latex      -D language=it ./source build/latex/it
 PUSHD .\build\latex\it
 FOR /R  %%F in (*.tex) do lualatex --interaction=nonstopmode %%~F
@@ -141,3 +212,15 @@ Rem cd ..
 Rem rmdir /S /Q lvgl
 Rem rmdir /S /Q Sphinx_LVGL
 
+goto :eof
+
+:ErrNoCloning
+ECHO "Error Wrong Cloning"
+goto :eof
+
+:ErrNoIntermediate
+ECHO "Error. No Intermediate directory created"
+goto :eof
+
+goto :eof
+goto :eof
