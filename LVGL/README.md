@@ -2,7 +2,7 @@
 > [LVGL](https://lvgl.io/) (Light and Versatile Graphics Library) è la libreria grafica embedded gratuita e open source più popolare per creare splendide interfacce utente per qualsiasi MCU, MPU e tipo di display....
 
 ## Project Status
-	Traduzione "in progress", capitolo 8 completato.
+	Traduzione "in progress", capitolo 9 completato.
 
 ## To (re)create translated files:
 * Esecute (for the moment as Administrator!) the 'Recreate.bat' batch file.

@@ -153,11 +153,6 @@ echo     latex_documents = [(master_doc, 'LVGL_'+release+'_Italiano.tex', 'Docum
 echo on
 Rem *********************************************************************************
 
-Rem Continue with other builds for references
-Rem Note: The original build of the Latex version crashes 4 times due to "warning" errors.
-Rem python build.py latex
-Rem python build.py gettext
-
 
 Rem ****************************************
 Rem ToDo: Check files exists! IF [NOT] EXIST filename command
@@ -208,9 +203,13 @@ PUSHD .\build\latex\it
 FOR /R  %%F in (*.tex) do lualatex --interaction=nonstopmode %%~F
 FOR /R . %%F in (*.tex) do lualatex --interaction=nonstopmode %%~F
 POPD
-Rem cd ..
-Rem rmdir /S /Q lvgl
-Rem rmdir /S /Q Sphinx_LVGL
+
+if 1==0 (
+ECHO To Run before publish on git
+cd ..
+rmdir /S /Q lvgl
+rmdir /S /Q Sphinx_LVGL
+)
 
 goto :eof
 

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Indice" href="../../genindex.html" /><link rel="search" title="Ricerca" href="../../search.html" /><link rel="next" title="Fragment" href="fragment.html" /><link rel="prev" title="Esplora File" href="file_explorer.html" />
+<link rel="index" title="Indice" href="../../genindex.html" /><link rel="search" title="Ricerca" href="../../search.html" /><link rel="next" title="Frammento" href="fragment.html" /><link rel="prev" title="Esplora File" href="file_explorer.html" />
         <link rel="canonical" href="https://docs.lvgl.io/master/details/auxiliary-modules/font_manager.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
@@ -577,28 +577,28 @@
 <li class="toctree-l3"><a class="reference internal" href="../xml/build_ui/translation.html">Traduzioni</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../xml/test.html">UI Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../xml/test.html">Test dell'interfaccia utente</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../xml/license.html">Licenza</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Moduli Ausiliari</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" role="switch" type="checkbox"/><label for="toctree-checkbox-32"><div class="visually-hidden">Toggle navigation of Moduli Ausiliari</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="file_explorer.html">Esplora File</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Font Manager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fragment.html">Fragment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gridnav.html">Grid navigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragment.html">Frammento</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gridnav.html">Navigazione a Griglia</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ime_pinyin.html">Pinyin IME</a></li>
-<li class="toctree-l2"><a class="reference internal" href="imgfont.html">Image font</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imgfont.html">Font immagine</a></li>
 <li class="toctree-l2"><a class="reference internal" href="monkey.html">Monkey</a></li>
-<li class="toctree-l2"><a class="reference internal" href="obj_id.html">Widget ID</a></li>
-<li class="toctree-l2"><a class="reference internal" href="obj_property.html">Widget Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obj_id.html">ID del Widget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="obj_property.html">Proprietà Widget</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="observer/index.html">Observer</a><input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" role="switch" type="checkbox"/><label for="toctree-checkbox-33"><div class="visually-hidden">Toggle navigation of Observer</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="observer/observer.html">Come si Usa</a></li>
 <li class="toctree-l3"><a class="reference internal" href="observer/observer_examples.html">Esempi</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="snapshot.html">Snapshot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sysmon.html">System Monitor (sysmon)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test.html">UI Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sysmon.html">Monitor di Sistema (sysmon)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test.html">Test dell'interfaccia utente</a></li>
 <li class="toctree-l2"><a class="reference internal" href="translation.html">Traslazione</a></li>
 </ul>
 </li>
@@ -1506,35 +1506,21 @@
         <article role="main" id="furo-main-content">
           <section id="font-manager">
 <span id="id1"></span><h1>Font Manager<a class="headerlink" href="#font-manager" title="Link to this heading">¶</a></h1>
-<p>The font manager is a secondary encapsulation of the LVGL font engine,
-which facilitates the use and management of fonts for applications.
-The font management functions currently provided include:</p>
+<p>Il Font Manager è un'incapsulazione secondaria del motore dei font LVGL, che facilita l'uso e la gestione dei font per le applicazioni. Le funzioni di gestione font attualmente disponibili includono:</p>
 <ul class="simple">
-<li><p>Font resource reference counting (reduces repeated creation of font resources).</p></li>
-<li><p>Font resource concatenation (font fallback).</p></li>
-<li><p>Font resource recycling mechanism (buffers recently deleted font resources to
-reduce the time overhead of repeated creation).</p></li>
+<li><p>Conteggio dei riferimenti alle risorse font (riduce la creazione ripetuta di risorse font).</p></li>
+<li><p>Concatenazione delle risorse font (fallback dei font).</p></li>
+<li><p>Meccanismo di riciclo delle risorse font (memorizza nel buffer le risorse font eliminate di recente per ridurre il tempo di creazione ripetuto).</p></li>
 </ul>
 <section id="usage">
 <span id="font-manager-usage"></span><h2>Utilizzo<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
-<p>Enable FreeType and Font Manager in <code class="docutils literal notranslate"><span class="pre">lv_conf.h</span></code> by setting the
-<a class="reference internal" href="../../API/lv_conf_internal_h.html#c.LV_USE_FONT_MANAGER" title="LV_USE_FONT_MANAGER"><code class="xref c c-macro docutils literal notranslate"><span class="pre">LV_USE_FONT_MANAGER</span></code></a> macros to non-zero
-values, and configure <code class="xref c c-macro docutils literal notranslate"><span class="pre">LV_FONT_MANAGER_NAME_MAX_LEN</span></code> to set the maximum
-length of the font name.</p>
+<p>Si abilitano FreeType e Font Manager in <code class="docutils literal notranslate"><span class="pre">lv_conf.h</span></code> impostando le macro <a class="reference internal" href="../../API/lv_conf_internal_h.html#c.LV_USE_FONT_MANAGER" title="LV_USE_FONT_MANAGER"><code class="xref c c-macro docutils literal notranslate"><span class="pre">LV_USE_FONT_MANAGER</span></code></a> su valori diversi da zero e configurando <code class="xref c c-macro docutils literal notranslate"><span class="pre">LV_FONT_MANAGER_NAME_MAX_LEN</span></code> per impostare la lunghezza massima del nome del font.</p>
 <section id="initialize-font-manager">
-<h3>Initialize Font Manager<a class="headerlink" href="#initialize-font-manager" title="Link to this heading">¶</a></h3>
-<p>Use <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv422lv_font_manager_create8uint32_t" title="lv_font_manager_create"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_create()</span></code></a> to create a font manager, where the
-<code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">recycle_cache_size()</span></code> parameter is used to set the number of font recycling
-caches, which can improve font creation efficiency.</p>
-<p>Use <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv430lv_font_manager_add_src_staticP17lv_font_manager_tPKcPKvPK15lv_font_class_t" title="lv_font_manager_add_src_static"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_add_src_static()</span></code></a> to add a mapping between font names
-and font resources to tell the font manager how to access the font resources.
-Note that if the font resource description structure is not statically allocated
-(for example, allocated from a local variable), use <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv423lv_font_manager_add_srcP17lv_font_manager_tPKcPKvPK15lv_font_class_t" title="lv_font_manager_add_src"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_add_src()</span></code></a> to add the resource.
-This function will copy the contents of the structure itself.</p>
-<p>Use <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv426lv_font_manager_remove_srcP17lv_font_manager_tPKc" title="lv_font_manager_remove_src"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_remove_src()</span></code></a> to remove the font resource mapping.</p>
-<p>It should be noted that the <code class="docutils literal notranslate"><span class="pre">src</span></code> parameter must strictly correspond to <code class="docutils literal notranslate"><span class="pre">class_p</span></code>.
-<code class="docutils literal notranslate"><span class="pre">class_p</span></code> will affect the way the font manager interprets src. If an incompatible parameter is passed, the program may fail.
-For currently supported font classes, please refer to the example code.</p>
+<h3>Inizializzare Font Manager<a class="headerlink" href="#initialize-font-manager" title="Link to this heading">¶</a></h3>
+<p>Si usa <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv422lv_font_manager_create8uint32_t" title="lv_font_manager_create"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_create()</span></code></a> per creare un font manager, dove il parametro <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">recycle_cache_size()</span></code> viene utilizzato per impostare il numero di cache di riciclo dei font, il che può migliorare l'efficienza della creazione dei font.</p>
+<p>Si usa <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv430lv_font_manager_add_src_staticP17lv_font_manager_tPKcPKvPK15lv_font_class_t" title="lv_font_manager_add_src_static"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_add_src_static()</span></code></a> per aggiungere una mappatura tra i nomi dei font e le risorse font per indicare al font manager come accedere alle risorse font. Nota: se la struttura di descrizione delle risorse font non è allocata staticamente (ad esempio, allocata da una variabile locale), si usa <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv423lv_font_manager_add_srcP17lv_font_manager_tPKcPKvPK15lv_font_class_t" title="lv_font_manager_add_src"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_add_src()</span></code></a> per aggiungere la risorsa. Questa funzione copierà il contenuto della struttura stessa.</p>
+<p>Utilizzare <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv426lv_font_manager_remove_srcP17lv_font_manager_tPKc" title="lv_font_manager_remove_src"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_remove_src()</span></code></a> per rimuovere la mappatura delle risorse font.</p>
+<p>È importante notare che il parametro <code class="docutils literal notranslate"><span class="pre">src</span></code> deve corrispondere rigorosamente a <code class="docutils literal notranslate"><span class="pre">class_p</span></code>. <code class="docutils literal notranslate"><span class="pre">class_p</span></code> influenzerà il modo in cui il gestore dei font interpreta src. Se viene passato un parametro incompatibile, il programma potrebbe non funzionare. Per le classi di font attualmente supportate, fare riferimento al codice di esempio.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">lv_font_manager_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">g_font_manager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
 
 <span class="kt">void</span><span class="w"> </span><span class="nf">font_manager_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
@@ -1552,14 +1538,9 @@ For currently supported font classes, please refer to the example code.</p>
 </div>
 </section>
 <section id="create-font-from-font-manager">
-<h3>Create Font from Font Manager<a class="headerlink" href="#create-font-from-font-manager" title="Link to this heading">¶</a></h3>
-<p>The parameters will be passed to the font creation function of the font backend,
-such as <a class="reference internal" href="../../API/libs/freetype/lv_freetype_h.html#_CPPv423lv_freetype_font_createPKc30lv_freetype_font_render_mode_t8uint32_t24lv_freetype_font_style_t" title="lv_freetype_font_create"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_freetype_font_create()</span></code></a> and <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_tiny_ttf_create_file()</span></code>.
-The font backend will select the supported parameters by itself and ignore the unsupported parameters.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">font_family</span></code> parameter can be filled with the names of multiple fonts
-(separated by <code class="docutils literal notranslate"><span class="pre">,</span></code>) to achieve font concatenation (when the corresponding glyph is
-not found in a font file, it will automatically search from the next concatenated
-font).</p>
+<h3>Creare Font da Font Manager<a class="headerlink" href="#create-font-from-font-manager" title="Link to this heading">¶</a></h3>
+<p>I parametri verranno passati alla funzione di creazione font del backend font, come <a class="reference internal" href="../../API/libs/freetype/lv_freetype_h.html#_CPPv423lv_freetype_font_createPKc30lv_freetype_font_render_mode_t8uint32_t24lv_freetype_font_style_t" title="lv_freetype_font_create"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_freetype_font_create()</span></code></a> e <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_tiny_ttf_create_file()</span></code>. Il backend font selezionerà autonomamente i parametri supportati e ignorerà quelli non supportati.</p>
+<p>Il parametro <code class="docutils literal notranslate"><span class="pre">font_family</span></code> può essere compilato con i nomi di più font (separati da <code class="docutils literal notranslate"><span class="pre">,</span></code>) per ottenere la concatenazione dei font (quando il glifo corrispondente non viene trovato in un file font, la ricerca verrà eseguita automaticamente a partire dal font concatenato successivo).</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">lv_font_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">g_font</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
 
 <span class="cm">/* Create font from font manager */</span>
@@ -1583,12 +1564,9 @@ font).</p>
 </div>
 </section>
 <section id="delete-font">
-<h3>Delete Font<a class="headerlink" href="#delete-font" title="Link to this heading">¶</a></h3>
-<p>Use <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv427lv_font_manager_delete_fontP17lv_font_manager_tP9lv_font_t" title="lv_font_manager_delete_font"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_delete_font()</span></code></a> to delete the font when it is no longer needed.
-The font manager will mark the font resource as a recyclable font so that it has the
-possibility of being more quickly created next time.</p>
-<p>Note that you need to delete any Widgets that used the font first, and then
-delete the font to avoid accessing wild pointers.</p>
+<h3>Eliminare Font<a class="headerlink" href="#delete-font" title="Link to this heading">¶</a></h3>
+<p>Si usa <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv427lv_font_manager_delete_fontP17lv_font_manager_tP9lv_font_t" title="lv_font_manager_delete_font"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_delete_font()</span></code></a> per eliminare il font quando non è più necessario. Il font manager contrassegnerà la risorsa font come font riciclabile in modo che possa essere creata più rapidamente la prossima volta.</p>
+<p>Si noti che è necessario eliminare prima tutti i Widget che utilizzavano il font, poi eliminare il font per evitare di accedere a puntatori indesiderati.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/* Delete label and font */</span>
 <span class="n">lv_obj_delete</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
 <span class="n">lv_font_manager_delete_font</span><span class="p">(</span><span class="n">g_font_manager</span><span class="p">,</span><span class="w"> </span><span class="n">g_font</span><span class="p">);</span>
@@ -1597,19 +1575,15 @@ delete the font to avoid accessing wild pointers.</p>
 </div>
 </section>
 <section id="delete-font-manager">
-<h3>Delete Font Manager<a class="headerlink" href="#delete-font-manager" title="Link to this heading">¶</a></h3>
-<p>Use <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv422lv_font_manager_deleteP17lv_font_manager_t" title="lv_font_manager_delete"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_delete()</span></code></a> to destroy the entire font manager. It should
-be noted that before destruction, it is necessary to ensure that the application has
-deleted all fonts using <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv427lv_font_manager_delete_fontP17lv_font_manager_tP9lv_font_t" title="lv_font_manager_delete_font"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_delete_font()</span></code></a>.  The font manager
-will check the reference status of all allocated fonts.  If there are still fonts
-being referenced, the font manager will fail to be destroyed and the function will return false.</p>
+<h3>Eliminare il Font Manager<a class="headerlink" href="#delete-font-manager" title="Link to this heading">¶</a></h3>
+<p>Usare <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv422lv_font_manager_deleteP17lv_font_manager_t" title="lv_font_manager_delete"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_delete()</span></code></a> per eliminare l'intero font manager. Prima di procedere all'eliminazione, è necessario assicurarsi che l'applicazione abbia eliminato tutti i font utilizzando <a class="reference internal" href="../../API/others/font_manager/lv_font_manager_h.html#_CPPv427lv_font_manager_delete_fontP17lv_font_manager_tP9lv_font_t" title="lv_font_manager_delete_font"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_font_manager_delete_font()</span></code></a>.  Il font manager verificherà lo stato di riferimento di tutti i font allocati.  Se sono ancora presenti font referenziati, il gestore font non verrà eliminato e la funzione restituirà false.</p>
 </section>
 </section>
 <section id="example">
 <span id="font-manager-example"></span><h2>Esempio<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
 <section id="create-freetype-font">
-<h3>Create FreeType Font<a class="headerlink" href="#create-freetype-font" title="Link to this heading">¶</a></h3>
-<div class='lv-example-container'><div class='lv-example' data-real-src='/9.420250820 (Ita)/_static/built_lv_examples/index.html?example=lv_example_font_manager_1&w=320&h=240'></div><div class='lv-example-description'></div></div><div class="toggle docutils container">
+<h3>Creare un Font FreeType<a class="headerlink" href="#create-freetype-font" title="Link to this heading">¶</a></h3>
+<div class='lv-example-container'><div class='lv-example' data-real-src='/9.420250821 (Ita)/_static/built_lv_examples/index.html?example=lv_example_font_manager_1&w=320&h=240'></div><div class='lv-example-description'></div></div><div class="toggle docutils container">
 <div class="header docutils container">
 <p>C code &nbsp;</p><a class='lv-example-link-button' onclick="event.stopPropagation();" href='https://github.com/lvgl/lvgl/blob/master/examples/others/font_manager/lv_example_font_manager_1.c'><i class="fa fa-github"></i>&nbsp;View on GitHub</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../lv_examples.h&quot;</span>
@@ -1669,8 +1643,8 @@ being referenced, the font manager will fail to be destroyed and the function wi
 </div>
 <hr/></section>
 <section id="create-font-family">
-<h3>Create Font Family<a class="headerlink" href="#create-font-family" title="Link to this heading">¶</a></h3>
-<div class='lv-example-container'><div class='lv-example' data-real-src='/9.420250820 (Ita)/_static/built_lv_examples/index.html?example=lv_example_font_manager_2&w=320&h=240'></div><div class='lv-example-description'></div></div><div class="toggle docutils container">
+<h3>Creare una Famiglia di Font<a class="headerlink" href="#create-font-family" title="Link to this heading">¶</a></h3>
+<div class='lv-example-container'><div class='lv-example' data-real-src='/9.420250821 (Ita)/_static/built_lv_examples/index.html?example=lv_example_font_manager_2&w=320&h=240'></div><div class='lv-example-description'></div></div><div class="toggle docutils container">
 <div class="header docutils container">
 <p>C code &nbsp;</p><a class='lv-example-link-button' onclick="event.stopPropagation();" href='https://github.com/lvgl/lvgl/blob/master/examples/others/font_manager/lv_example_font_manager_2.c'><i class="fa fa-github"></i>&nbsp;View on GitHub</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../lv_examples.h&quot;</span>
@@ -1766,8 +1740,8 @@ being referenced, the font manager will fail to be destroyed and the function wi
 </div>
 <hr/></section>
 <section id="create-custom-image-font">
-<h3>Create Custom Image Font<a class="headerlink" href="#create-custom-image-font" title="Link to this heading">¶</a></h3>
-<div class='lv-example-container'><div class='lv-example' data-real-src='/9.420250820 (Ita)/_static/built_lv_examples/index.html?example=lv_example_font_manager_3&w=320&h=240'></div><div class='lv-example-description'></div></div><div class="toggle docutils container">
+<h3>Creare un Font  Immagine Custom<a class="headerlink" href="#create-custom-image-font" title="Link to this heading">¶</a></h3>
+<div class='lv-example-container'><div class='lv-example' data-real-src='/9.420250821 (Ita)/_static/built_lv_examples/index.html?example=lv_example_font_manager_3&w=320&h=240'></div><div class='lv-example-description'></div></div><div class="toggle docutils container">
 <div class="header docutils container">
 <p>C code &nbsp;</p><a class='lv-example-link-button' onclick="event.stopPropagation();" href='https://github.com/lvgl/lvgl/blob/master/examples/others/font_manager/lv_example_font_manager_3.c'><i class="fa fa-github"></i>&nbsp;View on GitHub</a></div>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../../lv_examples.h&quot;</span>
@@ -1915,7 +1889,7 @@ being referenced, the font manager will fail to be destroyed and the function wi
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Fragment</div>
+                <div class="title">Frammento</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -1939,7 +1913,7 @@ being referenced, the font manager will fail to be destroyed and the function wi
             Made with 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 20 ago 2025</div>
+              Last updated on 21 ago 2025</div>
           </div>
           <div class="right-details">
             
@@ -1962,16 +1936,16 @@ being referenced, the font manager will fail to be destroyed and the function wi
             <ul>
 <li><a class="reference internal" href="#">Font Manager</a><ul>
 <li><a class="reference internal" href="#usage">Utilizzo</a><ul>
-<li><a class="reference internal" href="#initialize-font-manager">Initialize Font Manager</a></li>
-<li><a class="reference internal" href="#create-font-from-font-manager">Create Font from Font Manager</a></li>
-<li><a class="reference internal" href="#delete-font">Delete Font</a></li>
-<li><a class="reference internal" href="#delete-font-manager">Delete Font Manager</a></li>
+<li><a class="reference internal" href="#initialize-font-manager">Inizializzare Font Manager</a></li>
+<li><a class="reference internal" href="#create-font-from-font-manager">Creare Font da Font Manager</a></li>
+<li><a class="reference internal" href="#delete-font">Eliminare Font</a></li>
+<li><a class="reference internal" href="#delete-font-manager">Eliminare il Font Manager</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#example">Esempio</a><ul>
-<li><a class="reference internal" href="#create-freetype-font">Create FreeType Font</a></li>
-<li><a class="reference internal" href="#create-font-family">Create Font Family</a></li>
-<li><a class="reference internal" href="#create-custom-image-font">Create Custom Image Font</a></li>
+<li><a class="reference internal" href="#create-freetype-font">Creare un Font FreeType</a></li>
+<li><a class="reference internal" href="#create-font-family">Creare una Famiglia di Font</a></li>
+<li><a class="reference internal" href="#create-custom-image-font">Creare un Font  Immagine Custom</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#api">API</a></li>
