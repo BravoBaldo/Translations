@@ -1,7 +1,7 @@
 Rem I suppose to be in LVGL of git clone https://github.com/BravoBaldo/Translations.git
 Rem LVGL\LVGL_TradIta (OmegaT Folder for translation memories
 Rem LVGL\LVGL_Italiano (The resulting files)
-Rem @echo off
+@echo off
 cls
 rmdir /S /Q lvgl > NUL
 rmdir /S /Q Sphinx_LVGL  > NUL
@@ -87,12 +87,13 @@ echo Building LATEX
 echo **************************************************
 echo.
 python build.py latex
-echo.
-echo **************************************************
-echo Building GETTEXT
-echo **************************************************
-echo.
-python build.py gettext
+
+REM echo.
+REM echo **************************************************
+REM echo Building GETTEXT
+REM echo **************************************************
+REM echo.
+REM python build.py gettext
 
 IF NOT EXIST ".\intermediate\" GOTO ErrNoIntermediate 
 
@@ -132,6 +133,10 @@ Rem # Append these rows for Italian translation
 echo.                                                             >> ".\intermediate\conf.py"
 echo.                                                             >> ".\intermediate\conf.py"
 echo locale_dirs = ['locale/']                                    >> ".\intermediate\conf.py"
+
+Rem To translate HTML too
+echo gettext_additional_targets = {'raw'}                         >> ".\intermediate\conf.py"
+
 echo import sys                                                   >> ".\intermediate\conf.py"
 echo import time                                                  >> ".\intermediate\conf.py"
 echo TitleVersion = time.strftime("%%Y%%m%%d")                    >> ".\intermediate\conf.py"
@@ -145,11 +150,21 @@ echo if "language=it" in sys.argv:                                >> ".\intermed
 echo     language = 'it'                                          >> ".\intermediate\conf.py"
 echo     print("Traduzione Italiana")                             >> ".\intermediate\conf.py"
 echo     #release = release                                       >> ".\intermediate\conf.py"
-echo     version = version + TitleVersion + ' (Ita)'              >> ".\intermediate\conf.py"
+echo     version = version + ' ' + TitleVersion + ' (Ita)'        >> ".\intermediate\conf.py"
 echo     latex_elements.update({"papersize": "a4paper"})          >> ".\intermediate\conf.py"
 echo     latex_elements.update({"pointsize": "10pt"})             >> ".\intermediate\conf.py"
 echo     latex_elements.update({'release': release + " (Ita)"})   >> ".\intermediate\conf.py"
 echo     latex_documents = [(master_doc, 'LVGL_'+release+'_Italiano.tex', 'Documentazione di LVGL v' + version, author + '\\\\\\large(Traduzione: \\sphinxhref{https://github.com/BravoBaldo/Translations/tree/main/LVGL/}{Baldassarre Cesarano})', 'manual', 1),]   >> ".\intermediate\conf.py"
+
+echo     latex_elements.update({'preamble': r'''   >> ".\intermediate\conf.py"
+echo \usepackage{fontspec}                         >> ".\intermediate\conf.py"
+echo \setmonofont[Scale=.8]{DejaVu Sans Mono}       >> ".\intermediate\conf.py"
+echo \usepackage{silence}                           >> ".\intermediate\conf.py"
+echo \WarningsOff*                                  >> ".\intermediate\conf.py"
+echo ''',                                           >> ".\intermediate\conf.py"
+echo })                                             >> ".\intermediate\conf.py"
+
+
 echo on
 Rem *********************************************************************************
 
