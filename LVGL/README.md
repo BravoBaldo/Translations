@@ -10,7 +10,6 @@
 	> Note: The original build of the Latex version crashes 4 times due to "warning" errors.
 
 ## ToDo:
-* Complete the translation
 * A first reading/revision!
 * Word version
 * Epub version

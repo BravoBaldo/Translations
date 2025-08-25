@@ -415,7 +415,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../framework/index.html">Framework</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Framework</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../framework/arduino.html">Arduino</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../framework/platformio.html">PlatformIO</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../framework/tasmota-berry.html">Tasmota e berry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../framework/tasmota-berry.html">Tasmota e Berry</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../ide/index.html">IDE</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of IDE</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -503,7 +503,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/spinbox.html">Spinbox (lv_spinbox)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/spinner.html">Spinner (lv_spinner)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/switch.html">Switch (lv_switch)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../widgets/table.html">Table (lv_table)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../widgets/table.html">Tabella (lv_table)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/tabview.html">Tab View (lv_tabview)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/textarea.html">Text Area (lv_textarea)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/tileview.html">Tile View (lv_tileview)</a></li>
@@ -1620,6 +1620,20 @@
 <h3>Rotazione del Display<a class="headerlink" href="#display-rotation" title="Link to this heading">¶</a></h3>
 <p>La rotazione efficiente del display è pienamente supportata tramite <a class="reference internal" href="../../../API/display/lv_display_h.html#_CPPv423lv_display_set_rotationP12lv_display_t21lv_display_rotation_t" title="lv_display_set_rotation"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_display_set_rotation()</span></code></a>. La rotazione dell'input touch viene gestita di conseguenza.</p>
 </section>
+<section id="asset-pre-upload">
+<h3>Pre-Caricamento delle Risorse<a class="headerlink" href="#asset-pre-upload" title="Link to this heading">¶</a></h3>
+<p>Immagini e font vengono caricati nella RAM_G del chip EVE in base alle esigenze durante il rendering. Un'immagine o un glifo non verrà caricato finché non sarà necessario renderizzarlo. Una volta caricato, rimarrà nella RAM_G fino al reset. La prima volta che viene visualizzata una schermata, potrebbe verificarsi un ritardo notevole durante il caricamento di un'immagine o di un set di glifi per il primo utilizzo. Per mitigare questo ritardo, è disponibile una serie di funzioni per caricare le risorse in anticipo.</p>
+<p><a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv428lv_draw_eve_pre_upload_imageP12lv_display_tPKv" title="lv_draw_eve_pre_upload_image"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_pre_upload_image()</span></code></a> viene utilizzato per caricare le immagini. <a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv433lv_draw_eve_pre_upload_font_rangeP12lv_display_tPK9lv_font_t8uint32_t8uint32_t" title="lv_draw_eve_pre_upload_font_range"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_pre_upload_font_range()</span></code></a> viene utilizzato per caricare un intervallo di caratteri. L'intervallo è fornito come primo e ultimo punto di codice Unicode nell'intervallo. Sia il valore iniziale che quello finale sono inclusi nell'intervallo. Può essere chiamato più volte con intervalli diversi. <a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv432lv_draw_eve_pre_upload_font_textP12lv_display_tPK9lv_font_tPKc" title="lv_draw_eve_pre_upload_font_text"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_pre_upload_font_text()</span></code></a> viene utilizzato per caricare tutti i glifi necessari per il rendering di una stringa specifica (ASCII o UTF-8). Può essere chiamato più volte con stringhe diverse.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">LV_IMAGE_DECLARE</span><span class="p">(</span><span class="n">asset_digital_lock</span><span class="p">);</span>
+<span class="n">lv_draw_eve_pre_upload_image</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">asset_digital_lock</span><span class="p">);</span>
+
+<span class="n">LV_FONT_DECLARE</span><span class="p">(</span><span class="n">lv_font_montserrat_48</span><span class="p">);</span>
+<span class="n">lv_draw_eve_pre_upload_font_text</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lv_font_montserrat_48</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;The current time is&quot;</span><span class="p">);</span>
+<span class="n">lv_draw_eve_pre_upload_font_range</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lv_font_montserrat_48</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;9&#39;</span><span class="p">);</span>
+<span class="n">lv_draw_eve_pre_upload_font_range</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lv_font_montserrat_48</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;:&#39;</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;:&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
 <section id="eve-register-access">
 <span id="id1"></span><h3>Accesso al Registro EVE<a class="headerlink" href="#eve-register-access" title="Link to this heading">¶</a></h3>
 <p>Le funzioni <a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv420lv_draw_eve_memread8P12lv_display_t8uint32_t" title="lv_draw_eve_memread8"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_memread8()</span></code></a>, <a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv421lv_draw_eve_memread16P12lv_display_t8uint32_t" title="lv_draw_eve_memread16"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_memread16()</span></code></a>, <a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv421lv_draw_eve_memread32P12lv_display_t8uint32_t" title="lv_draw_eve_memread32"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_memread32()</span></code></a>, <a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv421lv_draw_eve_memwrite8P12lv_display_t8uint32_t7uint8_t" title="lv_draw_eve_memwrite8"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_memwrite8()</span></code></a>, <a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv422lv_draw_eve_memwrite16P12lv_display_t8uint32_t8uint16_t" title="lv_draw_eve_memwrite16"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_memwrite16()</span></code></a>, <a class="reference internal" href="../../../API/drivers/draw/eve/lv_draw_eve_display_h.html#_CPPv422lv_draw_eve_memwrite32P12lv_display_t8uint32_t8uint32_t" title="lv_draw_eve_memwrite32"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_draw_eve_memwrite32()</span></code></a>, sono disponibili se necessario. Sono wrapper per <code class="docutils literal notranslate"><span class="pre">EVE_memRead8</span></code>, ecc.</p>
@@ -1669,7 +1683,7 @@
             Made with 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 24 ago 2025</div>
+              Last updated on 25 ago 2025</div>
           </div>
           <div class="right-details">
             
@@ -1698,6 +1712,7 @@
 <li><a class="reference internal" href="#lvgl-eve-display-creation">Creazione di un display LVGL per EVE</a></li>
 <li><a class="reference internal" href="#touch-indev-creation">Creazione di un Touch Indev</a></li>
 <li><a class="reference internal" href="#display-rotation">Rotazione del Display</a></li>
+<li><a class="reference internal" href="#asset-pre-upload">Pre-Caricamento delle Risorse</a></li>
 <li><a class="reference internal" href="#eve-register-access">Accesso al Registro EVE</a></li>
 <li><a class="reference internal" href="#further-reading">Ulteriori Informazioni</a></li>
 </ul>

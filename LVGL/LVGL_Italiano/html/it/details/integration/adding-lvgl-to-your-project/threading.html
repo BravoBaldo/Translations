@@ -415,7 +415,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../framework/index.html">Framework</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Framework</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../framework/arduino.html">Arduino</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../framework/platformio.html">PlatformIO</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../framework/tasmota-berry.html">Tasmota e berry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../framework/tasmota-berry.html">Tasmota e Berry</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../ide/index.html">IDE</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of IDE</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -503,7 +503,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/spinbox.html">Spinbox (lv_spinbox)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/spinner.html">Spinner (lv_spinner)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/switch.html">Switch (lv_switch)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../widgets/table.html">Table (lv_table)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../widgets/table.html">Tabella (lv_table)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/tabview.html">Tab View (lv_tabview)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/textarea.html">Text Area (lv_textarea)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../widgets/tileview.html">Tile View (lv_tileview)</a></li>
@@ -1550,14 +1550,7 @@
 <p>perché il thread che gestisce entrambi è il thread che chiama <a class="reference internal" href="../../../API/misc/lv_timer_h.html#_CPPv416lv_timer_handlerv" title="lv_timer_handler"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_timer_handler()</span></code></a>.</p>
 </div>
 <p>Motivo:</p>
-<p>LVGL manages many complex data structures, and those structures are &quot;system
-resources&quot; that must be protected from being &quot;seen&quot; by other threads in an
-inconsistent state.  A high percentage LVGL functions (functions that start with
-<code class="docutils literal notranslate"><span class="pre">lv_</span></code>) either read from or change those data structures.  Those that change them
-place the data in an inconsistent state during call execution (because such changes are
-multi-step sequences), but return them to a consistent state before those functions
-return.  For this reason, execution of each LVGL function must be allowed to complete
-before any other LVGL function is started.</p>
+<p>LVGL gestisce molte strutture dati complesse, che sono &quot;risorse di sistema&quot; che devono essere protette dall'essere &quot;viste&quot; da altri thread in uno stato incoerente.  Un'alta percentuale di funzioni LVGL (funzioni che iniziano con <code class="docutils literal notranslate"><span class="pre">lv_</span></code>) leggono o modificano tali strutture dati.  Quelle che le modificano pongono i dati in uno stato incoerente durante l'esecuzione della chiamata (perché tali modifiche sono sequenze multi-step), ma li riportano a uno stato coerente prima che tali funzioni terminino.  Per questo motivo, l'esecuzione di ciascuna funzione LVGL deve essere completata prima che venga avviata qualsiasi altra funzione LVGL.</p>
 <div class="admonition-exceptions-to-the-above admonition" id="os-exception">
 <p class="admonition-title">Eccezioni a quanto Sopra:</p>
 <p>Queste due funzioni LVGL possono essere chiamate da qualsiasi thread:</p>
@@ -1591,21 +1584,14 @@ before any other LVGL function is started.</p>
 </section>
 <section id="method-2-use-a-mutex">
 <h3>Metodo 2: Utilizzare un MUTEX<a class="headerlink" href="#method-2-use-a-mutex" title="Link to this heading">¶</a></h3>
-<p>A MUTEX stands for &quot;MUTually EXclusive&quot; and is a synchronization primitive that
-protects the state of a system resource from being modified or accessed by multiple
-threads of execution at the same time.  In other words, it makes data thus protected &quot;appear&quot;
-atomic (all threads using this data &quot;see&quot; it in a consistent state).  Most OSes
-provide MUTEXes.</p>
+<p>MUTEX sta per &quot;MUTually EXclusive&quot; (MUtualmente esclusivo) ed è una primitiva di sincronizzazione che protegge lo stato di una risorsa di sistema da modifiche o accessi simultanei da parte di più thread di esecuzione.  In altre parole, fa sì che i dati così protetti &quot;appaiano&quot; atomici (tutti i thread che utilizzano questi dati li &quot;vedono&quot; in uno stato coerente).  La maggior parte dei sistemi operativi fornisce MUTEX.</p>
 <p>Il progettista del sistema assegna un singolo MUTEX per produrre una singola risorsa di sistema.  Una volta assegnato, il MUTEX esegue tale protezione da parte dei programmatori:</p>
 <ol class="arabic simple">
 <li><p>acquisendo il MUTEX (ovvero bloccandolo) prima di accedere o modificare tale risorsa, e</p></li>
 <li><p>rilasciando il MUTEX (ovvero sbloccandolo) al termine dell'accesso o della modifica.</p></li>
 </ol>
-<p>Good design practices for using a MUTEX stress that the time period that the MUTEX is
-locked is kept as short as possible.</p>
-<p>If a thread attempts to acquire (lock) the MUTEX while another thread &quot;owns&quot; it,
-that thread waits on the other thread to release (unlock) it before it is allowed
-to continue to execute.</p>
+<p>Le buone pratiche di progettazione per l'utilizzo di un MUTEX sottolineano che il periodo di tempo in cui il MUTEX è bloccato deve essere il più breve possibile.</p>
+<p>Se un thread tenta di acquisire (lock) il MUTEX mentre un altro thread ne è &quot;proprietario&quot;, quel thread attende che l'altro thread lo rilasci (unlock) prima di poter continuare l'esecuzione.</p>
 <p>Per essere chiari: questo deve essere fatto <em>sia</em> dai thread che LEGGONO da quella risorsa, sia dai thread che MODIFICANO quella risorsa.</p>
 <p>Se un MUTEX viene utilizzato per proteggere le strutture dati LVGL, ciò significa <em>ogni</em> chiamata di funzione LVGL (o gruppo di chiamate di funzione) deve essere preceduta da #1 e seguita da #2, incluse le chiamate a <a class="reference internal" href="../../../API/misc/lv_timer_h.html#_CPPv416lv_timer_handlerv" title="lv_timer_handler"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_timer_handler()</span></code></a>.</p>
 <div class="admonition note">
@@ -1706,7 +1692,7 @@ to continue to execute.</p>
             Made with 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 24 ago 2025</div>
+              Last updated on 25 ago 2025</div>
           </div>
           <div class="right-details">
             
