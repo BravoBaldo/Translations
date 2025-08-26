@@ -31,6 +31,8 @@ rmdir /S /Q Sphinx_LVGL
 rmdir /S /Q .\LVGL_Italiano\gettext
 move .\LVGL_Italiano\latex\it\LVGL_*.pdf LVGL_Italiano\latex\
 rmdir /S /Q .\LVGL_Italiano\latex\it
+del /S /Q   .\LVGL_TradIta\omegat\*.bak
+del /S /Q   .\LVGL_TradIta\*.bak
 )
 
 goto :eof

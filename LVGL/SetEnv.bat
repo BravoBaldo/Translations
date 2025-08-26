@@ -83,7 +83,7 @@ echo **************************************************
 echo Building LATEX
 echo **************************************************
 echo.
-python build.py latex
+Rem python build.py latex
 
 REM echo.
 REM echo **************************************************
@@ -164,6 +164,13 @@ echo     latex_elements.update({'preamble': r'''    >> ".\intermediate\conf.py"
 echo \usepackage{fontspec}                          >> ".\intermediate\conf.py"
 echo \setmonofont[Scale=.8]{DejaVu Sans Mono}       >> ".\intermediate\conf.py"
 echo \usepackage{silence}                           >> ".\intermediate\conf.py"
+REM Rem ***EXPERIMENTAL 1 ***
+REM echo \usepackage{polyglossia}                       >> ".\intermediate\conf.py"
+REM echo \setotherlanguage{hebrew}                      >> ".\intermediate\conf.py"
+REM echo \setotherlanguage{chinese}                     >> ".\intermediate\conf.py"
+REM Rem ***EXPERIMENTAL 2 ***
+REM echo \usepackage{enumitem}\setlistdepth{99}         >> ".\intermediate\conf.py"
+
 echo \WarningsOff*                                  >> ".\intermediate\conf.py"
 echo ''',                                           >> ".\intermediate\conf.py"
 echo })                                             >> ".\intermediate\conf.py"
@@ -202,8 +209,10 @@ sphinx-intl update -p build/gettext -l en -l it
 ren ".\source\locale\it"        "it_it"
 
 rmdir      ..\LVGL_TradIta\source\it
+del /S /Q  ..\LVGL_TradIta\source\it
 mklink /D "..\LVGL_TradIta\source\it"             "..\..\Sphinx_LVGL\source\locale\it_it"
 rmdir      .\source\locale\it
+del /S /Q  .\source\locale\it
 mklink /D ".\source\locale\it"                    "..\..\..\..\LVGL_TradIta\target\it"     
 
 goto :eof
