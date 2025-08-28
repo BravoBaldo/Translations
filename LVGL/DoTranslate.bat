@@ -18,6 +18,8 @@ echo.
 ECHO OFF
 sphinx-build -v -b html       -D language=it ./source build/html/it
 sphinx-build -v -b latex      -D language=it ./source build/latex/it
+REM sphinx-build -v -b epub       -D language=it ./source build/epub/it
+
 PUSHD .\build\latex\it
 FOR /R  %%F in (*.tex) do lualatex --interaction=nonstopmode %%~F
 FOR /R  %%F in (*.tex) do lualatex --interaction=nonstopmode %%~F

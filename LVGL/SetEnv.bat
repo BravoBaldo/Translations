@@ -175,6 +175,26 @@ echo \WarningsOff*                                  >> ".\intermediate\conf.py"
 echo ''',                                           >> ".\intermediate\conf.py"
 echo })                                             >> ".\intermediate\conf.py"
 
+echo.                                                                                                 >> ".\intermediate\conf.py"
+echo.                                                                                                 >> ".\intermediate\conf.py"
+echo if "epub" in sys.argv:                                                                           >> ".\intermediate\conf.py"
+echo     # *** EPUB Parameters EXPERIMENTAL ***                                                       >> ".\intermediate\conf.py"
+echo     # https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-epub_language        >> ".\intermediate\conf.py"
+echo     print("")                                                                                    >> ".\intermediate\conf.py"
+echo     print("--------------------------------------")                                              >> ".\intermediate\conf.py"
+echo     print("Compilazione EPUB")                                                                   >> ".\intermediate\conf.py"
+echo     print("--------------------------------------")                                              >> ".\intermediate\conf.py"
+echo     print("")                                                                                    >> ".\intermediate\conf.py"
+echo     language = 'it'                                                                              >> ".\intermediate\conf.py"
+echo     epub_basename = 'LVGL_'+release+'_Italiano'                                                  >> ".\intermediate\conf.py"
+echo     epub_show_urls = 'no' #  'inline' #"footnote"                                                >> ".\intermediate\conf.py"                                           >> ".\intermediate\conf.py"
+echo     epub_title = 'Documentazione di LVGL v' + Showversion                                        >> ".\intermediate\conf.py"
+echo     epub_contributor = "BravoBaldo"                                                              >> ".\intermediate\conf.py"
+echo     epub_language = "it"                                                                         >> ".\intermediate\conf.py"
+echo     # epub_cover                                                                                 >> ".\intermediate\conf.py"
+echo     suppress_warnings = ['epub.unknown_project_files']                                           >> ".\intermediate\conf.py"
+echo     #master_doc = 'index_it'                                                                     >> ".\intermediate\conf.py"
+
 echo on
 Rem *********************************************************************************
 

@@ -6,6 +6,8 @@
 * Awaiting the latest corrections reported
 * Ok for HTML
 * Ok for LATEX/pdf (there are the same problems as the original version)
+    * "Too deeply nested" simulated by prefixing "__"
+* KO for epub (the order of the pages is random!)
 
 ## To (re)create translated files:
 * Esecute (for the moment as Administrator!) the 'Recreate.bat' batch file.
