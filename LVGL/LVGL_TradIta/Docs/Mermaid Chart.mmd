@@ -1,0 +1,23 @@
+---
+config:
+  layout: dagre
+---
+flowchart TB
+    A["chiama lv_fs_read e la cache è abilitata"] --> B{{"ci sono dati memorizzati nella cache nella posizione del file?"}}
+    B -- sì --> C{{"la cache ha tutti i byte richiesti disponibili?"}}
+    C -- sì --> D["copia tutti i byte richiesti dalla cache al buffer di destinazione"]
+    C -- no --> F["copia i byte richiesti disponibili fino alla fine della cache nel buffer di destinazione"]
+    F --> G["cerca il file reale fino alla fine di quelli disponibili nella cache"]
+    G --> H@{ label: "il numero di byte rimanenti è maggiore della dimensione dell'intera cache?" }
+    H -- sì --> I["leggi i byte rimanenti dal file reale al buffer di destinazione"]
+    H -- no --> J@{ label: "leggi rapidamente il file reale per riempire l'intera cache o quanti più byte possibile con la chiamata di lettura" }
+    J --> O["copia i byte richiesti nel buffer di destinazione"]
+    B -- no --> K["cerca il file reale nella posizione del file"]
+    K --> L@{ label: "il numero di byte richiesti è maggiore della dimensione dell'intera cache?" }
+    L -- sì --> M["leggi il file reale nel buffer di destinazione"]
+    L -- no --> N@{ label: "leggi rapidamente il file reale per riempire l'intera cache o il maggior numero di byte possibile con la chiamata di lettura" }
+    N --> P["copia i byte richiesti nel buffer di destinazione"]
+    H@{ shape: hexagon}
+    J@{ shape: rect}
+    L@{ shape: hexagon}
+    N@{ shape: rect}

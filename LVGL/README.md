@@ -7,7 +7,7 @@
 * Ok for HTML
 * Ok for LATEX/pdf (there are the same problems as the original version)
     * "Too deeply nested" simulated by prefixing "__"
-* KO for epub (the order of the pages is random!)
+* Ok for epub (manual intervention is required!)
 
 ## To (re)create translated files:
 * Esecute (for the moment as Administrator!) the 'Recreate.bat' batch file.
@@ -15,7 +15,6 @@
 
 ## ToDo:
 * Word version
-* Epub version
 * Investigate/Solve the Problem of "Missing character" and "Too deeply nested" in pdf
 * How NOT to modify the original "lvgl" folder?
 
@@ -23,4 +22,8 @@
 * [OmegaT  v.6.0.1](https://omegat.org) - (with [okapiFiltersForOmegaT-1.15-1.47.0.](https://okapiframework.org/wiki/index.php/Okapi_Filters_Plugin_for_OmegaT)).
 * [Notepad++](https://notepad-plus-plus.org).
 * [Dillinger](https://dillinger.io) - an online Markdown editor/viewer.
+* [Sigil](https://sigil-ebook.com/sigil/) - Ebook creation and editing.
+* [Calibre](https://calibre-ebook.com/) - Ebook management.
+
+
 

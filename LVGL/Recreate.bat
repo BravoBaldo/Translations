@@ -1,4 +1,4 @@
-Call SetEnv.bat
+Call DoSetEnv.bat
 
 Rem Translate with OmegaT
 
