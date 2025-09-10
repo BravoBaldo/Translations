@@ -361,12 +361,12 @@ def itemref_insert_all():
     itemref_insert('details/libs/arduino_esp_littlefs.xhtml')
     itemref_insert('details/libs/arduino_sd.xhtml')
     itemref_insert('details/libs/barcode.xhtml')
-
     itemref_insert('details/libs/bmp.xhtml')
     itemref_insert('details/libs/ffmpeg.xhtml')
     itemref_insert('details/libs/freetype.xhtml')
     itemref_insert('details/libs/fs.xhtml')
     itemref_insert('details/libs/gif.xhtml')
+    itemref_insert('details/libs/gstreamer.xhtml')
     itemref_insert('details/libs/gltf.xhtml')
     itemref_insert('details/libs/lfs.xhtml')
     itemref_insert('details/libs/libjpeg_turbo.xhtml')
