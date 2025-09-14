@@ -22,3 +22,7 @@
 
 ### [LVGL](https://lvgl.io/)
 *  [LVGL](https://lvgl.io/) (Light and Versatile Graphics Library)
+
+### [Sloeber](https://github.com/Sloeber/arduino-eclipse-plugin)
+*  [Sloeber](https://github.com/Sloeber/arduino-eclipse-plugin) the Arduino IDE for Eclipse 
+
