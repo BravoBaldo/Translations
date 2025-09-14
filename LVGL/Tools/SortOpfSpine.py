@@ -71,6 +71,7 @@ def itemref_insert(file_path):
 
 
 def itemref_insert_all():
+    print(f'\n\n<!--Start "spine" replacement-->\n')
     itemref_insert('nav.xhtml')   # Always present
 
     itemref_insert('index.xhtml')
@@ -171,7 +172,10 @@ def itemref_insert_all():
 
     itemref_insert('details/integration/chip_vendors/espressif/index.xhtml')
     itemref_insert('details/integration/chip_vendors/espressif/overview.xhtml')
-    itemref_insert('details/integration/chip_vendors/espressif/ppa_gpu.xhtml')
+    itemref_insert('details/integration/chip_vendors/espressif/add_lvgl_to_esp32_idf_project.xhtml')
+    itemref_insert('details/integration/chip_vendors/espressif/hardware_accelerator_dma2d.xhtml')
+    itemref_insert('details/integration/chip_vendors/espressif/hardware_accelerator_ppa.xhtml')
+    itemref_insert('details/integration/chip_vendors/espressif/tips_and_tricks.xhtml')
 
     itemref_insert('details/integration/chip_vendors/nxp/index.xhtml')
     itemref_insert('details/integration/chip_vendors/nxp/overview.xhtml')
@@ -305,36 +309,36 @@ def itemref_insert_all():
     itemref_insert('details/main-modules/draw/draw_layers.xhtml')
     itemref_insert('details/main-modules/draw/draw_descriptors.xhtml')
 
+
     itemref_insert('details/xml/index.xhtml')
+
     itemref_insert('details/xml/overview/index.xhtml')
     itemref_insert('details/xml/overview/intro.xhtml')
-    itemref_insert('details/xml/overview/component_library.xhtml')
-    itemref_insert('details/xml/overview/project.xhtml')
     itemref_insert('details/xml/overview/syntax.xhtml')
 
-    itemref_insert('details/xml/build_ui/index.xhtml')
-    itemref_insert('details/xml/build_ui/root_elements/index.xhtml')
-    itemref_insert('details/xml/build_ui/root_elements/components.xhtml')
-    itemref_insert('details/xml/build_ui/root_elements/widgets.xhtml')
-    itemref_insert('details/xml/build_ui/root_elements/screens.xhtml')
+    itemref_insert('details/xml/ui_elements/index.xhtml')
+    itemref_insert('details/xml/ui_elements/components.xhtml')
+    itemref_insert('details/xml/ui_elements/widgets.xhtml')
+    itemref_insert('details/xml/ui_elements/screens.xhtml')
+    itemref_insert('details/xml/ui_elements/animations.xhtml')
+    itemref_insert('details/xml/ui_elements/api.xhtml')
+    itemref_insert('details/xml/ui_elements/consts.xhtml')
+    itemref_insert('details/xml/ui_elements/events.xhtml')
+    itemref_insert('details/xml/ui_elements/preview.xhtml')
+    itemref_insert('details/xml/ui_elements/styles.xhtml')
+    itemref_insert('details/xml/ui_elements/view.xhtml')
 
-    itemref_insert('details/xml/build_ui/main_tags/index.xhtml')
-    itemref_insert('details/xml/build_ui/main_tags/api.xhtml')
-    itemref_insert('details/xml/build_ui/main_tags/consts.xhtml')
-    itemref_insert('details/xml/build_ui/main_tags/styles.xhtml')
-    itemref_insert('details/xml/build_ui/main_tags/view.xhtml')
-    itemref_insert('details/xml/build_ui/main_tags/animations.xhtml')
-    itemref_insert('details/xml/build_ui/main_tags/preview.xhtml')
+    itemref_insert('details/xml/assets/index.xhtml')
+    itemref_insert('details/xml/assets/images.xhtml')
+    itemref_insert('details/xml/assets/fonts.xhtml')
 
-    itemref_insert('details/xml/build_ui/assets/index.xhtml')
-    itemref_insert('details/xml/build_ui/assets/images.xhtml')
-    itemref_insert('details/xml/build_ui/assets/fonts.xhtml')
-    itemref_insert('details/xml/build_ui/events.xhtml')
-    itemref_insert('details/xml/build_ui/subjects.xhtml')
-    itemref_insert('details/xml/build_ui/translation.xhtml')
+    itemref_insert('details/xml/features/index.xhtml')
+    itemref_insert('details/xml/features/subjects.xhtml')
+    itemref_insert('details/xml/features/tests.xhtml')
+    itemref_insert('details/xml/features/translations.xhtml')
 
-    itemref_insert('details/xml/test.xhtml')
     itemref_insert('details/xml/license.xhtml')
+
 
     itemref_insert('details/auxiliary-modules/index.xhtml')
 
@@ -429,4 +433,5 @@ if __name__ == '__main__':
     # manifest_print()
     manifest_print_remaining()
     list_removed()
+    print(f'\n\n<!--END "spine" replacement-->\n')
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

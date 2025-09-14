@@ -130,7 +130,7 @@ echo.                                                             >> ".\intermed
 echo.                                                             >> ".\intermediate\conf.py"
 echo locale_dirs = ['locale/']                                    >> ".\intermediate\conf.py"
 Rem To translate HTML too
-echo gettext_additional_targets = {'raw'}                         >> ".\intermediate\conf.py"
+echo gettext_additional_targets = ['raw']                         >> ".\intermediate\conf.py"
 echo import sys                                                   >> ".\intermediate\conf.py"
 echo import time                                                  >> ".\intermediate\conf.py"
 echo TimePrint = time.strftime("%%Y%%m%%d")                       >> ".\intermediate\conf.py"
@@ -243,14 +243,18 @@ rmdir      .\source\locale\it
 del /S /Q  .\source\locale\it
 mklink /D ".\source\locale\it"                    "..\..\..\..\LVGL_TradIta\target\it"     
 
-goto :eof
+goto :EOF
 
 
 :ErrNoCloning
 ECHO "Error Wrong Cloning"
-goto :eof
+exit /b 1
+goto :EOF
 
 :ErrNoIntermediate
 ECHO "Error. No Intermediate directory created"
-goto :eof
+exit /b 1
+goto :EOF
 
+
+:EOF 
