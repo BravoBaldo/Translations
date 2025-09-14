@@ -10,7 +10,7 @@
 * Ok for epub (manual intervention is required! see .\\Tools\\EpubInstructions.txt)
 
 ## To (re)create translated files:
-* Esecute (for the moment as Administrator!) the 'Recreate.bat' batch file.
+* Execute (for the moment as Administrator!) the 'Recreate.bat' batch file.
     * Folders and links are recreated
  * For epub release see .\\Tools\\EpubInstructions.txt
 

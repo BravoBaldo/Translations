@@ -20,13 +20,19 @@ sphinx-build -v -b html       -D language=it ./source build/html/it
 sphinx-build -v -b latex      -D language=it ./source build/latex/it
 sphinx-build -v -b epub       -D language=it ./source build/epub/it
 
+Echo.
+Echo ****************************************
+Echo Create pdf...
 PUSHD .\build\latex\it
 FOR /R  %%F in (LVGL*.tex) do lualatex --interaction=nonstopmode %%~F
 FOR /R  %%F in (LVGL*.tex) do lualatex --interaction=nonstopmode %%~F
 POPD
+Echo ****************************************
+Echo.
 
 if 1==0 (
 ECHO To Run before publish on git
+deactivate
 cd ..
 rmdir /S /Q lvgl
 rmdir /S /Q Sphinx_LVGL
