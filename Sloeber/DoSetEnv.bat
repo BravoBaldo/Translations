@@ -1,4 +1,4 @@
-Rem I suppose to be in LVGL of git clone https://github.com/BravoBaldo/Translations.git
+Rem I suppose to be in Sloeber of git clone https://github.com/BravoBaldo/Translations.git
 Rem Sloeber\Sloeber_TradIta (OmegaT Folder for translation memories
 Rem Sloeber\Sloeber_Italiano (The resulting files)
 
