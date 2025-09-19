@@ -17,8 +17,8 @@ echo.
 
 ECHO OFF
 sphinx-build -v -b html       -D language=it ./source build/html/it
-sphinx-build -v -b latex      -D language=it ./source build/latex/it
 sphinx-build -v -b epub       -D language=it ./source build/epub/it
+sphinx-build -v -b latex      -D language=it ./source build/latex/it
 
 Echo.
 Echo ****************************************

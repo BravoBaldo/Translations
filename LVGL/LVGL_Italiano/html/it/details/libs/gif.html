@@ -351,6 +351,7 @@
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../integration/embedded_linux/index.html">Esecuzione su Embedded Linux</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Esecuzione su Embedded Linux</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="../integration/embedded_linux/overview.html">Panoramica</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../integration/embedded_linux/opengl.html">Panoramica su OpenGL</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../integration/embedded_linux/os/index.html">Supporto per OS</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Supporto per OS</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../integration/embedded_linux/os/buildroot/index.html">Buildroot</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Buildroot</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../integration/embedded_linux/os/buildroot/quick_setup.html">Configurazione Rapida</a></li>
@@ -370,7 +371,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="../integration/embedded_linux/drivers/index.html">Driver</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Driver</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../integration/embedded_linux/drivers/fbdev.html">Driver Framebuffer Linux</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../integration/embedded_linux/drivers/drm.html">DRM</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../integration/embedded_linux/drivers/opengl.html">Driver OpenGL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../integration/embedded_linux/drivers/opengl_driver.html">Driver OpenGL</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../integration/embedded_linux/drivers/glfw.html">GLFW</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../integration/embedded_linux/drivers/egl.html">EGL</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../integration/embedded_linux/drivers/wayland.html">Driver per Display/Input Wayland</a></li>
@@ -1076,7 +1077,6 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../API/libs/gif/index.html">gif</a><input class="toctree-checkbox" id="toctree-checkbox-110" name="toctree-checkbox-110" role="switch" type="checkbox"/><label for="toctree-checkbox-110"><div class="visually-hidden">Toggle navigation of gif</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../API/libs/gif/lv_gif_h.html">lv_gif.h</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../API/libs/gif/lv_gif_private_h.html">lv_gif_private.h</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../API/libs/gltf/index.html">gltf</a><input class="toctree-checkbox" id="toctree-checkbox-111" name="toctree-checkbox-111" role="switch" type="checkbox"/><label for="toctree-checkbox-111"><div class="visually-hidden">Toggle navigation of gltf</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -1318,6 +1318,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../API/others/xml/parsers/lv_xml_keyboard_parser_h.html">lv_xml_keyboard_parser.h</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../API/others/xml/parsers/lv_xml_label_parser_h.html">lv_xml_label_parser.h</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../API/others/xml/parsers/lv_xml_obj_parser_h.html">lv_xml_obj_parser.h</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../API/others/xml/parsers/lv_xml_qrcode_parser_h.html">lv_xml_qrcode_parser.h</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../API/others/xml/parsers/lv_xml_roller_parser_h.html">lv_xml_roller_parser.h</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../API/others/xml/parsers/lv_xml_scale_parser_h.html">lv_xml_scale_parser.h</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../API/others/xml/parsers/lv_xml_slider_parser_h.html">lv_xml_slider_parser.h</a></li>
@@ -1593,10 +1594,18 @@
           <section id="gif-decoder">
 <span id="gif"></span><h1>Decoder GIF<a class="headerlink" href="#gif-decoder" title="Link to this heading">¶</a></h1>
 <p><strong>GIF Decoder</strong> è un'estensione LVGL che consente di utilizzare immagini GIF nell'interfaccia utente LVGL.</p>
-<p>Per un'introduzione dettagliata, consultare: <a class="reference external" href="https://github.com/lecram/gifdec">https://github.com/lecram/gifdec</a>.</p>
+<p>L'implementazione utilizza la libreria <a class="reference external" href="https://github.com/bitbank2/AnimatedGIF/tree/master">AnimatedGIF</a> library.</p>
 <section id="usage">
 <h2>Utilizzo<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <p>Una volta abilitato in <code class="docutils literal notranslate"><span class="pre">lv_conf.h</span></code> impostando <a class="reference internal" href="../../API/lv_conf_internal_h.html#c.LV_USE_GIF" title="LV_USE_GIF"><code class="xref c c-macro docutils literal notranslate"><span class="pre">LV_USE_GIF</span></code></a> a <code class="docutils literal notranslate"><span class="pre">1</span></code>, <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="../../API/libs/gif/lv_gif_h.html#_CPPv413lv_gif_createP8lv_obj_t" title="lv_gif_create"><span class="n">lv_gif_create</span></a><span class="p">(</span><span class="n">parent</span><span class="p">)</span></span> può essere utilizzato per creare un widget GIF.</p>
+<p>Si imposta il formato colore del framebuffer GIF con <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="../../API/libs/gif/lv_gif_h.html#_CPPv423lv_gif_set_color_formatP8lv_obj_t17lv_color_format_t" title="lv_gif_set_color_format"><span class="n">lv_gif_set_color_format</span></a><span class="p">(</span><span class="n">widget</span><span class="p">,</span><span class="w"> </span><span class="n">color_format</span><span class="p">)</span></span>. Si usa <a class="reference internal" href="../../API/misc/lv_color_h.html#_CPPv4N17lv_color_format_t24LV_COLOR_FORMAT_ARGB8888E" title="LV_COLOR_FORMAT_ARGB8888"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">LV_COLOR_FORMAT_ARGB8888</span></code></a> per le GIF con trasparenza. È impostato su <a class="reference internal" href="../../API/misc/lv_color_h.html#_CPPv4N17lv_color_format_t24LV_COLOR_FORMAT_ARGB8888E" title="LV_COLOR_FORMAT_ARGB8888"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">LV_COLOR_FORMAT_ARGB8888</span></code></a> per default. È possibile risparmiare una quantità significativa di RAM utilizzando un formato colore più piccolo. È possibile salvare una conversione del formato colore durante il rendering corrisponde al formato colore visualizzato. Questa funzione può essere chiamata prima di <a class="reference internal" href="../../API/libs/gif/lv_gif_h.html#_CPPv414lv_gif_set_srcP8lv_obj_tPKv" title="lv_gif_set_src"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_gif_set_src()</span></code></a> per impedire l'allocazione del framebuffer ARGB8888 iniziale di default.</p>
+<p>I formati colore supportati sono:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../API/misc/lv_color_h.html#_CPPv4N17lv_color_format_t22LV_COLOR_FORMAT_RGB565E" title="LV_COLOR_FORMAT_RGB565"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">LV_COLOR_FORMAT_RGB565</span></code></a></p></li>
+<li><p><a class="reference internal" href="../../API/misc/lv_color_h.html#_CPPv4N17lv_color_format_t30LV_COLOR_FORMAT_RGB565_SWAPPEDE" title="LV_COLOR_FORMAT_RGB565_SWAPPED"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">LV_COLOR_FORMAT_RGB565_SWAPPED</span></code></a></p></li>
+<li><p><a class="reference internal" href="../../API/misc/lv_color_h.html#_CPPv4N17lv_color_format_t22LV_COLOR_FORMAT_RGB888E" title="LV_COLOR_FORMAT_RGB888"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">LV_COLOR_FORMAT_RGB888</span></code></a></p></li>
+<li><p><a class="reference internal" href="../../API/misc/lv_color_h.html#_CPPv4N17lv_color_format_t24LV_COLOR_FORMAT_ARGB8888E" title="LV_COLOR_FORMAT_ARGB8888"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">LV_COLOR_FORMAT_ARGB8888</span></code></a></p></li>
+</ul>
 <p><span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="../../API/libs/gif/lv_gif_h.html#_CPPv414lv_gif_set_srcP8lv_obj_tPKv" title="lv_gif_set_src"><span class="n">lv_gif_set_src</span></a><span class="p">(</span><span class="n">widget</span><span class="p">,</span><span class="w"> </span><span class="n">src</span><span class="p">)</span></span> funziona in modo molto simile a <a class="reference internal" href="../../API/widgets/image/lv_image_h.html#_CPPv416lv_image_set_srcP8lv_obj_tPKv" title="lv_image_set_src"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">lv_image_set_src()</span></code></a>. Come sorgente, accetta anche immagini come variabili (<code class="xref c c-struct docutils literal notranslate"><span class="pre">lv_image_dsc_t</span></code>) o file.</p>
 <section id="converting-gif-files-to-c-arrays">
 <h3>Conversione di File GIF in Array C<a class="headerlink" href="#converting-gif-files-to-c-arrays" title="Link to this heading">¶</a></h3>
@@ -1613,12 +1622,7 @@
 </section>
 <section id="memory-requirements">
 <h2>Requisiti di Memoria<a class="headerlink" href="#memory-requirements" title="Link to this heading">¶</a></h2>
-<p>Per decodificare e visualizzare un'animazione GIF, è necessaria la seguente quantità di RAM (in byte) per ciascuna delle seguenti profondità di colore:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="../../API/lv_conf_internal_h.html#c.LV_COLOR_DEPTH" title="LV_COLOR_DEPTH"><code class="xref c c-macro docutils literal notranslate"><span class="pre">LV_COLOR_DEPTH</span></code></a> <code class="docutils literal notranslate"><span class="pre">8</span></code>: 3 × larghezza immagine × altezza immagine</p></li>
-<li><p><a class="reference internal" href="../../API/lv_conf_internal_h.html#c.LV_COLOR_DEPTH" title="LV_COLOR_DEPTH"><code class="xref c c-macro docutils literal notranslate"><span class="pre">LV_COLOR_DEPTH</span></code></a> <code class="docutils literal notranslate"><span class="pre">16</span></code>: 4 × larghezza immagine × altezza immagine</p></li>
-<li><p><a class="reference internal" href="../../API/lv_conf_internal_h.html#c.LV_COLOR_DEPTH" title="LV_COLOR_DEPTH"><code class="xref c c-macro docutils literal notranslate"><span class="pre">LV_COLOR_DEPTH</span></code></a> <code class="docutils literal notranslate"><span class="pre">32</span></code>: 5 × larghezza immagine × altezza immagine</p></li>
-</ul>
+<p>Per decodificare e visualizzare un'animazione GIF sono necessari circa 25 kB di RAM più (dimensione pixel del formato colore + 1) × larghezza immagine × altezza immagine. RGB565 ha una dimensione pixel di 2, RGB888 ha una dimensione pixel di 3 e ARGB8888 ha una dimensione pixel di 4.</p>
 </section>
 <section id="example">
 <span id="gif-example"></span><h2>Esempio<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
@@ -1639,10 +1643,12 @@
 <span class="w">    </span><span class="n">lv_obj_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">img</span><span class="p">;</span>
 
 <span class="w">    </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lv_gif_create</span><span class="p">(</span><span class="n">lv_screen_active</span><span class="p">());</span>
+<span class="w">    </span><span class="n">lv_gif_set_color_format</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="n">LV_COLOR_FORMAT_ARGB8888</span><span class="p">);</span>
 <span class="w">    </span><span class="n">lv_gif_set_src</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">img_bulb_gif</span><span class="p">);</span>
 <span class="w">    </span><span class="n">lv_obj_align</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="n">LV_ALIGN_LEFT_MID</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 
 <span class="w">    </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lv_gif_create</span><span class="p">(</span><span class="n">lv_screen_active</span><span class="p">());</span>
+<span class="w">    </span><span class="n">lv_gif_set_color_format</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="n">LV_COLOR_FORMAT_ARGB8888</span><span class="p">);</span>
 <span class="w">    </span><span class="cm">/* Assuming a File system is attached to letter &#39;A&#39;</span>
 <span class="cm">     * E.g. set LV_USE_FS_STDIO &#39;A&#39; in lv_conf.h */</span>
 <span class="w">    </span><span class="n">lv_gif_set_src</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A:lvgl/examples/libs/gif/bulb.gif&quot;</span><span class="p">);</span>
@@ -1658,7 +1664,6 @@
 <section id="api">
 <span id="gif-api"></span><h2>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h2>
 <p><a class="reference internal" href="../../API/libs/gif/lv_gif_h.html#libs-gif-lv-gif-h"><span class="std std-ref">lv_gif.h</span></a></p>
-<p><a class="reference internal" href="../../API/libs/gif/lv_gif_private_h.html#libs-gif-lv-gif-private-h"><span class="std std-ref">lv_gif_private.h</span></a></p>
 </section>
 </section>
 
@@ -1696,7 +1701,7 @@
             Made with 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 14 set 2025</div>
+              Last updated on 19 set 2025</div>
           </div>
           <div class="right-details">
             

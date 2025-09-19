@@ -128,7 +128,7 @@ def itemref_insert_all():
     itemref_insert('details/integration/embedded_linux/drivers/index.xhtml')
     itemref_insert('details/integration/embedded_linux/drivers/fbdev.xhtml')
     itemref_insert('details/integration/embedded_linux/drivers/drm.xhtml')
-    itemref_insert('details/integration/embedded_linux/drivers/opengl.xhtml')
+    itemref_insert('details/integration/embedded_linux/drivers/opengl_driver.xhtml')
     itemref_insert('details/integration/embedded_linux/drivers/glfw.xhtml')
     itemref_insert('details/integration/embedded_linux/drivers/egl.xhtml')
     itemref_insert('details/integration/embedded_linux/drivers/wayland.xhtml')
