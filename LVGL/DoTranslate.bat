@@ -16,8 +16,9 @@ echo.
 echo.
 
 ECHO OFF
+REM Requires additional manual intervention
+REM sphinx-build -v -b epub       -D language=it ./source build/epub/it
 sphinx-build -v -b html       -D language=it ./source build/html/it
-sphinx-build -v -b epub       -D language=it ./source build/epub/it
 sphinx-build -v -b latex      -D language=it ./source build/latex/it
 
 Echo.
@@ -32,8 +33,9 @@ Echo.
 
 if 1==0 (
 ECHO To Run before publish on git
-deactivate
 cd ..
+REM This is so as not to erase myself!
+IF NOT EXIST ".\LVGL\lvgl\" (
 rmdir /S /Q lvgl
 rmdir /S /Q Sphinx_LVGL
 rmdir /S /Q .\LVGL_Italiano\gettext
@@ -46,6 +48,8 @@ rmdir /S /Q .\LVGL_Italiano\epub\it
 del /S /Q   .\LVGL_TradIta\omegat\*.bak
 del /S /Q   .\LVGL_TradIta\*.bak
 del /S /Q   .\LVGL_TradIta\target\it\LC_MESSAGES\*.mo
+)
+
 )
 
 goto :eof

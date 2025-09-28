@@ -46,9 +46,9 @@ def manifest_fill(file_path):
     print("List of all <item>s inside <manifest>:")
     print('\n\n---Recreate <manifest>---\n')
     for idx, item in enumerate(item, start=1):
-        id = item.get('id')
+        i = item.get('id')
         href = item.get('href')
-        dictmanifest[href] = [id, 0]
+        dictmanifest[href] = [i, 0]
         # print(f'{dictmanifest[href][1]}    {dictmanifest[href][0]} = {href}')
     print(f'\nThere are {len(dictmanifest)} items in the manifest')
 
@@ -111,6 +111,8 @@ def itemref_insert_all():
 
     itemref_insert('details/integration/embedded_linux/index.xhtml')
     itemref_insert('details/integration/embedded_linux/overview.xhtml')
+
+    itemref_insert('details/integration/embedded_linux/opengl.xhtml')
 
     itemref_insert('details/integration/embedded_linux/os/index.xhtml')
     itemref_insert('details/integration/embedded_linux/os/buildroot/index.xhtml')
@@ -311,10 +313,27 @@ def itemref_insert_all():
 
 
     itemref_insert('details/xml/index.xhtml')
+    itemref_insert('details/xml/intro.xhtml')
+    itemref_insert('details/xml/learn_by_examples.xhtml')
 
-    itemref_insert('details/xml/overview/index.xhtml')
-    itemref_insert('details/xml/overview/intro.xhtml')
-    itemref_insert('details/xml/overview/syntax.xhtml')
+    itemref_insert('details/xml/editor/index.xhtml')
+    itemref_insert('details/xml/editor/overview.xhtml')
+    itemref_insert('details/xml/editor/install.xhtml')
+    itemref_insert('details/xml/editor/vscode.xhtml')
+    itemref_insert('details/xml/editor/hotkeys.xhtml')
+
+    itemref_insert('details/xml/xml/index.xhtml')
+    itemref_insert('details/xml/xml/overview.xhtml')
+    itemref_insert('details/xml/xml/syntax.xhtml')
+
+    itemref_insert('details/xml/integration/index.xhtml')
+    itemref_insert('details/xml/integration/overview.xhtml')
+    itemref_insert('details/xml/integration/c_code.xhtml')
+    itemref_insert('details/xml/integration/xml.xhtml')
+
+#    itemref_insert('details/xml/overview/index.xhtml')
+#    itemref_insert('details/xml/overview/intro.xhtml')
+#    itemref_insert('details/xml/overview/syntax.xhtml')
 
     itemref_insert('details/xml/ui_elements/index.xhtml')
     itemref_insert('details/xml/ui_elements/components.xhtml')
@@ -337,7 +356,16 @@ def itemref_insert_all():
     itemref_insert('details/xml/features/tests.xhtml')
     itemref_insert('details/xml/features/translations.xhtml')
 
-    itemref_insert('details/xml/license.xhtml')
+    itemref_insert('details/xml/tools/index.xhtml')
+    itemref_insert('details/xml/tools/cli.xhtml')
+    itemref_insert('details/xml/tools/online_share.xhtml')
+    itemref_insert('details/xml/tools/figma.xhtml')
+
+    itemref_insert('details/xml/license/index.xhtml')
+    itemref_insert('details/xml/license/xml.xhtml')
+    itemref_insert('details/xml/license/editor.xhtml')
+
+    # itemref_insert('details/xml/license.xhtml')
 
 
     itemref_insert('details/auxiliary-modules/index.xhtml')
@@ -368,6 +396,7 @@ def itemref_insert_all():
     itemref_insert('details/libs/bmp.xhtml')
     itemref_insert('details/libs/ffmpeg.xhtml')
     itemref_insert('details/libs/freetype.xhtml')
+    itemref_insert('details/libs/frogfs.xhtml')
     itemref_insert('details/libs/fs.xhtml')
     itemref_insert('details/libs/gif.xhtml')
     itemref_insert('details/libs/gstreamer.xhtml')
@@ -426,7 +455,8 @@ def list_removed():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    manifest_fill('content.opf')
+    manifest_fill('../LVGL_Italiano/epub/it/content.opf')
+    # manifest_fill('content.opf')
 
     itemref_insert_all()
 
