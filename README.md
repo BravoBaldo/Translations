@@ -26,3 +26,5 @@
 ### [Sloeber](https://github.com/Sloeber/arduino-eclipse-plugin)
 *  [Sloeber](https://github.com/Sloeber/arduino-eclipse-plugin) the Arduino IDE for Eclipse 
 
+### [Node-RED](https://nodered.org/docs/)
+*  [Node-RED](https://nodered.org/docs/) Docs collection about Node-RED
