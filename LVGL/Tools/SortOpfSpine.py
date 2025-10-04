@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+import winsound
 
 dictmanifest = {}
 cnt_itemref = 0
@@ -101,7 +102,6 @@ def itemref_insert_all():
     itemref_insert('details/integration/overview/other_platforms.xhtml')
 
     itemref_insert('details/integration/pc/index.xhtml')
-    itemref_insert('details/integration/pc/overview.xhtml')
     itemref_insert('details/integration/pc/linux.xhtml')
     itemref_insert('details/integration/pc/windows.xhtml')
     itemref_insert('details/integration/pc/macos.xhtml')
@@ -111,7 +111,6 @@ def itemref_insert_all():
 
     itemref_insert('details/integration/embedded_linux/index.xhtml')
     itemref_insert('details/integration/embedded_linux/overview.xhtml')
-
     itemref_insert('details/integration/embedded_linux/opengl.xhtml')
 
     itemref_insert('details/integration/embedded_linux/os/index.xhtml')
@@ -228,16 +227,27 @@ def itemref_insert_all():
 
     itemref_insert('details/common-widget-features/index.xhtml')
     itemref_insert('details/common-widget-features/basics.xhtml')
+    itemref_insert('details/common-widget-features/api.xhtml')
+    itemref_insert('details/common-widget-features/tree.xhtml')
+    itemref_insert('details/common-widget-features/screens.xhtml')
     itemref_insert('details/common-widget-features/coordinates.xhtml')
+    itemref_insert('details/common-widget-features/parts_and_states.xhtml')
+
     itemref_insert('details/common-widget-features/layers.xhtml')
 
     itemref_insert('details/common-widget-features/styles/index.xhtml')
-    itemref_insert('details/common-widget-features/styles/styles.xhtml')
+    itemref_insert('details/common-widget-features/styles/overview.xhtml')
+    itemref_insert('details/common-widget-features/styles/style_sheets.xhtml')
+    itemref_insert('details/common-widget-features/styles/local_styles.xhtml')
+    itemref_insert('details/common-widget-features/styles/transitions.xhtml')
+    itemref_insert('details/common-widget-features/styles/themes.xhtml')
     itemref_insert('details/common-widget-features/styles/style-properties.xhtml')
 
     itemref_insert('details/common-widget-features/events.xhtml')
+    itemref_insert('details/common-widget-features/flags.xhtml')
 
     itemref_insert('details/common-widget-features/layouts/index.xhtml')
+    itemref_insert('details/common-widget-features/layouts/overview.xhtml')
     itemref_insert('details/common-widget-features/layouts/flex.xhtml')
     itemref_insert('details/common-widget-features/layouts/grid.xhtml')
 
@@ -297,7 +307,15 @@ def itemref_insert_all():
     itemref_insert('details/main-modules/display/tiling.xhtml')
     itemref_insert('details/main-modules/display/extending_combining.xhtml')
 
-    itemref_insert('details/main-modules/indev.xhtml')
+    itemref_insert('details/main-modules/indev/index.xhtml')
+    itemref_insert('details/main-modules/indev/overview.xhtml')
+    itemref_insert('details/main-modules/indev/pointer.xhtml')
+    itemref_insert('details/main-modules/indev/keypad.xhtml')
+    itemref_insert('details/main-modules/indev/encoder.xhtml')
+    itemref_insert('details/main-modules/indev/button.xhtml')
+    itemref_insert('details/main-modules/indev/groups.xhtml')
+    itemref_insert('details/main-modules/indev/gestures.xhtml')
+
     itemref_insert('details/main-modules/color.xhtml')
     itemref_insert('details/main-modules/font.xhtml')
     itemref_insert('details/main-modules/image.xhtml')
@@ -319,21 +337,18 @@ def itemref_insert_all():
     itemref_insert('details/xml/editor/index.xhtml')
     itemref_insert('details/xml/editor/overview.xhtml')
     itemref_insert('details/xml/editor/install.xhtml')
-    itemref_insert('details/xml/editor/vscode.xhtml')
+    itemref_insert('details/xml/editor/user_interface.xhtml')
     itemref_insert('details/xml/editor/hotkeys.xhtml')
+    itemref_insert('details/xml/editor/license.xhtml')
 
     itemref_insert('details/xml/xml/index.xhtml')
     itemref_insert('details/xml/xml/overview.xhtml')
     itemref_insert('details/xml/xml/syntax.xhtml')
+    itemref_insert('details/xml/xml/license.xhtml')
 
     itemref_insert('details/xml/integration/index.xhtml')
-    itemref_insert('details/xml/integration/overview.xhtml')
     itemref_insert('details/xml/integration/c_code.xhtml')
     itemref_insert('details/xml/integration/xml.xhtml')
-
-#    itemref_insert('details/xml/overview/index.xhtml')
-#    itemref_insert('details/xml/overview/intro.xhtml')
-#    itemref_insert('details/xml/overview/syntax.xhtml')
 
     itemref_insert('details/xml/ui_elements/index.xhtml')
     itemref_insert('details/xml/ui_elements/components.xhtml')
@@ -360,13 +375,6 @@ def itemref_insert_all():
     itemref_insert('details/xml/tools/cli.xhtml')
     itemref_insert('details/xml/tools/online_share.xhtml')
     itemref_insert('details/xml/tools/figma.xhtml')
-
-    itemref_insert('details/xml/license/index.xhtml')
-    itemref_insert('details/xml/license/xml.xhtml')
-    itemref_insert('details/xml/license/editor.xhtml')
-
-    # itemref_insert('details/xml/license.xhtml')
-
 
     itemref_insert('details/auxiliary-modules/index.xhtml')
 
@@ -437,12 +445,13 @@ def manifest_print_remaining():
             if any(keys.startswith(prefix) for prefix in to_remove):
                 pass
             else:
+                suspect = "\tSUSPECT TO ADD" if keys.startswith("details/") else ""
+                if suspect != "":
+                    winsound.Beep(2000, 100)
                 n_unhandled = n_unhandled+1
-                # print(f'    <itemref idref="{values[0]}"   linear="no"/>     <!--{keys}--> ')
-                print(f'    <itemref idref="{values[0]}"/>     <!--{keys}--> ')
+                print(f'    <itemref idref="{values[0]}"/>     <!--{keys}   {suspect}--> ')
         else:
             n_handled = n_handled+1
-    # print(f'\n\n {n_handled} handled, {n_unhandled} NOT handled total={n_handled+n_unhandled}/{len(dictmanifest)}')
 
 
 def list_removed():
@@ -453,7 +462,6 @@ def list_removed():
             print(f'    <itemref idref="{values[0]}"/>     <!--{keys} (to remove)--> ')
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     manifest_fill('../LVGL_Italiano/epub/it/content.opf')
     # manifest_fill('content.opf')
@@ -464,4 +472,4 @@ if __name__ == '__main__':
     manifest_print_remaining()
     list_removed()
     print(f'\n\n<!--END "spine" replacement-->\n')
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
