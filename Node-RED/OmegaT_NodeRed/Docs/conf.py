@@ -30,7 +30,7 @@ language = 'en'
 html_theme = 'alabaster'
 html_static_path = ['_static']
 source_suffix = ['.rst', '.md', 'txt']                             
-locale_dirs = ['locale/']                                          
+locale_dirs = ['../locale/']                                          
 myst_enable_extensions = {"colon_fence", "substitution",}          
 
-suppress_warnings = ['toc.no_title','myst.xref_missing','myst.header','toc.not_readable','epub.unknown_project_files']
+suppress_warnings = ['toc.no_title','myst.xref_missing','myst.header','toc.not_readable','epub.unknown_project_files','toc.not_included','docutils']
