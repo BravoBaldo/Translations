@@ -28,3 +28,7 @@
 
 ### [Node-RED](https://nodered.org/docs/)
 *  [Node-RED](https://nodered.org/docs/) Docs collection about Node-RED
+
+### [Docs collection about WaveShare products](https://www.waveshare.com/)
+*  [ESP32-S3-Touch-LCD-4.3](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3)
+*  [USB TO UART/I2C/SPI/JTAG](https://www.waveshare.com/wiki/USB_TO_UART/I2C/SPI/JTAG)
