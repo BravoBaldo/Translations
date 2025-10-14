@@ -201,7 +201,7 @@ echo     #master_doc = 'index_it'                                               
 echo     epub_tocdepth = 2                                                                            >> ".\intermediate\conf.py"
 #epub_exclude_files
 #epub_tocdup = False
-#
+
 
 echo on
 Rem *********************************************************************************
@@ -230,6 +230,7 @@ del /S /Q build_org
 
 mklink /D "source"     "..\lvgl\docs\intermediate"
 mklink /D "build"      "..\LVGL_Italiano"
+Rem -------------------------------------------
 rmdir /s /q .\source\locale\
 Call make clean
 Call make gettext
@@ -239,9 +240,16 @@ ren ".\source\locale\it"        "it_it"
 rmdir      ..\LVGL_TradIta\source\it
 del /S /Q  ..\LVGL_TradIta\source\it
 mklink /D "..\LVGL_TradIta\source\it"             "..\..\Sphinx_LVGL\source\locale\it_it"
+
+del       "..\LVGL_TradIta\source\README.md"
+mklink    "..\LVGL_TradIta\source\README.md"             "..\..\lvgl\docs\README.md"
+del       "..\LVGL_TradIta\source\CODE_OF_CONDUCT.md"
+mklink    "..\LVGL_TradIta\source\CODE_OF_CONDUCT.md"    "..\..\lvgl\docs\CODE_OF_CONDUCT.md"
+
 rmdir      .\source\locale\it
 del /S /Q  .\source\locale\it
 mklink /D ".\source\locale\it"                    "..\..\..\..\LVGL_TradIta\target\it"     
+Rem -------------------------------------------
 
 goto :EOF
 

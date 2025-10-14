@@ -213,6 +213,7 @@ def itemref_insert_all():
     itemref_insert('details/integration/external_display_controllers/st7735.xhtml')
     itemref_insert('details/integration/external_display_controllers/st7789.xhtml')
     itemref_insert('details/integration/external_display_controllers/st7796.xhtml')
+    itemref_insert('details/integration/external_display_controllers/nv3007.xhtml')
 
     itemref_insert('details/integration/building/index.xhtml')
     itemref_insert('details/integration/building/make.xhtml')
