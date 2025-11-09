@@ -196,7 +196,7 @@ echo     epub_title = 'Documentazione di LVGL v' + Showversion                  
 echo     epub_contributor = "BravoBaldo"                                                              >> ".\intermediate\conf.py"
 echo     epub_language = "it"                                                                         >> ".\intermediate\conf.py"
 echo     # epub_cover                                                                                 >> ".\intermediate\conf.py"
-echo     suppress_warnings = ['epub.unknown_project_files']                                           >> ".\intermediate\conf.py"
+echo     suppress_warnings = ['epub.unknown_project_files','epub.duplicated_toc_entry']               >> ".\intermediate\conf.py"
 echo     #master_doc = 'index_it'                                                                     >> ".\intermediate\conf.py"
 echo     epub_tocdepth = 2                                                                            >> ".\intermediate\conf.py"
 #epub_exclude_files
