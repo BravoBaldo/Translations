@@ -369,6 +369,7 @@ def itemref_insert_all():
     itemref_insert('details/xml/integration/index.xhtml')
     itemref_insert('details/xml/integration/c_code.xhtml')
     itemref_insert('details/xml/integration/xml.xhtml')
+    itemref_insert('details/xml/integration/renesas-dev-tools.xhtml')
 
     itemref_insert('details/xml/ui_elements/index.xhtml')
     itemref_insert('details/xml/ui_elements/components.xhtml')
