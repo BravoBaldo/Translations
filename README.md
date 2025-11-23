@@ -32,3 +32,9 @@
 ### [Docs collection about WaveShare products](https://www.waveshare.com/)
 *  [ESP32-S3-Touch-LCD-4.3](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3)
 *  [USB TO UART/I2C/SPI/JTAG](https://www.waveshare.com/wiki/USB_TO_UART/I2C/SPI/JTAG)
+
+### [GoogleTest](https://google.github.io/googletest/)
+*  Attempt to translate and build an epub and pdf italian version.
+
+### [RustDesk](https://rustdesk.com/docs/it/) a Remote Desktop
+*  Epub [and soon PDF] version.
