@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Cosa c&#39;è dentro l&#39;oggetto? &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Odori del design visibile nella Specifica" href="370_Design_smells.html" />
+    <link rel="prev" title="Raggiungere la rete dei confini degli oggetti" href="350_Web_of_objects_boundaries.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="what-s-inside-the-object">
+<h1>Cosa c'è dentro l'oggetto?<a class="headerlink" href="#what-s-inside-the-object" title="Link to this heading">¶</a></h1>
+<section id="what-are-object-s-peers">
+<h2>Quali sono i peer [<em>pari/colleghi</em>] dell'oggetto?<a class="headerlink" href="#what-are-object-s-peers" title="Link to this heading">¶</a></h2>
+<p>Finora ho parlato molto di oggetti che si compongono in una rete e comunicano inviandosi messaggi tra loro. Lavorano insieme come <em>peers</em>.</p>
+<p>Il nome peer deriva dal fatto che gli oggetti lavorano su un piano di parità -- non esiste una relazione gerarchica tra peer Quando due pari collaborano, nessuno di loro può essere definito &quot;proprietario&quot; dell'altro. Sono collegati da un oggetto che riceve un riferimento a un altro oggetto, il suo &quot;indirizzo&quot;.</p>
+<p>Ecco un esempio</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Sender</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="nf">Sender</span><span class="p">(</span><span class="n">Recipient</span><span class="w"> </span><span class="n">recipient</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_recipient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recipient</span><span class="p">;</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo esempio, il <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> è un peer di <code class="docutils literal notranslate"><span class="pre">Sender</span></code> (a condizione che il <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> non sia un <em>oggetto valore</em> o una struttura dati). Il mittente non sa:</p>
+<ul class="simple">
+<li><p>il tipo concreto di <code class="docutils literal notranslate"><span class="pre">recipient</span></code></p></li>
+<li><p>quando è stato creato il <code class="docutils literal notranslate"><span class="pre">recipient</span></code></p></li>
+<li><p>da chi è stato creato il <code class="docutils literal notranslate"><span class="pre">recipient</span></code></p></li>
+<li><p>per quanto tempo vivrà l'oggetto <code class="docutils literal notranslate"><span class="pre">recipient</span></code> dopo che l'istanza <code class="docutils literal notranslate"><span class="pre">Sender</span></code> sarà stata distrutta</p></li>
+<li><p>quali altri oggetti collaborano con <code class="docutils literal notranslate"><span class="pre">recipient</span></code></p></li>
+</ul>
+</section>
+<section id="what-are-object-s-internals">
+<h2>Quali sono le parti interne dell'oggetto?<a class="headerlink" href="#what-are-object-s-internals" title="Link to this heading">¶</a></h2>
+<p>Non tutti gli oggetti fanno parte della rete. Ho già menzionato gli <em>oggetti valore</em> e le strutture dati. Potrebbero far parte dell'API pubblica di una classe ma non sono suoi pari.</p>
+<p>Un'altra categoria utile sono gli <em>interni</em> -- oggetti creati e posseduti da altri oggetti, legati alla durata della vita dei loro proprietari.</p>
+<p>Gli <em>interni</em> sono incapsulati negli oggetti proprietari, nascosti al mondo esterno. L'esposizione degli <em>interni</em> dovrebbe essere considerata una rara eccezione piuttosto che una regola. Fanno parte del motivo per cui i loro oggetti proprietari si comportano in un certo modo, ma non possiamo passare la nostra implementazione per personalizzare quel comportamento. Questo è anche il motivo per cui non possiamo avere mock degli <em>interni</em> - non esiste un punto di estensione che possiamo utilizzare. Per fortuna anche noi non vogliamo. Intromettersi negli <em>interni</em> di un oggetto significherebbe rompere l'incapsulamento e l'accoppiamento con le cose che sono volatili nel nostro design.</p>
+<p><img alt="Un interno contro un pari" src="../_images/internals_vs_peers.png" /></p>
+<p>A volte gli <em>interni</em> possono essere passati ad altri oggetti senza interrompere l'incapsulamento. Diamo un'occhiata a questo pezzo di codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MessageChain</span><span class="w"> </span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="n">IReadOnlyList</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Message</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">_recipientAddress</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="nf">MessageChain</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">recipientAddress</span><span class="p">)</span><span class="w"> </span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_recipientAddress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recipientAddress</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Add</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="w"> </span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_messages</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Message</span><span class="p">(</span><span class="n">_recipientAddress</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">body</span><span class="p">));</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Send</span><span class="p">(</span><span class="n">MessageDestination</span><span class="w"> </span><span class="n">destination</span><span class="p">)</span><span class="w"> </span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">destination</span><span class="p">.</span><span class="n">SendMany</span><span class="p">(</span><span class="n">_messages</span><span class="p">);</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo esempio, l'oggetto <code class="docutils literal notranslate"><span class="pre">_messages</span></code> viene passato a <code class="docutils literal notranslate"><span class="pre">destination</span></code>, ma la <code class="docutils literal notranslate"><span class="pre">destination</span></code> non sa da dove ha preso questo elenco, quindi questa interazione non espone necessariamente i dettagli strutturali della classe <code class="docutils literal notranslate"><span class="pre">MessageChain</span></code>.</p>
+<p>La distinzione tra peer e <em>interni</em> è stata introdotta da Steve Freeman e Nat Pryce nel loro libro Growing Object-Oriented Software Guided By Tests.</p>
+</section>
+<section id="examples-of-internals">
+<h2>Esempi di <em>interni</em><a class="headerlink" href="#examples-of-internals" title="Link to this heading">¶</a></h2>
+<p>Come scoprire che un oggetto dovrebbe essere un <em>interno</em> piuttosto che un pari? Di seguito ho elencato diversi esempi di categorie di oggetti che possono diventare <em>interni</em> di altri oggetti. Spero che questi esempi aiutino ad allenare il senso di identificazione gli <em>interni</em> nel progetto.</p>
+<section id="primitives">
+<h3>Primitive<a class="headerlink" href="#primitives" title="Link to this heading">¶</a></h3>
+<p>Consideriamo la seguente classe <code class="docutils literal notranslate"><span class="pre">CountingObserver</span></code> che conta quante volte è stata notificata e quando viene raggiunta una soglia, passa poi oltre tale notifica:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ObserverWithThreshold</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Observer</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="n">Observer</span><span class="w"> </span><span class="n">_nextObserver</span><span class="p">;</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_threshold</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="nf">ObserverWithThreshold</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">threshold</span><span class="p">,</span><span class="w"> </span><span class="n">Observer</span><span class="w"> </span><span class="n">nextObserver</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threshold</span><span class="p">;</span>
+<span class="w">  </span><span class="n">_nextObserver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nextObserver</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Notify</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_count</span><span class="o">++</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">_count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">_threshold</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_nextObserver</span><span class="p">.</span><span class="n">Notify</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il campo <code class="docutils literal notranslate"><span class="pre">_count</span></code> è di proprietà e gestito da un'istanza <code class="docutils literal notranslate"><span class="pre">CountingObserver</span></code>. È invisibile all'esterno di un oggetto <code class="docutils literal notranslate"><span class="pre">ObserverWithThreshold</span></code>.</p>
+<p>Un esempio di Statement di comportamento per questa classe potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldNotifyTheNextObserverWhenItIsNotifiedMoreTimesThanTheThreshold</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">nextObserver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Observer</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">observer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ObserverWithThreshold</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">nextObserver</span><span class="p">);</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="n">observer</span><span class="p">.</span><span class="n">Notify</span><span class="p">();</span>
+<span class="w"> </span><span class="n">observer</span><span class="p">.</span><span class="n">Notify</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">observer</span><span class="p">.</span><span class="n">Notify</span><span class="p">();</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">nextObserver</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Notify</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il conteggio corrente delle notifiche non viene esposto all'esterno dell'oggetto ObserverWithThreshold. Sto solo superando la soglia che il conteggio delle notifiche deve superare. Se davvero lo volessi, potrei, invece di usare un int, introdurre un'interfaccia di un collaboratore per il contatore, ad es. chiamato <code class="docutils literal notranslate"><span class="pre">Counter</span></code>, fornirgli metodi come <code class="docutils literal notranslate"><span class="pre">Increment()</span></code> e <code class="docutils literal notranslate"><span class="pre">GetValue()</span></code> e passa un mock dallo Statement, ma per me, se tutto ciò che voglio è contare quante volte viene chiamato qualcosa, preferirei renderlo parte dell'implementazione della classe per eseguire il conteggio. Sembra più semplice se il counter non è esposto.</p>
+</section>
+<section id="value-object-fields">
+<h3>Campi <em>oggetto valore</em><a class="headerlink" href="#value-object-fields" title="Link to this heading">¶</a></h3>
+<p>Il contatore dell'ultimo esempio era già un valore, ma ho pensato di menzionare <em>oggetti valore</em> più ricchi.</p>
+<p>Consideriamo una classe che rappresenta una sessione della riga di comando. Permette di eseguire comandi nell'ambito di una directory di lavoro. Un'implementazione di questa classe potrebbe assomigliare a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CommandlineSession</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="n">AbsolutePath</span><span class="w"> </span><span class="n">_workingDirectory</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="nf">CommandlineSession</span><span class="p">(</span><span class="n">PathRoot</span><span class="w"> </span><span class="n">root</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_workingDirectory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root</span><span class="p">.</span><span class="n">AsAbsolutePath</span><span class="p">();</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Enter</span><span class="p">(</span><span class="n">DirectoryName</span><span class="w"> </span><span class="n">dirName</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_workingDirectory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_workingDirectory</span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="n">dirName</span><span class="p">);</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Execute</span><span class="p">(</span><span class="n">Command</span><span class="w"> </span><span class="n">command</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">command</span><span class="p">.</span><span class="n">ExecuteIn</span><span class="p">(</span><span class="n">_workingDirectory</span><span class="p">);</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="w"> </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questa classe <code class="docutils literal notranslate"><span class="pre">CommandlineSession</span></code> ha un campo privato chiamato <code class="docutils literal notranslate"><span class="pre">_workingDirectory</span></code>, che rappresenta la directory di lavoro della sessione corrente della riga di comando. Anche se il valore iniziale è basato sull'argomento del costruttore, da quel momento in poi il campo viene gestito internamente e passato solo a un comando in modo che sappia dove eseguirlo. Uno Statement di esempio per il comportamento di <code class="docutils literal notranslate"><span class="pre">CommandLineSession</span></code> potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldExecuteCommandInEnteredWorkingDirectory</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">pathRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">PathRoot</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">commandline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CommandLineSession</span><span class="p">(</span><span class="n">pathRoot</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">subDirectoryLevel1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">,</span><span class="n">Insytance</span><span class="o">&lt;</span><span class="n">DirectoryName</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">subDirectoryLevel2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">,</span><span class="n">Insytance</span><span class="o">&lt;</span><span class="n">DirectoryName</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">subDirectoryLevel3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">,</span><span class="n">Insytance</span><span class="o">&lt;</span><span class="n">DirectoryName</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Command</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w"> </span><span class="n">commandline</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">subDirectoryLevel1</span><span class="p">);</span>
+<span class="w"> </span><span class="n">commandline</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">subDirectoryLevel2</span><span class="p">);</span>
+<span class="w"> </span><span class="n">commandline</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">subDirectoryLevel3</span><span class="p">);</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">commandLine</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="n">command</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">command</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Execute</span><span class="p">(</span>
+<span class="w">  </span><span class="n">AbsolutePath</span><span class="p">.</span><span class="n">Combine</span><span class="p">(</span>
+<span class="w">   </span><span class="n">pathRoot</span><span class="p">,</span><span class="w"> </span>
+<span class="w">   </span><span class="n">subDirectoryLevel1</span><span class="p">,</span>
+<span class="w">   </span><span class="n">subDirectoryLevel2</span><span class="p">,</span>
+<span class="w">   </span><span class="n">subDirectoryLevel3</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ancora una volta, non ho accesso al campo interno <code class="docutils literal notranslate"><span class="pre">_workingDirectory</span></code>. Posso solo prevederne il valore e creare un valore atteso nel mio Statement. Notare che non sto nemmeno utilizzando gli stessi metodi per combinare i path sia nello Statement che nel codice di produzione - mentre il codice di produzione utilizza il metodo <code class="docutils literal notranslate"><span class="pre">Append()</span></code>, il mio Statement utilizza un metodo statico <code class="docutils literal notranslate"><span class="pre">Combine</span></code> su un <code class="docutils literal notranslate"><span class="pre">AbsolutePath</span></code>. Ciò dimostra che il mio Statement ignora come esattamente lo stato interno viene gestito dalla classe <code class="docutils literal notranslate"><span class="pre">CommandLineSession</span></code>.</p>
+</section>
+<section id="collections">
+<h3>Le Collection<a class="headerlink" href="#collections" title="Link to this heading">¶</a></h3>
+<p>Le semplici collection di elementi (come elenchi, hashset, array ecc.) non vengono generalmente visualizzate come peer. Anche se scrivo una classe che accetta un'interfaccia di collection (ad esempio <code class="docutils literal notranslate"><span class="pre">IList</span></code> in C#) come parametro, non creo mai mock dell'interfaccia della collection, ma piuttosto utilizzo una delle collection native.</p>
+<p>Ecco un esempio di una classe <code class="docutils literal notranslate"><span class="pre">InMemorySessions</span></code> che inizializza e utilizza una collection:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">InMemorySessions</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Sessions</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="n">SessionId</span><span class="p">,</span><span class="w"> </span><span class="n">Session</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_sessions</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="n">SessionId</span><span class="p">,</span><span class="w"> </span><span class="n">Session</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="n">SessionFactory</span><span class="w"> </span><span class="n">_sessionFactory</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="nf">InMemorySessions</span><span class="p">(</span><span class="n">SessionFactory</span><span class="w"> </span><span class="n">sessionFactory</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_sessionFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sessionFactory</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">StartNew</span><span class="p">(</span><span class="n">SessionId</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_sessionFactory</span><span class="p">.</span><span class="n">CreateNewSession</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+<span class="w">  </span><span class="n">session</span><span class="p">.</span><span class="n">Start</span><span class="p">();</span>
+<span class="w">  </span><span class="n">_sessions</span><span class="p">[</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">StopAll</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">_sessions</span><span class="p">.</span><span class="n">Values</span><span class="p">())</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">   </span><span class="n">_session</span><span class="p">.</span><span class="n">Stop</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="w"> </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il dizionario qui utilizzato non è affatto esposto al mondo esterno. Viene utilizzato solo internamente. Non riesco a superare un'implementazione mock e, anche se potessi, preferirei lasciare il comportamento come posseduto da <code class="docutils literal notranslate"><span class="pre">InMemorySessions</span></code>. Un esempio di Statement per la classe <code class="docutils literal notranslate"><span class="pre">InMemorySessions</span></code> ha mostrato come il dizionario non sia visibile all'esterno della classe:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldStopAddedSessionsWhenAskedToStopAll</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessionFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">SessionFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InMemorySessions</span><span class="p">(</span><span class="n">sessionFactory</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessionId1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">SessionId</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessionId2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">SessionId</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessionId3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">SessionId</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">session1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Session</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">session2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Session</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">session3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Session</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="n">sessionFactory</span><span class="p">.</span><span class="n">CreateNewSession</span><span class="p">(</span><span class="n">sessionId1</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">session1</span><span class="p">);</span>
+<span class="w"> </span><span class="n">sessionFactory</span><span class="p">.</span><span class="n">CreateNewSession</span><span class="p">(</span><span class="n">sessionId2</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">session2</span><span class="p">);</span>
+<span class="w"> </span><span class="n">sessionFactory</span><span class="p">.</span><span class="n">CreateNewSession</span><span class="p">(</span><span class="n">sessionId3</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">session3</span><span class="p">);</span>
+
+<span class="w"> </span><span class="n">sessions</span><span class="p">.</span><span class="n">StartNew</span><span class="p">(</span><span class="n">sessionId1</span><span class="p">);</span>
+<span class="w"> </span><span class="n">sessions</span><span class="p">.</span><span class="n">StartNew</span><span class="p">(</span><span class="n">sessionId2</span><span class="p">);</span>
+<span class="w"> </span><span class="n">sessions</span><span class="p">.</span><span class="n">StartNew</span><span class="p">(</span><span class="n">sessionId3</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">sessions</span><span class="p">.</span><span class="n">StopAll</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">session1</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Stop</span><span class="p">();</span>
+<span class="w"> </span><span class="n">session2</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Stop</span><span class="p">();</span>
+<span class="w"> </span><span class="n">session3</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Stop</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="toolbox-classes-and-objects">
+<h3>Classi e oggetti toolbox<a class="headerlink" href="#toolbox-classes-and-objects" title="Link to this heading">¶</a></h3>
+<p>Classi e oggetti toolbox non sono realmente astrazioni di alcun dominio problematico specifico, ma aiutano a rendere l'implementazione più concisa, riducendo il numero di righe di codice che devo scrivere per portare a termine il lavoro. Un esempio è una classe C# <code class="docutils literal notranslate"><span class="pre">Regex</span></code> per le espressioni regolari. Ecco un esempio di calcolatore del conteggio delle righe che utilizza un'istanza di <code class="docutils literal notranslate"><span class="pre">Regex</span></code> per contare il numero di righe in una porzione di testo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">LocCalculator</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Regex</span><span class="w"> </span><span class="n">NewlineRegex</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Regex</span><span class="p">(</span><span class="s">@&quot;\r\n|\n&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">RegexOptions</span><span class="p">.</span><span class="n">Compiled</span><span class="p">);</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="nf">CountLinesIn</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">content</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">NewlineRegex</span><span class="p">.</span><span class="n">Split</span><span class="p">(</span><span class="n">contentText</span><span class="p">).</span><span class="n">Length</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ancora una volta, ritengo che la conoscenza su come dividere una stringa in più righe dovrebbe appartenere alla classe <code class="docutils literal notranslate"><span class="pre">LocCalculator</span></code>. Non introdurrei né creerei mock di un'astrazione (ad esempio chiamata <code class="docutils literal notranslate"><span class="pre">LineSplitter</span></code> a meno che non ci fossero qualche tipo di regole di dominio associate alla suddivisione del testo). Un esempio di Statement che descrive il comportamento della calcolatrice sarebbe simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldCountLinesDelimitedByCrLf</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$&quot;{Any.String()}\r\n{Any.String()}\r\n{Any.String()}&quot;</span><span class="p">;</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">calculator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">LocCalculator</span><span class="p">();</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">lineCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">CountLinesIn</span><span class="p">(</span><span class="n">text</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">lineCount</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>L'oggetto dell'espressione regolare non si vede da nessuna parte - rimane nascosto come dettaglio di implementazione della classe <code class="docutils literal notranslate"><span class="pre">LocCalculator</span></code>.</p>
+</section>
+<section id="some-third-party-library-classes">
+<h3>Alcune classi di librerie di terze parti<a class="headerlink" href="#some-third-party-library-classes" title="Link to this heading">¶</a></h3>
+<p>Di seguito è riportato un esempio che utilizza un framework di injection [<em>inserimento</em>] di errori C#, Simmy. La classe decora una vera classe di archiviazione e consente di configurare il lancio di eccezioni invece di parlare con l'oggetto di archiviazione. L'esempio potrebbe sembrare un po' contorto e la classe non è comunque pronta per la produzione. Notare che molte classi e metodi vengono utilizzati solo all'interno della classe e non sono visibili dall'esterno.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">FaultInjectablePersonStorage</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">PersonStorage</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">PersonStorage</span><span class="w"> </span><span class="n">_storage</span><span class="p">;</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">InjectOutcomePolicy</span><span class="w"> </span><span class="n">_chaosPolicy</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="nf">FaultInjectablePersonStorage</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">injectionEnabled</span><span class="p">,</span><span class="w"> </span><span class="n">PersonStorage</span><span class="w"> </span><span class="n">storage</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_storage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">storage</span><span class="p">;</span>
+<span class="w">  </span><span class="n">_chaosPolicy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MonkeyPolicy</span><span class="p">.</span><span class="n">InjectException</span><span class="p">(</span><span class="k">with</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">    </span><span class="k">with</span><span class="p">.</span><span class="n">Fault</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Exception</span><span class="p">(</span><span class="s">&quot;thrown from exception attack!&quot;</span><span class="p">))</span>
+<span class="w">     </span><span class="p">.</span><span class="n">InjectionRate</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">     </span><span class="p">.</span><span class="n">EnabledWhen</span><span class="p">((</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">token</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">injectionEnabled</span><span class="p">)</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetPeople</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">capturedResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_chaosPolicy</span><span class="p">.</span><span class="n">ExecuteAndCapture</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">_storage</span><span class="p">.</span><span class="n">GetPeople</span><span class="p">());</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">capturedResult</span><span class="p">.</span><span class="n">Outcome</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">OutcomeType</span><span class="p">.</span><span class="n">Failure</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">   </span><span class="k">throw</span><span class="w"> </span><span class="n">capturedResult</span><span class="p">.</span><span class="n">FinalException</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">capturedResult</span><span class="p">.</span><span class="n">Result</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Uno Statement di esempio potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldReturnPeopleFromInnerInstanceWhenTheirRetrievalIsSuccessfulAndInjectionIsDisabled</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">innerStorage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">PersonStorage</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">peopleInInnerStorage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">storage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FaultInjectablePersonStorage</span><span class="p">(</span><span class="k">false</span><span class="p">,</span><span class="w"> </span><span class="n">innerStorage</span><span class="p">);</span>
+
+<span class="w"> </span><span class="n">innerStorage</span><span class="p">.</span><span class="n">GetPeople</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">peopleFromInnerStorage</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">storage</span><span class="p">.</span><span class="n">GetPeople</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">peopleInInnerStorage</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e della libreria Simmy non c'è traccia.</p>
+</section>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>In questo capitolo ho sostenuto che non tutte le comunicazioni tra oggetti dovrebbero essere rappresentate come protocolli pubblici. Invece, una parte di esso dovrebbe essere incapsulata all'interno dell'oggetto. Ho anche fornito diversi esempi per a trovare tali collaboratori <em>interni</em>.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cosa c'è dentro l'oggetto?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-are-object-s-peers">Quali sono i peer [<em>pari/colleghi</em>] dell'oggetto?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-are-object-s-internals">Quali sono le parti interne dell'oggetto?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples-of-internals">Esempi di <em>interni</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="350_Web_of_objects_boundaries.html" title="capitolo precedente">Raggiungere la rete dei confini degli oggetti</a></li>
+      <li>Next: <a href="370_Design_smells.html" title="capitolo successivo">Odori del design visibile nella Specifica</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/360_Internals.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

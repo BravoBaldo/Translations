@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)? &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Dove vengono composti gli oggetti?" href="213_Where_are_objects_composed.html" />
+    <link rel="prev" title="Quando vengono composti gli oggetti?" href="211_When_are_objects_composed.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="how-does-a-sender-obtain-a-reference-to-a-recipient-i-e-how-connections-are-made">
+<h1>Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?<a class="headerlink" href="#how-does-a-sender-obtain-a-reference-to-a-recipient-i-e-how-connections-are-made" title="Link to this heading">¶</a></h1>
+<p>Esistono diversi modi in cui un mittente può ottenere un riferimento a un destinatario, ognuno dei quali è utile in determinate circostanze. Questi modi sono:</p>
+<ol class="arabic simple">
+<li><p>Riceverlo come parametro del costruttore</p></li>
+<li><p>Riceverlo all'interno di un messaggio (cioè come parametro del metodo)</p></li>
+<li><p>Riceverlo in risposta a un messaggio (ovvero come valore di ritorno del metodo)</p></li>
+<li><p>Riceverlo come observer registrato</p></li>
+</ol>
+<p>Diamo uno sguardo più da vicino a cosa tratta ciascuno di essi e quale scegliere in quali circostanze.</p>
+<section id="receive-as-a-constructor-parameter">
+<h2>Riceverlo come parametro del costruttore<a class="headerlink" href="#receive-as-a-constructor-parameter" title="Link to this heading">¶</a></h2>
+<p>Due oggetti possono essere composti passandone uno al costruttore di un altro:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">sender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Sender</span><span class="p">(</span><span class="n">recipient</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Un mittente che riceve il destinatario salva poi un riferimento ad esso in un campo privato per dopo, in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="n">Recipient</span><span class="w"> </span><span class="n">_recipient</span><span class="p">;</span>
+
+<span class="k">public</span><span class="w"> </span><span class="nf">Sender</span><span class="p">(</span><span class="n">Recipient</span><span class="w"> </span><span class="n">recipient</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_recipient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recipient</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A partire da questo punto, il <code class="docutils literal notranslate"><span class="pre">Sender</span></code> [<em>Mittente</em>] può inviare messaggi al <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> [<em>Destinatario</em>] a piacimento:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DoSomething</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//... other code</span>
+
+<span class="w">  </span><span class="n">_recipient</span><span class="p">.</span><span class="n">DoSomethingElse</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//... other code</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="advantage-what-you-hide-you-can-change">
+<h3>Vantaggio: &quot;ciò che si nasconde, lo so può cambiare&quot;<a class="headerlink" href="#advantage-what-you-hide-you-can-change" title="Link to this heading">¶</a></h3>
+<p>La composizione utilizzando i costruttori presenta un vantaggio significativo. Diamo un'altra occhiata a come viene creato <code class="docutils literal notranslate"><span class="pre">Sender</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">sender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Sender</span><span class="p">(</span><span class="n">recipient</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>e come viene utilizzato:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">sender</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Notare che solo il codice che crea un <code class="docutils literal notranslate"><span class="pre">Sender</span></code> deve essere consapevole di avere accesso a un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>. Quando si tratta di invocare un metodo, questo riferimento privato è invisibile dall'esterno. Ora, ricordate quando ho descritto il principio di separare l'uso dell'oggetto dalla sua costruzione? Se seguiamo questo principio qui, ci ritroveremo con il codice che crea un <code class="docutils literal notranslate"><span class="pre">Sender</span></code> che si trova in una posizione completamente diversa rispetto al codice che lo utilizza. Pertanto, ogni codice che utilizza un <code class="docutils literal notranslate"><span class="pre">Sender</span></code> non sarà affatto consapevole dell'invio di messaggi a un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>. Esiste una massima che dice: &quot;ciò che nascondi, puoi cambiarlo&quot;<a class="footnote-reference brackets" href="#kolskybain" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> -- in questo caso particolare, se decidiamo che il <code class="docutils literal notranslate"><span class="pre">Sender</span></code> non ha bisogno di un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> per svolgere il suo lavoro, tutto ciò che dobbiamo modificare è il codice di composizione per rimuovere il <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//no need to pass a reference to Recipient anymore</span>
+<span class="k">new</span><span class="w"> </span><span class="nf">Sender</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>e il codice che utilizza <code class="docutils literal notranslate"><span class="pre">Sender</span></code> non ha bisogno di essere modificato affatto -- sembra ancora lo stesso di prima, poiché non ha mai conosciuto <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">sender</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="communication-of-intent-required-recipient">
+<h3>Comunicazione di intenti: è richiesto il destinatario<a class="headerlink" href="#communication-of-intent-required-recipient" title="Link to this heading">¶</a></h3>
+<p>Un altro vantaggio dell'approccio del costruttore è che consente di dichiarare esplicitamente quali sono i destinatari richiesti per un particolare mittente. Ad esempio, un <code class="docutils literal notranslate"><span class="pre">Sender</span></code> accetta un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> nel suo costruttore:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">Sender</span><span class="p">(</span><span class="n">Recipient</span><span class="w"> </span><span class="n">recipient</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>La firma del costruttore rende esplicito che è necessario un riferimento a un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> affinché un <code class="docutils literal notranslate"><span class="pre">Sender</span></code> funzioni correttamente -- il compilatore non consentirà la creazione di un <code class="docutils literal notranslate"><span class="pre">Sender</span></code> senza passare <em>qualcosa</em> come <code class="docutils literal notranslate"><span class="pre">Recipient</span></code><a class="footnote-reference brackets" href="#nullfortrouble" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="where-to-apply">
+<h3>Dove avviene<a class="headerlink" href="#where-to-apply" title="Link to this heading">¶</a></h3>
+<p>Passare in un costruttore è un'ottima soluzione nei casi in cui vogliamo comporre un mittente con un destinatario in modo permanente (ovvero per tutta la vita di un <code class="docutils literal notranslate"><span class="pre">Sender</span></code>). Per poter fare ciò, un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> deve, ovviamente, esistere prima di un <code class="docutils literal notranslate"><span class="pre">Sender</span></code>. Un altro requisito meno ovvio per questa composizione è che un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> deve essere utilizzabile almeno finché lo è un <code class="docutils literal notranslate"><span class="pre">Sender</span></code>. Un semplice esempio di violazione di questo requisito è questo codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">sender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Sender</span><span class="p">(</span><span class="n">recipient</span><span class="p">);</span>
+
+<span class="n">recipient</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span><span class="w"> </span><span class="c1">//but sender is unaware of it</span>
+<span class="w">                     </span><span class="c1">//and may still use recipient later:</span>
+<span class="n">sender</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>In questo caso, quando diciamo a <code class="docutils literal notranslate"><span class="pre">sender</span></code> di <code class="docutils literal notranslate"><span class="pre">DoSomething()</span></code> [<em>FareQualcosa</em>], usa un destinatario che è già stato eliminato, il che potrebbe portare ad alcuni bug fastidiosi.</p>
+</section>
+</section>
+<section id="receive-inside-a-message-i-e-as-a-method-parameter">
+<h2>Riceverlo all'interno di un messaggio (cioè come parametro del metodo)<a class="headerlink" href="#receive-inside-a-message-i-e-as-a-method-parameter" title="Link to this heading">¶</a></h2>
+<p>Un altro modo comune di comporre insieme oggetti è passare un oggetto come parametro della chiamata al metodo di un altro oggetto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">sender</span><span class="p">.</span><span class="n">DoSomethingWithHelpOf</span><span class="p">(</span><span class="n">recipient</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In questo caso, gli oggetti vengono spesso composti temporaneamente, solo per il tempo di esecuzione di questo singolo metodo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DoSomethingWithHelpOf</span><span class="p">(</span><span class="n">Recipient</span><span class="w"> </span><span class="n">recipient</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//... perform some logic</span>
+
+<span class="w">  </span><span class="n">recipient</span><span class="p">.</span><span class="n">HelpMe</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//... perform some logic</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="id3">
+<h3>Dove avviene<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<p>Contrariamente all'approccio del costruttore, in cui un <code class="docutils literal notranslate"><span class="pre">Sender</span></code> potrebbe nascondere al suo utente il fatto di aver bisogno di un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>, in questo caso, l'utente di <code class="docutils literal notranslate"><span class="pre">Sender</span></code> è esplicitamente responsabile di fornire un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>. In altre parole, deve esserci una sorta di accoppiamento tra il codice che utilizza <code class="docutils literal notranslate"><span class="pre">Sender</span></code> e un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>. Potrebbe sembrare che questo accoppiamento sia uno svantaggio, ma conosco alcuni scenari in cui è <strong>richiesto</strong> che il codice che utilizza <code class="docutils literal notranslate"><span class="pre">Sender</span></code> sia in grado di fornire il proprio <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> -- ci consente di utilizzare lo stesso mittente con destinatari diversi in momenti diversi (molto spesso da parti diverse del codice):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//in one place</span>
+<span class="n">sender</span><span class="p">.</span><span class="n">DoSomethingWithHelpOf</span><span class="p">(</span><span class="n">recipient</span><span class="p">);</span>
+
+<span class="c1">//in another place:</span>
+<span class="n">sender</span><span class="p">.</span><span class="n">DoSomethingWithHelpOf</span><span class="p">(</span><span class="n">anotherRecipient</span><span class="p">);</span>
+
+<span class="c1">//in yet another place:</span>
+<span class="n">sender</span><span class="p">.</span><span class="n">DoSomethingWithHelpOf</span><span class="p">(</span><span class="n">yetAnotherRecipient</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Se questa capacità non è richiesta, preferisco di gran lunga l'approccio del costruttore in quanto rimuove l'accoppiamento (allora) non necessario tra il codice che utilizza <code class="docutils literal notranslate"><span class="pre">Sender</span></code> e un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>, offrendomi maggiore flessibilità.</p>
+</section>
+</section>
+<section id="receive-in-response-to-a-message-i-e-as-a-method-return-value">
+<h2>Riceverlo in risposta a un messaggio (ovvero come valore di ritorno del metodo)<a class="headerlink" href="#receive-in-response-to-a-message-i-e-as-a-method-return-value" title="Link to this heading">¶</a></h2>
+<p>Questo metodo di composizione degli oggetti si basa su un oggetto intermediario -- spesso un'implementazione di un <a class="reference external" href="http://www.netobjectives.com/PatternRepository/index.php?title=TheAbstractFactoryPattern">pattern factory</a> -- per fornire i destinatari su richiesta. Per semplificare le cose, userò le factory negli esempi presentati in questa sezione, anche se quello che dico è vero anche per alcuni altri <a class="reference external" href="https://it.wikipedia.org/wiki/Design_pattern#Pattern_creazionali">pattern creazionali</a> (inoltre, più avanti in questo capitolo tratterò in modo approfondito alcuni aspetti del pattern factory).</p>
+<p>Per poter richiedere i destinatari ad una factory, il mittente deve prima ottenere un riferimento ad essa. Tipicamente, una factory è composta da un mittente tramite il suo costruttore (un approccio già descritto). Per esempio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">sender</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Sender</span><span class="p">(</span><span class="n">recipientFactory</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>La factory può quindi essere utilizzata dal <code class="docutils literal notranslate"><span class="pre">Sender</span></code> a piacimento per ottenere nuovi destinatari:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Sender</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DoSomething</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//ask the factory for a recipient:</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">recipient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_recipientFactory</span><span class="p">.</span><span class="n">CreateRecipient</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">//use the recipient:</span>
+<span class="w">    </span><span class="n">recipient</span><span class="p">.</span><span class="n">DoSomethingElse</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="id4">
+<h3>Dove avviene<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<p>Trovo questo tipo di composizione utile quando è necessario un nuovo destinatario ogni volta che viene chiamato <code class="docutils literal notranslate"><span class="pre">DoSomething()</span></code>. In questo senso, potrebbe assomigliare molto al caso dell'approccio precedentemente discusso di ricevere un destinatario all'interno di un messaggio. C'è una differenza, però. Contrariamente al passaggio di un destinatario all'interno di un messaggio, in cui il codice che utilizza il <code class="docutils literal notranslate"><span class="pre">Sender</span></code> passa un <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> &quot;dall'esterno&quot; del <code class="docutils literal notranslate"><span class="pre">Sender</span></code>, in questo approccio ci basiamo su un oggetto separato utilizzato da un <code class="docutils literal notranslate"><span class="pre">Sender</span></code> &quot;dall'interno&quot;.</p>
+<p>Per essere più chiari, confrontiamo i due approcci. Il passaggio del destinatario all'interno di un messaggio si presenta così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//Sender gets a Recipient from the &quot;outside&quot;:</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DoSomething</span><span class="p">(</span><span class="n">Recipient</span><span class="w"> </span><span class="n">recipient</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">recipient</span><span class="p">.</span><span class="n">DoSomethingElse</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e ottenuto da una  factory:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//a factory is used &quot;inside&quot; Sender</span>
+<span class="c1">//to obtain a recipient</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DoSomething</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">recipient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_factory</span><span class="p">.</span><span class="n">CreateRecipient</span><span class="p">();</span>
+<span class="w">  </span><span class="n">recipient</span><span class="p">.</span><span class="n">DoSomethingElse</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi, nel primo esempio, la decisione su quale <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> utilizzare viene presa da chiunque chiami <code class="docutils literal notranslate"><span class="pre">DoSomething()</span></code>. Nell'esempio della factory, chi chiama <code class="docutils literal notranslate"><span class="pre">DoSomething()</span></code> non sa nulla del <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> e non può influenzare direttamente quale <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> viene utilizzato. La factory prende questa decisione.</p>
+</section>
+<section id="factories-with-parameters">
+<h3>Le factory con parametri<a class="headerlink" href="#factories-with-parameters" title="Link to this heading">¶</a></h3>
+<p>Finora, tutte le factory che abbiamo considerato avevano metodi di creazione con elenchi di parametri vuoti, ma questo non è un requisito di alcun tipo - volevo solo rendere gli esempi semplici, quindi ho tralasciato tutto ciò che non aiutava a chiarire il mio punto. Poiché la factory rimane il decisore su quale <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> viene utilizzato, può fare affidamento su alcuni parametri esterni passati al metodo di creazione per aiutarlo a prendere la decisione.</p>
+</section>
+<section id="not-only-factories">
+<h3>Non solo factory<a class="headerlink" href="#not-only-factories" title="Link to this heading">¶</a></h3>
+<p>In questa sezione abbiamo utilizzato una factory come modello, ma l'approccio per ottenere un recipient [<em>destinatario</em>] in risposta a un messaggio è più ampio. Altri tipi di oggetti che rientrano in questa categoria includono, tra gli altri: <a class="reference external" href="https://martinfowler.com/eaaCatalog/repository.html">i repository</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Cache_%28computing%29">le cache</a>, <a class="reference external" href="http://www.blackwasp.co.uk/Builder.aspx">i builder</a>, le collection<a class="footnote-reference brackets" href="#collectionsremark" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. Anche se sono tutti concetti importanti (da cercare sul web), non sono necessari per proseguire in questo capitolo, quindi non li esaminerò ora.</p>
+</section>
+</section>
+<section id="receive-as-a-registered-observer">
+<h2>Riceverlo come <a class="reference external" href="http://www.oodesign.com/observer-pattern.html">observer</a> registrato<a class="headerlink" href="#receive-as-a-registered-observer" title="Link to this heading">¶</a></h2>
+<p>Ciò significa passare un destinatario a un mittente <strong>già creato</strong> (contrariamente al passaggio come parametro del costruttore in cui il destinatario veniva passato <strong>durante</strong> la creazione) come parametro di un metodo che memorizza il riferimento per un uso successivo. Di solito incontro due tipi di registrazioni:</p>
+<ol class="arabic simple">
+<li><p>un metodo &quot;setter&quot;, in cui qualcuno registra un observer chiamando qualcosa come il metodo <code class="docutils literal notranslate"><span class="pre">sender.SetRecipient(recipient)</span></code>. Onestamente, anche se è un setter, non mi piace nominarlo secondo la convenzione &quot;setWhatever()&quot; -- dopo Kent Beck<a class="footnote-reference brackets" href="#implementationpatterns" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> trovo questa convenzione troppo incentrata sull'implementazione invece che sullo scopo. Pertanto, scelgo nomi diversi in base al concetto di dominio modellato dal metodo di registrazione o al suo scopo. In ogni caso, questo approccio consente a un solo observer e impostandone un altro si sovrascrive a quello precedente.</p></li>
+<li><p>un metodo di &quot;addition&quot; - in cui qualcuno registra un observer chiamando qualcosa come <code class="docutils literal notranslate"><span class="pre">sender.addRecipient(recipient)</span></code> - in questo approccio, una collection di observer deve essere mantenuta da qualche parte e il recipient registrato come observer viene semplicemente aggiunto alla collection.</p></li>
+</ol>
+<p>Si noti che esiste una somiglianza con l'approccio &quot;passaggio all'interno di un messaggio&quot; -- in entrambi, un recipient [<em>destinatario</em>] viene passato all'interno di un messaggio. La differenza è che questa volta, contrariamente all'approccio &quot;passaggio all'interno di un messaggio&quot;, il recipient passato non viene utilizzato immediatamente (e poi dimenticato), ma piuttosto viene ricordato (registrato) per un uso successivo.</p>
+<p>Spero di riuscire a chiarire la confusione con un breve esempio.</p>
+<section id="example">
+<h3>Esempio<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
+<p>Supponiamo di avere un sensore di temperatura in grado di segnalare il suo valore medio attuale e storico a chiunque lo sottoscriva. Se nessuno si abbona, il sensore fa comunque il suo lavoro, perché deve comunque raccogliere i dati per calcolare un valore medio basato sullo storico nel caso qualcuno si abboni in seguito.</p>
+<p>Possiamo modellare questo comportamento utilizzando un pattern observer e consentire agli observer di registrarsi nell'implementazione del sensore. Se non è registrato alcun observer, i valori non vengono riportati (in altre parole, non è necessario un observer registrato per il funzionamento dell'oggetto, ma se ce n'è uno, può trarre vantaggio dai report). A questo scopo, facciamo dipendere il nostro sensore da un'interfaccia chiamata <code class="docutils literal notranslate"><span class="pre">TemperatureObserver</span></code> che potrebbe essere implementata da varie classi di observer concrete. La dichiarazione dell'interfaccia è simile alla seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">TemperatureObserver</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">NotifyOn</span><span class="p">(</span>
+<span class="w">    </span><span class="n">Temperature</span><span class="w"> </span><span class="n">currentValue</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Temperature</span><span class="w"> </span><span class="n">meanValue</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora siamo pronti per esaminare l'implementazione del sensore di temperatura stesso e il modo in cui utilizza l'interfaccia <code class="docutils literal notranslate"><span class="pre">TemperatureObserver</span></code>. Diciamo che la classe che rappresenta il sensore si chiama <code class="docutils literal notranslate"><span class="pre">TemperatureSensor</span></code>. Parte della sua definizione potrebbe assomigliare a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TemperatureSensor</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">TemperatureObserver</span><span class="w"> </span><span class="n">_observer</span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NullObserver</span><span class="p">();</span><span class="w"> </span><span class="c1">//ignores reported values</span>
+
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Temperature</span><span class="w"> </span><span class="n">_meanValue</span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Temperature</span><span class="p">.</span><span class="n">Celsius</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// + maybe more fields related to storing historical data</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Run</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="cm">/* needs to run */</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="kt">var</span><span class="w"> </span><span class="n">currentValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* get current value somehow */</span><span class="p">;</span>
+<span class="w">      </span><span class="n">_meanValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* update mean value somehow */</span><span class="p">;</span>
+
+<span class="w">      </span><span class="n">_observer</span><span class="p">.</span><span class="n">NotifyOn</span><span class="p">(</span><span class="n">currentValue</span><span class="p">,</span><span class="w"> </span><span class="n">_meanValue</span><span class="p">);</span>
+
+<span class="w">      </span><span class="n">WaitUntilTheNextMeasurementTime</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Come si vede, per default, il sensore non riporta i suoi valori da nessuna parte (<code class="docutils literal notranslate"><span class="pre">NullObserver</span></code>), che è un valore di default sicuro (utilizzare un <code class="docutils literal notranslate"><span class="pre">null</span></code> come valore di default causerebbe delle eccezioni o ci costringerebbe a inserire un check sul null all'interno del metodo <code class="docutils literal notranslate"><span class="pre">Run()</span></code>). Abbiamo già visto questi &quot;oggetti null&quot;<a class="footnote-reference brackets" href="#nullobject" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a> un paio di volte (ad esempio nel capitolo precedente, quando abbiamo introdotto la classe <code class="docutils literal notranslate"><span class="pre">NoAlarm</span></code>) -- <code class="docutils literal notranslate"><span class="pre">NullObserver</span></code> è solo un'altra incarnazione di questo pattern.</p>
+</section>
+<section id="registering-observers">
+<h3>Registrare gli observer<a class="headerlink" href="#registering-observers" title="Link to this heading">¶</a></h3>
+<p>Tuttavia, vogliamo essere in grado di fornire il nostro observer un giorno, quando inizieremo a preoccuparci dei valori misurati e calcolati (il fatto che abbiamo &quot;iniziato a preoccuparci&quot; può essere indicato alla nostra applicazione, ad esempio da un pacchetto di networking o da un evento dall'interfaccia utente). Ciò significa che dobbiamo avere un metodo all'interno della classe <code class="docutils literal notranslate"><span class="pre">TemperatureSensor</span></code> per sovrascrivere questo observer &quot;non fare nulla&quot; di default con uno personalizzato <strong>dopo</strong> la creazione dell'istanza <code class="docutils literal notranslate"><span class="pre">TemperatureSensor</span></code>. Come ho detto, non mi piace la convenzione &quot;SetXYZ()&quot;, quindi chiamerò il metodo di registrazione <code class="docutils literal notranslate"><span class="pre">FromNowOnReportTo()</span></code> e renderò l'observer un argomento. Ecco le parti rilevanti della classe <code class="docutils literal notranslate"><span class="pre">TemperatureSensor</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TemperatureSensor</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">TemperatureObserver</span><span class="w"> </span><span class="n">_observer</span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NullObserver</span><span class="p">();</span><span class="w"> </span><span class="c1">//ignores reported values</span>
+
+<span class="w">  </span><span class="c1">//... ... ...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">FromNowOnReportTo</span><span class="p">(</span><span class="n">TemperatureObserver</span><span class="w"> </span><span class="n">observer</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_observer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">observer</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//... ... ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo ci consente di sovrascrivere l'observer corrente con uno nuovo qualora avessimo bisogno di farlo. Notare che, come ho già detto, questo è il luogo in cui l'approccio della registrazione differisce dall'approccio &quot;passaggio all'interno di un messaggio&quot;, in cui riceviamo anche un recipient [<em>destinatario</em>] in un messaggio, ma per un utilizzo immediato. Qui non utilizziamo il recipient (ovvero l'observer) quando lo otteniamo, ma lo salviamo per un uso successivo.</p>
+</section>
+<section id="communication-of-intent-optional-dependency">
+<h3>Comunicazione di intenti: dipendenza facoltativa<a class="headerlink" href="#communication-of-intent-optional-dependency" title="Link to this heading">¶</a></h3>
+<p>Consentire la registrazione dei destinatari dopo la creazione di un mittente è un modo per dire: &quot;il destinatario è facoltativo -- se ce n'è uno, va bene, altrimenti farò il mio lavoro senza di esso&quot;. Per favore, non utilizzare questo tipo di meccanismo per i destinatari <strong>richiesti</strong> -- questi dovrebbero essere tutti passati attraverso un costruttore, rendendo più difficile la creazione di oggetti non validi che sono solo parzialmente pronti a funzionare.</p>
+<p>Esaminiamo un esempio di una classe che:</p>
+<ul class="simple">
+<li><p>accetta un recipient [<em>destinatario</em>] nel suo costruttore,</p></li>
+<li><p>consente di registrare un recipient come observer,</p></li>
+<li><p>accetta un recipient per una singola chiamata al metodo</p></li>
+</ul>
+<p>Questo esempio è annotato con commenti che riassumono ciò che dicono questi tre approcci:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Sender</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//&quot;I will not work without a Recipient1&quot;</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">Sender</span><span class="p">(</span><span class="n">Recipient1</span><span class="w"> </span><span class="n">recipient1</span><span class="p">)</span><span class="w"> </span><span class="p">{...}</span>
+
+<span class="w">  </span><span class="c1">//&quot;I will do fine without Recipient2 but you</span>
+<span class="w">  </span><span class="c1">//can overwrite the default here if you are</span>
+<span class="w">  </span><span class="c1">//interested in being notified about something</span>
+<span class="w">  </span><span class="c1">//or want to customize my default behavior&quot;</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Register</span><span class="p">(</span><span class="n">Recipient2</span><span class="w"> </span><span class="n">recipient2</span><span class="p">)</span><span class="w"> </span><span class="p">{...}</span>
+
+<span class="w">  </span><span class="c1">//&quot;I need a recipient3 only here and you get to choose</span>
+<span class="w">  </span><span class="c1">//what object to give me each time you invoke </span>
+<span class="w">  </span><span class="c1">//this method on me&quot;</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DoSomethingWith</span><span class="p">(</span><span class="n">Recipient3</span><span class="w"> </span><span class="n">recipient3</span><span class="p">)</span><span class="w"> </span><span class="p">{...}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="more-than-one-observer">
+<h3>Più di un observer<a class="headerlink" href="#more-than-one-observer" title="Link to this heading">¶</a></h3>
+<p>Ora, l'API dell'observer a cui abbiamo appena dato un'occhiata ci dà la possibilità di avere un singolo observer alla volta. Quando registriamo un nuovo observer, il riferimento a quello vecchio viene sovrascritto. Questo non è molto utile nel nostro contesto, vero? Con i sensori reali, spesso desideriamo che riportino le loro misure in più punti (ad esempio, vogliamo che le misure vengano stampate sullo schermo, salvate in un database e utilizzate come parte di calcoli più complessi). Ciò si può ottenere in due modi.</p>
+<p>Il primo modo sarebbe semplicemente tenere una raccolta di observer nel sensore e aggiungere a questa raccolta ogni volta che viene registrato un nuovo osservatore:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="n">IList</span><span class="o">&lt;</span><span class="n">TemperatureObserver</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_observers</span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">TemperatureObserver</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">FromNowOnReportTo</span><span class="p">(</span><span class="n">TemperatureObserver</span><span class="w"> </span><span class="n">observer</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_observers</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">observer</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In tal caso, il reporting significherebbe ripetere l’elenco degli observer:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="p">...</span>
+<span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">observer</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">_observers</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">observer</span><span class="p">.</span><span class="n">NotifyOn</span><span class="p">(</span><span class="n">currentValue</span><span class="p">,</span><span class="w"> </span><span class="n">meanValue</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">...</span>
+</pre></div>
+</div>
+<p>L'approccio mostrato sopra colloca la politica di notifica agli observer all'interno del sensore. Molte volte questo potrebbe bastare. Tuttavia, il sensore è accoppiato alle risposte almeno alle seguenti domande:</p>
+<ul class="simple">
+<li><p>In quale ordine informiamo gli observer? Nell'esempio sopra, li informiamo secondo l'ordine di registrazione.</p></li>
+<li><p>Come gestiamo gli errori (ad esempio uno degli observer lancia un'eccezione) - smettiamo di notificare altri osservatori, o si esegue il log dell'errore e si continua, o magari facciamo qualcos'altro? Nell'esempio sopra, ci fermiamo sul primo observer che lancia un'eccezione e rilancia l'eccezione. Forse non è l'approccio migliore per il nostro caso?</p></li>
+<li><p>Il nostro modello di notifica è sincrono o asincrono? Nell'esempio sopra, stiamo utilizzando un ciclo <code class="docutils literal notranslate"><span class="pre">for</span></code> sincrono.</p></li>
+</ul>
+<p>Possiamo ottenere un po' più di flessibilità estraendo la logica di notifica in un observer separato che riceverà una notifica e la passerà ad altri observer. Possiamo chiamarlo &quot;un observer in broadcasting&quot;. L'implementazione di un tale observer potrebbe assomigliare a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">BroadcastingObserver</span>
+<span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="n">TemperatureObserver</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TemperatureObservable</span><span class="w"> </span><span class="c1">//I&#39;ll explain it in a second</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">IList</span><span class="o">&lt;</span><span class="n">TemperatureObserver</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_observers</span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">TemperatureObserver</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">FromNowOnReportTo</span><span class="p">(</span><span class="n">TemperatureObserver</span><span class="w"> </span><span class="n">observer</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_observers</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">observer</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">NotifyOn</span><span class="p">(</span>
+<span class="w">    </span><span class="n">Temperature</span><span class="w"> </span><span class="n">currentValue</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Temperature</span><span class="w"> </span><span class="n">meanValue</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">observer</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">_observers</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">observer</span><span class="p">.</span><span class="n">NotifyOn</span><span class="p">(</span><span class="n">currentValue</span><span class="p">,</span><span class="w"> </span><span class="n">meanValue</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo <code class="docutils literal notranslate"><span class="pre">BroadcastingObserver</span></code> potrebbe essere istanziato e registrato in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//instantiation:</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">broadcastingObserver</span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BroadcastingObserver</span><span class="p">();</span>
+
+<span class="p">...</span>
+<span class="c1">//somewhere else in the code...:</span>
+<span class="n">sensor</span><span class="p">.</span><span class="n">FromNowOnReportTo</span><span class="p">(</span><span class="n">broadcastingObserver</span><span class="p">);</span>
+
+<span class="p">...</span>
+<span class="c1">//somewhere else in the code...:</span>
+<span class="n">broadcastingObserver</span><span class="p">.</span><span class="n">FromNowOnReportTo</span><span class="p">(</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">DisplayingObserver</span><span class="p">())</span>
+<span class="p">...</span>
+<span class="c1">//somewhere else in the code...:</span>
+<span class="n">broadcastingObserver</span><span class="p">.</span><span class="n">FromNowOnReportTo</span><span class="p">(</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">StoringObserver</span><span class="p">());</span>
+<span class="p">...</span>
+<span class="c1">//somewhere else in the code...:</span>
+<span class="n">broadcastingObserver</span><span class="p">.</span><span class="n">FromNowOnReportTo</span><span class="p">(</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">CalculatingObserver</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>Con questo design gli altri observer si registrano presso l'observer in broadcasting. Tuttavia, non hanno realmente bisogno di sapere con chi si stanno registrando - per nasconderlo, ho introdotto un'interfaccia speciale chiamata <code class="docutils literal notranslate"><span class="pre">TemperatureObservable</span></code>, che ha il metodo <code class="docutils literal notranslate"><span class="pre">FromNowOnReportTo()</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">TemperatureObservable</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">FromNowOnReportTo</span><span class="p">(</span><span class="n">TemperatureObserver</span><span class="w"> </span><span class="n">observer</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo modo, il codice che registra un observer non ha bisogno di sapere quale sia l'oggetto concreto osservabile.</p>
+<p>L’ulteriore vantaggio di modellare il broadcasting come observer è che ci consentirebbe di modificare la politica di broadcasting senza toccare né il codice del sensore né gli altri observer. Ad esempio, potremmo sostituire il nostro observer basato su coclo <code class="docutils literal notranslate"><span class="pre">for</span></code> con qualcosa come <code class="docutils literal notranslate"><span class="pre">ParallelBroadcastingObserver</span></code> che notificherebbe a ciascuno dei suoi observerin modo asincrono anziché sequenziale. L'unica cosa che dovremmo cambiare è l'oggetto observer registrato con un sensore. Quindi invece di:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//instantiation:</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">broadcastingObserver</span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BroadcastingObserver</span><span class="p">();</span>
+
+<span class="p">...</span>
+<span class="c1">//somewhere else in the code...:</span>
+<span class="n">sensor</span><span class="p">.</span><span class="n">FromNowOnReportTo</span><span class="p">(</span><span class="n">broadcastingObserver</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Avremmo</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//instantiation:</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">broadcastingObserver</span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ParallelBroadcastingObserver</span><span class="p">();</span>
+
+<span class="p">...</span>
+<span class="c1">//somewhere else in the code...:</span>
+<span class="n">sensor</span><span class="p">.</span><span class="n">FromNowOnReportTo</span><span class="p">(</span><span class="n">broadcastingObserver</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>e il resto del codice rimarrebbe invariato. Questo perché il sensore implementa:</p>
+<ul class="simple">
+<li><p>L'interfaccia <code class="docutils literal notranslate"><span class="pre">TemperatureObserver</span></code>, da cui dipende il sensore,</p></li>
+<li><p>L'interfaccia <code class="docutils literal notranslate"><span class="pre">TemperatureObservable</span></code> da cui dipende il codice che registra gli observer.</p></li>
+</ul>
+<p>Ad ogni modo, come ho detto, usa la registrazione delle istanze in modo molto saggio e solo ce n'è specificamente bisogno. Inoltre, se lo si usa, valutare in che modo consentire la modifica degli observer in fase di esecuzione influisce sugli scenari multithreading. Questo perché una raccolta di observer potrebbe potenzialmente essere modificata da due thread contemporaneamente.</p>
+</section>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="kolskybain" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Ho ricevuto questo detto da Amir Kolsky e Scott Bain</p>
+</aside>
+<aside class="footnote brackets" id="nullfortrouble" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Certo, potremmo passare un <code class="docutils literal notranslate"><span class="pre">null</span></code> ma poi saremo noi a cercare guai.</p>
+</aside>
+<aside class="footnote brackets" id="collectionsremark" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">3</a><span class="fn-bracket">]</span></span>
+<p>Se non avete mai utilizzato collection prima e non si è un copy-editor, probabilmente si sta leggendo il libro sbagliato :-)</p>
+</aside>
+<aside class="footnote brackets" id="implementationpatterns" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">4</a><span class="fn-bracket">]</span></span>
+<p>Kent Beck, Implementation Patterns</p>
+</aside>
+<aside class="footnote brackets" id="nullobject" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">5</a><span class="fn-bracket">]</span></span>
+<p>Questo pattern ha un nome e il nome è... Null Object (sorpresa!). Questo pattern si può approfondire su http://www.cs.oberlin.edu/~jwalker/nullObjPattern/ e su http://www.cs.oberlin.edu/~jwalker/refs/woolf.ps (un documento un po' vecchio)</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#receive-as-a-constructor-parameter">Riceverlo come parametro del costruttore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#receive-inside-a-message-i-e-as-a-method-parameter">Riceverlo all'interno di un messaggio (cioè come parametro del metodo)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#receive-in-response-to-a-message-i-e-as-a-method-return-value">Riceverlo in risposta a un messaggio (ovvero come valore di ritorno del metodo)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#receive-as-a-registered-observer">Riceverlo come observer registrato</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="211_When_are_objects_composed.html" title="capitolo precedente">Quando vengono composti gli oggetti?</a></li>
+      <li>Next: <a href="213_Where_are_objects_composed.html" title="capitolo successivo">Dove vengono composti gli oggetti?</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/212_How_are_the_connections_made.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

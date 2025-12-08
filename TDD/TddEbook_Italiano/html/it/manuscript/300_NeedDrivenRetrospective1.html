@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Il test-driving ai confini di input -- una retrospettiva &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Creazione di oggetti &#34;test-driving&#34;" href="310_Test_Driving_Factories.html" />
+    <link rel="prev" title="Il test-driving ai confini di input" href="290_NeedDrivenDevelopment.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="test-driving-at-the-input-boundary-a-retrospective">
+<h1>Il test-driving ai confini di input -- una retrospettiva<a class="headerlink" href="#test-driving-at-the-input-boundary-a-retrospective" title="Link to this heading">¶</a></h1>
+<p>Sono successe molte cose nell'ultimo capitolo e sento che alcune di esse meritano un approfondimento. Lo scopo di questo capitolo è quello di fare una piccola retrospettiva di ciò che Johnny e Benjamin hanno reso &quot; test-driving&quot; una classe &quot;controller-type&quot; per il sistema di prenotazione dei treni.</p>
+<section id="outside-in-development">
+<h2>Sviluppo &quot;outside-in&quot;<a class="headerlink" href="#outside-in-development" title="Link to this heading">¶</a></h2>
+<p>Johnny e Benjamin hanno iniziato il loro sviluppo quasi interamente alla &quot;periferia&quot; del sistema, all'inizio del flusso di controllo. Questo è tipico dell’approccio &quot;outside-in&quot; dello sviluppo del software. Mi ci è voluto un po' per abituarmi. Per illustrarlo, consideriamo un sistema di tre classi, dove <code class="docutils literal notranslate"><span class="pre">Object3</span></code> dipende da <code class="docutils literal notranslate"><span class="pre">Object2</span></code> e <code class="docutils literal notranslate"><span class="pre">Object2</span></code> dipende da <code class="docutils literal notranslate"><span class="pre">Object1</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Object3 -&gt; Object2 -&gt; Object1
+</pre></div>
+</div>
+<p>Prima di adottare l'approccio &quot;outside-in&quot;, la mia abitudine era quella di iniziare con gli oggetti alla fine della catena delle dipendenze (che in genere si trovavano anche alla fine del flusso di controllo) perché avevo tutto ciò di cui avevo bisogno per eseguirli e controllarli. Osservando il grafico sopra, ho potuto sviluppare ed eseguire la logica in <code class="docutils literal notranslate"><span class="pre">Object1</span></code> perché non richiedeva dipendenze. Poi, ho potuto sviluppare <code class="docutils literal notranslate"><span class="pre">Object2</span></code> perché dipendeva da <code class="docutils literal notranslate"><span class="pre">Object1</span></code> che avevo già creato e poi avrei potuto fare lo stesso con <code class="docutils literal notranslate"><span class="pre">Object3</span></code> perché dipendeva solo da <code class="docutils literal notranslate"><span class="pre">Object2</span></code> che avevo già. In qualsiasi momento potevo eseguire tutto ciò che avevo creato fino a quel momento.</p>
+<p>L'approccio &quot;outside-in&quot; contraddiceva questa mia abitudine, perché gli oggetti da cui dovevo cominciare erano quelli che dovevano avere delle dipendenze e tali dipendenze ancora non esistevano. Guardando l'esempio sopra, dovrei iniziare con <code class="docutils literal notranslate"><span class="pre">Object3</span></code>, che non può essere istanziato senza <code class="docutils literal notranslate"><span class="pre">Object2</span></code>, il quale, a sua volta, non può essere istanziato senza <code class="docutils literal notranslate"><span class="pre">Object1</span></code>.</p>
+<p>&quot;Se sembra difficile, allora perché preoccuparsi?&quot; ci si potrebbe chiedere. Le mie ragioni sono:</p>
+<ol class="arabic simple">
+<li><p>Partendo dagli input e andando all'interno, permetto che le mie interfacce e i miei protocolli siano modellati dai casi d'uso piuttosto che dalla tecnologia sottostante. Ciò non significa che posso sempre ignorare gli aspetti tecnologici, ma considero la logica del caso d'uso la guida principale. In questo modo, i miei protocolli tendono ad essere più astratti, il che a sua volta impone una maggiore componibilità.</p></li>
+<li><p>Ogni riga di codice che introduco è lì perché il caso d'uso ne ha bisogno. Ogni metodo, ogni interfaccia e la classe esistono perché esiste già qualcuno che ne ha bisogno per adempiere ai propri obblighi. In questo modo, mi assicuro di implementare solo le cose necessarie e che siano modellate nel modo in cui gli utenti lo trovano comodo da usare. Prima di adottare questo approccio, avrei iniziato dall'interno del sistema e progettando le classi indovinando come sarebbero state utilizzate e in seguito spesso mi pentivo di queste ipotesi, a causa della rielaborazione e della complessità che avrebbero creato.</p></li>
+</ol>
+<p>Per me questi pro superano i contro. Inoltre, ho scoperto di poter mitigare la sensazione di disagio di partire dagli input (&quot;non c'è nulla che io possa eseguire completamente&quot;) con le seguenti pratiche:</p>
+<ol class="arabic simple">
+<li><p>Utilizzo del TDD con i mock -- il TDD incoraggia l'esecuzione di ogni piccola parte di codice ben prima del completamento dell'intera attività. Gli oggetti mock fungono da primi collaboratori che consentono che questa esecuzione avvenga. Per sfruttare i mock, almeno in C#, è necessario utilizzare le interfacce in modo più libero rispetto a un tipico approccio di sviluppo. Una proprietà delle interfacce è che in genere non contengono implementazione<a class="footnote-reference brackets" href="#csandjavainterfaces" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, quindi possono essere utilizzate per tagliare la catena delle dipendenze. In altre parole, mentre senza interfacce avrei bisogno di tutti e tre: <code class="docutils literal notranslate"><span class="pre">Object1</span></code>, <code class="docutils literal notranslate"><span class="pre">Object2</span></code> e <code class="docutils literal notranslate"><span class="pre">Object3</span></code> per istanziare e utilizzare <code class="docutils literal notranslate"><span class="pre">Object3</span></code>, potrei in alternativa introdurre un'interfaccia da cui dipenda <code class="docutils literal notranslate"><span class="pre">Object3</span></code> e <code class="docutils literal notranslate"><span class="pre">Object2</span></code> lo implementerebbe. Ciò mi consentirebbe di utilizzare <code class="docutils literal notranslate"><span class="pre">Object3</span></code> prima che esistano i suoi collaboratori concreti, semplicemente fornendo un oggetto mock come dipendenza.</p></li>
+<li><p>Suddividere lo &quot;scope&quot; del lavoro in parti verticali più piccole (ad esempio scenari, storie, ecc.) che possono essere implementate più velocemente di una funzionalità completa. Abbiamo avuto un assaggio di questa azione quando Johnny e Benjamin stavano sviluppando la calcolatrice in uno dei primi capitoli di questo libro.</p></li>
+<li><p>Non iniziare con uno Statement a livello di unità, ma scrivere prima a un livello superiore (ad esempio end-to-end o rispetto a un altro confine architetturale). Potrei quindi far funzionare questo Statement più grande, poi rifattorizzare gli oggetti iniziali da questo piccolo pezzo di codice funzionante. Solo dopo aver messo a punto questa struttura iniziale inizierei a utilizzare dichiarazioni a livello di unità con i mock. Questo approccio è ciò a cui mirerò alla fine, ma per questo e molti altri capitoli voglio concentrarmi sui mock e sulla progettazione object-oriented, quindi ho lasciato questa parte per dopo.</p></li>
+</ol>
+</section>
+<section id="workflow-specification">
+<h2>Specifica del flusso di lavoro<a class="headerlink" href="#workflow-specification" title="Link to this heading">¶</a></h2>
+<p>Lo Statement sul controller è un esempio di ciò che Amir Kolsky e Scott Bain chiamano Statement del flusso di lavoro<a class="footnote-reference brackets" href="#workflowspecification" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. Questo tipo di Statement descrive come una specifica unità di comportamento (nel nostro caso, un oggetto) interagisce con altre unità inviando messaggi e ricevendo risposte. Negli Statement che specificano il flusso di lavoro, documentiamo lo scopo previsto e i comportamenti della classe specificata in termini di interazione con altri ruoli nel sistema. Utilizziamo oggetti mock per svolgere questi ruoli specificando i valori restituiti di alcuni metodi e asserendo che vengano chiamati altri metodi.</p>
+<p>Ad esempio, nello Statement scritto da Johnny e Benjamin nell'ultimo capitolo, hanno descritto come reagisce una &quot;command factory&quot; quando viene richiesto un nuovo &quot;command&quot; e hanno anche asserito la chiamata al metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> del &quot;command&quot;. Quella era la descrizione di un workflow [<em>flusso di lavoro</em>].</p>
+<section id="should-i-verify-that-the-factory-got-called">
+<h3>Devo verificare che la factory sia stata chiamata?<a class="headerlink" href="#should-i-verify-that-the-factory-got-called" title="Link to this heading">¶</a></h3>
+<p>Si nota nello stesso Statement che alcune interazioni sono state verificate (usando la sintassi <code class="docutils literal notranslate"><span class="pre">.Received()</span></code>) mentre alcune erano impostate solo per restituire qualcosa. Un esempio di quest'ultimo è una factory, ad es.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationInProgress</span><span class="p">);</span><span class="err">`</span>
+</pre></div>
+</div>
+<p>Ci si potrebbe chiedere perché Johnny e Benjamin non hanno scritto qualcosa come <code class="docutils literal notranslate"><span class="pre">reservationInProgressFactory.Received().FreshInstance()</span></code> alla fine.</p>
+<p>Uno dei motivi è che una factory somiglia a una funzione -- non dovrebbe avere effetti collaterali visibili. Pertanto, chiamare la factory non è l'obiettivo del comportamento che ho specificato -- sarà sempre solo un mezzo per raggiungere un fine. Ad esempio, l'obiettivo del comportamento specificato da Johnny e Benjamin era eseguire il comando e restituirne il risultato. La factory è stata creata per rendere più facile arrivarci.</p>
+<p>Inoltre, Johnny e Benjamin hanno permesso che la factory venisse chiamata più volte durante l'implementazione senza alterare il comportamento previsto nello Statement. Ad esempio, se il codice del metodo <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code> che stavano testando non fosse simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span>
+<span class="w">  </span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>ma così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Repeated multiple times:</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+<span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+<span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+<span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span>
+<span class="w">  </span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>allora il comportamento di questo metodo sarebbe comunque corretto. Certo, farebbe del lavoro inutile, ma quando scrivo gli Statement, mi preoccupo del comportamento visibile esternamente, non delle linee di codice di produzione. Lascio più libertà all'implementazione e cerco di non specificare eccessivamente.</p>
+<p>D'altra parte, si consideri il &quot;command&quot; -- dovrebbe avere un effetto collaterale, perché mi aspetto che alla fine alteri una sorta di registro delle prenotazioni. Quindi, se invio il messaggio <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> più di una volta in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span>
+<span class="w">  </span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>allora potrebbe eventualmente alterare il comportamento -- magari riservando più posti di quelli richiesti dall'utente, magari lanciando un errore dal secondo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code>... Questo è il motivo per cui voglio specificare rigorosamente quante volte deve essere inviato il messaggio <code class="docutils literal notranslate"><span class="pre">Execute()</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">reservationCommand</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Execute</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>L'approccio alla specifica delle funzioni e degli effetti collaterali che ho descritto sopra è quello che Steve Freeman e Nat Pryce chiamano &quot;Consenti query; aspettati comandi&quot;<a class="footnote-reference brackets" href="#goos" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. Secondo la loro terminologia, la factory è una “query” -- una logica priva di effetti collaterali che restituisce un qualche tipo di risultato. Il <code class="docutils literal notranslate"><span class="pre">ReservationCommand</span></code>, d'altro canto, è un &quot;command&quot; - che non produce alcun tipo di risultato, ma causa un effetto collaterale come un cambiamento di stato o un'operazione di I/O.</p>
+</section>
+</section>
+<section id="data-transfer-objects-and-tdd">
+<h2>Oggetti di Trasferimento Dati e TDD<a class="headerlink" href="#data-transfer-objects-and-tdd" title="Link to this heading">¶</a></h2>
+<p>Osservando le strutture dati iniziali, Johnny e Benjamin le chiamarono Data Transfer Objects [<em>Oggetti di Trasferimento Dati</em>]</p>
+<p>Un Data Transfer Object è un pattern per descrivere gli oggetti responsabili dello scambio di informazioni tra processi<a class="footnote-reference brackets" href="#peaa" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>. Poiché i processi non possono realmente scambiare oggetti, lo scopo dei DTO è quello di essere serializzati in un qualche tipo di formato dati e poi trasferiti in quella forma a un altro processo che deserializza i dati. Quindi, possiamo avere DTO che rappresentano l'output che il nostro processo invia e i DTO che rappresentano l'input che il nostro processo riceve.</p>
+<p>Come visto, i DTO sono in genere solo strutture dati. Ciò potrebbe sorprendere, perché ormai da diversi capitoli ho ripetutamente sottolineato come preferisco raggruppare insieme dati e comportamento. Questo non significa violare tutti i principi che ho citato?</p>
+<p>La mia risposta a ciò sarebbe che lo scambio di informazioni tra processi è il luogo in cui i principi menzionati non si applicano e che ci sono alcune buone ragioni per cui i dati vengono scambiati tra processi.</p>
+<ol class="arabic simple">
+<li><p>È più facile scambiare dati che scambiare comportamenti. Se volessi inviare il comportamento a un altro processo, dovrei comunque inviarlo come dati, ad es. sotto forma di codice sorgente. In tal caso, l'altra parte dovrebbe interpretare il codice sorgente, fornire tutte le dipendenze, ecc., il che potrebbe essere complicato e accoppiare fortemente le implementazioni di entrambi i processi.</p></li>
+<li><p>Concordare un formato dati semplice semplifica la creazione e l'interpretazione dei dati in diversi linguaggi di programmazione.</p></li>
+<li><p>Molte volte, i confini tra i processi sono progettati allo stesso tempo come confini funzionali.e same time. In altre parole, anche se un processo inviasse dei dati a un altro, entrambi questi processi non vorrebbero eseguire lo stesso comportamento sui dati.</p></li>
+</ol>
+<p>Questi sono alcuni dei motivi per cui i processi si scambiano dati. E quando lo fanno, in genere raggruppano i dati in strutture più grandi per motivi di coerenza e prestazioni.</p>
+<section id="dtos-vs-value-objects">
+<h3>DTO e <em>oggetti valore</em><a class="headerlink" href="#dtos-vs-value-objects" title="Link to this heading">¶</a></h3>
+<p>Sebbene i DTO, analogamente agli <em>oggetti valore</em>, trasportino e rappresentino dati, il loro scopo e i vincoli di progettazione sono diversi.</p>
+<ol class="arabic simple">
+<li><p>I valori hanno una semantica di valore, cioè possono essere confrontati in base al loro contenuto. Questo è uno dei principi fondamentali del loro design. I DTO non hanno bisogno di avere una semantica di valore (se aggiungo una semantica di valore ai DTO, lo faccio perché lo trovo conveniente per qualche motivo, non perché fa parte del &quot;domain model&quot;).</p></li>
+<li><p>I DTO devono essere facilmente serializzabili e deserializzabili da qualche tipo di formato di scambio dati (ad esempio JSON o XML).</p></li>
+<li><p>I valori possono contenere comportamenti, anche piuttosto complessi (un esempio di ciò potrebbe essere il metodo <code class="docutils literal notranslate"><span class="pre">Replace()</span></code> della classe <code class="docutils literal notranslate"><span class="pre">String</span></code>), mentre i DTO tipicamente non contengono alcun comportamento.</p></li>
+<li><p>Nonostante il punto precedente, i DTO possono contenere <em>oggetti valore</em>, purché questi <em>oggetti valore</em> possano essere serializzati e deserializzati in modo affidabile senza perdita di informazioni. Gli <em>oggetti valore</em> non contengono DTO.</p></li>
+<li><p>I valori rappresentano concetti atomici e ben definiti (come testo, data, denaro), mentre i DTO funzionano principalmente come insiemi di dati.</p></li>
+</ol>
+</section>
+<section id="dtos-and-mocks">
+<h3>I DTO e i mock<a class="headerlink" href="#dtos-and-mocks" title="Link to this heading">¶</a></h3>
+<p>Come abbiamo osservato nell’esempio di Johnny e Benjamin in cui scrivono il loro primo Statement, non hanno fatto mock dei DTO. È una regola generale -- un DTO è un dato, non rappresenta un'implementazione di un protocollo astratto né beneficia del polimorfismo come fanno gli oggetti. Inoltre, in genere è molto più semplice creare un'istanza di DTO piuttosto che un suo mock. Immaginiamo di avere il seguente DTO:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">LoginDto</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">LoginDto</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">login</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">password</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Login</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">login</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">password</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Login</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Password</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Un'istanza di questa classe può essere creata digitando:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">loginDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">LoginDto</span><span class="p">(</span><span class="s">&quot;James&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;007&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Se dovessimo creare un mock, probabilmente avremmo bisogno di estrarre un'interfaccia:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ILoginDto</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Login</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Password</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e poi scrivere qualcosa del genere nel nostro Statement:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">loginDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ILoginDto</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">loginDto</span><span class="p">.</span><span class="n">Login</span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="s">&quot;James&quot;</span><span class="p">);</span>
+<span class="n">loginDto</span><span class="p">.</span><span class="n">Password</span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="s">&quot;Bond&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Non solo è più prolisso, ma non ci apporta nulla. Da qui il mio consiglio:</p>
+<p>{{keyToDo}} Non cercare di creare mock di un DTO negli Statement. Crea la cosa reale.</p>
+</section>
+<section id="creating-dtos-in-statements">
+<h3>Creazione di DTO negli Statement<a class="headerlink" href="#creating-dtos-in-statements" title="Link to this heading">¶</a></h3>
+<p>Poiché i DTO tendono a raggruppare dati, crearli per Statement specifici potrebbe essere un compito ingrato poiché a volte potrebbero esserci diversi campi che dovremmo inizializzare in ciascuno Statement. Come mi approccio alla creazione di istanze di DTO per evitare questo? Ho riassunto i miei consigli su come affrontare questo problema nell'elenco in ordine di priorità riportato di seguito:</p>
+<section id="limit-the-reach-of-your-dtos-in-the-production-code">
+<h4>1. Limit the reach of your DTOs in the production code<a class="headerlink" href="#limit-the-reach-of-your-dtos-in-the-production-code" title="Link to this heading">¶</a></h4>
+<p>Come regola generale, meno conosco sui tipi e sui metodi, meglio è. I DTO rappresentano un contratto di applicazione esterna. Sono inoltre vincolati da alcune regole menzionate in precedenza (come la facilità di serializzazione), quindi non possono evolversi allo stesso modo degli oggetti normali. Pertanto, cerco di limitare al minimo necessario il numero di oggetti che conoscono i DTO nella mia applicazione. Utilizzo una delle due strategie: wrap o mapping.</p>
+<p>Nel wrapping, ho un altro oggetto che contiene un riferimento al DTO e quindi tutti gli altri elementi logici interagiscono con questo oggetto che avvolge invece che direttamente con un DTO:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">User</span><span class="p">(</span><span class="n">userDto</span><span class="p">);</span>
+<span class="c1">//...</span>
+<span class="n">user</span><span class="p">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">resource</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Considero questo approccio più semplice ma più limitato. Trovo che mi incoraggi a modellare gli oggetti del dominio in modo simile a come sono progettati i DTO (perché un oggetto avvolge un DTO). Di solito inizio con questo approccio quando il contratto esterno è abbastanza vicino al mio modello di dominio e passo all'altra strategia -- il mapping -- quando la relazione inizia a diventare più complessa.</p>
+<p>Nel mapping, scompatto il DTO e passo parti specifiche negli oggetti del mio dominio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">User</span><span class="p">(</span>
+<span class="w">  </span><span class="n">userDto</span><span class="p">.</span><span class="n">Name</span><span class="p">,</span><span class="w"> </span>
+<span class="w">  </span><span class="n">userDto</span><span class="p">.</span><span class="n">Surname</span><span class="p">,</span><span class="w"> </span>
+<span class="w">  </span><span class="k">new</span><span class="w"> </span><span class="nf">Address</span><span class="p">(</span>
+<span class="w">    </span><span class="n">userDto</span><span class="p">.</span><span class="n">City</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="n">userDto</span><span class="p">.</span><span class="n">Street</span><span class="p">));</span>
+<span class="c1">//...</span>
+<span class="n">user</span><span class="p">.</span><span class="n">Assign</span><span class="p">(</span><span class="n">resource</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Questo approccio mi richiede di riscrivere i dati in nuovi oggetti campo per campo, ma in cambio mi lascia più spazio per modellare i miei oggetti di dominio indipendentemente dalla struttura DTO<a class="footnote-reference brackets" href="#mapperpattern" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>. Nell'esempio sopra, ho potuto introdurre un'astrazione <code class="docutils literal notranslate"><span class="pre">Address</span></code> anche se il DTO non ha un campo esplicito contenente l'indirizzo.</p>
+<p>In che modo tutto ciò mi aiuta a evitare la noiosità della creazione di DTO? Bene, meno oggetti e metodi conoscono un DTO, meno Statement dovranno conoscere, il che porta a meno posti in cui devo crearne e inizializzarne uno.</p>
+</section>
+<section id="use-constrained-non-determinism-if-you-don-t-need-specific-data">
+<h4>2. Use constrained non-determinism if you don't need specific data<a class="headerlink" href="#use-constrained-non-determinism-if-you-don-t-need-specific-data" title="Link to this heading">¶</a></h4>
+<p>In molti Statement in cui ho bisogno di creare DTO, i valori specifici contenuti al loro interno non hanno importanza per me. Mi interessa solo che <em>alcuni</em> dati siano presenti. Per situazioni come questa, mi piace usare il non-determinismo vincolato Posso semplicemente creare un'istanza anonima e utilizzarla, cosa che trovo più semplice rispetto all'assegnazione campo per campo.</p>
+<p>Ad esempio, guardiamo la seguente riga della dichiarazione che Johnny e Benjamin hanno scritto nell'ultimo capitolo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">requestDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationRequestDto</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>In quello Statement, non avevano bisogno di preoccuparsi dei valori esatti detenuti dal DTO, quindi hanno semplicemente creato un'istanza anonima. In questo caso particolare, l'utilizzo del non-determinismo vincolato non solo ha semplificato la creazione della DTO, ma ha anche permesso di disaccoppiare completamente lo Statement dalla struttura del DTO.</p>
+</section>
+<section id="use-patterns-such-as-factory-methods-or-builders">
+<h4>3. Use patterns such as factory methods or builders<a class="headerlink" href="#use-patterns-such-as-factory-methods-or-builders" title="Link to this heading">¶</a></h4>
+<p>Quando tutto il resto fallisce, utilizzo metodi factory e builder di dati di test per alleviare il lavoro della creazione di DTO per nascondere la complessità e fornire alcuni buoni valori di default per le parti che non mi interessano.</p>
+<p>Un metodo factory può essere utile se c'è un unico fattore distintivo nell'istanza particolare che desidero creare. Per esempio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">UserDto</span><span class="w"> </span><span class="nf">AnyUserWith</span><span class="p">(</span><span class="k">params</span><span class="w"> </span><span class="n">Privilege</span><span class="p">[]</span><span class="w"> </span><span class="n">privileges</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">dto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">UserDto</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="n">WithPropertyValue</span><span class="p">(</span><span class="n">user</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="n">Privileges</span><span class="p">,</span><span class="w"> </span><span class="n">privileges</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">dto</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo metodo crea qualsiasi utente con un particolare insieme di privilegi. Si noti che in questo metodo ho utilizzato anche il non-determinismo vincolato, il che mi ha risparmiato del codice di inizializzazione. Se ciò non è possibile, provo a trovare una sorta di valori &quot;predefiniti sicuri&quot; per ciascuno dei campi.</p>
+<p>Mi piacciono i metodi factory, ma maggiore è la flessibilità di cui ho bisogno, più gravito verso i builder di dati di test<a class="footnote-reference brackets" href="#natprycetestdatabuilder" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>.</p>
+<p>Un builder di dati di test è un oggetto speciale che mi consente di creare un oggetto con alcuni valori di default, ma mi consente di personalizzare la ricetta predefinita in base alla quale viene creato l'oggetto. Mi lascia molta più flessibilità nel modo in cui imposto i miei DTO. La sintassi tipica per l'utilizzo di un builder si può trovare su Internet<a class="footnote-reference brackets" href="#ploehtestdatabuilder" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a> è simile alla seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UserBuilder</span><span class="p">().</span><span class="n">WithName</span><span class="p">(</span><span class="s">&quot;Johnny&quot;</span><span class="p">).</span><span class="n">WithAge</span><span class="p">(</span><span class="s">&quot;43&quot;</span><span class="p">).</span><span class="n">Build</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Notare che il valore per ciascun campo è configurato separatamente. In genere, il builder contiene una sorta di valori di default per i campi che non specifico:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//some safe default age will be used when not specified: </span>
+<span class="kt">var</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UserBuilder</span><span class="p">().</span><span class="n">WithName</span><span class="p">(</span><span class="s">&quot;Johnny&quot;</span><span class="p">).</span><span class="n">Build</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Non mostrerò di proposito un esempio di implementazione, perché in uno dei prossimi capitoli ci sarà una discussione più lunga sui builder di dati di test.</p>
+</section>
+</section>
+</section>
+<section id="using-a-reservationinprogress">
+<h2>Usare una <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code><a class="headerlink" href="#using-a-reservationinprogress" title="Link to this heading">¶</a></h2>
+<p>Un punto controverso della progettazione nell'ultimo capitolo potrebbe essere l'utilizzo di una classe <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>. L'idea centrale di questa astrazione è raccogliere i dati necessari per produrre un risultato. Per introdurre questo oggetto avevamo bisogno di una factory separata, il che ha reso il design più complesso. Pertanto, alcune domande potrebbero sorgere:</p>
+<ol class="arabic simple">
+<li><p>Cos'è esattamente <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>?</p></li>
+<li><p>la <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> è davvero necessaria e, in caso contrario, quali sono le alternative?</p></li>
+<li><p>È necessaria una factory separata per <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>?</p></li>
+</ol>
+<p>Proviamo a rispondere.</p>
+<section id="what-exactly-is-reservationinprogress">
+<h3>Cos'è esattamente <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>?<a class="headerlink" href="#what-exactly-is-reservationinprogress" title="Link to this heading">¶</a></h3>
+<p>Come accennato in precedenza, l'intento di questo oggetto è quello di raccogliere informazioni sull'elaborazione di un comando, in modo che l'emittente del comando (nel nostro caso, un oggetto controller) possa agire su tali informazioni (ad esempio utilizzarle per creare una risposta) alla fine dell'elaborazione. Parlando nel linguaggio dei pattern, questa è un'implementazione di un pattern Collecting Parameter<a class="footnote-reference brackets" href="#collectingparameter" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a>.</p>
+<p>C'è una cosa che faccio spesso, ma non ho messo l'esempio per ragioni di semplicità. Quando implemento un &quot;collecting parameter&quot;, in genere lo faccio implementando due interfacce -- una più stretta e l'altra -- più ampia. Lasciate che lo mostri:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationInProgress</span>
+<span class="p">{</span>
+<span class="w">   </span><span class="k">void</span><span class="w"> </span><span class="nf">Success</span><span class="p">(</span><span class="n">SomeData</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
+<span class="w">   </span><span class="c1">//... methods for reporting other events</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationInProgressMakingReservationDto</span><span class="w"> </span>
+<span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="n">ReservationInProgress</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">ToDto</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il punto è che solo chi ha emesso il comando può vedere l'interfaccia più ampia (<code class="docutils literal notranslate"><span class="pre">ReservationInProgressMakingReservationDto</span></code>) e quando passa questa interfaccia lungo la catena di chiamate, l'oggetto successivo vede solo i metodi per segnalare eventi (<code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>). In questo modo, l’interfaccia più ampia può anche essere legata a una tecnologia specifica, a meno che quella più stretta non lo sia. Ad esempio, se avessi bisogno di una risposta tramite stringa JSON, potrei fare qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationInProgressMakingReservationJson</span>
+<span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="n">ReservationInProgress</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="nf">ToJsonString</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e solo l'emittente del comando (nel nostro caso, l'oggetto controller) ne sarebbe a conoscenza. Il resto delle classi che utilizzano l'interfaccia più ristretta interagirebbero felicemente con essa senza mai sapere che è destinata a produrre un output JSON.</p>
+</section>
+<section id="is-reservationinprogress-necessary">
+<h3>È necessario <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>?<a class="headerlink" href="#is-reservationinprogress-necessary" title="Link to this heading">¶</a></h3>
+<p>In breve -- no, anche se lo trovo utile. Esistono diversi design alternativi.</p>
+<p>Prima di tutto, potremmo decidere di ritornare dal metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> del comando. Quindi, il comando sarebbe simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationCommand</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">Execute</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ciò farebbe il lavoro per l'attività in questione, ma farebbe sì che <code class="docutils literal notranslate"><span class="pre">ReservationCommand</span></code> infranga il principio di separazione comando-query, che mi piace sostenere il più possibile. Inoltre, l'interfaccia <code class="docutils literal notranslate"><span class="pre">ReservationCommand</span></code> diventerebbe molto meno riutilizzabile. Se la nostra applicazione dovesse supportare diversi comandi, ciascuno dei quali restituisse un diverso tipo di risultato, non potremmo avere un'unica interfaccia per tutti. Ciò, a sua volta, renderebbe più difficile decorare i comandi utilizzando il pattern decorator. Potremmo provare a risolvere questo problema rendendo il comando generico:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationCommand</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="nf">Execute</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>ma questo lascia ancora una distinzione tra comandi <code class="docutils literal notranslate"><span class="pre">void</span></code> e non-<code class="docutils literal notranslate"><span class="pre">void</span></code>  (che alcune persone risolvono parametrizzando i potenziali comandi <code class="docutils literal notranslate"><span class="pre">void</span></code> con <code class="docutils literal notranslate"><span class="pre">bool</span></code> e restituendo sempre <code class="docutils literal notranslate"><span class="pre">true</span></code> alla fine).</p>
+<p>La seconda opzione per evitare un &quot;collecting parameter&quot; sarebbe semplicemente quella di lasciare che il comando venga eseguito e poi ottenere il risultato interrogando lo stato che è stato modificato dal comando (analogamente a un comando, una query può essere un oggetto separato). Il codice di <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code> sarebbe simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_idGenerator</span><span class="p">.</span><span class="n">GenerateId</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_factory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span>
+<span class="w">  </span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationId</span><span class="p">);</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationQuery</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_factory</span><span class="p">.</span><span class="n">CreateReservationQuery</span><span class="p">(</span><span class="n">reservationId</span><span class="p">);</span>
+
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">reservationQuery</span><span class="p">.</span><span class="n">Make</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Notare che in questo caso non c'è niente come &quot;risultato in corso&quot;, ma d'altra parte dobbiamo generare l'id per il comando, poiché la query deve utilizzare lo stesso id. Questo approccio potrebbe interessare se:</p>
+<ol class="arabic simple">
+<li><p>Non importa che se si memorizzano le modifiche in un database o in un servizio esterno, la logica potrebbe doverlo chiamare due volte -- una volta durante il comando e un'altra durante la query.</p></li>
+<li><p>Lo stato modificato dal comando è interrogabile (ovvero una potenziale API di destinazione per i dati consente di eseguire sia comandi che query sui dati). Non è sempre scontato.</p></li>
+</ol>
+<p>Ci sono altre opzioni, ma vorrei fermarmi qui perché questa non è la preoccupazione principale di questo libro.</p>
+</section>
+<section id="do-we-need-a-separate-factory-for-reservationinprogress">
+<h3>Abbiamo bisogno di una factory separata per <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>?<a class="headerlink" href="#do-we-need-a-separate-factory-for-reservationinprogress" title="Link to this heading">¶</a></h3>
+<p>Questa domanda può essere suddivisa in due parti:</p>
+<ol class="arabic simple">
+<li><p>Possiamo usare la stessa factory dei comandi?</p></li>
+<li><p>Abbiamo davvero bisogno di una factory?</p></li>
+</ol>
+<p>La risposta alla prima è: dipende da cosa è accoppiato <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>. In questo esempio specifico, si tratta semplicemente di creare un DTO da restituire al client. In tal caso, non è necessaria alcuna conoscenza del framework utilizzato per eseguire l'applicazione. Questa mancanza di accoppiamento al framework mi consentirebbe di collocare la creazione di <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> nella stessa factory. Tuttavia, se questa classe avesse bisogno di decidere, ad es. codici di stato HTTP o creare risposte richieste da un framework specifico o in un formato specificato (ad esempio JSON o XML), allora opterei, come hanno fatto Johnny e Benjamin, per separarlo dalla factory dei &quot;command&quot;. Questo perché la &quot;command factory&quot; appartiene al mondo della logica applicativa e voglio che la logica della mia applicazione sia indipendente dal framework, dai protocolli di trasporto e dai formati dei payload usati.</p>
+<p>La risposta alla seconda domanda (se abbiamo davvero bisogno di una factory) è: dipende se interessa specificare il comportamento del controller a livello di unità. Se sì, allora potrebbe essere utile avere una factory per controllare la creazione di <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>. Se non interessa (ad esempio, si guida questa logica con una specifica di livello superiore, di cui parleremo in una delle parti successive), si può decidere semplicemente di creare l'oggetto all'interno del metodo controller o anche di creare il controller stesso che implementa l'interfaccia <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> (anche se, se lo si facesse, ci si dovrebbe assicurare che una singola istanza del controller non sia condivisa tra più richieste, poiché conterrebbe uno stato mutabile).</p>
+<section id="should-i-specify-the-controller-behavior-on-the-unit-level">
+<h4>Devo specificare il comportamento del controller a livello di unità?<a class="headerlink" href="#should-i-specify-the-controller-behavior-on-the-unit-level" title="Link to this heading">¶</a></h4>
+<p>Come ho già detto, dipende dalle proprie scelte. Poiché i controller spesso fungono da adattatori tra un framework e la logica dell'applicazione, sono vincolati dal framework e quindi non ha molto valore nel guidare la loro progettazione con istruzioni a livello di unità. Potrebbe essere più accurato dire che questi Statement sono più vicini alle <em>Specifiche di integrazione</em> perché spesso descrivono come l'applicazione è integrata in un framework.</p>
+<p>Un'alternativa alla specifica dell'integrazione a livello &quot;unit&quot; potrebbe essere quella di guidarla con Statement di livello superiore (di cui parlerò in dettaglio nelle prossime parti di questo libro). Ad esempio, potrei scrivere uno Statement che descrive come funziona la mia applicazione end-to-end, poi scrivere il codice di un controller (o un altro adattatore del framework) senza uno Statement  a livello di unità dedicata e quindi utilizzare Statement a livello di unità per guidare la logica dell'applicazione. Quando lo Statement end-to-end passa, significa che l'integrazione che il mio controller avrebbe dovuto fornire funziona.</p>
+<p>Ci sono alcuni prerequisiti per questo approccio al lavoro, ma li tratterò quando parlerò degli Statement di livello superiore nelle parti successive di questo libro.</p>
+</section>
+</section>
+</section>
+<section id="interface-discovery-and-the-sources-of-abstractions">
+<h2>Scoperta dell'interfaccia e sorgenti di astrazioni<a class="headerlink" href="#interface-discovery-and-the-sources-of-abstractions" title="Link to this heading">¶</a></h2>
+<p>Come promesso, il capitolo precedente includeva alcune scoperte sull'interfaccia, anche se non era un modo tipico di applicare questo approccio. Questo perché, come ho accennato, l'obiettivo dello Statement era quello di descrivere l'integrazione tra il framework e il codice dell'applicazione. Tuttavia, la stesura dello Statement ha permesso a Johnny e Benjamin di scoprire di cosa ha bisogno il loro controller dall'applicazione per trasmetterle tutti i dati necessari e ottenere il risultato senza violare il principio di separazione comando-query.</p>
+<p>Le diverse astrazioni a cui Johnny ha dato vita sono state guidate da:</p>
+<ul class="simple">
+<li><p>il suo bisogno di convertirsi a uno stile di programmazione diverso (principio di separazione comandi-query, &quot;tell, don't ask&quot;...),</p></li>
+<li><p>la sua conoscenza dei &quot;design pattern&quot;,</p></li>
+<li><p>la sua esperienza con problemi simili.</p></li>
+</ul>
+<p>Se gli fossero mancate queste cose, probabilmente avrebbe scritto la cosa più semplice che gli sarebbe venuta in mente e poi avrebbe cambiato il progetto dopo averne appreso di più.</p>
+</section>
+<section id="do-i-need-all-of-this-to-do-tdd">
+<h2>Ho bisogno di tutto questo per fare TDD?<a class="headerlink" href="#do-i-need-all-of-this-to-do-tdd" title="Link to this heading">¶</a></h2>
+<p>L'ultimo capitolo potrebbe aver lasciato un po' di confusione. Se ci si sta chiedendo se è necessario utilizzare controller, &quot;collecting parameter&quot;, comandi e factory per eseguire TDD, la mia risposta è <em>non necessariamente</em>. Inoltre, ci sono molti dibattiti su Internet se questi particolari pattern siano quelli giusti da usare e anche a me non piace usare controller con problemi come questo (anche se l'ho usato perché è ciò che molti framework web offrono come scelta di default).</p>
+<p>Avevo bisogno di tutto questo per creare un esempio che somigliasse a un problema della vita reale. La lezione più importante, tuttavia, è che, mentre prendere le decisioni di progettazione dipendeva dalla conoscenza e dall'esperienza di Johnny e Benjamin, scrivere il codice dello Statement prima dell'implementazione <em>informava</em> queste decisioni di progettazione, aiutandoli a distribuire le responsabilità tra gli oggetti che collaboravano.</p>
+</section>
+<section id="what-s-next">
+<h2>Qual è il prossimo?<a class="headerlink" href="#what-s-next" title="Link to this heading">¶</a></h2>
+<p>Si spera che questo capitolo abbia collegato tutti i punti mancanti dell'ultimo. Il prossimo capitolo si concentrerà sulla creazione di &quot;oggetti test-driving&quot;.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="csandjavainterfaces" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>sebbene sia C# che Java nelle loro versioni attuali consentano di inserire la logica nelle interfacce. Tuttavia, a causa delle convenzioni e di alcuni vincoli, le interfacce in questi linguaggi sono ancora considerate come esseri senza implementazione.</p>
+</aside>
+<aside class="footnote brackets" id="workflowspecification" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>http://www.sustainabletdd.com/2012/02/testing-best-practices-test-categories.html</p>
+</aside>
+<aside class="footnote brackets" id="goos" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Steve Freeman, Nat Pryce, Growing Object Oriented Software Guided By Tests</p>
+</aside>
+<aside class="footnote brackets" id="peaa" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Patterns of Enterprise Application Architecture, Martin Fowler</p>
+</aside>
+<aside class="footnote brackets" id="mapperpattern" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<p>https://martinfowler.com/eaaCatalog/mapper.html</p>
+</aside>
+<aside class="footnote brackets" id="natprycetestdatabuilder" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
+<p>http://www.natpryce.com/articles/000714.html</p>
+</aside>
+<aside class="footnote brackets" id="ploehtestdatabuilder" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">7</a><span class="fn-bracket">]</span></span>
+<p>https://blog.ploeh.dk/2017/08/15/test-data-builders-in-c/</p>
+</aside>
+<aside class="footnote brackets" id="collectingparameter" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">8</a><span class="fn-bracket">]</span></span>
+<p>https://wiki.c2.com/?CollectingParameter</p>
+</aside>
+<aside class="footnote brackets" id="walkingskeleton" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></span>
+<p>https://wiki.c2.com/?WalkingSkeleton</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Il test-driving ai confini di input -- una retrospettiva</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#outside-in-development">Sviluppo &quot;outside-in&quot;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-specification">Specifica del flusso di lavoro</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-transfer-objects-and-tdd">Oggetti di Trasferimento Dati e TDD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-a-reservationinprogress">Usare una <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interface-discovery-and-the-sources-of-abstractions">Scoperta dell'interfaccia e sorgenti di astrazioni</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#do-i-need-all-of-this-to-do-tdd">Ho bisogno di tutto questo per fare TDD?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-s-next">Qual è il prossimo?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="290_NeedDrivenDevelopment.html" title="capitolo precedente">Il test-driving ai confini di input</a></li>
+      <li>Next: <a href="310_Test_Driving_Factories.html" title="capitolo successivo">Creazione di oggetti &quot;test-driving&quot;</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/300_NeedDrivenRetrospective1.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Test-first [Testare prima] utilizzando oggetti mock &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Il test-driving ai confini di input" href="290_NeedDrivenDevelopment.html" />
+    <link rel="prev" title="Oggetti Mock come strumento di test" href="270_Mock_Objects.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="test-first-using-mock-objects">
+<h1>Test-first  [<em>Testare prima</em>] utilizzando oggetti mock<a class="headerlink" href="#test-first-using-mock-objects" title="Link to this heading">¶</a></h1>
+<p>Ora che abbiamo visto i mock in azione e li abbiamo inseriti nel contesto di uno specifico approccio di progettazione, vorrei mostrare come vengono utilizzati gli oggetti mock quando si impiega l'approccio &quot;test-first&quot;. Per fare ciò, ripeterò l'esempio dell'ultimo capitolo. Ho già menzionato come questo esempio non sia particolarmente forte in termini di dimostrazione del potere degli oggetti mock, quindi non mi ripeterò qui. Nel prossimo capitolo farò un esempio che ritengo più adatto.</p>
+<section id="how-to-start-with-mock-objects">
+<h2>Come iniziare? -- con gli oggetto mock<a class="headerlink" href="#how-to-start-with-mock-objects" title="Link to this heading">¶</a></h2>
+<p>Probabilmente si ricorda il capitolo &quot;Come iniziare?&quot; dalla prima parte di questo libro. In quel capitolo, ho descritto i seguenti modi per iniziare a scrivere uno Statement prima che l'effettiva implementazione sia in atto:</p>
+<ol class="arabic simple">
+<li><p>Iniziare con un buon nome.</p></li>
+<li><p>Iniziare riempiendo la struttura GIVEN-WHEN-THEN con l'ovvio.</p></li>
+<li><p>Iniziare dalla fine.</p></li>
+<li><p>Iniziare invocando un metodo se c'è.</p></li>
+</ol>
+<p>Praticamente tutte queste strategie funzionano altrettanto bene con gli Statement che utilizzano oggetti mock, quindi non li descriverò nuovamente in dettaglio. In questo capitolo mi concentrerò su una delle strategie: &quot;Iniziare invocando un metodo se c'è&quot; poiché è quella che utilizzo più spesso.
+In this chapter, I will focus on one of the strategies: &quot;Start by invoking a method if you have one&quot; as it's the one I use most often. Ciò è dovuto non solo alla mia scelta di utilizzare oggetti mock, ma anche allo stile di sviluppo che tendo ad utilizzare. Questo stile si chiama “outside-in” e tutto quello che dobbiamo sapere al riguardo, per ora, è che seguirlo significa iniziare lo sviluppo dagli input del sistema e terminare sugli output. Alcuni potrebbero considerarlo controintuitivo in quanto significa che scriveremo classi collaborando con classi che ancora non esistono. Ne darò un piccolo assaggio (insieme a una tecnica chiamata &quot;interface discovery&quot;) in questo capitolo e approfondirò queste idee nel prossimo.</p>
+</section>
+<section id="responsibility-and-responsibility">
+<h2>Responsabilità e Responsabilità<a class="headerlink" href="#responsibility-and-responsibility" title="Link to this heading">¶</a></h2>
+<p>In questo capitolo utilizzerò due concetti che, sfortunatamente, condividono lo stesso nome: &quot;responsabilità&quot;. Un significato di responsabilità era <a class="reference external" href="http://www.wirfs-brock.com/PDFs/PrinciplesInPractice.pdf">coniato da Rebecca Wirfs-Brock</a> nel senso di &quot;un obbligo di svolgere un compito o di conoscere determinate informazioni&quot;, e l'altro da Robert C. Martin per indicare &quot;un motivo per cambiare&quot;. Per evitare questa ambiguità, in questo capitolo cercherò di chiamare il primo &quot;obbligo&quot; e il secondo &quot;scopo&quot;.</p>
+<p>La relazione tra i due può essere descritta dalle seguenti frasi:</p>
+<ol class="arabic simple">
+<li><p>Una classe ha degli obblighi nei confronti dei propri clienti.</p></li>
+<li><p>Gli obblighi sono ciò che la classe “promette” di fare per i propri clienti.</p></li>
+<li><p>La classe non deve adempiere agli obblighi da sola. In genere, lo fa con l'aiuto di altri oggetti -- i suoi collaboratori. Tali collaboratori, a loro volta, hanno i loro obblighi e collaboratori.</p></li>
+<li><p>Ciascuno dei collaboratori ha il suo scopo - un ruolo nell'adempimento dell'obbligo principale. La finalità risulta dalla scomposizione dell'obbligazione principale.</p></li>
+</ol>
+</section>
+<section id="channel-and-datadispatch-one-more-time">
+<h2>Channel e DataDispatch ancora una volta<a class="headerlink" href="#channel-and-datadispatch-one-more-time" title="Link to this heading">¶</a></h2>
+<p>Ricordate l'esempio dell'ultimo capitolo? Immaginiamo di trovarci in una situazione in cui abbiamo già la classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, ma la sua implementazione è vuota -- dopo tutto, questo è ciò che testeremo.</p>
+<p>Quindi per ora la classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> appare così</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataDispatch</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTo</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Da dove ho preso questa lezione in questa forma? Bene, supponiamo per ora che io sia nel mezzo dello sviluppo e che questa lezione sia il risultato delle mie precedenti attività TDD (dopo aver letto questo e il prossimo capitolo, spero che avrete un'idea più chiara di come funziona).</p>
+</section>
+<section id="the-first-behavior">
+<h2>Il primo comportamento<a class="headerlink" href="#the-first-behavior" title="Link to this heading">¶</a></h2>
+<p>Un ciclo TDD inizia con uno Statement falso. Quale comportamento dovrebbe descrivere? Non ne sono ancora sicuro, ma, dato che conosco già la classe che avrà i comportamenti che voglio specificare, inoltre ha un solo metodo (<code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code>), posso scrivere quasi alla cieca una dichiarazione in cui crea un oggetto di questa classe e invoca il metodo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldXXXXXXXXXYYY</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO give a better name</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">();</span><span class="w"> </span><span class="c1">//TODO doesn&#39;t compile</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span><span class="w"> </span><span class="c1">//TODO state expectations</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare diverse cose:</p>
+<ol class="arabic simple">
+<li><p>Attualmente sto usando un nome fittizio per l'istruzione e ho aggiunto un elemento TODO alla mia lista per correggerlo in seguito, quando definirò lo scopo e il comportamento di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>.</p></li>
+<li><p>Secondo la sua firma, il metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code> accetta un argomento, ma non ne ho fornito alcuno nello Statement. Per ora, non voglio pensarci troppo, voglio solo scartare tutto quello che so.</p></li>
+<li><p>La sezione <code class="docutils literal notranslate"><span class="pre">//THEN</span></code> è vuota per ora: contiene una sola asserzione progettata per fallire quando il flusso di esecuzione la raggiunge (in questo modo mi proteggo dal rendere erroneamente vera l'istruzione finché non dichiaro le mie reali aspettative). Definirò la sezione <code class="docutils literal notranslate"><span class="pre">//THEN</span></code> una volta capito qual è lo scopo che voglio dare a questa classe e il comportamento che voglio specificare.</p></li>
+<li><p>Se si ricorda l'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> dell'ultimo capitolo, si immagini che non esista ancora e che non sappia nemmeno se ne avrò bisogno. Lo &quot;scoprirò&quot; più tardi.</p></li>
+</ol>
+<section id="leaning-on-the-compiler">
+<h3>Appoggiarsi al compilatore<a class="headerlink" href="#leaning-on-the-compiler" title="Link to this heading">¶</a></h3>
+<p>Quindi ho fatto il &quot;brain dump&quot;. Cosa faccio ora? Non voglio ancora pensarci troppo (verrà il momento per quello). Innanzitutto, chiedo il feedback al mio compilatore -- forse può darmi qualche suggerimento su cosa mi manca?</p>
+<p>Attualmente, il compilatore si lamenta del fatto che invoco il metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code> senza passare alcun argomento. Qual è il nome dell'argomento? Mentre cerco la firma del metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code>, sembra che il nome sia <code class="docutils literal notranslate"><span class="pre">data</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTo</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Hmm, se sono i dati che vuole, allora passiamo alcuni dati. Non voglio ancora decidere di cosa si tratta, quindi mi comporterò <em>come se avessi</em> una variabile chiamata <code class="docutils literal notranslate"><span class="pre">data</span></code> e scriverò semplicemente il suo nome dove è previsto l'argomento:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldXXXXXXXXXYYY</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO give a better name</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"> </span><span class="c1">//TODO still doesn&#39;t compile</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span><span class="w"> </span><span class="c1">//TODO state expectations</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il compilatore mi fornisce ulteriori feedback -- dice che la mia variabile <code class="docutils literal notranslate"><span class="pre">data</span></code> non è definita. Potrebbe sembrare strano (come se non lo sapessi!), ma in questo modo faccio un ulteriore passo avanti. Ora so che devo definire questi <code class="docutils literal notranslate"><span class="pre">data</span></code>. Posso utilizzare una funzionalità di &quot;soluzione rapida&quot; del mio IDE per introdurre una variabile. Per esempio. negli IDE Jetbrains (IntelliJ IDEA, Resharper, Rider...) questo può essere fatto premendo <code class="docutils literal notranslate"><span class="pre">ALT</span></code> <code class="docutils literal notranslate"><span class="pre">+</span></code> <code class="docutils literal notranslate"><span class="pre">ENTER</span></code> quando il cursore si trova sul nome della variabile mancante. L'IDE creerà la seguente dichiarazione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Notare che l'IDE ha indovinato il tipo di variabile. Come faceva a saperlo? Perché la definizione del metodo a cui provo a passarlo ha già il tipo dichiarato:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTo</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Naturalmente, la dichiarazione di <code class="docutils literal notranslate"><span class="pre">data</span></code> che il mio IDE ha inserito nel codice non verrà comunque compilata perché C# richiede che le variabili siano inizializzate esplicitamente. Quindi il codice dovrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="cm">/* whatever initialization code*/</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="turning-the-brain-on-what-about-data">
+<h3>Accendere il cervello -- che dire dei dati?<a class="headerlink" href="#turning-the-brain-on-what-about-data" title="Link to this heading">¶</a></h3>
+<p>Sembra che non possa più continuare la mia parata da cervello morto. Per decidere come definire questi dati, devo attivare i miei processi mentali e decidere qual è esattamente l'obbligo del metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code> e a cosa servono i <code class="docutils literal notranslate"><span class="pre">data</span></code>. Dopo averci pensato un po', decido che l'applicazione dell'invio dei dati dovrebbe inviare i dati che riceve. Ma... dovrebbe fare tutto il lavoro, o magari delegare alcune parti? Esistono almeno due sotto-task associati all'invio dei dati:</p>
+<ol class="arabic simple">
+<li><p>La logica dell'invio non elaborato (disposizione dei dati, push ad esempio attraverso un socket web, ecc.)</p></li>
+<li><p>Gestire la durata della connessione per tutto il ciclo di vita (decidere quando aprirla e quando chiuderla, smaltire tutte le risorse allocate, anche a fronte di un'eccezione che può verificarsi durante l'invio).</p></li>
+</ol>
+<p>Decido di non inserire l'intera logica nella classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> perché:</p>
+<ol class="arabic simple">
+<li><p>Avrebbe più di uno scopo (come descritto in precedenza) -- in altre parole, violerebbe il principio di responsabilità unica.</p></li>
+<li><p>Sono mentalmente incapace di capire come scrivere una dichiarazione falsa per così tanta logica prima dell'implementazione. Lo considero sempre un segno che sto cercando di caricare troppo peso su una singola classe<a class="footnote-reference brackets" href="#nextchapterdiscovery" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p></li>
+</ol>
+</section>
+<section id="introducing-a-collaborator">
+<h3>Introduzione di un collaboratore<a class="headerlink" href="#introducing-a-collaborator" title="Link to this heading">¶</a></h3>
+<p>Decido quindi di dividere e conquistare, cioè trovare a <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> dei collaboratori che lo aiutino a raggiungere il suo obiettivo e delegare loro parti della logica. Dopo alcune considerazioni, concludo che lo scopo di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> dovrebbe essere la gestione della durata della connessione. Per il resto della logica decido di delegare ad un collaboratore il ruolo che chiamo <code class="docutils literal notranslate"><span class="pre">Channel</span></code>. Il processo di definizione dei ruoli del collaboratore e di delega a loro parte degli obblighi specificati della classe è chiamato <em>interface discovery</em>.</p>
+<p>Ad ogni modo, poiché il mio <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> delegherà una parte della logica al <code class="docutils literal notranslate"><span class="pre">Channel</span></code>, deve saperlo. Quindi collegherò questo nuovo collaboratore a <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>. Un <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> non funzionerà senza un <code class="docutils literal notranslate"><span class="pre">Channel</span></code>, il che significa che devo passare il canale a <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> come parametro del costruttore. Sono tentato di dimenticare il TDD, basta andare all'implementazione di questo costruttore e aggiungere lì un parametro, ma resisto. Come al solito, inizio le mie modifiche dallo Statement. Pertanto, modifico il seguente codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span><span class="w"> </span><span class="c1">//doesn&#39;t compile</span>
+</pre></div>
+</div>
+<p>Utilizzo una variabile <code class="docutils literal notranslate"><span class="pre">channel</span></code> <em>come se</em> fosse già definita nel corpo dell'istruzione e <em>come se</em> il costruttore la richiedesse già. Naturalmente, nessuna di queste è ancora vera. Questo porta il mio compilatore a darmi più errori di compilazione. Per me, questa è una preziosa fonte di feedback di cui ho bisogno per progredire ulteriormente. La prima cosa che il compilatore mi dice di fare è introdurre una variabile <code class="docutils literal notranslate"><span class="pre">channel</span></code>. Ancora una volta, utilizzo il mio IDE per generarla. Questa volta, però, il risultato della generazione è:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">object</span><span class="w"> </span><span class="n">channel</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>L'IDE non è riuscito a indovinare il tipo corretto di <code class="docutils literal notranslate"><span class="pre">channel</span></code> (che sarebbe <code class="docutils literal notranslate"><span class="pre">Channel</span></code>) e lo ha reso un <code class="docutils literal notranslate"><span class="pre">object</span></code>, perché non ho ancora creato il tipo <code class="docutils literal notranslate"><span class="pre">Channel</span></code>.</p>
+<p>Innanzitutto, introdurrò l'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> modificando la dichiarazione <code class="docutils literal notranslate"><span class="pre">object</span> <span class="pre">channel;</span></code> in <code class="docutils literal notranslate"><span class="pre">Channel</span> <span class="pre">channel;</span></code>. Questo mi darà un altro errore di compilazione, poiché il tipo <code class="docutils literal notranslate"><span class="pre">Channel</span></code> non esiste. Per fortuna, crearlo è solo a un clic dall'IDE (ad esempio in Resharper, posiziono il cursore sul tipo inesistente, premo <code class="docutils literal notranslate"><span class="pre">ALT</span></code> <code class="docutils literal notranslate"><span class="pre">+</span></code> <code class="docutils literal notranslate"><span class="pre">ENTER</span></code> e scelgo un'opzione per crearlo come interfaccia). Fare questo mi darà:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Channel</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>che è sufficiente per superare questo particolare errore del compilatore, ma poi ne ottengo un altro -- alla variabile <code class="docutils literal notranslate"><span class="pre">channel</span></code> non è assegnato nulla. Ancora una volta, devo riaccendere il cervello. Fortunatamente, questa volta posso appoggiarmi a una regola semplice: nel mio progetto, <code class="docutils literal notranslate"><span class="pre">Channel</span></code> è un ruolo e, come accennato nell'ultimo capitolo, utilizzo dei mock per interpretare i ruoli dei miei collaboratori. Quindi la conclusione è usare un mock. Applicando questa regola, cambio la seguente riga:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Channel</span><span class="w"> </span><span class="n">channel</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>L'ultimo errore del compilatore da risolvere per introdurre completamente il collaboratore <code class="docutils literal notranslate"><span class="pre">Channel</span></code> è fare in modo che il costruttore <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> accetti il canale come argomento. Per ora <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> utilizza un costruttore implicito senza parametri. Ne genero uno nuovo, ancora una volta, utilizzando il mio IDE. Vado nel punto in cui viene chiamato il costruttore con il canale come argomento e dico al mio IDE di correggere la firma del costruttore in base a questo utilizzo. In questo modo ottengo un codice costruttore all'interno della classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">DataDispatch</span><span class="p">(</span><span class="n">Channel</span><span class="w"> </span><span class="n">channel</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che il costruttore non fa ancora nulla con il canale. Potrei creare un nuovo campo e assegnargli il canale, ma non ho ancora bisogno di farlo, quindi decido che posso aspettare ancora un po'.</p>
+<p>Analizzando il mio Statement, attualmente ho:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldXXXXXXXXXYYY</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO give a better name</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="c1">// does not compile yet</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span><span class="w"> </span><span class="c1">//TODO state expectations</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo modo, ho definito un collaboratore <code class="docutils literal notranslate"><span class="pre">Channel</span></code> e l'ho introdotto prima nel mio Statement e poi nel codice di produzione.</p>
+</section>
+<section id="specifying-expectations">
+<h3>Specificare le expectation [<em>aspettative</em>]<a class="headerlink" href="#specifying-expectations" title="Link to this heading">¶</a></h3>
+<p>Il compilatore e la mia lista TODO sottolineano che ho ancora tre compiti da svolgere per l'attuale Statement:</p>
+<ul class="simple">
+<li><p>definire la variabile <code class="docutils literal notranslate"><span class="pre">data</span></code>,</p></li>
+<li><p>dare un nome allo Statement e</p></li>
+<li><p>dichiarare le mie aspettative (la sezione <code class="docutils literal notranslate"><span class="pre">THEN</span></code> dello Statement)</p></li>
+</ul>
+<p>Posso eseguirli nell'ordine che ritengo opportuno, quindi scelgo l'ultima attività dall'elenco - indicando il comportamento previsto.</p>
+<p>Per specificare cosa ci si aspetta da <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, devo rispondere a quattro domande:</p>
+<ol class="arabic simple">
+<li><p>Quali sono gli obblighi di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>?</p></li>
+<li><p>Qual è lo scopo di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>?</p></li>
+<li><p>Chi sono i collaboratori che hanno bisogno di ricevere messaggi da <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>?</p></li>
+<li><p>Qual è il comportamento di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> che devo specificare?</p></li>
+</ol>
+<p>Le mie risposte a queste domande sono:</p>
+<ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> è obbligato a inviare i dati finché sono validi. In caso di dati non validi, genera un'eccezione. Sono due comportamenti. Poiché specifico un solo comportamento per Statement, devo sceglierne uno. Scelgo il primo (che d'ora in poi chiamerò &quot;il sentiero felice&quot;), aggiungendo il secondo alla mia lista delle cose da fare:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//TODO: specify a behavior where sending data</span>
+<span class="c1">//      through a channel raises an exception</span>
+</pre></div>
+</div>
+</li>
+<li><p>Lo scopo di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> è gestire la durata della connessione durante l'invio dei dati ricevuti tramite il metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code>. Mettendolo insieme alla risposta all'ultima domanda, quello che dovrei specificare è come <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> gestisce questa vita durante lo scenario del &quot;percorso felice&quot;. Il resto della logica di cui ho bisogno per adempiere all'obbligo di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> non rientra nell'ambito del presente Statement poiché ho deciso di spingerla ai collaboratori.</p></li>
+<li><p>Ho già definito un collaboratore e l'ho chiamato <code class="docutils literal notranslate"><span class="pre">Channel</span></code>. Come accennato nell'ultimo capitolo, negli Statement a livello di unità, riempio i ruoli dei miei collaboratori con mock e specifico quali messaggi dovrebbero ricevere. Pertanto, so che la sezione <code class="docutils literal notranslate"><span class="pre">THEN</span></code> descriverà i messaggi che il ruolo <code class="docutils literal notranslate"><span class="pre">Channel</span></code> (interpretato da un oggetto mock) dovrebbe ricevere dal mio <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>.</p></li>
+<li><p>Ora che conosco lo scenario, lo scopo e i collaboratori, posso definire il mio comportamento atteso in termini di queste cose. La mia conclusione è che mi aspetto che <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> gestisca correttamente (scopo) un <code class="docutils literal notranslate"><span class="pre">Canale</span></code> (collaboratore) in uno scenario di &quot;percorso felice&quot; in cui i dati vengono inviati senza errori (obbligo). Poiché i canali vengono generalmente aperti prima di essere utilizzati e vengono chiusi successivamente, ciò che ci si aspetta che faccia il mio <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> è aprire il canale, inserire i dati attraverso di esso e poi chiuderlo.</p></li>
+</ol>
+<p>Come implementare tali aspettative? Dal punto di vista dell'implementazione, quello che mi aspetto è che <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>:</p>
+<ul class="simple">
+<li><p>effettui chiamate corrette sul collaboratore <code class="docutils literal notranslate"><span class="pre">Channel</span></code> (open, send, close)</p></li>
+<li><p>con argomenti corretti (i dati ricevuti)</p></li>
+<li><p>nell'ordine corretto (non è possibile, ad esempio, chiamare chiudendo prima di aprire)</p></li>
+<li><p>numero corretto di volte (ad esempio, non inviare i dati due volte)</p></li>
+</ul>
+<p>Posso specificarlo utilizzando la sintassi <code class="docutils literal notranslate"><span class="pre">Received.InOrder()</span></code> di NSubstitute. Lo userò quindi per affermare che i tre metodi dovrebbero essere chiamati in un ordine specifico. Aspetta, quali metodi? Dopotutto, la nostra interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> si presenta così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Channel</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>quindi non ci sono metodi di sorta qui. La risposta è -- proprio come ho scoperto la necessità dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> e poi l'ho portata in vita, ora ho scoperto che ho bisogno di tre metodi: <code class="docutils literal notranslate"><span class="pre">Open()</span></code>, <code class="docutils literal notranslate"><span class="pre">Send()</span></code> e <code class="docutils literal notranslate"><span class="pre">Close()</span></code>. Allo stesso modo di come ho fatto con l'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code>, li userò nel mio Statement <em>come se</em> esistessero:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldXXXXXXXXXYYY</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO give a better name</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="c1">// does not compile yet</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span><span class="w"> </span><span class="c1">//doesn&#39;t compile</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"> </span><span class="c1">//doesn&#39;t compile</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span><span class="w"> </span><span class="c1">//doesn&#39;t compile</span>
+<span class="w"> </span><span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>per poi crearli utilizzando il mio IDE e la sua scorciatoia per generare classi e metodi mancanti. In questo modo ottengo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Channel</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Open</span><span class="p">();</span>
+<span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Send</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
+<span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora mi restano solo due cose sulla mia lista -- dare un buon nome allo Statement e decidere cosa dovrebbe contenere la variabile <code class="docutils literal notranslate"><span class="pre">data</span></code>. Scelgo quest'ultimo poiché è l'ultima cosa che impedisce al compilatore di compilare ed eseguire il mio Statement e mi aspetto che mi fornisca un feedback più utile.</p>
+</section>
+<section id="the-data-variable">
+<h3>La variabile <code class="docutils literal notranslate"><span class="pre">data</span></code><a class="headerlink" href="#the-data-variable" title="Link to this heading">¶</a></h3>
+<p>Cosa devo assegnare alla variabile <code class="docutils literal notranslate"><span class="pre">data</span></code>? È ora di pensare a quanto <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> deve sapere sui dati che invia attraverso il canale. Decido che <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> dovrebbe funzionare con qualsiasi dato -- dopotutto il suo scopo è gestire la connessione -- non è necessario leggere o manipolare i dati per farlo. Qualcuno, da qualche parte, probabilmente ha bisogno di convalidare questi dati, ma decido che se aggiungessi la logica di convalida a <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, ne verrebbe meno il mono-scopo. Quindi spingo ulteriormente la validazione all'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code>, poiché la decisione di accettare o meno i dati dipende dall'effettiva implementazione della logica di invio. Pertanto, definisco la variabile <code class="docutils literal notranslate"><span class="pre">data</span></code> nel mio Statement semplicemente come <code class="docutils literal notranslate"><span class="pre">Any.Array&lt;byte&gt;()</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldXXXXXXXXXYYY</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO give a better name</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="w"> </span><span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="good-name">
+<h3>Bel nome<a class="headerlink" href="#good-name" title="Link to this heading">¶</a></h3>
+<p>Lo Statement ora viene compilato ed eseguito (al momento è falso, ovviamente, ma ci arriverò), quindi ciò di cui ho bisogno è dare a questo Statement un nome migliore. Io andrò con <code class="docutils literal notranslate"><span class="pre">ShouldSendDataThroughOpenChannelThenCloseWhenAskedToDispatch</span></code> [<em>DovrebbeInviareIDatiTramiteIlCanaleApertoPoiChiuderloQuandoVieneRichiestoDiInviare</em>]. Questo è stato l'ultimo TODO sul lato Specifiche, quindi vediamo il codice completo dello Statement:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldSendDataThroughOpenChannelThenCloseWhenAskedToDispatch</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="w"> </span><span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="failing-for-the-correct-reason">
+<h3>Fallire per la ragione giusta<a class="headerlink" href="#failing-for-the-correct-reason" title="Link to this heading">¶</a></h3>
+<p>Lo Statement che ho appena scritto può ora essere valutato e, come previsto, è falso. Questo perché l'attuale implementazione del metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo</span></code> lancia una <code class="docutils literal notranslate"><span class="pre">NotImplementedException</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataDispatch</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="nf">DataDispatch</span><span class="p">(</span><span class="n">Channel</span><span class="w"> </span><span class="n">channel</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTo</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quello che mi piacerebbe vedere prima di iniziare a implementare il comportamento corretto è che lo Statement è falso perché le asserzioni (in questo caso, verifiche fittizie) falliscono. Quindi la parte dello Statement che mi piacerebbe vedere lanciare un'eccezione è questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>ma invece, ottengo un'eccezione già a partire da:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//WHEN</span>
+<span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Per progredire oltre la sezione <code class="docutils literal notranslate"><span class="pre">WHEN</span></code>, devo spingere il codice di produzione un po' più in là verso il comportamento corretto, ma solo quanto basta per vedere il fallimento previsto. Per fortuna, posso ottenerlo facilmente accedendo al metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code> e rimuovendo la clausola <code class="docutils literal notranslate"><span class="pre">throw</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTo</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo da solo è sufficiente per vedere la verifica mock che rende falso il mio Statement. Ora che posso vedere che lo Statement è falso per il motivo corretto, il passo successivo è inserire l'implementazione corretta per rendere vera lo Statement.</p>
+</section>
+<section id="making-the-statement-true">
+<h3>Rendere vero lo Statement<a class="headerlink" href="#making-the-statement-true" title="Link to this heading">¶</a></h3>
+<p>Inizio con il costruttore <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, che attualmente accetta un <code class="docutils literal notranslate"><span class="pre">Channel</span></code> come parametro, ma non ci fa nulla:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">DataDispatch</span><span class="p">(</span><span class="n">Channel</span><span class="w"> </span><span class="n">channel</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Voglio assegnare il canale a un campo appena creato (posso farlo utilizzando un singolo comando nella maggior parte degli IDE). Il codice diventa quindi:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Channel</span><span class="w"> </span><span class="n">_channel</span><span class="p">;</span>
+
+<span class="k">public</span><span class="w"> </span><span class="nf">DataDispatch</span><span class="p">(</span><span class="n">Channel</span><span class="w"> </span><span class="n">channel</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="n">_channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">channel</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ciò mi consente di utilizzare <code class="docutils literal notranslate"><span class="pre">_channel</span></code> nel metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code> che sto cercando di implementare. Ricordando che il mio obiettivo è aprire il canale, inviare i dati e chiudere il canale, immetto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTo</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="n">_channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w"> </span><span class="n">_channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w"> </span><span class="n">_channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>{{keyLock}} A dire il vero, a volte prima di scrivere l'implementazione corretta, gioco un po', sbagliando lo Statement in diversi modi, solo per vedere se riesco a indovinare correttamente il motivo per cui lo Statement diventerà falso e per assicurarmi che i messaggi di errore siano sufficientemente informativi. Ad esempio, all'inizio potrei solo implementare l'apertura del canale e osservare se l'affermazione è ancora falsa e se il motivo cambia come mi aspetto. Poi potrei aggiungere l'invio dei dati, ma passare qualcosa di diverso da <code class="docutils literal notranslate"><span class="pre">_data</span></code> al metodo <code class="docutils literal notranslate"><span class="pre">Send()</span></code> (ad esempio un <code class="docutils literal notranslate"><span class="pre">null</span></code>), ecc. In questo modo, &quot;testo il mio test&quot;, non solo per verificarne la correttezza (se fallirà per il motivo giusto) ma anche per la diagnostica (mi fornirà informazioni sufficienti quando fallisce?). Infine, questo è anche un modo per apprendere come i miei strumenti di automazione dei test mi informano sui problemi in questi casi.</p>
+</section>
+</section>
+<section id="second-behavior-specifying-an-error">
+<h2>Secondo comportamento -- specificare un errore<a class="headerlink" href="#second-behavior-specifying-an-error" title="Link to this heading">¶</a></h2>
+<p>Il primo Statement è implementato, quindi è tempo per il secondo -- ricordare che l'ho inserito nell'elenco delle cose da fare qualche tempo fa in modo da non dimenticarmene:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//TODO: specify a behavior where sending data</span>
+<span class="c1">//      through a channel raises an exception</span>
+</pre></div>
+</div>
+<p>Questo comportamento fa sì che quando l'invio fallisce con un'eccezione, l'utente di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> dovrebbe ricevere un'eccezione e la connessione dovrebbe essere chiusa in modo sicuro. Notare che il significato di &quot;chiusura della connessione&quot; è delegato alle implementazioni di <code class="docutils literal notranslate"><span class="pre">Channel</span></code>, quindi quando si specificano i comportamenti di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> devo solo preoccuparmi se il metodo <code class="docutils literal notranslate"><span class="pre">Close()</span></code> di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> viene invocato correttamente. Lo stesso vale per il significato di &quot;errori durante l'invio dei dati&quot; -- questo è anche l'obbligo di <code class="docutils literal notranslate"><span class="pre">Channel</span></code>. Ciò che dobbiamo specificare su <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> è come gestisce gli errori di invio riguardanti il suo utente e il suo <code class="docutils literal notranslate"><span class="pre">Channel</span></code>.</p>
+<section id="starting-with-a-good-name">
+<h3>A cominciare da un bel nome<a class="headerlink" href="#starting-with-a-good-name" title="Link to this heading">¶</a></h3>
+<p>Questa volta scelgo la strategia di iniziare con un buon nome, perché sento di avere una comprensione molto migliore di quale comportamento devo specificare rispetto al mio Statement precedente. Scelgo il seguente nome per indicare il comportamento previsto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="nf">ShouldRethrowExceptionAndCloseChannelWhenSendingDataFails</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Prima di iniziare a scomporre il nome in codice utile, inizio affermando ciò che è ovvio (notare che sto mescolando due strategie per iniziare dallo Statement falso adesso -- non ho detto che non lo si può fare ora, vero?). Avendo imparato molto scrivendo e implementando lo Statement precedente, so per certo che:</p>
+<ol class="arabic simple">
+<li><p>Devo lavorare di nuovo con <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>.</p></li>
+<li><p>Devo passare un mock di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> al costruttore <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>.</p></li>
+<li><p>Il ruolo <code class="docutils literal notranslate"><span class="pre">Channel</span></code> sarà svolto da un oggetto mock.</p></li>
+<li><p>Devo invocare il metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code>.</p></li>
+<li><p>Ho bisogno di qualche tipo di dati non validi (anche se non so ancora cosa fare per renderli &quot;non validi&quot;).</p></li>
+</ol>
+<p>Lo scrivo come codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="nf">ShouldRethrowExceptionAndCloseChannelWhenSendingDataFails</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">dataDispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">invalidData</span><span class="p">;</span><span class="w"> </span><span class="c1">//doesn&#39;t compile</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">dataDispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">invalidData</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span><span class="w"> </span><span class="c1">//no expectations yet</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="expecting-that-channel-is-closed">
+<h3>Mi aspetto che il canale sia chiuso<a class="headerlink" href="#expecting-that-channel-is-closed" title="Link to this heading">¶</a></h3>
+<p>So anche che un aspetto del comportamento previsto è la chiusura del canale. So come scrivere questa expectation [<em>aspettativa</em>] -- posso usare il metodo <code class="docutils literal notranslate"><span class="pre">Received()</span></code> di NSubstitute sul mock del canale. Questo, ovviamente, andrà nella sezione <code class="docutils literal notranslate"><span class="pre">//THEN</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Close</span><span class="p">();</span><span class="w"> </span><span class="c1">//added</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span><span class="w"> </span><span class="c1">//not removing this yet</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ho usato <code class="docutils literal notranslate"><span class="pre">Received(1)</span></code> invece semplicemente di <code class="docutils literal notranslate"><span class="pre">Received()</span></code>, perché tentare di chiudere il canale più volte potrebbe causare problemi, quindi voglio essere esplicito sull'aspettativa che <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> chiuda il canale esattamente una volta. Un'altra cosa -- non sto ancora rimuovendo <code class="docutils literal notranslate"><span class="pre">Assert.True(false)</span></code>, poiché l'attuale implementazione chiude già il canale e quindi la dichiarazione potrebbe diventare vera se non fosse per questa affermazione (se compilata, ovviamente). Rimuoverò questa affermazione solo dopo aver definito completamente il comportamento.</p>
+</section>
+<section id="expecting-exception">
+<h3>In attesa dell'eccezione<a class="headerlink" href="#expecting-exception" title="Link to this heading">¶</a></h3>
+<p>Un'altra cosa che mi aspetto che <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> faccia in questo comportamento è rilanciare eventuali errori di invio, che vengono segnalati come eccezioni lanciate da <code class="docutils literal notranslate"><span class="pre">Channel</span></code> dal metodo <code class="docutils literal notranslate"><span class="pre">Send()</span></code>.</p>
+<p>{{keyLock}} In genere, scrivo raramente dichiarazioni sulle eccezioni rilanciate, ma qui non ho scelta -- se non rilevo l'eccezione nel mio Statement, non sarò in grado di valutare se il canale è stato chiuso o meno, poiché l'eccezione non rilevata interromperà l'esecuzione dello Statement.</p>
+<p>Per specificare che mi aspetto un'eccezione nel mio Statement, devo utilizzare un'asserzione speciale chiamata <code class="docutils literal notranslate"><span class="pre">Assert.Throws&lt;&gt;()</span></code> e passare il codice che dovrebbe generare l'eccezione come lambda:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="c1">//WHEN</span>
+<span class="n">Assert</span><span class="p">.</span><span class="n">Throws</span><span class="o">&lt;</span><span class="n">Exception</span><span class="o">&gt;</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">  </span><span class="n">dataDispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">invalidData</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+<section id="defining-invalid-data">
+<h3>Definizione di dati non validi<a class="headerlink" href="#defining-invalid-data" title="Link to this heading">¶</a></h3>
+<p>Il mio compilatore mi mostra che la variabile <code class="docutils literal notranslate"><span class="pre">data</span></code> non è definita. OK, ora è giunto il momento di definire i <em>dati non validi</em>.</p>
+<p>Prima di tutto, ricordare che <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> non può distinguere tra dati validi e non validi - questo è lo scopo del <code class="docutils literal notranslate"><span class="pre">Channel</span></code> poiché ciascuna implementazione di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> potrebbe avere criteri diversi per la validazione dei dati. Nel mio Statement, utilizzo un mock per svolgere il ruolo di canale, quindi posso semplicemente dire al mio mock che dovrebbe considerare non validi i dati che definisco nel mio Statement. Pertanto, il valore stesso dei <code class="docutils literal notranslate"><span class="pre">data</span></code> è irrilevante finché configuro il mio <code class="docutils literal notranslate"><span class="pre">Channel</span></code> mock in modo che si comporti come se non fosse valido. Ciò significa che posso semplicemente definire i <code class="docutils literal notranslate"><span class="pre">data</span></code> come qualsiasi array di byte:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">invalidData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Devo anche scrivere l'ipotesi di come si comporterà <code class="docutils literal notranslate"><span class="pre">channel</span></code> dati questi dati:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="p">...</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">exceptionFromChannel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Exception</span><span class="p">();</span>
+<span class="n">channel</span><span class="p">.</span><span class="n">When</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">invalidData</span><span class="p">)).</span><span class="n">Throw</span><span class="p">(</span><span class="n">exceptionFromChannel</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Notare che il posto in cui configuro il mock per generare un'eccezione è la sezione <code class="docutils literal notranslate"><span class="pre">//GIVEN</span></code>. Questo perché qualsiasi comportamento mock predefinito è la mia assunzione. Pre-inscatolando il risultato del metodo, in questo caso, dico &quot;dato che il canale per qualche motivo rifiuta questi dati&quot;.</p>
+<p>Ora che ho il codice completo dello Statement, posso eliminare l'asserzione <code class="docutils literal notranslate"><span class="pre">Assert.True(false)</span></code>. Lo Statement completo si presenta così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="nf">ShouldRethrowExceptionAndCloseChannelWhenSendingDataFails</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">dataDispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">exceptionFromChannel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Exception</span><span class="p">();</span>
+
+<span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">When</span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">)).</span><span class="n">Throw</span><span class="p">(</span><span class="n">exceptionFromChannel</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">exception</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Throws</span><span class="o">&lt;</span><span class="n">Exception</span><span class="o">&gt;</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">  </span><span class="n">dataDispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">invalidData</span><span class="p">));</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">exceptionFromChannel</span><span class="p">,</span><span class="w"> </span><span class="n">exception</span><span class="p">);</span>
+<span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, potrebbe sembrare un po' complicato, ma dato il mio set di strumenti, questo dovrà bastare. Lo Statement ora diventerà falso sulla seconda affermazione. Aspetta, il secondo? E il primo? Bene, la prima affermazione dice che un'eccezione dovrebbe essere lanciata nuovamente e che i metodi in C# lanciano nuovamente l'eccezione per default, senza richiedere alcuna implementazione da parte mia<a class="footnote-reference brackets" href="#idonotthrow" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. Dovrei semplicemente accettarlo e andare avanti? Beh, non voglio. Ricordate cosa ho scritto nella prima parte del libro -- dobbiamo vedere ogni affermazione fallire almeno una volta. Un'affermazione che passa subito è qualcosa di cui dovremmo essere sospettosi. Ciò che devo fare ora è guastare temporaneamente il comportamento in modo da poter vedere l'errore. Posso farlo in (almeno) due modi:</p>
+<ol class="arabic simple">
+<li><p>Andando allo Statement e commentando la riga che configura il mock <code class="docutils literal notranslate"><span class="pre">Channel</span></code> per lanciare un'eccezione.</p></li>
+<li><p>Andando al codice di produzione e circondando l'istruzione <code class="docutils literal notranslate"><span class="pre">channel.Send(data)</span></code> con un blocco try-catch.</p></li>
+</ol>
+<p>Andrebbe bene in entrambi i casi, ma in genere preferisco modificare il codice di produzione e non alterare i miei Statement, quindi ho scelto la seconda strada. Avvolgendo l'invocazione <code class="docutils literal notranslate"><span class="pre">Send()</span></code> con <code class="docutils literal notranslate"><span class="pre">try</span></code> e un <code class="docutils literal notranslate"><span class="pre">catch</span></code> vuoto, ora posso osservare il fallimento dell'asserzione, perché è prevista un'eccezione ma dall'invocazione di <code class="docutils literal notranslate"><span class="pre">dataDispatch.ApplyTo()</span></code> non esce nessuna eccezione. Ora sono pronto per annullare la mia ultima modifica, fiducioso che il mio Statement descriva bene questa parte del comportamento e posso concentrarmi sulla seconda asserzione, che è:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">channel</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Close</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Questa affermazione fallisce perché la mia attuale implementazione del metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code> è:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">_channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="n">_channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="n">_channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>e un'eccezione lanciata dal metodo <code class="docutils literal notranslate"><span class="pre">Send()</span></code> interrompe l'elaborazione, uscendo immediatamente dal metodo, quindi <code class="docutils literal notranslate"><span class="pre">Close()</span></code> non viene mai chiamato. Posso modificare questo comportamento utilizzando il blocco <code class="docutils literal notranslate"><span class="pre">try-finally</span></code> per racchiudere la chiamata a <code class="docutils literal notranslate"><span class="pre">Send()</span></code><a class="footnote-reference brackets" href="#idiomatictryfinally" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">_channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="k">try</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="n">_channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">finally</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="n">_channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ciò rende vera la mia seconda affermazione e conclude questo esempio. Se dovessi andare avanti, il mio prossimo passo sarebbe implementare l'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> appena scoperta, poiché attualmente non ha alcuna implementazione.</p>
+</section>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>In questo capitolo ho approfondito la scrittura di Statement basati su mock e sullo sviluppo di classi in modalità &quot;test-first&quot;. Non sto mostrando questo esempio come una prescrizione o come una sorta di &quot;unico vero modo&quot; per testare tale implementazione - alcune cose avrebbero potuto essere fatte diversamente. Ad esempio, ci sono state molte situazioni in cui ho ricevuto diversi elementi TODO segnalati dal mio compilatore o dal mio Statement falso. A seconda di molti fattori, avrei potuto affrontarli in un ordine diverso. Oppure nel secondo comportamento, avrei potuto definire <code class="docutils literal notranslate"><span class="pre">data</span></code> come <code class="docutils literal notranslate"><span class="pre">Any.Array&lt;byte&gt;()</span></code> fin dall'inizio (e lasciare un elemento TODO per controllarlo in seguito e confermare se può rimanere così) per portare lo Statement in uno stato di compilazione più rapidamente.</p>
+<p>Un altro punto interessante è stato il momento in cui ho scoperto l'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> -- sono consapevole di esserci scivolato sopra dicendo qualcosa del tipo &quot;possiamo vedere che la classe ha troppi scopi, poi accade la magia e poi abbiamo un'interfaccia a cui delegare parti della logica&quot;. Questa &quot;magia accade&quot; o, come ho già detto, &quot;la scoperta dell'interfaccia&quot;, è qualcosa che approfondirò nei capitoli seguenti.</p>
+<p>Si potrebbe aver notato che questo capitolo è più lungo del precedente, il che potrebbe portare alla conclusione che il TDD complica le cose anziché semplificarle. C’erano, tuttavia, diversi fattori che hanno reso questo capitolo più lungo:</p>
+<ol class="arabic simple">
+<li><p>In questo capitolo ho specificato due comportamenti (un &quot;percorso felice&quot; più la gestione degli errori), mentre nell'ultimo capitolo ne ho specificato solo uno (il &quot;percorso felice&quot;).</p></li>
+<li><p>In questo capitolo ho progettato e implementato la classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> e ho scoperto l'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> mentre nell'ultimo capitolo mi sono state fornite fin dall'inizio.</p></li>
+<li><p>Poiché presumo che il modo di scrivere gli Statement basato sul &quot;test-first &quot; potrebbe essere meno familiare, mi sono preso il tempo per spiegare il mio processo di pensiero in modo più dettagliato.</p></li>
+</ol>
+<p>Quindi niente paura -- quando ci si abitua, il processo descritto in questo capitolo richiede in genere, nel peggiore dei casi, diversi minuti.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="nextchapterdiscovery" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>maggiori informazioni su questo argomento nei capitoli successivi.</p>
+</aside>
+<aside class="footnote brackets" id="idonotthrow" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>ecco perché in genere non specifico che qualcosa debba rilanciare un'eccezione -- lo faccio questa volta perché altrimenti non mi permetterebbe di specificare come <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> utilizza un <code class="docutils literal notranslate"><span class="pre">Channel</span></code>.</p>
+</aside>
+<aside class="footnote brackets" id="idiomatictryfinally" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>ovviamente, il modo idiomatico per farlo in C# sarebbe quello di utilizzare l'interfaccia <code class="docutils literal notranslate"><span class="pre">IDisposable</span></code> e un blocco <code class="docutils literal notranslate"><span class="pre">using</span></code> (o <code class="docutils literal notranslate"><span class="pre">IAsyncDisposable</span></code> e <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">using</span></code> nel caso di chiamate <code class="docutils literal notranslate"><span class="pre">async</span></code>).</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-start-with-mock-objects">Come iniziare? -- con gli oggetto mock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#responsibility-and-responsibility">Responsabilità e Responsabilità</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#channel-and-datadispatch-one-more-time">Channel e DataDispatch ancora una volta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-first-behavior">Il primo comportamento</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#second-behavior-specifying-an-error">Secondo comportamento -- specificare un errore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="270_Mock_Objects.html" title="capitolo precedente">Oggetti Mock come strumento di test</a></li>
+      <li>Next: <a href="290_NeedDrivenDevelopment.html" title="capitolo successivo">Il test-driving ai confini di input</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/280_Start_with_a_failing_test_mocks.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

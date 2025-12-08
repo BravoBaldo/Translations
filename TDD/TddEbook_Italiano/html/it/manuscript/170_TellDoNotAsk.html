@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Raccontare, non chiedere &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="La necessità degli oggetti mock" href="180_Web_of_objects_explained.html" />
+    <link rel="prev" title="La Componibilità degli Oggetti" href="160_Composable_Design.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="telling-not-asking-170-telldonotask">
+<h1><a class="reference internal" href="#170-TellDoNotAsk"><span class="xref myst">Raccontare, non chiedere</span></a><a class="headerlink" href="#telling-not-asking-170-telldonotask" title="Link to this heading">¶</a></h1>
+<p>In questo capitolo torneremo a Johnny e Benjamin mentre introducono un'altra modifica nel codice su cui stanno lavorando. Nel processo, scoprono l'impatto che i valori restituiti e i getter hanno sulla componibilità degli oggetti.</p>
+<section id="contractors">
+<h2>I Contractor<a class="headerlink" href="#contractors" title="Link to this heading">¶</a></h2>
+<p><strong>Johnny:</strong> Buongiorno. Pronti per un altro compito?</p>
+<p><strong>Benjamin:</strong> Naturalmente! Qual è il prossimo?</p>
+<p><strong>Johnny:</strong> Ricordi il codice su cui abbiamo lavorato ieri? Contiene una politica per i dipendenti regolari dell'azienda. Ma l’azienda vuole iniziare ad assumere anche [contractor] e deve includere una politica per loro nella domanda..</p>
+<p><strong>Benjamin:</strong> Quindi questo è ciò che faremo oggi?</p>
+<p><strong>Johnny:</strong> Esatto. La politica sarà diversa per i [contractor]. Anche se, proprio come i dipendenti regolari, riceveranno aumenti e bonus, le regole saranno diverse. Ho creato una piccola tabella per consentire il confronto tra ciò che abbiamo per i dipendenti regolari e ciò che vogliamo aggiungere per i [contractor]:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tipo di Impiegato</p></th>
+<th class="head"><p>Aumento</p></th>
+<th class="head"><p>Bonus</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Impiegato Regolare</p></td>
+<td><p>+10% dello stipendio attuale se non viene raggiunto il massimo in un determinato livello retributivo</p></td>
+<td><p>+200% dello stipendio attuale una volta dopo cinque anni</p></td>
+</tr>
+<tr class="row-odd"><td><p>[Contractor]</p></td>
+<td><p>+5% della retribuzione media calcolata sugli ultimi 3 anni di servizio (o su tutti gli anni di servizio precedenti se hanno lavorato per meno di 3 anni)</p></td>
+<td><p>+10% dello stipendio attuale quando un [contractor] riceve un punteggio superiore a 100 per l'anno precedente</p></td>
+</tr>
+</tbody>
+</table>
+<p>Quindi, anche se il flusso di lavoro sarà lo stesso sia per un dipendente regolare che per un [contractor]:</p>
+<ol class="arabic simple">
+<li><p>Caricare dal repository</p></li>
+<li><p>Valutare l'aumento</p></li>
+<li><p>Valutare il bonus</p></li>
+<li><p>Salvare</p></li>
+</ol>
+<p>l'implementazione di alcuni passaggi sarà diversa per ciascuna tipo di dipendente.</p>
+<p><strong>Benjamin:</strong> Correggimi se sbaglio, ma questi passaggi &quot;caricare&quot; e &quot;salvare&quot; non sembrano appartenere ai restanti due: descrivono qualcosa di tecnico, mentre gli altri passaggi descrivono qualcosa strettamente correlato a come l'azienda opera...</p>
+<p><strong>Johnny:</strong> Bell'idea, comunque, è qualcosa di cui ci occuperemo più tardi. Ricorda la regola dei boy scout: non peggiorare le cose. Tuttavia, oggi risolveremo alcuni dei difetti di progettazione.</p>
+<p><strong>Benjamin:</strong> Aww... Io risolverei tutto subito.</p>
+<p><strong>Johnny:</strong> Ah ah, pazienza, Luke. Per ora, diamo un'occhiata al codice che abbiamo ora prima di pianificare ulteriori passaggi.</p>
+<p><strong>Benjamin:</strong> Fammi solo aprire il mio IDE... OK, eccolo qui:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CompanyPolicies</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">readonly</span><span class="w"> </span><span class="n">Repository</span><span class="w"> </span><span class="n">_repository</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">CompanyPolicies</span><span class="p">(</span><span class="n">Repository</span><span class="w"> </span><span class="n">repository</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyYearlyIncentivePlan</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_repository</span><span class="p">.</span><span class="n">CurrentEmployees</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">employee</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">employees</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="kt">var</span><span class="w"> </span><span class="n">payGrade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetPayGrade</span><span class="p">();</span>
+
+<span class="w">      </span><span class="c1">//evaluate raise</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">payGrade</span><span class="p">.</span><span class="n">Maximum</span><span class="p">)</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">newSalary</span><span class="w"> </span>
+<span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span>
+<span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span>
+<span class="w">          </span><span class="o">*</span><span class="w"> </span><span class="mf">0.1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">employee</span><span class="p">.</span><span class="n">SetSalary</span><span class="p">(</span><span class="n">newSalary</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">      </span><span class="c1">//evaluate one-time bonus</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">GetYearsOfService</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">oneTimeBonus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">        </span><span class="n">employee</span><span class="p">.</span><span class="n">SetBonusForYear</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span><span class="w"> </span><span class="n">oneTimeBonus</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">      </span><span class="n">employee</span><span class="p">.</span><span class="n">Save</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Guarda, Johnny, la classe, in effetti, contiene tutti e quattro i passaggi che hai citato, ma non sono nominati esplicitamente, invece la loro implementazione interna per i dipendenti regolari è semplicemente inserita qui. Come dovremmo aggiungere la variazione del tipo di dipendente?</p>
+<p><strong>Johnny:</strong> È ora di considerare le nostre opzioni. Ne abbiamo alcune. Bene?</p>
+<p><strong>Benjamin:</strong> Per ora ne vedo due. Il primo sarebbe creare un'altra classe simile a <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code>, chiamata qualcosa come <code class="docutils literal notranslate"><span class="pre">CompanyPoliciesForContractors</span></code> e implementare lì la nuova logica. Ciò ci consentirebbe di lasciare la classe originale così com'è, ma dovremmo cambiare i posti che utilizzano <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> per utilizzare entrambe le classi e scegliere quale utilizzare in qualche modo. Inoltre, dovremmo aggiungere un metodo separato al repository per recuperare i [contractor].</p>
+<p><strong>Johnny:</strong> Inoltre, perderemmo l'occasione di comunicare attraverso il codice che la sequenza di passaggi è intenzionalmente simile in entrambi i casi. Altri che leggeranno questo codice in futuro vedranno che l'implementazione per i dipendenti regolari segue i passaggi: caricare, valutare l'aumento, valutare il bonus, salvare. Quando esamineranno l'implementazione per i [contractor], vedranno lo stesso ordine di passaggi, ma non saranno in grado di dire se la somiglianza è intenzionale o un puro incidente.</p>
+<p><strong>Benjamin:</strong> Quindi la nostra seconda opzione è inserire un'istruzione <code class="docutils literal notranslate"><span class="pre">if</span></code> nei diversi passaggi all'interno della classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code>, per distinguere tra dipendenti regolari e [contractor]. La classe <code class="docutils literal notranslate"><span class="pre">Employee</span></code> avrebbe un metodo <code class="docutils literal notranslate"><span class="pre">isContractor()</span></code> e, a seconda di cosa restituirebbe, eseguiremmo la logica per dipendenti regolari o i [contractor]. Supponendo che l'attuale struttura del codice sia simile alla seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">employee</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">employees</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//evaluate raise</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">//evaluate one-time bonus</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">//save employee</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>la nuova struttura sarebbe simile a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">employee</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">employees</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">IsContractor</span><span class="p">())</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//evaluate raise for contractor</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//evaluate raise for regular</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">IsContractor</span><span class="p">())</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//evaluate one-time bonus for contractor</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//evaluate one-time bonus for regular</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">//save employee</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>in questo modo dimostreremmo che i passaggi sono gli stessi, ma l'implementazione è diversa. Inoltre, ciò richiederebbe principalmente di aggiungere codice e di non spostare il codice esistente.</p>
+<p><strong>Johnny:</strong> Lo svantaggio è che renderemmo la classe ancora più brutta di quando abbiamo iniziato. Quindi, nonostante la facilità iniziale, renderemo un enorme disservizio ai futuri manutentori. Abbiamo almeno un'altra opzione. Cosa sarebbe?</p>
+<p><strong>Benjamin:</strong> Vediamo... potremmo spostare tutti i dettagli riguardanti l'implementazione dei passaggi dalla classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> nella classe <code class="docutils literal notranslate"><span class="pre">Employee</span></code> stessa, lasciando solo i nomi e l'ordine dei passaggi in <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">employee</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">employees</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">employee</span><span class="p">.</span><span class="n">EvaluateRaise</span><span class="p">();</span>
+<span class="w">  </span><span class="n">employee</span><span class="p">.</span><span class="n">EvaluateOneTimeBonus</span><span class="p">();</span>
+<span class="w">  </span><span class="n">employee</span><span class="p">.</span><span class="n">Save</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi, potremmo trasformare <code class="docutils literal notranslate"><span class="pre">Employee</span></code> in un'interfaccia, in modo che possa essere un <code class="docutils literal notranslate"><span class="pre">RegularEmployee</span></code> o un <code class="docutils literal notranslate"><span class="pre">ContractorEmployee</span></code> -- entrambe le classi avrebbero implementazioni diverse dei passaggi, ma <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> non se ne accorgerebbe, poiché non sarebbe più abbinata all'implementazione dei passaggi -- solo i nomi e l'ordine.</p>
+<p><strong>Johnny:</strong> Questa soluzione avrebbe uno svantaggio -- dovremmo modificare in modo significativo il codice attuale, ma sai una cosa? Sono disposto a farlo, soprattutto perché oggi mi è stato detto che la logica è coperta da alcuni test che possiamo eseguire per vedere se è stata introdotta una regressione.</p>
+<p><strong>Benjamin:</strong> Ottimo, con cosa iniziamo?</p>
+<p><strong>Johnny:</strong> La prima cosa che si frappone tra noi e il nostro obiettivo sono questi getter nella classe <code class="docutils literal notranslate"><span class="pre">Employee</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">GetSalary</span><span class="p">();</span>
+<span class="n">GetGrade</span><span class="p">();</span>
+<span class="n">GetYearsOfService</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Espongono semplicemente troppe informazioni specifiche ai dipendenti regolari. Sarebbe impossibile utilizzare implementazioni diverse quando queste sono disponibili. Questi setter non aiutano molto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">SetSalary</span><span class="p">(</span><span class="n">newSalary</span><span class="p">);</span>
+<span class="n">SetBonusForYear</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">amount</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Anche se questi non sono poi così male, faremmo meglio a concederci maggiore flessibilità. Quindi nascondiamo tutto dietro metodi più astratti che rivelano solo la nostra intenzione.</p>
+<p>Innanzitutto, dai un'occhiata a questo codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//evaluate raise</span>
+<span class="k">if</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">payGrade</span><span class="p">.</span><span class="n">Maximum</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">newSalary</span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span>
+<span class="w">    </span><span class="o">*</span><span class="w"> </span><span class="mf">0.1</span><span class="p">;</span>
+<span class="w">  </span><span class="n">employee</span><span class="p">.</span><span class="n">SetSalary</span><span class="p">(</span><span class="n">newSalary</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ogni volta che si vede un blocco di codice separato dal resto con righe vuote e che inizia con un commento, c'è qualcosa che urla: &quot;Voglio essere un metodo separato che contenga questo codice e abbia un nome dopo il commento!&quot;. Esaudiamo questo desiderio e rendiamolo un metodo separato nella classe <code class="docutils literal notranslate"><span class="pre">Employee</span></code>.</p>
+<p><strong>Benjamin:</strong> Ok, aspetta un attimo... ecco:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">employee</span><span class="p">.</span><span class="n">EvaluateRaise</span><span class="p">();</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Fantastico! Ora, abbiamo un altro esempio di questa specie:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//evaluate one-time bonus</span>
+<span class="k">if</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">GetYearsOfService</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">oneTimeBonus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">  </span><span class="n">employee</span><span class="p">.</span><span class="n">SetBonusForYear</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span><span class="w"> </span><span class="n">oneTimeBonus</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Questo dovrebbe essere ancora più semplice... Ok, dai un'occhiata:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">employee</span><span class="p">.</span><span class="n">EvaluateOneTimeBonus</span><span class="p">();</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Quasi bene. Tralascerei solo l'informazione che il bonus è una tantum dal nome.</p>
+<p><strong>Benjamin:</strong> Perché? Non vogliamo includere ciò che accade nel nome del metodo?</p>
+<p><strong>Johnny:</strong> A dire il vero no. Ciò che vogliamo includere è la nostra intenzione. Il bonus una tantum è qualcosa di specifico per i dipendenti regolari e vogliamo eliminare i dettagli su questo o quel tipo di dipendente, in modo da poter collegare diverse implementazioni mentire nel nome del metodo. I nomi dovrebbero riflettere il fatto che vogliamo valutare un bonus, qualunque cosa significhi per un particolare tipo di dipendente. Quindi, facciamolo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">employee</span><span class="p">.</span><span class="n">EvaluateBonus</span><span class="p">();</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Ok, ho capito. Nessun problema.</p>
+<p><strong>Johnny:</strong> Ora diamo un'occhiata al codice completo del metodo <code class="docutils literal notranslate"><span class="pre">EvaluateIncentivePlan</span></code> per vedere se è ancora abbinato ai dettagli specifici dei dipendenti regolari. Ecco il codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyYearlyIncentivePlan</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_repository</span><span class="p">.</span><span class="n">CurrentEmployees</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">employee</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">employees</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">employee</span><span class="p">.</span><span class="n">EvaluateRaise</span><span class="p">();</span>
+<span class="w">    </span><span class="n">employee</span><span class="p">.</span><span class="n">EvaluateBonus</span><span class="p">();</span>
+<span class="w">    </span><span class="n">employee</span><span class="p">.</span><span class="n">Save</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Sembra che non ci sia più alcun collegamento con i dettagli sui dipendenti regolari. Pertanto, possiamo tranquillamente fare in modo che il repository restituisca una combinazione di clienti abituali e [contractor] senza che questo codice si accorga di nulla. Ora penso di capire cosa stavi cercando di ottenere. Se facciamo in modo che le interazioni tra gli oggetti avvengano a un livello più astratto, possiamo inserire implementazioni diverse con meno lavoro.</p>
+<p><strong>Johnny:</strong> Vero. Riesci a vedere un'altra cosa relativa alla mancanza di valori di ritorno su tutti i metodi di <code class="docutils literal notranslate"><span class="pre">Employee</span></code> nell'attuale implementazione?</p>
+<p><strong>Benjamin:</strong> Non proprio. Ha importanza?</p>
+<p><strong>Johnny:</strong> Bene, se i metodi <code class="docutils literal notranslate"><span class="pre">Employee</span></code> avessero valori di ritorno e questo codice dipendesse da essi, anche tutte le sottoclassi di <code class="docutils literal notranslate"><span class="pre">Employee</span></code> sarebbero costrette a fornire valori di ritorno e questi valori dovrebbero corrispondere alle aspettative del codice che chiama tali metodi, qualunque fossero queste aspettative. Ciò renderebbe più difficile l’introduzione di altri tipi di dipendenti. Ma ora che non ci sono valori da restituire, possiamo, ad esempio:</p>
+<ul class="simple">
+<li><p>introdurre un <code class="docutils literal notranslate"><span class="pre">TemporaryEmployee</span></code> che non ha aumenti, lasciando vuoto il suo metodo <code class="docutils literal notranslate"><span class="pre">EvaluateRaise()</span></code>, e il codice che utilizza i dipendenti non se ne accorgerà.</p></li>
+<li><p>introdurre un <code class="docutils literal notranslate"><span class="pre">ProbationEmployee</span></code> che non ha una politica di bonus, lasciando vuoto il suo metodo <code class="docutils literal notranslate"><span class="pre">EvaluateBonus()</span></code>, e il codice che utilizza i dipendenti non se ne accorgerà.</p></li>
+<li><p>introdurre un <code class="docutils literal notranslate"><span class="pre">InMemoryEmployee</span></code> che abbia un metodo <code class="docutils literal notranslate"><span class="pre">Save()</span></code> vuoto, e il codice che utilizza i dipendenti non se ne accorgerà.</p></li>
+</ul>
+<p>Come si vede, chiedendo meno agli oggetti, e dicendogli di più, otteniamo maggiore flessibilità per creare implementazioni alternative e la componibilità, di cui abbiamo parlato ieri, aumenta!</p>
+<p><strong>Benjamin:</strong> Capisco... Quindi dire agli oggetti cosa fare invece di chiedere loro i dati rende le interazioni tra oggetti più astratte e quindi più stabili, aumentando la componibilità degli oggetti interagenti. Questa è una lezione preziosa -- è la prima volta che lo sento e sembra un concetto piuttosto potente.</p>
+</section>
+<section id="a-quick-retrospective">
+<h2>Una Rapida Retrospettiva<a class="headerlink" href="#a-quick-retrospective" title="Link to this heading">¶</a></h2>
+<p>In questo capitolo Benjamin ha imparato che la componibilità di un oggetto (per non parlare della chiarezza) è rafforzata quando le interazioni tra esso e i suoi pari sono: astratte, logiche e stabili. Inoltre, ha scoperto, con l'aiuto di Johnny, che esso viene ulteriormente rafforzato seguendo uno stile di progettazione in cui agli oggetti viene detto cosa fare invece di chiedere di fornire informazioni a qualcuno che poi decide per loro conto. Questo perché se un'API di un'astrazione è costruita rispondendo a domande specifiche, i client dell'astrazione tendono a porre molte domande e sono associati sia a quelle domande che ad alcuni aspetti delle risposte (cioè cosa c'è nei valori restituiti). Ciò rende più difficile la creazione di un'altra implementazione dell'astrazione, perché ogni nuova implementazione dell'astrazione deve non solo fornire risposte a tutte quelle domande, ma le risposte sono limitate a ciò che il cliente si aspetta. Quando all'astrazione viene semplicemente detto ciò che il suo <em>client</em> vuole che raggiunga, i <em>client</em> sono separati dalla maggior parte dei dettagli su come ciò avvenga. Questo semplifica l'introduzione di nuove implementazioni di astrazione: spesso ci consente anche di definire implementazioni con tutti i metodi vuoti senza che il client se ne accorga.</p>
+<p>Queste sono tutte conclusioni importanti che ci porteranno verso il TDD con oggetti mock.</p>
+<p>Lasciamo, per ora, Johnny e Benjamin. Nel prossimo capitolo ribadirò le loro scoperte e le inserirò in un contesto più ampio.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><span class="xref myst">Raccontare, non chiedere</span></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#contractors">I Contractor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-quick-retrospective">Una Rapida Retrospettiva</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="160_Composable_Design.html" title="capitolo precedente">La Componibilità degli Oggetti</a></li>
+      <li>Next: <a href="180_Web_of_objects_explained.html" title="capitolo successivo">La necessità degli oggetti mock</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/170_TellDoNotAsk.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

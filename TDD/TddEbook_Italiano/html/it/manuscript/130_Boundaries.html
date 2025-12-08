@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Specificare i confini e le condizioni funzionali &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Guidare l&#39;implementazione dalle Specifiche" href="140_Triangulation.html" />
+    <link rel="prev" title="Sviluppare uno stile TDD e Non-Determinismo Vincolato" href="120_Constrained_Non_Determinism.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="specifying-functional-boundaries-and-conditions">
+<h1>Specificare i confini e le condizioni funzionali<a class="headerlink" href="#specifying-functional-boundaries-and-conditions" title="Link to this heading">¶</a></h1>
+<p>{{keyInfo}} <strong>A Disclaimer</strong>. Prima di iniziare, devo dichiarare che questo capitolo si basa su una serie di post di Scott Bain e Amir Kolsky dal blog Sustainable Test-Driven Development e sul loro prossimo libro con lo stesso titolo. Mi piace così tanto il modo in cui adattano l'idea del <a class="reference external" href="https://en.wikipedia.org/wiki/Boundary_testing">boundary testing</a> che ho imparato a seguire le loro linee guida. Questo capitolo sarà una riformulazione di queste linee guida. Invito a leggere i post originali del blog su questo argomento su http://www.sustainabletdd.com/ (e ad acquistare il prossimo libro di Scott, Amir e Max Guernsey).</p>
+<section id="sometimes-an-anonymous-value-is-not-enough">
+<h2>A volte un valore anonimo non è sufficiente<a class="headerlink" href="#sometimes-an-anonymous-value-is-not-enough" title="Link to this heading">¶</a></h2>
+<p>Nell'ultimo capitolo ho descritto come i valori anonimi siano utili quando specifichiamo un comportamento che dovrebbe essere lo stesso indipendentemente dagli argomenti passati al costruttore o dai metodi invocati. Un esempio potrebbe essere quello di inserire un numero intero in uno stack e riprenderlo (pop) per vedere se è lo stesso elemento che abbiamo inserito -- il comportamento è coerente per qualunque numero inseriamo (push) e preleviamo (pop):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldPopLastPushedItem</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">lastPushedItem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Integer</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">stack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="n">stack</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">Any</span><span class="p">.</span><span class="n">Integer</span><span class="p">());</span>
+<span class="w">  </span><span class="n">stack</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">Any</span><span class="p">.</span><span class="n">Integer</span><span class="p">());</span>
+<span class="w">  </span><span class="n">stack</span><span class="p">.</span><span class="n">Push</span><span class="p">(</span><span class="n">lastPushedItem</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">poppedItem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stack</span><span class="p">.</span><span class="n">Pop</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">lastPushedItem</span><span class="p">,</span><span class="w"> </span><span class="n">poppedItem</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo caso, i valori dei primi due numeri interi inseriti nello stack non hanno importanza: la relazione descritta tra input e output è indipendente dai valori effettivi che utilizziamo. Come abbiamo visto nel capitolo precedente, questo è il caso tipico in cui applichiamo il &quot;Constrained Non-Determinism&quot;.</p>
+<p>A volte, tuttavia, gli oggetti specificati mostrano comportamenti diversi in base a ciò che viene passato ai rispettivi costruttori o metodi o a ciò che ottengono chiamando altri oggetti. Per esempio:</p>
+<ul class="simple">
+<li><p>nella nostra applicazione, potremmo avere una politica di licenza in base alla quale è consentito l'utilizzo di una funzionalità solo quando la licenza è valida e negata dopo la sua scadenza. In tal caso, il comportamento prima della data di scadenza è diverso da quello successivo -- la data di scadenza è il limite del comportamento funzionale.</p></li>
+<li><p>Alcuni negozi sono aperti dalle 10:00 alle 18:00, quindi se nella nostra applicazione avessimo una domanda se il negozio è attualmente aperto, ci aspetteremmo che ricevesse una risposta diversa in base all'ora corrente. Anche qui, le date di apertura e di chiusura rappresentano i limiti del comportamento funzionale.</p></li>
+<li><p>Un algoritmo che calcola il valore assoluto di un numero intero restituisce lo stesso numero per input maggiori o uguali a <code class="docutils literal notranslate"><span class="pre">0</span></code> ma nega l'input per numeri negativi. Pertanto, <code class="docutils literal notranslate"><span class="pre">0</span></code> segna il confine funzionale in questo caso.</p></li>
+</ul>
+<p>In questi casi, dobbiamo scegliere attentamente i nostri valori di input per ottenere un livello di confidenza sufficiente evitando di specificare eccessivamente i comportamenti con troppi Statement (che di solito introducono penalità sia nel tempo di esecuzione delle Specifiche che nella manutenzione). Scott e Amir si basano sulle pratiche comprovate della comunità di testing<a class="footnote-reference brackets" href="#istqb" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> e ci danno alcuni consigli su come scegliere i valori. Descriverò queste linee guida (leggermente modificate in più punti) in tre parti:</p>
+<ol class="arabic simple">
+<li><p>specificando eccezioni alle regole -- dove il comportamento è lo stesso per ogni valore di input tranne uno o più valori specificati esplicitamente,</p></li>
+<li><p>specificando i confini</p></li>
+<li><p>specificando gli intervalli -- dove ci sono più confini.</p></li>
+</ol>
+</section>
+<section id="exceptions-to-the-rule">
+<h2>Eccezioni alla regola<a class="headerlink" href="#exceptions-to-the-rule" title="Link to this heading">¶</a></h2>
+<p>Ci sono momenti in cui uno  Statement è vero per ogni valore tranne uno (o più) esplicitamente specificato. Il mio approccio varia leggermente a seconda dell'insieme di valori possibili e del numero di eccezioni. Fornirò tre esempi per aiutare a capire meglio queste variazioni.</p>
+<section id="example-1-a-single-exception-from-a-large-set-of-values">
+<h3>Esempio 1: una singola eccezione da un ampio insieme di valori<a class="headerlink" href="#example-1-a-single-exception-from-a-large-set-of-values" title="Link to this heading">¶</a></h3>
+<p>In alcuni paesi alcune cifre vengono evitate, ad es. nei numeri dei piani di alcuni ospedali e alberghi a causa di alcune superstizioni locali o semplicemente perché hanno un suono simile a un'altra parola che ha un significato molto negativo. Un esempio di ciò è la /tetrafobia/<a class="footnote-reference brackets" href="#tetraphobia" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, che porta a saltare la cifra <code class="docutils literal notranslate"><span class="pre">4</span></code>, poiché in alcune lingue suona simile alla parola &quot;morte&quot;. In altre parole, qualsiasi numero contenente <code class="docutils literal notranslate"><span class="pre">4</span></code> viene evitato e quando si entra nell'edificio si potrebbe non trovare un quarto (o quattordicesimo) piano. Immaginiamo di avere diverse regole simili per i nostri hotel in diverse parti del mondo e vogliamo che il software ci dica se una determinata cifra è consentita dalle superstizioni locali. Una di queste regole deve essere implementata da una classe chiamata <code class="docutils literal notranslate"><span class="pre">Tetraphobia</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Tetraphobia</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">LocalSuperstition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Allows</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="n">number</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">(</span><span class="s">&quot;not implemented yet&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Implementa l'interfaccia <code class="docutils literal notranslate"><span class="pre">LocalSuperstition</span></code> che ha un metodo <code class="docutils literal notranslate"><span class="pre">Allows()</span></code>, quindi per motivi di correttezza della compilazione, abbiamo dovuto creare la classe e il metodo. Ora che lo abbiamo, vogliamo testare l'implementazione. Quali Statement scriviamo?</p>
+<p>Ovviamente abbiamo bisogno di una dichiarazione che dica cosa succede quando passiamo una cifra non consentita:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldReject4</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">tetraphobia</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Tetraphobia</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">isFourAccepted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tetraphobia</span><span class="p">.</span><span class="n">Allows</span><span class="p">(</span><span class="sc">&#39;4&#39;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">isFourAccepted</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che utilizziamo il valore specifico per il quale si verifica il comportamento eccezionale. Tuttavia, potrebbe essere un'ottima idea estrarre <code class="docutils literal notranslate"><span class="pre">4</span></code> in una costante. In uno dei capitoli precedenti, ho descritto una tecnica chiamata <strong>Constant Specification</strong> [<em>Specifica Costante</em>], in cui scriviamo una dichiarazione esplicita sul valore della costante denominata e utilizziamo la costante denominata stessa ovunque invece del suo valore letterale. Allora perché non ho usato questa tecnica questa volta? L'unico motivo è che questo potrebbe sembrare un po' sciocco con un esempio così banale. In realtà, avrei dovuto utilizzare il nome della costante. Facciamo adesso questo esercizio e vediamo cosa succede.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldRejectSuperstitiousValue</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">tetraphobia</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Tetraphobia</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">isSuperstitiousValueAccepted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="n">tetraphobia</span><span class="p">.</span><span class="n">Allows</span><span class="p">(</span><span class="n">Tetraphobia</span><span class="p">.</span><span class="n">SuperstitiousValue</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">isSuperstitiousValueAccepted</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quando lo facciamo, dobbiamo documentare la costante denominata con la seguente istruzione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldReturn4AsSuperstitiousValue</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="sc">&#39;4&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">Tetraphobia</span><span class="p">.</span><span class="n">SuperstitiousValue</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>È ora di uno Statement che descriva il comportamento per tutti i valori non-eccezionali. Questa volta utilizzeremo un metodo della classe <code class="docutils literal notranslate"><span class="pre">Any</span></code> chiamata <code class="docutils literal notranslate"><span class="pre">Any.OtherThan()</span></code>, che genera qualsiasi valore diverso da quello specificato (e produce codice gradevole e leggibile come effetto collaterale):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldAcceptNonSuperstitiousValue</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">tetraphobia</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Tetraphobia</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">isNonSuperstitiousValueAccepted</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">tetraphobia</span><span class="p">.</span><span class="n">Allows</span><span class="p">(</span><span class="n">Any</span><span class="p">.</span><span class="n">OtherThan</span><span class="p">(</span><span class="n">Tetraphobia</span><span class="p">.</span><span class="n">SuperstitiousValue</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">isNonSuperstitiousValueAccepted</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e questo è tutto -- di solito non scrivo più dichiarazioni in questi casi. I possibili valori di input sono così tanti che non sarebbe razionale specificarli tutti. Prendendo spunto dal famoso commento di Kent Beck da Stack Overflow<a class="footnote-reference brackets" href="#kentconfidence" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>, penso che il nostro compito non sia scrivere quanti più Statement possiamo, ma il meno possibile documentare veramente il sistema e darci il livello di fiducia desiderato.</p>
+</section>
+<section id="example-2-a-single-exception-from-a-small-set-of-values">
+<h3>Esempio 2: una singola eccezione da un piccolo insieme di valori<a class="headerlink" href="#example-2-a-single-exception-from-a-small-set-of-values" title="Link to this heading">¶</a></h3>
+<p>La situazione è diversa, tuttavia, quando il valore eccezionale viene scelto da un insieme piccolo -- questo è spesso il caso in cui il tipo di valore di input è un'enumerazione. Torniamo a un esempio tratto da uno dei nostri capitoli precedenti, in cui abbiamo specificato che esiste una sorta di funzionalità di reporting a cui è possibile accedere sia da un ruolo di amministratore che da un ruolo di revisore (auditor). Modifichiamo questo esempio per ora e diciamo che solo gli amministratori possono accedere alla funzione di reporting:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldGrantAdministratorsAccessToReporting</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Access</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">accessGranted</span><span class="w"> </span>
+<span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">access</span><span class="p">.</span><span class="n">ToReportingIsGrantedTo</span><span class="p">(</span><span class="n">Roles</span><span class="p">.</span><span class="n">Admin</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">accessGranted</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>L'approccio a questa parte non è diverso da quello che ho fatto nel primo esempio -- ho scritto una dichiarazione per il singolo valore eccezionale. È ora di pensare all'altro Statement -- quello che specifica cosa dovrebbe accadere per il resto dei ruoli. Vorrei descrivere due modi in cui questo compito può essere affrontato.</p>
+<p>Il primo modo è procedere come nell'esempio precedente -- scegliere un valore diverso da quello eccezionale. Questa volta utilizzeremo il metodo <code class="docutils literal notranslate"><span class="pre">Any.OtherThan()</span></code>, adatto a questo caso:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldDenyAnyRoleOtherThanAdministratorAccessToReporting</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Access</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">accessGranted</span><span class="w"> </span>
+<span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">access</span><span class="p">.</span><span class="n">ToReportingIsGrantedTo</span><span class="p">(</span><span class="n">Any</span><span class="p">.</span><span class="n">OtherThan</span><span class="p">(</span><span class="n">Roles</span><span class="p">.</span><span class="n">Admin</span><span class="p">));</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">accessGranted</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo approccio presenta due vantaggi:</p>
+<ol class="arabic simple">
+<li><p>Viene eseguito un solo Statement per il caso di &quot;access denied&quot;, quindi non vi è alcuna penalità significativa in termini di tempo di esecuzione.</p></li>
+<li><p>Nel caso in cui espandessimo la nostra enumerazione in futuro, non dovremo modificare questo Statement -- il membro dell'enumerazione aggiunto avrà la possibilità di essere selezionato.</p></li>
+</ol>
+<p>Tuttavia, c'è anche uno svantaggio -- non possiamo essere sicuri che il membro enum appena aggiunto venga utilizzato in questo Statement. Nell'esempio precedente, non ci importava molto dei valori utilizzati, perché:</p>
+<ul class="simple">
+<li><p>L'intervallo <code class="docutils literal notranslate"><span class="pre">char</span></code> era piuttosto ampio, quindi specificare i comportamenti per tutti i valori potrebbe rivelarsi problematico e inefficiente dato il livello di confidenza desiderato,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">char</span></code> è un insieme fisso di valori -- non possiamo espandere <code class="docutils literal notranslate"><span class="pre">char</span></code> come espandiamo le enumerazioni, quindi non è necessario preoccuparsi del futuro.</p></li>
+</ul>
+<p>E se ci fossero solo altri due ruoli tranne <code class="docutils literal notranslate"><span class="pre">Roles.Admin</span></code>, p. es. <code class="docutils literal notranslate"><span class="pre">Auditor</span></code> e <code class="docutils literal notranslate"><span class="pre">CasualUser</span></code>? In questi casi, a volte scrivo uno Statement che viene eseguito rispetto a tutti i valori non-eccezionali, utilizzando l'attributo <code class="docutils literal notranslate"><span class="pre">[Theory]</span></code> di xUnit.net che mi consente di eseguire lo stesso codice dello Statement con diversi set di argomenti. Un esempio qui sarebbe:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(Roles.Auditor)]</span>
+<span class="na">[InlineData(Roles.CasualUser)]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="nf">ShouldDenyAnyRoleOtherThanAdministratorAccessToReporting</span><span class="p">(</span><span class="n">Roles</span><span class="w"> </span><span class="n">role</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Access</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">accessGranted</span><span class="w"> </span>
+<span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">access</span><span class="p">.</span><span class="n">ToReportingIsGrantedTo</span><span class="p">(</span><span class="n">role</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">accessGranted</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Lo Statement di cui sopra viene eseguito sia per <code class="docutils literal notranslate"><span class="pre">Roles.Auditor</span></code> che per <code class="docutils literal notranslate"><span class="pre">Roles.CasualUser</span></code>. Lo svantaggio di questo approccio è che ogni volta che espandiamo un'enumerazione, dobbiamo tornare qui e aggiornare lo Statement. Poiché tendo a dimenticare queste cose, cerco di mantenere al massimo uno Statement nel sistema a seconda dell'enumerazione -- se trovo più di un punto in cui vario il mio comportamento in base ai valori di una particolare enumerazione, cambio il design per sostituire enum col polimorfismo. Gli Statements nel TDD possono essere utilizzati come strumento per rilevare problemi di progettazione e fornirò una discussione più approfondita su questo argomento in un prossimo capitolo.</p>
+</section>
+<section id="example-3-more-than-one-exception">
+<h3>Esempio 3: Più di un'eccezione<a class="headerlink" href="#example-3-more-than-one-exception" title="Link to this heading">¶</a></h3>
+<p>I due esempi precedenti presuppongono che vi sia una sola eccezione alla regola. Tuttavia, questo concetto può essere esteso a più valori, purché si tratti di un insieme finito e discreto. Se più valori eccezionali producono lo stesso comportamento, di solito provo a coprirli tutti utilizzando la funzionalità <code class="docutils literal notranslate"><span class="pre">[Theory]</span></code> menzionata di xUnit.net. Lo dimostrerò prendendo l'esempio precedente di concessione dell'accesso e presupponendo che questa volta sia gli amministratori che i revisori siano autorizzati a utilizzare la funzionalità. Uno Statement per il comportamento assomiglierebbe a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(Roles.Admin)]</span>
+<span class="na">[InlineData(Roles.Auditor)]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="nf">ShouldAllowAccessToReportingBy</span><span class="p">(</span><span class="n">Roles</span><span class="w"> </span><span class="n">role</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Access</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">accessGranted</span><span class="w"> </span>
+<span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">access</span><span class="p">.</span><span class="n">ToReportingIsGrantedTo</span><span class="p">(</span><span class="n">role</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">accessGranted</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Nell'ultimo esempio, ho utilizzato questo approccio per i valori non-eccezionali, dicendo che questo è ciò che a volte faccio. Tuttavia, quando si specificano più eccezioni alla regola, questo è il mio approccio di default -- la natura dei valori eccezionali è che sono rigorosamente specificati, quindi voglio che siano tutti inclusi nella mia Specifica.</p>
+<p>Questa volta non mostrerò lo Statement per valori non-eccezionali poiché segue l'approccio delineato nell'esempio precedente.</p>
+</section>
+</section>
+<section id="rules-valid-within-boundaries">
+<h2>Regole valide entro i confini<a class="headerlink" href="#rules-valid-within-boundaries" title="Link to this heading">¶</a></h2>
+<p>A volte, un comportamento varia attorno a un confine. Un semplice esempio potrebbe essere una regola su come determinare se qualcuno è adulto o meno. Di solito si è considerati adulti dopo aver raggiunto una certa età, diciamo, 18 anni. Fingendo di operare sulla base degli anni (senza tenere conto dei mesi), la regola è:</p>
+<ol class="arabic simple">
+<li><p>Quando l'età in anni è inferiore a 18 anni non è considerato adulto.</p></li>
+<li><p>Quando l'età in anni è almeno 18, si è considerati adulti.</p></li>
+</ol>
+<p>Come si può vedere, esiste un confine tra i due comportamenti. Il &quot;bordo destro&quot; di questo confine è 18. Perché dico &quot;bordo destro&quot;? Questo perché il confine ha sempre due bordi, il che, tra l'altro, significa anche che ha una lunghezza. Se assumiamo che stiamo parlando della regola dell'età adulta menzionata e che il nostro dominio numerico è quello dei numeri interi, possiamo anche usare <code class="docutils literal notranslate"><span class="pre">17</span></code> invece di <code class="docutils literal notranslate"><span class="pre">18</span></code> come valore del bordo e dire che:</p>
+<ol class="arabic simple">
+<li><p>Quando l'età in anni è al massimo di 17 anni, non è considerato un adulto.</p></li>
+<li><p>Quando l'età in anni è superiore a 17 anni, si è considerati adulti.</p></li>
+</ol>
+<p>Quindi un confine non è un singolo numero -- ma ha sempre una lunghezza -- ovvero la lunghezza tra l'ultimo valore del comportamento precedente e il primo valore del comportamento successivo. Nel caso del nostro esempio, la lunghezza tra <code class="docutils literal notranslate"><span class="pre">17</span></code> (bordo sinistro -- ultima età non-adulta) e <code class="docutils literal notranslate"><span class="pre">18</span></code> (bordo destro -- primo valore adulto) è <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p>
+<p>Ora, si immagini di non parlare più di valori interi, ma di trattare il tempo per quello che è -- un continuum. Quindi il valore del bordo destro sarebbe ancora di 18 anni. Ma per quanto riguarda il bordo sinistro? Non sarebbe possibile mantenerlo per 17 anni, poiché la regola si applicherebbe ad es. Anche 17 anni e 1 giorno. Quindi qual è il valore corretto del bordo destro e la lunghezza corretta del confine? Il bordo sinistro dovrebbe essere di 17 anni e 11 mesi? Oppure 17 anni, 11 mesi, 365/366 giorni (qui abbiamo la questione dell'anno bisestile)? O forse 17 anni, 11 mesi, 365/366 giorni, 23 ore, 59 minuti, ecc.? È più difficile rispondere a questa domanda e dipende fortemente dal contesto -- è necessario rispondere per ogni caso particolare in base al dominio e alle esigenze aziendali -- in questo modo sappiamo che tipo di precisione ci si aspetta da noi.</p>
+<p>Nelle nostre Specifiche, dobbiamo documentare in qualche modo la lunghezza del confine. Ciò porta una domanda interessante: come descrivere la lunghezza del confine con gli Statement? Per illustrare ciò, voglio mostrare due Statement che descrivono il citato calcolo dell'età adulta espresso utilizzando il granulo degli anni (quindi tralasciamo mesi, giorni, ecc.).</p>
+<p>Il primo Statement è per valori inferiori a 18 e vogliamo specificarlo per il valore del bordo sinistro (cioè <code class="docutils literal notranslate"><span class="pre">17</span></code>), ma calcolato rispetto al valore del bordo destro (cioè invece di scrivere <code class="docutils literal notranslate"><span class="pre">17</span></code>, scriviamo <code class="docutils literal notranslate"><span class="pre">18-1</span></code>):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldNotBeSuccessfulForAgeLessThan18</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">detection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AdultAgeDetection</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">notAnAdult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">18</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">//more on this later</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">isSuccessful</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">detection</span><span class="p">.</span><span class="n">PerformFor</span><span class="p">(</span><span class="n">notAnAdult</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">isSuccessful</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E il prossimo Statement per valori maggiori o uguali a 18 e vogliamo utilizzare il valore del bordo destro:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldBeSuccessfulForAgeGreaterThanOrEqualTo18</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">detection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AdultAgeDetection</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">adult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">18</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">isSuccessful</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">detection</span><span class="p">.</span><span class="n">PerformFor</span><span class="p">(</span><span class="n">adult</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">isSuccessful</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ci sono due cose da notare su questi esempi. Il primo è che non ho utilizzato alcun tipo di metodo <code class="docutils literal notranslate"><span class="pre">Any</span></code>. Utilizzo <code class="docutils literal notranslate"><span class="pre">Any</span></code> nei casi in cui non ho un limite o quando non considero alcun valore di una classe di equivalenza migliore di altri in un modo particolare. Quando specifico i limiti, tuttavia, invece di utilizzare metodi come <code class="docutils literal notranslate"><span class="pre">Any.IntegerGreaterOrEqualTo(18)</span></code>, utilizzo i valori dei bordi poiché trovo che definiscono più rigorosamente il confine e guidano la giusta implementazione. Inoltre, specificare esplicitamente i comportamenti per i valori dei bordi mi consente di documentare la lunghezza del confine.</p>
+<p>La seconda cosa da notare è l'uso della costante letterale <code class="docutils literal notranslate"><span class="pre">18</span></code> nell'esempio sopra. In uno dei capitoli precedenti, ho descritto una tecnica chiamata <strong>Constant Specification</strong> che consiste nello scrivere uno Statement esplicito sul valore della costante denominata e utilizzare il nome della costante ovunque invece del suo valore letterale. Allora perché non ho usato questa tecnica questa volta?</p>
+<p>L'unico motivo è che questo potrebbe sembrare un po' sciocco con un esempio estremamente banale come il rilevamento dell'età adulta. In realtà, avrei dovuto utilizzare il nome della costante in entrambe le dichiarazioni e avrebbe mostrato la lunghezza del confine in modo ancora più chiaro. Eseguiamo ora questo esercizio e vediamo cosa succede.</p>
+<p>Per prima cosa documentiamo il nome della costante con la seguente dichiarazione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldIncludeMinimumAdultAgeEqualTo18</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="w"> </span><span class="n">Age</span><span class="p">.</span><span class="n">MinimumAdult</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora abbiamo tutto ciò di cui abbiamo bisogno per riscrivere i due Statement scritti in precedenza. Il primo sarebbe simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldNotBeSuccessfulForLessThanMinimumAdultAge</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">detection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AdultAgeDetection</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">notAnAdultYet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Age</span><span class="p">.</span><span class="n">MinimumAdult</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">isSuccessful</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">detection</span><span class="p">.</span><span class="n">PerformFor</span><span class="p">(</span><span class="n">notAnAdultYet</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">isSuccessful</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E il prossimo Statement per valori maggiori o uguali a 18 sarebbe simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldBeSuccessfulForAgeGreaterThanOrEqualToMinimumAdultAge</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">detection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AdultAgeDetection</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">adultAge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Age</span><span class="p">.</span><span class="n">MinimumAdult</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">isSuccessful</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">detection</span><span class="p">.</span><span class="n">PerformFor</span><span class="p">(</span><span class="n">adultAge</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">isSuccessful</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Come si vede, il primo Statement contiene la seguente espressione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Age</span><span class="p">.</span><span class="n">MinimumAdult</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>dove <code class="docutils literal notranslate"><span class="pre">1</span></code> è la lunghezza esatta del confine. Come ho detto prima, l’esempio è così banale che può sembrare sciocco e divertente, tuttavia, in scenari reali, questa è una tecnica che applico sempre e ovunque.</p>
+<p>Potrebbe sembrare che i confini si applichino solo all'input numerico, ma si trovano in molti altri posti. Ci sono limiti associati a data/ora (ad esempio, il calcolo dell'età adulta sarebbe questo tipo di caso se non ci fermassimo a contare gli anni ma considerassimo invece il tempo come un continuum -- bisognerebbe decidere se abbiamo bisogno di precisione in secondi o magari in tick) o stringhe (es. validazione del nome utente dove deve essere di almeno 2 caratteri, oppure password che deve contenere almeno 2 caratteri speciali). Si applicano anche alle espressioni regolari. Ad esempio, per una semplice regex <code class="docutils literal notranslate"><span class="pre">\d+</span></code>, dovremmo sicuramente specificare almeno tre valori: una stringa vuota, una singola cifra e una singola non cifra.</p>
+</section>
+<section id="combination-of-boundaries-ranges">
+<h2>Combinazione di confini -- intervalli<a class="headerlink" href="#combination-of-boundaries-ranges" title="Link to this heading">¶</a></h2>
+<p>Gli esempi precedenti si concentravano su un unico confine. Che dire allora di una situazione in cui ce ne sono più, ovvero un comportamento è valido entro un intervallo?</p>
+<section id="example-driving-license">
+<h3>Esempio -- patente di guida<a class="headerlink" href="#example-driving-license" title="Link to this heading">¶</a></h3>
+<p>Consideriamo il seguente esempio: viviamo in un paese in cui un cittadino può ottenere la patente di guida solo dopo i 18 anni, ma prima dei 65 (il governo ha deciso che le persone dopo i 65 anni potrebbero avere una vista peggiore e che è più sicuro non dare loro una nuova patente). Supponiamo di voler sviluppare una classe che risponda alla domanda se possiamo richiedere la patente di guida e i valori restituiti da questa query sono i seguenti:</p>
+<ol class="arabic simple">
+<li><p>Età &lt; 18 -- restituisce il valore enum <code class="docutils literal notranslate"><span class="pre">QueryResults.TooYoung</span></code></p></li>
+<li><p>18 &lt;= età &lt;= 65 -- restituisce il valore enum <code class="docutils literal notranslate"><span class="pre">QueryResults.AllowedToApply</span></code></p></li>
+<li><p>Età &gt; 65 -- restituisce il valore enum <code class="docutils literal notranslate"><span class="pre">QueryResults.TooOld</span></code></p></li>
+</ol>
+<p>Ora, ci si ricorda che ho scritto che specifico i comportamenti con i limiti utilizzando i valori dei bordi? Questo approccio, se applicato alla situazione appena descritta, mi darebbe i seguenti Statement:</p>
+<ol class="arabic simple">
+<li><p>Età = 17, dovrebbe restituire il risultato <code class="docutils literal notranslate"><span class="pre">QueryResults.TooYoung</span></code></p></li>
+<li><p>Età = 18, dovrebbe restituire il risultato <code class="docutils literal notranslate"><span class="pre">QueryResults.AllowedToApply</span></code></p></li>
+<li><p>Età = 65, dovrebbe restituire il risultato <code class="docutils literal notranslate"><span class="pre">QueryResults.AllowedToApply</span></code></p></li>
+<li><p>Età = 66, dovrebbe restituire il risultato <code class="docutils literal notranslate"><span class="pre">QueryResults.TooOld</span></code></p></li>
+</ol>
+<p>pertanto, descriverei il comportamento in cui la query dovrebbe restituire due volte il valore <code class="docutils literal notranslate"><span class="pre">AllowedToApply</span></code>. Questo non è un grosso problema se mi aiuta a documentare i confini.</p>
+<p>Il primo Statement dice cosa dovrebbe succedere fino ai 17 anni:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldRespondThatAgeLessThan18IsTooYoung</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DrivingLicenseQuery</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">query</span><span class="p">.</span><span class="n">ExecuteFor</span><span class="p">(</span><span class="mi">18</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">QueryResults</span><span class="p">.</span><span class="n">TooYoung</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il secondo Statement ci dice che la fascia 18 -- 65 è quella in cui un cittadino può richiedere la patente di guida. Lo scrivo come una teoria (usando nuovamente l'attributo <code class="docutils literal notranslate"><span class="pre">[InlineData()]</span></code> di xUnit.net) perché questo intervallo ha due limiti attorno ai quali cambia il comportamento:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(18, QueryResults.AllowedToApply)]</span>
+<span class="na">[InlineData(65, QueryResults.AllowedToApply)]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldRespondThatDrivingLicenseCanBeAppliedForInRangeOf18To65</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">,</span><span class="w"> </span><span class="n">QueryResults</span><span class="w"> </span><span class="n">expectedResult</span>
+<span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DrivingLicenseQuery</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">query</span><span class="p">.</span><span class="n">ExecuteFor</span><span class="p">(</span><span class="n">age</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedResult</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>L'ultimo Statement specifica quale dovrebbe essere la risposta quando qualcuno ha più di 65 anni:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldRespondThatAgeMoreThan65IsTooOld</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DrivingLicenseQuery</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">query</span><span class="p">.</span><span class="n">ExecuteFor</span><span class="p">(</span><span class="mi">65</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">QueryResults</span><span class="p">.</span><span class="n">TooOld</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che ho usato 18-1 e 65+1 invece di 17 e 66 per mostrare che 18 e 65 sono i valori limite e che la lunghezza dei confini è, in entrambi i casi, 1. Naturalmente, avrei dovuto usare costanti al posto di 18 e 65 (forse qualcosa come <code class="docutils literal notranslate"><span class="pre">MinimumApplicantAge</span></code> e <code class="docutils literal notranslate"><span class="pre">MaximumApplicantAge</span></code>) -- lo lascerò come esercizio al lettore.</p>
+</section>
+<section id="example-setting-an-alarm">
+<h3>Esempio -- impostare un allarme<a class="headerlink" href="#example-setting-an-alarm" title="Link to this heading">¶</a></h3>
+<p>Nell'esempio precedente siamo stati abbastanza fortunati perché la logica specificata era puramente funzionale (cioè restituiva risultati diversi in base a input diversi). Grazie a ciò, durante la stesura della teoria per la fascia di età 18-65 anni, abbiamo potuto parametrizzare i valori di input insieme ai risultati attesi. Non è sempre così. Ad esempio, immaginiamo di avere una classe <code class="docutils literal notranslate"><span class="pre">Clock</span></code> che ci consente di programmare un allarme. La classe ci consente di impostare l'ora in modo sicuro tra 0 e 24, altrimenti genera un'eccezione.</p>
+<p>Questa volta devo scrivere due Statement parametrizzati -- uno in cui viene restituito un valore (per i casi validi) e l'altro in cui viene generata l'eccezione (per i casi non validi). Il primo sarebbe simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(Hours.Min)]</span>
+<span class="na">[InlineData(Hours.Max)]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="nf">ShouldBeAbleToSetHourBetweenMinAndMax</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">inputHour</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Clock</span><span class="p">();</span>
+<span class="w">  </span><span class="n">clock</span><span class="p">.</span><span class="n">SetAlarmHour</span><span class="p">(</span><span class="n">inputHour</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">setHour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">.</span><span class="n">GetAlarmHour</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">inputHour</span><span class="p">,</span><span class="w"> </span><span class="n">setHour</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e il secondo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(Hours.Min-1)]</span>
+<span class="na">[InlineData(Hours.Max+1)]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="nf">ShouldThrowOutOfRangeExceptionWhenTryingToSetAlarmHourOutsideValidRange</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">inputHour</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Clock</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN - THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Throws</span><span class="o">&lt;</span><span class="n">OutOfRangeException</span><span class="o">&gt;</span><span class="p">(</span><span class="w"> </span>
+<span class="w">    </span><span class="p">()</span><span class="o">=&gt;</span><span class="w"> </span><span class="n">clock</span><span class="p">.</span><span class="n">SetAlarmHour</span><span class="p">(</span><span class="n">inputHour</span><span class="p">)</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A parte questo, ho usato lo stesso approccio dell'ultima volta.</p>
+</section>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>In questo capitolo ho descritto come specificare i limiti funzionali con una quantità minima di codice e Statement, in modo che la Specifica sia più mantenibile e venga eseguita più velocemente. Rimane ancora un altro tipo di situazione: quando abbiamo condizioni composte (ad esempio, una password deve contenere almeno 10 caratteri e contenere almeno 2 caratteri speciali) -- torneremo a quelle quando introdurremo gli oggetti mock.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="istqb" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>vedere ad es. il capitolo 4.3 del &quot;Foundation Level Syllabus&quot; di ISQTB all'indirizzo https://istqb.ita-stqb.org/docs/ITASTQB-FLSY-V4.pdf</p>
+</aside>
+<aside class="footnote brackets" id="tetraphobia" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>https://it.wikipedia.org/wiki/Tetrafobia</p>
+</aside>
+<aside class="footnote brackets" id="kentconfidence" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>https://stackoverflow.com/questions/153234/how-deep-are-your-unit-tests/153565#153565</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Specificare i confini e le condizioni funzionali</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sometimes-an-anonymous-value-is-not-enough">A volte un valore anonimo non è sufficiente</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exceptions-to-the-rule">Eccezioni alla regola</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rules-valid-within-boundaries">Regole valide entro i confini</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#combination-of-boundaries-ranges">Combinazione di confini -- intervalli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="120_Constrained_Non_Determinism.html" title="capitolo precedente">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+      <li>Next: <a href="140_Triangulation.html" title="capitolo successivo">Guidare l'implementazione dalle Specifiche</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/130_Boundaries.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

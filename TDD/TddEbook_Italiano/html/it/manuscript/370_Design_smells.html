@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Odori del design visibile nella Specifica &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL" href="End.html" />
+    <link rel="prev" title="Cosa c&#39;è dentro l&#39;oggetto?" href="360_Internals.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="design-smells-visible-in-the-specification">
+<h1>Odori del design visibile nella Specifica<a class="headerlink" href="#design-smells-visible-in-the-specification" title="Link to this heading">¶</a></h1>
+<p>Nei capitoli precedenti, ho sottolineato più volte come gli oggetti mock possano e debbano essere utilizzati come strumento di progettazione, contribuendo a definire i protocolli tra oggetti collaborativi. Questo perché esiste qualcosa che chiamo <em>Discordanza tra approccio di test e di progettazione</em>. Il modo in cui ho scelto di esprimerlo è:</p>
+<p>&quot;L'approccio di automazione dei test e l'approccio di progettazione devono vivere in simbiosi, basandosi su un insieme di presupposti simili e puntando agli stessi obiettivi. Se lo fanno, si rafforzano a vicenda. Se non lo fanno, ci saranno attriti tra loro&quot;.</p>
+<p>Ritengo che questo sia universalmente vero. Ad esempio, se testo un'applicazione asincrona come se stessi testando un'applicazione sincrona o se provo a testare un'API web JSON utilizzando uno strumento di clic, il mio codice non funzionerà correttamente o avrà un aspetto strano. Probabilmente dovrò impegnarmi di più per compensare la discrepanza tra l'approccio di test e quello di progettazione. Per questo motivo, alcuni che preferiscono approcci di progettazione molto diversi <a class="reference external" href="https://medium.com/javascript-scene/mocking-is-a-code-smell-944a70c90a6a">considerano gli oggetti mock un odore</a>.</p>
+<p>Lo sto riscontrando anche a livello di unità. In questo libro, utilizzo la terminologia di specifica invece di quella di test. Quindi, posso dire che, scrivendo la mia Specifica a livello di unità e utilizzando oggetti mock nelle mie Istruzioni, mi aspetto che il mio progetto abbia determinate proprietà e trovo queste proprietà desiderabili. Se il mio codice non mostra queste proprietà, mi renderà la vita più difficile. L'altro lato della medaglia è che se mi alleno a riconoscere le situazioni in cui gli approcci di progettazione e di specifica divergono e gli schemi con cui ciò avviene, posso usare questa conoscenza per migliorare il mio progetto.</p>
+<p>In questo capitolo, presento alcuni degli odori che si possono vedere nelle Istruzioni ma che in realtà sono problemi di progettazione. Tutti questi odori provengono dalla community e li potete trovare catalogati altrove.</p>
+<section id="design-smells-catalog">
+<h2>Catalogo degli odori del design<a class="headerlink" href="#design-smells-catalog" title="Link to this heading">¶</a></h2>
+<section id="specifying-the-same-behavior-in-many-places">
+<h3>Specificare lo stesso comportamento in molti punti<a class="headerlink" href="#specifying-the-same-behavior-in-many-places" title="Link to this heading">¶</a></h3>
+<p>A volte, quando scrivo un'istruzione, ho un déjà vu e inizio a pensare &quot;Ricordo di aver già specificato un comportamento come questo&quot;. Mi capita soprattutto quando quell'altra volta non è poi così lontana, magari anche solo un paio di minuti fa.</p>
+<p>Considerate la seguente Istruzione che descrive una logica di generazione di regole di reporting:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldReportAllEmployeesWhenExecuted</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">employee1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">employee2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">employee3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">allEmployees</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="n">employee1</span><span class="p">,</span><span class="w"> </span><span class="n">employee2</span><span class="p">,</span><span class="w"> </span><span class="n">employee3</span><span class="p">};</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reportBuilder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReportBuilder</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">employeeReportingRule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">EmployeeReport</span><span class="p">(</span><span class="n">allEmployees</span><span class="p">,</span><span class="w"> </span><span class="n">reportBuilder</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="n">employeeReportingRule</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">reportBuilder</span><span class="p">.</span><span class="n">AddHeader</span><span class="p">();</span>
+<span class="w">    </span><span class="n">employee1</span><span class="p">.</span><span class="n">AddTo</span><span class="p">(</span><span class="n">report</span><span class="p">);</span>
+<span class="w">    </span><span class="n">employee2</span><span class="p">.</span><span class="n">AddTo</span><span class="p">(</span><span class="n">report</span><span class="p">);</span>
+<span class="w">    </span><span class="n">employee3</span><span class="p">.</span><span class="n">AddTo</span><span class="p">(</span><span class="n">report</span><span class="p">);</span>
+<span class="w">    </span><span class="n">reportBuilder</span><span class="p">.</span><span class="n">AddFooter</span><span class="p">();</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, un'altra Istruzione per una regola diversa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldReportTotalCost</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">calculatedTotalCost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Integer</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reportBuilder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReportBuilder</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">costReportingRule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">EmployeeReport</span><span class="p">(</span><span class="n">totalCost</span><span class="p">,</span><span class="w"> </span><span class="n">reportBuilder</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="n">employeeReportingRule</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">reportBuilder</span><span class="p">.</span><span class="n">AddHeader</span><span class="p">();</span>
+<span class="w">    </span><span class="n">reportBuilder</span><span class="p">.</span><span class="n">AddTotalCost</span><span class="p">(</span><span class="n">totalCost</span><span class="p">);</span>
+<span class="w">    </span><span class="n">reportBuilder</span><span class="p">.</span><span class="n">AddFooter</span><span class="p">();</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E notate che devo specificare di nuovo che un'intestazione e un piè di pagina vengono aggiunti al report. Questo potrebbe significare che c'è ridondanza nel design e forse ogni report, o almeno la maggior parte di essi, necessita di un'intestazione e un piè di pagina. Questa osservazione, amplificata dalla sensazione di inutilità nel descrivere lo stesso comportamento più volte, potrebbe portarmi a provare a estrarre una logica in un oggetto separato, magari un decoratore, che aggiungerà un piè di pagina prima della parte principale del report e un piè di pagina alla fine.</p>
+<section id="when-this-is-not-a-problem">
+<h4>Quando questo non è un problema<a class="headerlink" href="#when-this-is-not-a-problem" title="Link to this heading">¶</a></h4>
+<p>Il trucco per riconoscere la ridondanza nella progettazione è rilevare se il comportamento in entrambi i punti cambierà per le stesse ragioni e nello stesso modo. Questo è solitamente vero se entrambi i punti duplicano la stessa regola di dominio. Ma considerate queste due funzioni:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">double</span><span class="w"> </span><span class="nf">CmToM</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span><span class="w"> </span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">value</span><span class="o">/</span><span class="mi">100</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">double</span><span class="w"> </span><span class="nf">PercentToFraction</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span><span class="w"> </span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">value</span><span class="o">/</span><span class="mi">100</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Sebbene l'implementazione sia la stessa, la regola di dominio è diversa. In tali situazioni, non stiamo parlando di ridondanza, ma di coincidenza. Vedere anche <a class="reference external" href="https://enterprisecraftsmanship.com/posts/dry-damp-unit-tests/">l'eccellente post di Vladimir Khorikov su questo argomento</a>.</p>
+<p>La ridondanza nel codice è spesso definita &quot;violazione DRY (don't repeat yourself)&quot;. Da ricordare che DRY riguarda le regole di dominio, non il codice.</p>
+</section>
+</section>
+<section id="many-mocks">
+<h3>Molti mock<a class="headerlink" href="#many-mocks" title="Link to this heading">¶</a></h3>
+<p>Finora, ho pubblicizzato l'utilizzo di mock nella modellazione dei ruoli nelle Statement. Quindi, il mocking è una buona cosa, giusto? Beh, non esattamente. Attraverso gli oggetti mock, possiamo vedere come la classe che specifichiamo interagisce con il suo contesto. Se le interazioni sono complesse, le Istruzioni lo mostreranno. Questo non è qualcosa che dovremmo ignorare. Al contrario, la capacità di vedere questo problema attraverso le nostre istruzioni è uno dei motivi principali per cui utilizziamo i mock.</p>
+<p>Uno dei sintomi dei problemi di progettazione è l'eccesso di mock. Possiamo provare fastidio sia durante la scrittura dell'istruzione (&quot;oh no, mi serve un altro mock&quot;) sia durante la lettura (&quot;così tanti mock, non riesco a vedere dove succede qualcosa di reale&quot;).</p>
+<section id="doing-too-much">
+<h4>Fare troppo<a class="headerlink" href="#doing-too-much" title="Link to this heading">¶</a></h4>
+<p>Potrebbe essere che una classe abbia bisogno di molte dipendenze perché fa troppe cose. Potrebbe eseguire la convalida, leggere la configurazione, sfogliare record persistenti, gestire errori, ecc. Il problema è che quando la classe è accoppiata a troppe cose, ci sono molte ragioni per cui la classe potrebbe cambiare.</p>
+<p>Un rimedio potrebbe essere quello di estrarre parti della logica in classi separate in modo che la classe specificata faccia meno con meno peer.</p>
+</section>
+</section>
+<section id="mocks-returning-mocks-returning-mocks">
+<h3>Mock che restituiscono mock che restituiscono mock<a class="headerlink" href="#mocks-returning-mocks-returning-mocks" title="Link to this heading">¶</a></h3>
+<p>I mock che restituiscono mock che restituiscono mock in genere indicano che il nostro codice non è costruito attorno all'euristica &quot;tell, don't ask&quot; e che la classe specificata è accoppiata a troppi tipi.</p>
+</section>
+<section id="many-unused-mocks">
+<h3>Troppi mock inutilizzati<a class="headerlink" href="#many-unused-mocks" title="Link to this heading">¶</a></h3>
+<p>Se passiamo molti mock in ogni Istruzione solo per riempire l'elenco dei parametri, potrebbe essere un segno di scarsa coesione.</p>
+<p>Avere molti mock inutilizzati è accettabile nelle classi facade, perché lo scopo delle facade è semplificare l'accesso a un sottosistema e in genere contengono riferimenti a molti oggetti, facendo poco con ciascuno di essi.</p>
+</section>
+<section id="mock-stubbing-and-verifying-the-same-call">
+<h3>Blocco Stubdel e verifica della stessa chiamata<a class="headerlink" href="#mock-stubbing-and-verifying-the-same-call" title="Link to this heading">¶</a></h3>
+<p>Consideriamo un esempio in cui la nostra applicazione gestisce un qualche tipo di risorsa e ogni richiedente ottiene uno &quot;slot&quot; in questa risorsa. La risorsa è rappresentata dalla seguente interfaccia:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">interface</span><span class="w"> </span><span class="n">ISharedResource</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">SlotId</span><span class="w"> </span><span class="nf">AssignSlot</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>quando si specificano i comportamenti di qualsiasi classe che utilizza questa risorsa, verrà utilizzato un mock:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">resource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ISharedResource</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>vogliamo descrivere che una prenotazione di slot in una risorsa condivisa viene tentata una sola volta, quindi avremo la seguente chiamata sul nostro mock:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">resource</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">AssignSlot</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Ma dovremo anche descrivere cosa succede quando lo slot viene assegnato correttamente o quando l'assegnazione fallisce, quindi dobbiamo configurare il mock in modo che restituisca qualcosa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">resource</span><span class="p">.</span><span class="n">AssignSlot</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">slotId</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Avere sia l'impostazione di un valore di ritorno che la verifica della chiamata allo stesso metodo in un'istruzione è un segno che stiamo violando il principio di separazione comando-query. Questo limiterà la nostra capacità di elevare il polimorfismo nelle implementazioni di questa interfaccia.</p>
+<p>Ma cosa possiamo fare al riguardo?</p>
+<section id="pass-a-continuation">
+<h4>passare una continuazione<a class="headerlink" href="#pass-a-continuation" title="Link to this heading">¶</a></h4>
+<p>Potremmo passare un ruolo più completo che continuerà il flusso. Di seguito è riportato un esempio di passaggio di una cache in cui lo slot assegnato verrà salvato se l'assegnazione ha esito positivo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">resource</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">AssignSlot</span><span class="p">(</span><span class="n">cache</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="pass-a-callback">
+<h4>passaggio di una callback<a class="headerlink" href="#pass-a-callback" title="Link to this heading">¶</a></h4>
+<p>potremmo creare un ruolo speciale per un destinatario del risultato e passarlo all'interno del metodo <code class="docutils literal notranslate"><span class="pre">AssignSlot</span></code>, quindi farlo agire sul risultato:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">resource</span><span class="p">.</span><span class="n">AssignSlot</span><span class="p">(</span><span class="n">assignSlotResponse</span><span class="p">);</span>
+<span class="w">  </span><span class="n">assignSlotResponse</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">DisplayOn</span><span class="p">(</span><span class="n">screen</span><span class="p">);</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="pass-a-the-needed-collaborators-through-the-constructor">
+<h4>passare i collaboratori necessari attraverso il costruttore<a class="headerlink" href="#pass-a-the-needed-collaborators-through-the-constructor" title="Link to this heading">¶</a></h4>
+<p>A volte potremmo rimuovere completamente la nozione di risultato dall'interfaccia e rendere il suo passaggio un dettaglio implementativo. Ecco l'Istruzione in cui non specifichiamo nulla sulla gestione di un potenziale risultato:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">resource</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">AssignSlot</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>le implementazioni sono ancora libere di fare ciò che vogliono (o nulla) a seconda del successo o del fallimento dell'assegnazione. Una di queste implementazioni potrebbe avere un costruttore simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">CacheBackedSharedResource</span><span class="p">(</span><span class="n">IAssignmentCache</span><span class="w"> </span><span class="n">cache</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>e potrebbe usare il suo argomento costruttore per delegare parte della logica.</p>
+</section>
+<section id="when-is-this-not-a-problem">
+<h4>Quando questo non è un problema?<a class="headerlink" href="#when-is-this-not-a-problem" title="Link to this heading">¶</a></h4>
+<p>TODO: I/O boundary - a volte è più facile restituire qualcosa che far passare un collaboratore attraverso un limite architetturale.</p>
+</section>
+</section>
+<section id="trying-to-mock-a-third-party-interface">
+<h3>Tentare di simulare un'interfaccia di terze parti<a class="headerlink" href="#trying-to-mock-a-third-party-interface" title="Link to this heading">¶</a></h3>
+<p>Il classico libro sul TDD, Growing Object-Oriented Software Guided By Tests, suggerisce di non simulare tipi di cui non si è proprietari. Poiché i mock sono uno strumento di progettazione, vogliamo creare mock solo di tipi che possiamo controllare e che rappresentano astrazioni. Altrimenti siamo vincolati dalla definizione dell'interfaccia &quot;così com'è&quot; e non possiamo migliorare i nostri Statement migliorando il design.</p>
+<p>Significa che se ho una classe <code class="docutils literal notranslate"><span class="pre">File</span></code>, posso semplicemente racchiuderla in un'interfaccia sottile e creare un'interfaccia <code class="docutils literal notranslate"><span class="pre">IFile</span></code> per abilitare il mocking e sono a posto? Se il vincolo che impongo a questa interfaccia è che sia 1:1 rispetto al tipo che non possiedo, allora si torna al punto di partenza: ho ancora un'interfaccia definita in un modo che potrebbe rendere difficile la scrittura di Statement con mock e non c'è nulla che io possa fare al riguardo.</p>
+<p>Quindi cosa dovrei fare quando sono vicino al limite di I/O? Dovrei usare un tipo diverso di Statement, che vi mostrerò in una delle prossime parti di questo libro.</p>
+<section id="what-about-logging">
+<h4>E il logging?<a class="headerlink" href="#what-about-logging" title="Link to this heading">¶</a></h4>
+<p>Anche il libro GOOS affronta questo argomento: i logger delle librerie sono spesso onnipresenti in molte codebase. TODO https://learn.microsoft.com/en-us/dotnet/core/extensions/logger-message-generator and Support class.</p>
+</section>
+<section id="blinking-tests-because-of-generated-data">
+<h4>Test lampeggianti a causa dei dati generati<a class="headerlink" href="#blinking-tests-because-of-generated-data" title="Link to this heading">¶</a></h4>
+<p>Questo specifico &quot;odore&quot; non è correlato agli oggetti mock, ma piuttosto all'utilizzo del non determinismo vincolato.</p>
+<p>Quando un'Istruzione diventa instabile a causa dei dati generati come valori diversi a ogni esecuzione, ciò potrebbe significare che il comportamento è troppo dipendente dai dati e manca di astrazione. Il codice potrebbe apparire così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="n">customer</span><span class="p">.</span><span class="n">Accounts</span><span class="p">.</span><span class="n">First</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">IsPrimary</span><span class="p">).</span><span class="n">IsActive</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">customer</span><span class="p">.</span><span class="n">Status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CustomerStatus</span><span class="p">.</span><span class="n">Active</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Si noti che il codice controlla il flag <code class="docutils literal notranslate"><span class="pre">IsActive</span></code> (un valore booleano) del primo account impostato come primario (di nuovo, utilizzando un flag booleano <code class="docutils literal notranslate"><span class="pre">IsPrimary</span></code>). I valori booleani sono particolarmente vulnerabili alla generazione non deterministica perché hanno due possibili valori, ognuno dei quali si trova in genere in una classe di equivalenza diversa. E qui ne abbiamo due. Quindi mi aspetterei che le Istruzioni che utilizzano dati generati falliscano regolarmente in modo non deterministico.</p>
+<p>Una delle possibili soluzioni in questo caso potrebbe essere quella di creare un'astrazione sulla struttura dati del cliente e utilizzare un mock invece di una struttura dati generata. Qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="n">customer</span><span class="p">.</span><span class="n">HasActiveAccount</span><span class="p">())</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">customer</span><span class="p">.</span><span class="n">Activate</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questa è la soluzione più ingenua, da manuale. In realtà, potremmo persino finire per ripensare l'intero concetto di attivazione e questo potrebbe portarci a inventare nuovi ruoli interessanti.</p>
+<p>Molte volte ho incontrato persone che usavano generatori di dati come <code class="docutils literal notranslate"><span class="pre">Any</span></code> come lasciapassare per far circolare strutture dati mostruose e complicate (perché &quot;perché no? Posso generarle con una singola chiamata a <code class="docutils literal notranslate"><span class="pre">Any.Instance&lt;&gt;()</span></code>&quot;). Tuttavia, credo che dovrebbero lavorare nella direzione opposta: introducendo la nozione di non determinismo, mi costringono a essere più paranoico riguardo al contesto in cui opera il mio oggetto, per ridurre al minimo le sue &quot;parti mobili&quot;.</p>
+<p>TODO: esempio</p>
+<p>TODO: mancanza di astrazione</p>
+<p>TODO: ne ho bisogno?</p>
+</section>
+<section id="too-fine-grained-role-separation">
+<h4>Separazione dei ruoli troppo fine<a class="headerlink" href="#too-fine-grained-role-separation" title="Link to this heading">¶</a></h4>
+<p>Possiamo introdurre molti ruoli? Probabilmente.</p>
+<p>Ad esempio, potremmo avere una classe cache che svolge tre ruoli: <code class="docutils literal notranslate"><span class="pre">ItemWriter</span></code> per salvare gli elementi, <code class="docutils literal notranslate"><span class="pre">ItemReader</span></code> per leggerli ed <code class="docutils literal notranslate"><span class="pre">ExpiryCheck</span></code> per verificare se un elemento specifico è scaduto. Sebbene consideri una buona idea puntare a ruoli più precisi, se tutti vengono utilizzati nello stesso posto, ora dobbiamo creare tre mock per quello che sembra un insieme coerente di obblighi distribuiti su tre interfacce diverse.</p>
+</section>
+</section>
+</section>
+<section id="general-description">
+<h2>Descrizione generale<a class="headerlink" href="#general-description" title="Link to this heading">¶</a></h2>
+<p>cosa si intende per smell [<em>puzza</em>]? perché test <em>puzzolenti</em> indicano codice <em>puzzolente</em>?</p>
+</section>
+<section id="flavors">
+<h2>Essenze<a class="headerlink" href="#flavors" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>la stessa cosa in molti posti</p>
+<ul>
+<li><p>Ridondanza</p></li>
+<li><p>Quando questo non è un problema - disaccoppiamento di contesti diversi, nessuna reale ridondanza</p></li>
+</ul>
+</li>
+<li><p>Molti mock/ Grossi costruttori (GOOS) / Troppe dipendenze (GOOS)</p>
+<ul>
+<li><p>Accoppiamento</p></li>
+<li><p>Mancanza di astrazioni</p></li>
+<li><p>Non è un problema quando: facade</p></li>
+</ul>
+</li>
+<li><p>Blocco Stubdel e verifica della stessa chiamata</p>
+<ul>
+<li><p>Rompere il CQS</p></li>
+<li><p>Quando non è un problema: vicino al confine dell'I/O</p></li>
+</ul>
+</li>
+<li><p>Test blinking (Any + flag booleani e if su di essi, più modi per ottenere le stesse informazioni)</p>
+<ul>
+<li><p>troppa attenzione ai dati invece che alle astrazioni</p></li>
+<li><p>mancanza di incapsulamento dei dati</p></li>
+<li><p>Quando non è un problema: quando è solo un problema di test (test scritto male). Ancora un problema ma non un problema di progettazione.</p></li>
+</ul>
+</li>
+<li><p>Configurazioni eccessive (sostenibilità) - sia preparando i dati &amp; preparando l'unità con chiamate aggiuntive</p>
+<ul>
+<li><p>protocolli prolissi</p></li>
+<li><p>problemi di coesione</p></li>
+<li><p>accoppiamento (ad esempio a molti dati necessari)</p></li>
+<li><p>Quando non è un problema: test di livello superiore (ad esempio caricamento della configurazione) - forse questo significa ancora un'architettura di livello superiore scadente?</p></li>
+</ul>
+</li>
+<li><p>Esplosione combinatoria (TODO: confermare nome)</p>
+<ul>
+<li><p>problemi di coesione?</p></li>
+<li><p>livello di astrazione troppo basso (ad esempio, &quot;if&quot; alla collection)</p></li>
+<li><p>Quando non è un problema: tabelle decisionali (la logica del dominio si basa su molte decisioni e le abbiamo già disaccoppiate da altre parti della logica)</p></li>
+</ul>
+</li>
+<li><p>Necessità di affermarsi su campi privati</p>
+<ul>
+<li><p>Coesione</p></li>
+</ul>
+</li>
+<li><p>test pass-through (test di forwarding [<em>inoltro</em>] semplice delle chiamate)</p>
+<ul>
+<li><p>troppi livelli di astrazione.</p></li>
+<li><p>Succede anche nei decoratori quando le interfacce decorate sono troppo ampie</p></li>
+</ul>
+</li>
+<li><p>Imposta la coerenza delle chiamate mock (molti modi per ottenere le stesse informazioni, il codice testato può utilizzarli entrambi, quindi dobbiamo impostare più chiamate per comportarsi in modo coerente)</p>
+<ul>
+<li><p>Potrebbe significare un'interfaccia troppo ampia con troppe opzioni</p></li>
+<li><p>o livello di astrazione insufficiente</p></li>
+</ul>
+</li>
+<li><p>test eccessivamente protettivo (sustainabletdd) - controllo di comportamenti diversi da quello previsto per paura</p>
+<ul>
+<li><p>mancanza di coesione</p></li>
+<li><p>accoppiamento nascosto?</p></li>
+</ul>
+</li>
+<li><p>Avere mock/preparare framework/oggetti di libreria (ad esempio HttpRequest o sth).</p>
+<ul>
+<li><p>Nessun mock di ciò che non si possiede?</p></li>
+<li><p>Nel codice del dominio: accoppiamento ai dettagli tecnici</p></li>
+</ul>
+</li>
+<li><p>Matcher liberali (perdita del controllo su come gli oggetti fluiscono attraverso i metodi)</p>
+<ul>
+<li><p>coesione</p></li>
+<li><p>protocolli prolissi</p></li>
+<li><p>separare l'uso dalla costruzione</p></li>
+</ul>
+</li>
+<li><p>Incapsulare il protocollo (nascondere la configurazione del mock e la verifica dietro metodi helper perché sono troppo complessi o si ripetono in ogni test)</p>
+<ul>
+<li><p>Coesione (il codice ripetuto potrebbe essere spostato in una classe separata)</p></li>
+</ul>
+</li>
+<li><p>Ho bisogno di simulare un oggetto che non posso sostituire (GOOS)</p></li>
+<li><p>Moc di classi concrete (GOOS)</p></li>
+<li><p>Mock di oggetti simili a valori (GOOS)</p>
+<ul>
+<li><p>creare oggetti anziché valori</p></li>
+</ul>
+</li>
+<li><p>Oggetto confuso (GOOS)</p></li>
+<li><p>Troppe expectation (GOOS)</p></li>
+<li><p>Molti test in uno (difficile da configurare)</p></li>
+<li><p>guardare anche qui: https://www.yegor256.com/2018/12/11/unit-testing-anti-patterns.html</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Odori del design visibile nella Specifica</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#design-smells-catalog">Catalogo degli odori del design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-description">Descrizione generale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flavors">Essenze</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="360_Internals.html" title="capitolo precedente">Cosa c'è dentro l'oggetto?</a></li>
+      <li>Next: <a href="End.html" title="capitolo successivo">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/370_Design_smells.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Il test-driving ai confini di input &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Il test-driving ai confini di input -- una retrospettiva" href="300_NeedDrivenRetrospective1.html" />
+    <link rel="prev" title="Test-first [Testare prima] utilizzando oggetti mock" href="280_Start_with_a_failing_test_mocks.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="test-driving-at-the-input-boundary">
+<h1>Il test-driving ai confini di input<a class="headerlink" href="#test-driving-at-the-input-boundary" title="Link to this heading">¶</a></h1>
+<p>In questo capitolo ci uniremo nuovamente a Johnny e Benjamin mentre provano a testare un sistema partendo dai suoi confini di input. Si spera che ciò dimostri come si ottengono astrazioni dai bisogni e come si inventano i ruoli ai confini di un sistema. I capitoli successivi esploreranno il modello del dominio. Questo esempio fa diverse ipotesi:</p>
+<ol class="arabic simple">
+<li><p>In questa storia, Johnny è un superprogrammatore, che non commette mai errori. Nel TDD nella vita reale, le persone commettono errori e li correggono, a volte vanno avanti e indietro pensando ai test e alla progettazione. Qui, Johnny fa tutto bene la prima volta. Anche se so che questo è un calo di realismo, spero che possa aiutare i miei lettori a osservare come funzionano alcuni meccanismi del TDD. Questo è anche il motivo per cui Johnny e Benjamin non avranno bisogno di effettuare il refactoring di nulla in questo capitolo.</p></li>
+<li><p>Non ci saranno Statement scritti a un livello superiore a quello unitario. Ciò significa che Johnny e Benjamin eseguiranno il TDD utilizzando solo Statement a livello di unità. Questo è il motivo per cui dovranno fare alcune cose che potrebbero evitare se potessero scrivere uno Statement di livello superiore. Una parte separata di questo libro tratterà del lavoro con diversi livelli di Statement contemporaneamente.</p></li>
+<li><p>Questo capitolo (e molti dei successivi) eviteranno l'argomento relativo al lavoro con qualsiasi I/O, casualità e altri elementi difficili da testare. Per ora, voglio concentrarmi sulla logica del test-driving basata su codice puro.</p></li>
+</ol>
+<p>Detto questo, uniamoci a Johnny e Benjamin e vediamo che tipo di problema stanno affrontando e come cercano di risolverlo utilizzando il TDD.</p>
+<section id="fixing-the-ticket-office">
+<h2>Sistemazione della biglietteria<a class="headerlink" href="#fixing-the-ticket-office" title="Link to this heading">¶</a></h2>
+<p><strong>Johnny:</strong> Cosa pensi dei treni, Benjamin?</p>
+<p><strong>Benjamin:</strong> Me lo chiedi perché ieri stavo viaggiando in treno per arrivare qui? Beh, mi piace, soprattutto dopo alcuni cambiamenti avvenuti negli ultimi anni. Penso davvero che le ferrovie di oggi siano moderne e a misura di passeggero.</p>
+<p><strong>Johnny:</strong> E riguardo al processo di prenotazione del posto?</p>
+<p><strong>Benjamin:</strong> Oh, quello... Voglio dire, perché non hanno ancora automatizzato il processo? È davvero pensabile che nel 21° secolo non sia possibile prenotare un posto tramite Internet?</p>
+<p><strong>Johnny:</strong> Speravo che lo dicessi perché il nostro prossimo compito è fare esattamente questo.</p>
+<p><strong>Benjamin:</strong> Intendi prenotare i posti tramite Internet?</p>
+<p><strong>Johnny:</strong> Sì, la compagnia ferroviaria ci ha assunti.</p>
+<p><strong>Benjamin:</strong> Mi stai prendendo in giro, vero?</p>
+<p><strong>Johnny:</strong> No, sto dicendo la verità.</p>
+<p><strong>Benjamin:</strong> Assurdo.</p>
+<p><strong>Johnny:</strong> Prendi il tuo smartphone e controlla la posta. Ti ho già inoltrato i dettagli.</p>
+<p><strong>Benjamin:</strong> Ehi, sembra vero. Perché non me l'hai detto prima?</p>
+<p><strong>Johnny:</strong> Te lo spiegherò strada facendo. Dai, andiamo.</p>
+</section>
+<section id="initial-objects">
+<h2>Oggetti iniziali<a class="headerlink" href="#initial-objects" title="Link to this heading">¶</a></h2>
+<p><strong>Benjamin:</strong> abbiamo qualche tipo di requisiti, storie o altro su cui lavorare?</p>
+<p><strong>Johnny:</strong> Sì, te ne spiegherò alcuni mentre ti guido attraverso le strutture dei dati di input e output. Basterà a farci andare avanti.</p>
+<section id="request">
+<h3>Richiesta<a class="headerlink" href="#request" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Qualcuno ha già scritto la parte che accetta una richiesta HTTP e la mappa alla seguente struttura:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ReservationRequestDto</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">TrainId</span><span class="p">;</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">SeatCount</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">ReservationRequestDto</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">trainId</span><span class="p">,</span><span class="w"> </span><span class="kt">uint</span><span class="w"> </span><span class="n">seatCount</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">TrainId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trainId</span><span class="p">;</span>
+<span class="w">    </span><span class="n">SeatCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">seatCount</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Capisco... Ehi, perché nel nome <code class="docutils literal notranslate"><span class="pre">ReservationRequestDto</span></code> c'è <code class="docutils literal notranslate"><span class="pre">Dto</span></code>? Che cos'è?</p>
+<p><strong>Johnny:</strong> Il suffisso <code class="docutils literal notranslate"><span class="pre">Dto</span></code> significa che questa classe rappresenta un Data Transfer Object (abbreviato, DTO)<a class="footnote-reference brackets" href="#poeaa" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. Il suo ruolo è semplicemente quello di trasferire i dati oltre i confini del processo.</p>
+<p><strong>Benjamin:</strong> Quindi intendi che è necessario solo per rappresentare una sorta di XML o JSON inviato all'applicazione?</p>
+<p><strong>Johnny:</strong> Sì, possiamo dire così. Il motivo per cui le persone in genere inseriscono <code class="docutils literal notranslate"><span class="pre">Dto</span></code> in questi nomi è per comunicare che queste strutture dati sono speciali - rappresentano un contratto esterno e non possono essere modificati come altri oggetti.</p>
+<p><strong>Benjamin:</strong> Significa che non posso toccarli?</p>
+<p><strong>Johnny:</strong> Significa che se li tocchi, dovresti assicurarti che siano ancora mappati correttamente dai dati esterni, come JSON o XML.</p>
+<p><strong>Benjamin:</strong> Quindi sarà meglio non scherzarci. Ottimo, e che mi dici dell'ID del treno?</p>
+<p><strong>Johnny:</strong> Rappresenta un treno. L'applicazione client che utilizza il backend che scriveremo capirà questi ID e li utilizzerà per comunicare con noi.</p>
+<p><strong>Benjamin:</strong> Fantastico, qual è il prossimo passo?</p>
+<p><strong>Johnny:</strong> L'applicazione client comunica al nostro servizio quanti posti deve prenotare, ma non dice dove. Questo è il motivo per cui esiste solo un parametro <code class="docutils literal notranslate"><span class="pre">seatCount</span></code>. Il nostro servizio deve determinare quali posti scegliere.</p>
+<p><strong>Benjamin:</strong> Quindi se una coppia vuole prenotare due posti, può stare in carrozze diverse?</p>
+<p><strong>Johnny:</strong> Sì, tuttavia, ci sono alcune regole di preferenza che dobbiamo codificare, ad esempio, se possibile, un'unica prenotazione dovrebbe avere tutti i posti nella stessa carrozza. Ti aggiornerò sulle regole più tardi.</p>
+</section>
+<section id="response">
+<h3>Risposta<a class="headerlink" href="#response" title="Link to this heading">¶</a></h3>
+<p><strong>Benjamin:</strong> Restituiamo qualcosa all'app client?</p>
+<p><strong>Johnny:</strong> Sì, dobbiamo restituire una risposta che, nessuna sorpresa, è anche modellata nel codice come DTO. Questa risposta rappresenta la prenotazione effettuata:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ReservationDto</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">TrainId</span><span class="p">;</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">ReservationId</span><span class="p">;</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">TicketDto</span><span class="o">&gt;</span><span class="w"> </span><span class="n">PerSeatTickets</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">ReservationDto</span><span class="p">(</span>
+<span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">trainId</span><span class="p">,</span>
+<span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">TicketDto</span><span class="o">&gt;</span><span class="w"> </span><span class="n">perSeatTickets</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="n">reservationId</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">TrainId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trainId</span><span class="p">;</span>
+<span class="w">    </span><span class="n">PerSeatTickets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">perSeatTickets</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ReservationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reservationId</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Vedo che c'è un ID del treno, che è... lo stesso nella richiesta, suppongo?</p>
+<p><strong>Johnny:</strong> Giusto. Viene utilizzato per correlare la richiesta e la risposta.</p>
+<p><strong>Benjamin:</strong> ...e c'è un ID della prenotazione - il nostro servizio lo genera?</p>
+<p><strong>Johnny:</strong> Esatto.</p>
+<p><strong>Benjamin:</strong> ma il campo <code class="docutils literal notranslate"><span class="pre">PerSeatTickets</span></code>... è un elenco di <code class="docutils literal notranslate"><span class="pre">TicketDto</span></code>, che da quanto ho capito è uno dei nostri tipi custom. Dove si trova?</p>
+<p><strong>Johnny:</strong> Ho dimenticato di mostrartelo. <code class="docutils literal notranslate"><span class="pre">TicketDto</span></code> è definito come:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TicketDto</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Coach</span><span class="p">;</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">SeatNumber</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">TicketDto</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">coach</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">seatNumber</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Coach</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">coach</span><span class="p">;</span>
+<span class="w">    </span><span class="n">SeatNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">seatNumber</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>quindi ha il nome della carrozza e il numero del posto, e ne abbiamo un elenco nella nostra prenotazione.</p>
+<p><strong>Benjamin:</strong> Quindi una singola prenotazione può contenere molti biglietti e ogni biglietto è per un posto singolo in una carrozza specifica, giusto?</p>
+<p><strong>Johnny:</strong> Sì.</p>
+</section>
+<section id="ticket-office-class">
+<h3>La classe Ticket Office<a class="headerlink" href="#ticket-office-class" title="Link to this heading">¶</a></h3>
+<p><strong>Benjamin:</strong> Le classi che abbiamo appena visto - sono rappresentazioni di qualche tipo di JSON o XML?</p>
+<p><strong>Johnny:</strong> Sì, ma non dobbiamo scrivere il codice per farlo. Come ho detto prima, qualcuno se ne è già occupato.</p>
+<p><strong>Benjamin</strong>: Fortunati noi.</p>
+<p><strong>Johnny</strong>: Il nostro lavoro inizia dal punto in cui i dati deserializzati vengono passati all'applicazione come DTO. Il punto di ingresso della richiesta si trova in una classe chiamata <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[SomeKindOfController]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TicketOffice</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="na">[SuperFrameworkMethod]</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">MakeReservation</span><span class="p">(</span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">(</span><span class="s">&quot;Not implemented&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Vedo che la classe è decorata con attributi specifici di un framework web, quindi probabilmente non implementeremo il caso d'uso direttamente nel metodo <code class="docutils literal notranslate"><span class="pre">MakeReservation</span></code> per evitare di accoppiare la logica del nostro caso d'uso al codice che deve soddisfare i requisiti di un framework specifico.</p>
+<p><strong>Benjamin:</strong> Quindi quello che stai dicendo è che stai cercando di tenere la classe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> il più lontano possibile dalla logica dell'applicazione?</p>
+<p><strong>Johnny:</strong> Sì. Ne ho solo bisogno per racchiudere tutti i dati in astrazioni appropriate che progetto per soddisfare le mie preferenze, non il framework. Quindi, in queste astrazioni, posso codificare la mia soluzione nel modo che preferisco.</p>
+</section>
+</section>
+<section id="bootstrap">
+<h2>Bootstrap<a class="headerlink" href="#bootstrap" title="Link to this heading">¶</a></h2>
+<p><strong>Benjamin:</strong> Siamo pronti a partire?</p>
+<p><strong>Johnny:</strong> Solitamente, se fossi in te, mi piacerebbe vedere un posto in più nel codice.</p>
+<p><strong>Benjamin:</strong> Che è...?</p>
+<p><strong>Johnny:</strong> La &quot;composition root&quot;, ovviamente.</p>
+<p><strong>Benjamin:</strong> Perché mi piacerebbe vedere la &quot;composition root&quot;?</p>
+<p><strong>Johnny:</strong> Il primo motivo è che è molto vicino al punto di ingresso dell'applicazione, quindi è un'opportunità per vedere come l'applicazione gestisce le sue dipendenze. Il secondo motivo è che ogni volta che aggiungeremo una nuova classe che abbia la stessa durata di vita dell'applicazione, dovremo andare alla &quot;composition root &quot; e modificarla. Quindi probabilmente mi piacerebbe sapere dov'è e come dovrei lavorarci.</p>
+<p><strong>Benjamin:</strong> Pensavo di poterlo trovare più tardi, ma già che ci siamo, puoi mostrarmi la &quot;composition root&quot;?</p>
+<p><strong>Johnny:</strong> Certo, è qui, nella classe <code class="docutils literal notranslate"><span class="pre">Application</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Application</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">WebApp</span><span class="p">(</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">()</span>
+<span class="w">    </span><span class="p">).</span><span class="n">Host</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> È bello vedere che non richiede l'uso di alcun meccanismo fantasioso reflection-based  [<em>basato sulla riflessione</em>] per comporre gli oggetti.</p>
+<p><strong>Johnny:</strong> ì, siamo fortunati in questo. Possiamo semplicemente creare gli oggetti con l'operatore <code class="docutils literal notranslate"><span class="pre">new</span></code> e passarli al framework. Un'altra informazione importante è che abbiamo un'unica istanza di <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> per gestire tutte le richieste. Ciò significa che non possiamo memorizzare alcuno stato relativo a una singola richiesta all'interno di questa istanza poiché entrerebbe in conflitto con altre richieste.</p>
+</section>
+<section id="writing-the-first-statement">
+<h2>Scrivere il primo Statement<a class="headerlink" href="#writing-the-first-statement" title="Link to this heading">¶</a></h2>
+<p><strong>Johnny:</strong> Comunque, penso che siamo pronti per iniziare.</p>
+<p><strong>Benjamin:</strong> Ma da dove cominciamo? Dovremmo prima scrivere una sorta di classe chiamata &quot;Reservation&quot; o &quot;Train&quot;?</p>
+<p><strong>Johnny:</strong> No, quello che faremo è iniziare dagli input e procedere verso l'interno dell'applicazione. Poi, se necessario, agli output.</p>
+<p><strong>Benjamin:</strong> Non credo di capire di cosa stai parlando. Intendi questo approccio &quot;outside-in&quot; di cui hai parlato ieri?</p>
+<p><strong>Johnny:</strong> Sì, e non preoccuparti se non hai capito quello che ho detto, te lo spiegherò man mano che procediamo. Per ora, l'unica cosa che intendo con questo è che seguiremo il percorso della richiesta così come proviene dall'esterno della nostra applicazione e inizieremo a implementare in primo luogo laddove la richiesta non viene gestita come dovrebbe. Nello specifico, ciò significa che iniziamo da:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[SomeKindOfController]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TicketOffice</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="na">[SuperFrameworkMethod]</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">MakeReservation</span><span class="p">(</span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">(</span><span class="s">&quot;Not implemented&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Perché?</p>
+<p><strong>Johnny:</strong> Perché questo è il luogo più vicino al punto di ingresso della richiesta in cui il comportamento è diverso da quello che ci aspettiamo. Non appena la richiesta raggiunge questo punto, la sua gestione verrà interrotta e verrà generata un'eccezione. Dobbiamo modificare questo codice se vogliamo che la richiesta vada oltre.</p>
+<p><strong>Benjamin:</strong> Capisco... quindi... se non avessimo già il codice di deserializzazione della richiesta, inizieremmo da lì perché sarebbe il primo posto in cui la richiesta rimarrebbe bloccata nel suo percorso verso il suo obiettivo, giusto?</p>
+<p><strong>Johnny:</strong> Sì, hai capito.</p>
+<p><strong>Benjamin:</strong> E... iniziamo con uno Statement falso, no?</p>
+<p><strong>Johnny:</strong> Sì, facciamolo.</p>
+<section id="first-statement-skeleton">
+<h3>Primo scheletro dello Statement<a class="headerlink" href="#first-statement-skeleton" title="Link to this heading">¶</a></h3>
+<p><strong>Benjamin:</strong> Non dirmi niente, proverò a farlo da solo.</p>
+<p><strong>Johnny:</strong> Certo, come vuoi.</p>
+<p><strong>Benjamin:</strong> La prima cosa che devo fare è aggiungere una Specifica vuota per la classe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TicketOfficeSpecification</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">//TODO add a Statement</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi, devo aggiungere il mio primo Statement. So che in questo Statement, devo creare un'istanza della classe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> e chiamare il metodo <code class="docutils literal notranslate"><span class="pre">MakeReservation</span></code>, poiché è l'unico metodo in questa classe e non è implementato.</p>
+<p><strong>Johnny:</strong> quindi quale strategia usi per iniziare con uno Statement falso?</p>
+<p><strong>Benjamin:</strong> &quot;richiama un metodo quando ne hai uno&quot;, per quanto ricordo.</p>
+<p><strong>Johnny:</strong> Allora, come sarà il codice?</p>
+<p><strong>Benjamin:</strong> per cominciare, farò un brain dump proprio come mi hai insegnato. Dopo aver affermato tutti i fatti dannatamente ovvi, ottengo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldXXXXX</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO better name</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="n">ticketOffice</span><span class="p">.</span><span class="n">MakeReservation</span><span class="p">(</span><span class="n">requestDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Bene... il mio... apprendista...</p>
+<p><strong>Benjamin:</strong> Cosa?</p>
+<p><strong>Johnny:</strong> Oh, non importa... comunque il codice non viene compilato adesso, dato che questa riga:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">ticketOffice</span><span class="p">.</span><span class="n">MakeReservation</span><span class="p">(</span><span class="n">requestDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>utilizza una variabile <code class="docutils literal notranslate"><span class="pre">requestDto</span></code> che non esiste. Generiamolo utilizzando il nostro IDE!</p>
+<p><strong>Benjamin:</strong> A proposito, volevo chiederti esattamente questa frase. Renderlo compilabile è qualcosa che dobbiamo fare per andare avanti. Non avremmo dovuto aggiungere un commento <code class="docutils literal notranslate"><span class="pre">TODO</span></code> per le cose a cui dobbiamo tornare? Proprio come abbiamo fatto con il nome Statement, che era:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldXXXXX</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO better name</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> La mia opinione è che questo non sia necessario, perché il compilatore, fallendo su questa riga, ha già creato una sorta di elemento TODO per noi, solo non nella nostra lista TODO ma nel log degli errori del compilatore. Questo è diverso da ad es. la necessità di cambiare il nome di un metodo, cosa che il compilatore non ci ricorderà.</p>
+<p><strong>Benjamin:</strong> Quindi la mia lista TODO è composta da errori di compilazione, false dichiarazioni e elementi che contrassegno manualmente come <code class="docutils literal notranslate"><span class="pre">TODO</span></code>? È così che dovrei capirlo?</p>
+<p><strong>Johnny:</strong> Esattamente. Tornando alla variabile <code class="docutils literal notranslate"><span class="pre">requestDto</span></code>, creiamola.</p>
+<p><strong>Benjamin:</strong> Certo. È venuta fuori così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Dobbiamo assegnare qualcosa alla variabile.</p>
+<p><strong>Johnny:</strong> Sì, e poiché è un DTO, non sarà certamente un mock.</p>
+<p><strong>Benjamin:</strong> Vuoi dire che non creiamo i mock dei DTO?</p>
+<p><strong>Johnny:</strong> No, non ce n'è bisogno. I DTO sono, per definizione, strutture di dati e il mocking implica un polimorfismo che si applica al comportamento piuttosto che ai dati. Più tardi lo spiegherò più nel dettaglio. Per ora fidati della mia parola.</p>
+<p><strong>Benjamin:</strong> Allora... se non vuole essere un mock, allora generiamo un valore anonimo utilizzando il metodo <code class="docutils literal notranslate"><span class="pre">Any.Instance&lt;&gt;()</span></code>.</p>
+<p><strong>Johnny:</strong> Questo è esattamente quello che farei.</p>
+<p><strong>Benjamin:</strong> Quindi cambierò questa riga:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">requestDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationRequestDto</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-up-the-expectation">
+<h3>Impostazione della expectation<a class="headerlink" href="#setting-up-the-expectation" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Sì, e ora lo Statement viene compilato e sembra essere falso. Questo è dovuto a questa riga:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> quindi cambiamo questo <code class="docutils literal notranslate"><span class="pre">false</span></code> in <code class="docutils literal notranslate"><span class="pre">true</span></code> e abbiamo finito, giusto?</p>
+<p><strong>Johnny:</strong> ...Eh?</p>
+<p><strong>Benjamin:</strong> Oh, ti stavo solo prendendo in giro. Quello che volevo davvero dire è: trasformiamo questa asserzione in qualcosa di utile.</p>
+<p><strong>Johnny:</strong> Uff, non spaventarmi così. Sì, questa asserzione deve essere riscritta. E succede così che quando guardiamo la riga seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">ticketOffice</span><span class="p">.</span><span class="n">MakeReservation</span><span class="p">(</span><span class="n">requestDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>non fa alcun uso del valore restituito da <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code> mentre è evidente dalla firma che il suo tipo restituito è <code class="docutils literal notranslate"><span class="pre">ReservationDto</span></code>. Guarda:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">MakeReservation</span><span class="p">(</span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Nel nostro Statement, non ne facciamo nulla.</p>
+<p><strong>Benjamin:</strong> Fammi indovinare, vuoi che vada allo Statement, assegni questo valore di ritorno a una variabile e poi se ne asserisce l'uguaglianza con... cosa esattamente?</p>
+<p><strong>Johnny:</strong> Per ora, ad un valore previsto, che non conosciamo ancora, ma di questo ci preoccuperemo più tardi quando ci bloccherà davvero.</p>
+<p><strong>Benjamin:</strong> Questa è una di quelle situazioni in cui dobbiamo immaginare di avere già qualcosa che non abbiamo, giusto?. Ok, ecco qui:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldXXXXX</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO better name</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">requestDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationRequestDto</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticketOffice</span><span class="p">.</span><span class="n">MakeReservation</span><span class="p">(</span><span class="n">requestDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="c1">//doesn&#39;t compile - we don&#39;t have expectedReservationDto yet:</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ecco, ho fatto quello che mi hai chiesto. Quindi, per favore, spiegami ora come ci siamo avvicinati al nostro obiettivo?</p>
+<p><strong>Johnny:</strong> Abbiamo trasformato il nostro problema da &quot;quale affermazione scrivere&quot; in &quot;qual è la prenotazione che ci aspettiamo&quot;. Questo è davvero un passo nella giusta direzione.</p>
+<p><strong>Benjamin:</strong> Per favore illuminami allora: cos'è &quot;la prenotazione che ci aspettiamo&quot;?</p>
+<p><strong>Johnny:</strong> Per ora, lo Statement non si compila affatto, quindi per fare un ulteriore passo avanti, possiamo semplicemente introdurre un <code class="docutils literal notranslate"><span class="pre">expectedReservationDto</span></code> come oggetto anonimo. Pertanto, possiamo semplicemente scrivere nella sezione <code class="docutils literal notranslate"><span class="pre">GIVEN</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">expectedReservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationDto</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>e farà compilare il seguente codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//THEN</span>
+<span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Ma questa asserzione fallirà comunque...</p>
+<p><strong>Johnny:</strong> È comunque meglio che non compilare, vero?</p>
+<p><strong>Benjamin:</strong> Beh, se la metti in questo modo... Ora il nostro problema è che il valore atteso dall'asserzione è qualcosa di cui il codice di produzione non è a conoscenza - è semplicemente qualcosa che abbiamo creato nel nostro Statement. Ciò significa che questa affermazione non asserisce l'esito del comportamento del codice di produzione. Come risolviamo questo problema?</p>
+<p><strong>Johnny:</strong> È qui che dobbiamo esercitare le nostre capacità di progettazione per introdurre alcuni nuovi collaboratori. Questo compito è difficile ai confini della logica applicativa in cui dobbiamo attirare i collaboratori non dal dominio, ma piuttosto pensare a pattern di progettazione che ci consentiranno di raggiungere i nostri obiettivi. Ogni volta che entriamo nella logica della nostra applicazione, lo facciamo pensando a un caso d'uso specifico. In questo esempio particolare, il nostro caso d'uso è &quot;effettuare una prenotazione&quot;. Un caso d'uso è tipicamente rappresentato da un metodo in una facade<a class="footnote-reference brackets" href="#facadepattern" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> o un oggetto command<a class="footnote-reference brackets" href="#commandpattern" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. I &quot;command&quot; sono un po' più complessi ma più scalabili. Se effettuare una prenotazione fosse il nostro unico caso d'uso, probabilmente non avrebbe senso utilizzarlo. Ma poiché abbiamo già richieste di funzionalità con priorità più alta, credo che possiamo supporre che i &quot;command&quot; siano più adatti.</p>
+<p><strong>Benjamin:</strong> Quindi proponi di utilizzare una soluzione più complessa - non è questo &quot;big design up front&quot;?</p>
+<p><strong>Johnny:</strong> Credo di no. Ricorda che sto usando solo una soluzione <em>un po'</em> più complessa. Il costo di implementazione è solo leggermente più alto così come il costo di manutenzione nel caso mi sbagliassi. Se per qualche motivo particolare qualcuno domani dicesse di non aver più bisogno del resto delle funzionalità, l'aumento di complessità sarà trascurabile tenendo conto delle dimensioni ridotte del la base di codice complessiva. Se, tuttavia, aggiungiamo più funzionalità, l'utilizzo dei comandi ci farà risparmiare tempo a lungo andare. Pertanto, dato quello che so, <a class="reference external" href="https://martinfowler.com/bliki/Yagni.html">non lo sto aggiungendo per supportare nuove funzionalità speculative, ma per rendere il codice più facile da modificare a lungo termine</a>. Sono d'accordo, tuttavia, che <a class="reference external" href="https://www.youtube.com/watch?v=aCLBd3a1rwk">scegliere la complessità sufficiente per un dato momento è un compito difficile</a>.</p>
+<p><strong>Benjamin:</strong> Ancora non capisco come l'introduzione di un &quot;command&quot; possa aiutarci in questo caso. Tipicamente, un &quot;command&quot; ha un metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> che non restituisce nulla. Come ci fornirà allora la risposta che dobbiamo restituire da <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code>? Inoltre, c'è un altro problema: come verrà creato questo &quot;command&quot;? Probabilmente richiederà che la richiesta venga passata come uno dei parametri del costruttore. Ciò significa che non possiamo semplicemente passare il &quot;command&quot; al costruttore di <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> poiché la prima volta che possiamo accedere alla richiesta è quando viene invocato il metodo <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code>.</p>
+<p><strong>Johnny:</strong> Sì, sono d'accordo con entrambe le tue preoccupazioni. Fortunatamente, quando scegli di utilizzare i &quot;command&quot;, in genere esistono soluzioni standard ai problemi che hai menzionato. I comandi possono essere creati utilizzando le factory e possono trasmettere i loro risultati utilizzando un pattern chiamato <em>collecting parameter</em><a class="footnote-reference brackets" href="#kerievskycollectingparameter" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> - passeremo un oggetto all'interno del &quot;command&quot; per raccogliere tutti gli eventi dalla gestione del caso d'uso e quindi essere in grado di prepararci una risposta.</p>
+</section>
+<section id="introducing-a-reservation-in-progress-collaborator">
+<h3>Introdurre un collaboratore con prenotazione in corso<a class="headerlink" href="#introducing-a-reservation-in-progress-collaborator" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny</strong>: Iniziamo con il parametro di raccolta [collecting], che rappresenterà un concetto di dominio di una prenotazione in corso. Ne abbiamo bisogno per raccogliere i dati necessari per costruire una risposta DTO. Pertanto, ciò che attualmente sappiamo è che verrà convertito in una risposta DTO alla fine. Tutti e tre gli oggetti: il &quot;command&quot;, i parametri di raccolta e la factory, sono collaboratori, quindi saranno mock nel nostro Statement.</p>
+<p><strong>Benjamin:</strong> Ok, fai strada.</p>
+<p><strong>Johnny:</strong> Iniziamo con la sezione <code class="docutils literal notranslate"><span class="pre">GIVEN</span></code>. Qui, dobbiamo dire che assumiamo che il parametro di raccolta mock, chiamiamolo <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code>, ci fornirà il <code class="docutils literal notranslate"><span class="pre">expectedReservationDto</span></code> (che è già definito nel corpo dello Statement) quando richiesto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="c1">//...</span>
+<span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Naturalmente non abbiamo ancora <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code>, quindi dobbiamo introdurlo. Come ho spiegato prima, questo deve essere un mock, perché altrimenti non saremmo in grado di chiamare <code class="docutils literal notranslate"><span class="pre">Returns()</span></code> su di esso:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">///GIVEN</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgress</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="c1">//...</span>
+<span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">);</span>
+<span class="c1">//...</span>
+</pre></div>
+</div>
+<p>Ora, lo Statement non viene compilato perché l'interfaccia <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> che ho appena utilizzato nella definizione mock non è ancora stata introdotta.</p>
+<p><strong>Benjamin:</strong> In altre parole, hai appena scoperto di aver bisogno di questa interfaccia.</p>
+<p><strong>Johnny:</strong> Esattamente. Quello che sto facendo attualmente è inserire astrazioni e oggetti nel mio codice quando ne ho bisogno. E la mia attuale esigenza è avere la seguente interfaccia nel mio codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationInProgress</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, lo Statement continua a non essere compilato, perché c'è questa riga:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>che richiede che l'interfaccia <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> abbia un metodo <code class="docutils literal notranslate"><span class="pre">ToDto()</span></code>, ma per ora questa interfaccia è vuota. Dopo aver aggiunto il metodo richiesto, appare così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationInProgress</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">ToDto</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e lo Statement viene compilato di nuovo, sebbene sia ancora falso.</p>
+<p><strong>Benjamin:</strong> Ok. Ora concedetemi un secondo per cogliere l'intero Statement nel suo stato attuale.</p>
+<p><strong>Johnny:</strong> Certo, prenditi il tuo tempo, ecco come appare attualmente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldXXXXX</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO better name</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">requestDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationRequestDto</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgress</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">expectedReservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationDto</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticketOffice</span><span class="p">.</span><span class="n">MakeReservation</span><span class="p">(</span><span class="n">requestDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="introducing-a-factory-collaborator">
+<h3>Vi presentiamo un collaboratore della factory<a class="headerlink" href="#introducing-a-factory-collaborator" title="Link to this heading">¶</a></h3>
+<p><strong>Benjamin:</strong> Penso di essere riuscito a recuperare. Posso prendere la tastiera?</p>
+<p><strong>Johnny:</strong> Stavo per suggerirlo. Ecco.</p>
+<p><strong>Benjamin:</strong> Grazie. Osservando questo Statement, abbiamo questo <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> tutto configurato e creato, ma questo nostro mock non viene affatto passato a <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>. Quindi, come dovrebbe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> utilizzare il nostro <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code> preconfigurato?</p>
+<p><strong>Johnny:</strong> Ricordi la nostra discussione sulla separazione dell'uso degli oggetti dalla costruzione?</p>
+<p><strong>Benjamin:</strong> Immagino di sapere a cosa vuoi arrivare. Il <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> dovrebbe in qualche modo ottenere dall'esterno un oggetto <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> già creato. Può ottenerlo ad es. tramite un costruttore o da una factory.</p>
+<p><strong>Johnny:</strong> Sì, e se guardi l'ambito di durata del nostro <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>, che viene creato una volta all'avvio dell'applicazione, non può accettare un <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> tramite un costruttore, perché ogni volta che viene effettuata una nuova richiesta di prenotazione, vogliamo avere un nuovo <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>, poi passarlo attraverso un costruttore <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> ci costringerebbe a creare anche un nuovo <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> ogni volta. Pertanto, la soluzione che meglio si adatta alla nostra situazione attuale è...</p>
+<p><strong>Benjamin:</strong> Una factory, giusto? Stai suggerendo che invece di passare un <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> attraverso un costruttore, dovremmo piuttosto passare qualcosa che sappia come creare istanze di <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>?</p>
+<p><strong>Johnny:</strong> Esattamente.</p>
+<p><strong>Benjamin:</strong> Come scriverlo nello Statement?</p>
+<p><strong>Johnny:</strong> Innanzitutto, scrivi solo ciò di cui hai bisogno. La factory deve essere un mock perché dobbiamo configurarlo in modo che, quando richiesto, restituisca il nostro mock <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code>. Quindi scriviamo prima la configurazione di ritorno, fingendo di avere già la factory disponibile nel corpo del nostro Statement.</p>
+<p><strong>Benjamin:</strong> Fammi vedere... questo dovrebbe bastare:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="p">...</span>
+<span class="n">reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationInProgress</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Bello. Ora il codice non viene compilato, perché non abbiamo una <code class="docutils literal notranslate"><span class="pre">reservationInProgressFactory</span></code>. Quindi creiamolo.</p>
+<p><strong>Benjamin:</strong> E, come hai detto prima, dovrebbe essere un oggetto mock. Allora questa sarà la definizione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgressFactory</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Per la necessità di questa riga di codice, ho fatto finta di avere un'interfaccia chiamata <code class="docutils literal notranslate"><span class="pre">ReservationInProgressFactory</span></code> e, lasciami indovinare, vuoi che introduca questa interfaccia adesso?</p>
+<p><strong>Johnny:</strong> (sorride)</p>
+<p><strong>Benjamin:</strong> Va bene. Ecco:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationInProgressRepository</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E ora, il compilatore ci dice che non abbiamo il metodo <code class="docutils literal notranslate"><span class="pre">FreshInstance()</span></code>, quindi lasciami presentarlo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationInProgressRepository</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">ReservationInProgress</span><span class="w"> </span><span class="nf">FreshInstance</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Bene, il compilatore non si lamenta più, ma lo Statement fallisce con una <code class="docutils literal notranslate"><span class="pre">NotImplementedException</span></code>.</p>
+<p><strong>Johnny:</strong> Sì, questo perché il corpo attuale del metodo <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code> della classe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> assomiglia a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">MakeReservation</span><span class="p">(</span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">)</span><span class="w"> </span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">(</span><span class="s">&quot;Not implemented&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="expanding-the-ticket-office-constructor">
+<h3>Ampliamento del costruttore della biglietteria (ticket office)<a class="headerlink" href="#expanding-the-ticket-office-constructor" title="Link to this heading">¶</a></h3>
+<p><strong>Benjamin:</strong> Quindi dovremmo implementarlo adesso?</p>
+<p><strong>Johnny:</strong> Abbiamo ancora alcune cose da fare per lo Statement.</p>
+<p><strong>Benjamin:</strong> Tipo..?</p>
+<p><strong>Johnny:</strong> Ad esempio, il mock <code class="docutils literal notranslate"><span class="pre">ReservationInProgressFactory</span></code> che abbiamo appena creato non è ancora passato al costruttore <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>, quindi non c'è modo per la biglietteria [ticket office] di utilizzare questa factory.</p>
+<p><strong>Benjamin:</strong> Ok, quindi lo aggiungo. Lo Statement cambierà in questo posto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgressFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgressFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">(</span><span class="n">reservationInProgressFactory</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>ed è necessario aggiungere un costruttore alla classe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span><span class="n">ReservationInProgressFactory</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> D'accordo. Inoltre, dobbiamo mantenere la &quot;composition root&quot; che ha appena interrotto la compilazione. Questo perché lì viene richiamato il costruttore di <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> e anch'esso necessita di un aggiornamento:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Application</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">WebApp</span><span class="p">(</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span><span class="cm">/* compile error - instance missing */</span><span class="p">)</span>
+<span class="w">    </span><span class="p">).</span><span class="n">Host</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Ma cosa dovremmo passare? Abbiamo un'interfaccia, ma nessuna classe di cui potremmo fare un'istanza.</p>
+<p><strong>Johnny:</strong> Dobbiamo creare la classe. In genere, se ho un'idea sul nome della classe richiesta, creo la classe con quel nome. Se non ho ancora idea di come chiamarlo, posso chiamarlo ad es. <code class="docutils literal notranslate"><span class="pre">TodoReservationInProgressFactory</span></code> lasciando un commento TODO per tornarci più tardi. Per ora, abbiamo solo bisogno di questa classe per compilare il codice. E' ancora fuori dallo &quot;scope&quot; del nostro attuale Statement.</p>
+<p><strong>Benjamin:</strong> Quindi forse potremmo passare un <code class="docutils literal notranslate"><span class="pre">null</span></code> in modo da avere <code class="docutils literal notranslate"><span class="pre">new</span> <span class="pre">TicketOffice(null)</span></code>?</p>
+<p><strong>Johnny:</strong> Potremmo, ma non è la mia opzione preferita. In genere creo semplicemente la classe. Uno dei motivi è che la classe dovrà implementare un'interfaccia per compilare e quindi dovremo introdurre un metodo che, per default, lancerà una <code class="docutils literal notranslate"><span class="pre">NotImplementedException</span></code> e queste eccezioni finiranno anche nella mia lista TODO.</p>
+<p><strong>Benjamin:</strong> Ok, mi sembra ragionevole. Come questa riga:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span><span class="cm">/* compile error - instance missing */</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>diventa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">TodoReservationInProgressFactory</span><span class="p">())</span><span class="w"> </span><span class="c1">//TODO change the name</span>
+</pre></div>
+</div>
+<p>E non viene compilato, perché dobbiamo creare questa classe, quindi lasciamelo fare:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TodoReservationInProgressFactory</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ReservationInProgressFactory</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Ancora non viene compilato, perché l'interfaccia <code class="docutils literal notranslate"><span class="pre">ReservationInProgressFactory</span></code> ha alcuni metodi che dobbiamo implementare. Fortunatamente, possiamo farlo con un singolo comando IDE e ottenere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TodoReservationInProgressFactory</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ReservationInProgressFactory</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="w"> </span><span class="n">ReservationInProgress</span><span class="w"> </span><span class="nf">FreshInstance</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e, come ho detto un attimo fa, questa eccezione finirà nella mia lista delle cose da fare, ricordandomi che devo affrontarla.</p>
+<p>Ora che il codice viene nuovamente compilato, torniamo al costruttore di <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span><span class="n">ReservationInProgressFactory</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>qui potremmo già assegnare il parametro del costruttore a un campo, ma va bene anche farlo in seguito.</p>
+<p><strong>Benjamin:</strong> Facciamolo più tardi, mi chiedo fino a che punto possiamo ritardare un lavoro come questo.</p>
+</section>
+<section id="introducing-a-command-collaborator">
+<h3>Introduzione di un collaboratore di &quot;Command&quot;<a class="headerlink" href="#introducing-a-command-collaborator" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Certo. Diamo quindi un'occhiata allo Statement che stiamo scrivendo. Sembra che manchi un'altra aspettativa nella nostra sezione <code class="docutils literal notranslate"><span class="pre">THEN</span></code>. se guardi il corpo completo dello Statement's così com'è ora:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldXXXXX</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO better name</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">requestDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationRequestDto</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="w"> </span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgressFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">(</span><span class="n">reservationInProgressFactory</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgress</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">expectedReservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationDto</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="w">  </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticketOffice</span><span class="p">.</span><span class="n">MakeReservation</span><span class="p">(</span><span class="n">requestDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservation</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>l'unica interazione tra <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> e <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> descritta è che il primo chiama il metodo <code class="docutils literal notranslate"><span class="pre">ToDto</span></code>sul secondo. Quindi la domanda che dobbiamo porci ora è &quot;come farà l'istanza di <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> a sapere cosa <code class="docutils literal notranslate"><span class="pre">ReservationDto</span></code> creare quando viene chiamato questo metodo?&quot;.</p>
+<p><strong>Benjamin:</strong> Oh giusto... <code class="docutils literal notranslate"><span class="pre">ReservationDto</span></code> deve essere creato da <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> in base allo stato attuale dell'applicazione e ai dati in <code class="docutils literal notranslate"><span class="pre">ReservationRequestDto</span></code>, ma <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> non sa nulla di queste cose finora.</p>
+<p><strong>Johnny:</strong> Sì, riempire <code class="docutils literal notranslate"><span class="pre">ReservationInProgress</span></code> è una delle responsabilità dell'applicazione che stiamo scrivendo. Se facessimo tutto nella classe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>, questa classe avrebbe sicuramente troppo da gestire e il nostro Statement aumenterebbe enormemente. Quindi dobbiamo estendere la responsabilità di gestire il nostro caso d'uso ad altri ruoli di collaborazione e utilizzare mock per svolgere tali ruoli qui.</p>
+<p><strong>Benjamin:</strong> Allora cosa proponi?</p>
+<p><strong>Johnny:</strong> Ricordi la nostra discussione di qualche minuto fa? Di solito, quando inserisco una logica relativa al caso d'uso su un altro oggetto al confine del sistema, scelgo tra il pattern Facade e il pattern Command. Le Facade sono più semplici ma meno scalabili, mentre i &quot;command&quot; sono molto più scalabili e componibili, ma l'applicazione deve creare un nuovo oggetto &quot;command&quot; ogni volta che viene attivato un caso d'uso e una nuova classe di comando deve essere creata da un programmatore quando il supporto per un un nuovo caso d'uso viene aggiunto al sistema.</p>
+<p><strong>Benjamin:</strong> So già che preferisci i &quot;command&quot;.</p>
+<p><strong>Johnny:</strong> Sì, abbi pazienza, anche solo per vedere come possono essere usati i &quot;command&quot; qui. Sono sicuro che potresti capire da solo l'opzione Facade.</p>
+<p><strong>Benjamin:</strong> Cosa scrivo?</p>
+<p><strong>Johnny:</strong> Supponiamo di avere questo &quot;command&quot; e poi pensiamo a cosa vogliamo che ne faccia il nostro <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>.</p>
+<p><strong>Benjamin:</strong> Vogliamo che <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> esegua il &quot;command&quot;, ovviamente..?</p>
+<p><strong>Johnny:</strong> Giusto, scriviamolo sotto forma di &quot;expectation&quot;.</p>
+<p><strong>Benjamin:</strong> Ok, scriverei qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">reservationCommand</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Execute</span><span class="p">(</span><span class="n">reservationInProgress</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Ho già passato <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code> poiché il &quot;command&quot; dovrà riempirlo.</p>
+<p><strong>Johnny:</strong> Aspetta, si dà il caso che io preferisca un altro modo di passare questo <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code> a <code class="docutils literal notranslate"><span class="pre">reservationCommand</span></code>. Per favore, per ora, rendi il metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> senza parametri.</p>
+<p><strong>Benjamin:</strong> Come desideri, ma ho pensato che questo sarebbe stato un buon posto per passarlo.</p>
+<p><strong>Johnny:</strong> Potrebbe sembrare, ma in genere voglio che i miei &quot;command&quot; abbiano metodi di esecuzione senza parametri. In questo modo posso comporli più liberamente, utilizzando pattern come decorator<a class="footnote-reference brackets" href="#decoratorpattern" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>.</p>
+<p><strong>Benjamin:</strong> Come desideri. Ho ripristinato l'ultima modifica e ora la sezione <code class="docutils literal notranslate"><span class="pre">THEN</span></code> assomiglia a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//THEN</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Execute</span><span class="p">();</span>
+<span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>e ovviamente non viene compilato. <code class="docutils literal notranslate"><span class="pre">reservationCommand</span></code> non esiste, quindi devo introdurlo. Naturalmente, anche il tipo di questa variabile non esiste -- devo far finta che esista. E so già che dovrebbe essere un mock poiché specifico che avrebbe dovuto ricevere una chiamata al suo metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code>.</p>
+<p><strong>Johnny:</strong> (annuisce)</p>
+<p><strong>Benjamin:</strong> Nella sezione <code class="docutils literal notranslate"><span class="pre">GIVEN</span></code>, aggiungerò il <code class="docutils literal notranslate"><span class="pre">reservationCommand</span></code> come un mock:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationCommand</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Per il bene di questa riga, fingo di avere un'interfaccia chiamata <code class="docutils literal notranslate"><span class="pre">ReservationCommand</span></code> e ora devo crearla per compilare il codice.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationCommand</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>ma questo non è sufficiente, perché nello Statement mi aspetto di ricevere una chiamata a un metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> sul comando e non esiste un metodo del genere. Posso risolverlo aggiungendolo sull'interfaccia di &quot;command&quot;:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">ReservationCommand</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Execute</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e ora tutto si compila di nuovo.</p>
+</section>
+<section id="introducing-a-command-factory-collaborator">
+<h3>Vi presentiamo un collaboratore della Factory Command<a class="headerlink" href="#introducing-a-command-factory-collaborator" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Certo, ora dobbiamo capire come passare questo comando a <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>. Come abbiamo discusso, per natura, un oggetto &quot;command&quot; rappresenta, beh, un comando emesso, quindi non può essere creato una volta nella &quot;composition root&quot; e poi passato al costruttore, perché in tal caso:</p>
+<ol class="arabic simple">
+<li><p>diventerebbe essenzialmente una facade,</p></li>
+<li><p>dovremmo passare <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code> al metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> che volevamo evitare.</p></li>
+</ol>
+<p><strong>Benjamin:</strong> Aspetta, non dirmi... vuoi aggiungere un'altra factory qui?</p>
+<p><strong>Johnny:</strong> Sì, è quello che mi piacerebbe fare.</p>
+<p><strong>Benjamin:</strong> Ma... questa è la seconda factory in un unico Statement. Non stiamo esagerando un po'?</p>
+<p><strong>Johnny:</strong> Capisco perché ti senti così. Tuttavia, questa è una conseguenza della mia scelta progettuale. Non avremmo bisogno di una factory di &quot;command&quot; se adottassimo una facade. Nelle app semplici, utilizzo semplicemente una facade ed elimino questo dilemma. Potrei anche eliminare l'uso del pattern del &quot;collecting parameter&quot; e quindi non avrei bisogno di una factory per le prenotazioni in corso, ma ciò significherebbe che non risolverei la violazione del principio di separazione comando-query e dovrei spingere ulteriormente questa violazione nel mio codice. Per tirarti su di morale, questo è un punto di ingresso per un caso d'uso in cui dobbiamo racchiudere alcune cose in astrazioni, quindi non mi aspetto così tante factory nel resto del codice. Tratto questa parte come una sorta di layer di adattamento che mi protegge da tutto ciò che è imposto dall'esterno della mia logica applicativa e che non voglio affrontare all'interno della mia logica applicativa.</p>
+<p><strong>Benjamin:</strong> Dovrò fidarmi di te su questo. Spero che questo renda le cose più facili in seguito perché per ora... ugh...</p>
+<p><strong>Johnny:</strong> Introduciamo la factory mock. Naturalmente, prima di definirlo, voglio usarlo nello Statement per sentirne il bisogno. Espanderò la sezione <code class="docutils literal notranslate"><span class="pre">GIVEN</span></code> partendo dal presupposto che una factory, alla richiesta di un &quot;command&quot;, restituisca <code class="docutils literal notranslate"><span class="pre">reservationCommand</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="p">...</span>
+<span class="n">commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationCommand</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Questo non viene compilato perché non abbiamo ancora <code class="docutils literal notranslate"><span class="pre">commandFactory</span></code>.</p>
+<p><strong>Benjamin:</strong> Oh, vedo che <code class="docutils literal notranslate"><span class="pre">CreateNewReservationCommand()</span></code> della factory è il punto in cui hai deciso di passare il <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code> che volevo passare al metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> in precedenza. Intelligente. Lasciando il metodo <code class="docutils literal notranslate"><span class="pre">Execute()</span></code> del &quot;command&quot; senza parametri, lo hai reso più astratto e hai reso l'interfaccia disaccoppiata da qualsiasi tipo di argomento particolare. D'altro canto, il &quot;command&quot; viene creato nello stesso ambito in cui viene utilizzato, quindi non vi è letteralmente alcun problema nel passare tutti i parametri tramite il metodo factory.</p>
+<p><strong>Johnny:</strong> Esatto. Ora sappiamo che abbiamo bisogno di una factory, inoltre che deve essere un mock poiché la configuriamo per restituire un &quot;command&quot; quando ne viene richiesto uno. Quindi dichiariamo la factory, fingendo di avere un'interfaccia per essa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="p">...</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">commandFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">CommandFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="p">...</span>
+<span class="n">commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationCommand</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> ...e l'interfaccia <code class="docutils literal notranslate"><span class="pre">CommandFactory</span></code> non esiste, quindi creiamola:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">CommandFactory</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e aggiungiamo il metodo <code class="docutils literal notranslate"><span class="pre">CreateNewReservationCommand</span></code> mancante:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">CommandFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">ReservationCommand</span><span class="w"> </span><span class="nf">CreateNewReservationCommand</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ReservationInProgress</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Ora il codice viene compilato e assomiglia a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldXXXXX</span><span class="p">()</span><span class="w"> </span><span class="c1">//TODO better name</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">requestDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationRequestDto</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">commandFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">CommandFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="w"> </span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgressFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">(</span><span class="n">reservationInProgressFactory</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgress</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">expectedReservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationDto</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationCommand</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="n">commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationCommand</span><span class="p">);</span>
+<span class="w">  </span><span class="n">reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="w">  </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticketOffice</span><span class="p">.</span><span class="n">MakeReservation</span><span class="p">(</span><span class="n">requestDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+<span class="w">  </span><span class="n">reservationCommand</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Execute</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Vedo che il &quot;command factory&quot; non viene passato da nessuna parte nello Statement - <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> non lo conosce.</p>
+<p><strong>Johnny:</strong> Sì e, per nostra fortuna, una factory è qualcosa che può avere la stessa durata di <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> poiché per creare la factory non abbiamo bisogno di sapere nulla di una richiesta di prenotazione. Questo è il motivo per cui possiamo passarlo in sicurezza attraverso il costruttore di <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code>. Ciò significa che queste due righe:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">commandFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">CommandFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">(</span><span class="n">reservationInProgressFactory</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>ora saranno come queso:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">commandFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">CommandFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="n">reservationInProgressFactory</span><span class="p">,</span><span class="w"> </span><span class="n">commandFactory</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Un costruttore con tale firma non esiste, quindi per effettuare questa compilazione dobbiamo aggiungere un parametro di tipo <code class="docutils literal notranslate"><span class="pre">CommandFactory</span></code> al costruttore:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ReservationInProgressFactory</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CommandFactory</span><span class="w"> </span><span class="n">commandFactory</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>che ci costringe ad aggiungere un parametro alla nostra &quot;composition root&quot;. Quindi questa parte della &quot;composition root&quot;:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">TodoReservationInProgressFactory</span><span class="p">())</span><span class="w"> </span><span class="c1">//TODO change the name</span>
+</pre></div>
+</div>
+<p>diventa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">TodoReservationInProgressFactory</span><span class="p">(),</span><span class="w"> </span><span class="c1">//TODO change the name</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">TicketOfficeCommandFactory</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>che a sua volta ci obbliga a creare la classe <code class="docutils literal notranslate"><span class="pre">TicketOfficeCommandFactory</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TicketOfficeCommandFactory</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">CommandFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">ReservationCommand</span><span class="w"> </span><span class="nf">CreateNewReservationCommand</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ReservationInProgress</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Ehi, questa volta hai dato alla classe un nome migliore rispetto alla factory precedente che si chiamava <code class="docutils literal notranslate"><span class="pre">TodoReservationInProgressFactory</span></code>. Perché non hai voluto rimandare per più tardi questa volta?</p>
+<p><strong>Johnny:</strong> Questa volta penso di avere un'idea migliore su come chiamare questa classe. In genere, chiamo le classi concrete in base a qualcosa della loro implementazione e trovo difficile trovare i nomi quando non ho ancora questa implementazione. Questa volta credo di avere un nome che possa durare un po', anche per questo non ho lasciato un commento TODO accanto a questo nome. Tuttavia, ulteriore lavoro può invalidare la mia scelta del nome e sarò felice di cambiare il nome quando se ne presenterà la necessità. Per ora dovrebbe bastare.</p>
+</section>
+<section id="giving-the-statement-a-name">
+<h3>Dare un nome allo Statement<a class="headerlink" href="#giving-the-statement-a-name" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Comunque, tornando allo Statement, penso che abbiamo coperto tutto. Diamogli solo un bel nome. Considerando le asserzioni:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">reservationCommand</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Execute</span><span class="p">();</span>
+<span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Penso che possiamo dire:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="nf">ShouldExecuteReservationCommandAndReturnResponseWhenAskedToMakeReservation</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Sono solo curioso... Non mi hai detto di fare attenzione alla parola &quot;and&quot; nei nomi degli Statement e che potrebbe suggerire che qualcosa non va nello scenario.</p>
+<p><strong>Johnny:</strong> Sì, e in questo caso particolare, <em>c'è</em> qualcosa che non va - la classe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> viola il principio di separazione comando-query. Questo è anche il motivo per cui lo Statement appare così confuso. Per questa classe, tuttavia, non abbiamo una grande scelta poiché il nostro framework richiede questo tipo di firma del metodo. Ecco perché stiamo lavorando così duramente in questo corso per introdurre il &quot;collecting parameter&quot; [<em>parametro di raccolta</em>] e proteggere il resto del progetto dalla violazione.</p>
+<p><strong>Benjamin:</strong> Spero che i futuri Statement siano più facili da scrivere di questo.</p>
+<p><strong>Johnny:</strong> Anch'io.</p>
+</section>
+<section id="making-the-statement-true-the-first-assertion">
+<h3>Rendere vero lo Statement - la prima asserzione<a class="headerlink" href="#making-the-statement-true-the-first-assertion" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Diamo un'occhiata al codice dello Statement:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldExecuteReservationCommandAndReturnResponseWhenAskedToMakeReservation</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">requestDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationRequestDto</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">commandFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">CommandFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="w"> </span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgressFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationInProgress</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">expectedReservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">ReservationDto</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">ReservationCommand</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">ticketOffice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="n">reservationInProgressFactory</span><span class="p">,</span>
+<span class="w">    </span><span class="n">commandFactory</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="w">  </span><span class="n">commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationCommand</span><span class="p">);</span>
+<span class="w">  </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">reservationDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ticketOffice</span><span class="p">.</span><span class="n">MakeReservation</span><span class="p">(</span><span class="n">requestDto</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+<span class="w">  </span><span class="n">reservationCommand</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Execute</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Penso che sia completo, ma non lo sapremo finché non vedremo le asserzioni fallire e poi passare. Per ora, l'implementazione del metodo <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code> lancia un'eccezione che fa sì che il nostro Statement si fermi alla fase <code class="docutils literal notranslate"><span class="pre">WHEN</span></code>, senza nemmeno arrivare alle asserzioni.</p>
+<p><strong>Benjamin:</strong> Ma non posso ancora inserire la giusta implementazione, giusto? Questo è quello che mi hai sempre detto.</p>
+<p><strong>Johnny:</strong> Sì, idealmente, dovremmo vedere gli errori delle asserzioni per avere la certezza che lo Statement <em>può</em> diventare falso quando il comportamento atteso non è in atto.</p>
+<p><strong>Benjamin:</strong> Questo può significare solo una cosa -- restituisce <code class="docutils literal notranslate"><span class="pre">null</span></code> da <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> invece di generare un'eccezione. Giusto?</p>
+<p><strong>Johnny:</strong> Sì, lasciamelo fare. Cambierò semplicemente questo codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">MakeReservation</span><span class="p">(</span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">(</span><span class="s">&quot;Not implemented&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">ReservationDto</span><span class="w"> </span><span class="nf">MakeReservation</span><span class="p">(</span><span class="n">ReservationRequestDto</span><span class="w"> </span><span class="n">requestDto</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">null</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora posso vedere che la prima affermazione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>fallisce, perché si aspetta un <code class="docutils literal notranslate"><span class="pre">expectedReservationDto</span></code> da <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code> ma il <code class="docutils literal notranslate"><span class="pre">reservationInProgress</span></code> stesso può essere ricevuto solo dalla factory. Le righe pertinenti nello Statement che affermano ciò sono:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="n">expectedReservationDto</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Implementiamo semplicemente la parte necessaria per superare questa prima asserzione. Per fare ciò, dovrò creare un campo nella classe <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> per la factory e inizializzarlo con uno dei parametri del costruttore. Quindi questo codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ReservationInProgressFactory</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CommandFactory</span><span class="w"> </span><span class="n">commandFactory</span><span class="p">)</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>diventa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">ReservationInProgressFactory</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">;</span>
+
+<span class="k">public</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ReservationInProgressFactory</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CommandFactory</span><span class="w"> </span><span class="n">commandFactory</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_reservationInProgressFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Non potresti semplicemente introdurre anche l'altro campo?</p>
+<p><strong>Johnny:</strong> Sì, potrei e di solito lo faccio. Ma visto che ci stiamo allenando, voglio dimostrarvi che saremo comunque costretti a farlo per far passare la seconda asserzione.</p>
+<p><strong>Benjamin:</strong> Vai avanti.</p>
+<p><strong>Johnny:</strong> Ora devo modificare il metodo <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code> aggiungendo il seguente codice che crea la prenotazione in corso e le fa restituire un DTO:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">();</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> ...e la prima affermazione passa.</p>
+<p><strong>Johnny:</strong> Sì, e questo chiaramente non è abbastanza. Se guardi il codice di produzione, non stiamo facendo nulla con l'istanza <code class="docutils literal notranslate"><span class="pre">ReservationRequestDto</span></code>. Per fortuna, abbiamo la seconda asserzione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">reservationCommand</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">Execute</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>e questo fallisce. Per farlo passare, dobbiamo creare un &quot;command&quot; ed eseguirlo.</p>
+</section>
+<section id="making-the-statement-true-the-second-assertion">
+<h3>Rendere lo Statement vero -- la seconda asserzione<a class="headerlink" href="#making-the-statement-true-the-second-assertion" title="Link to this heading">¶</a></h3>
+<p><strong>Benjamin:</strong> Aspetta, perché la chiami &quot;asserzione&quot;? Non c'è una parola &quot;asserire&quot; da nessuna parte in questa riga. Non dovremmo chiamarla semplicemente &quot;verifica mock&quot; o qualcosa del genere?</p>
+<p><strong>Johnny:</strong> Sono d'accordo con la &quot;verifica mock&quot;, tuttavia, ritengo corretto chiamarla anche un'asserzione, perché, in sostanza, è quello che è -- un controllo che genera un'eccezione quando una condizione non è soddisfatta.</p>
+<p><strong>Benjamin:</strong> OK, se è così che la metti...</p>
+<p><strong>Johnny:</strong> comunque, abbiamo ancora bisogno che questa asserzione passi.</p>
+<p><strong>Benjamin:</strong> Lasciamelo fare. Quindi, per creare un comando, abbiamo bisogno della &quot;command factory&quot;. Questa factory è già passata a <code class="docutils literal notranslate"><span class="pre">TicketOffice</span></code> tramite il suo costruttore, quindi dobbiamo assegnarla a un campo perché d'ora in poi il costruttore assomiglierà a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ReservationInProgressFactory</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CommandFactory</span><span class="w"> </span><span class="n">commandFactory</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_reservationInProgressFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Dopo aver aggiunto l'assegnazione, il codice appare così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">CommandFactory</span><span class="w"> </span><span class="n">_commandFactory</span><span class="p">;</span>
+
+<span class="k">public</span><span class="w"> </span><span class="nf">TicketOffice</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ReservationInProgressFactory</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CommandFactory</span><span class="w"> </span><span class="n">commandFactory</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_reservationInProgressFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reservationInProgressFactory</span><span class="p">;</span>
+<span class="w">  </span><span class="n">_commandFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">commandFactory</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e ora nel metodo <code class="docutils literal notranslate"><span class="pre">MakeReservation()</span></code>, posso chiedere alla factory di creare un &quot;command&quot;:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span>
+<span class="w">  </span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="k">return</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Ma questo codice non è ancora completo -- devo ancora eseguire il comando creato in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_reservationInProgressFactory</span><span class="p">.</span><span class="n">FreshInstance</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">reservationCommand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_commandFactory</span><span class="p">.</span><span class="n">CreateNewReservationCommand</span><span class="p">(</span>
+<span class="w">  </span><span class="n">requestDto</span><span class="p">,</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">);</span>
+<span class="n">reservationCommand</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+<span class="k">return</span><span class="w"> </span><span class="n">reservationInProgress</span><span class="p">.</span><span class="n">ToDto</span><span class="p">();</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Fantastico! Ora lo Statement è &quot;true&quot;.</p>
+<p><strong>Benjamin:</strong> Wow, non è molto codice per uno Statement così grande che abbiamo scritto.</p>
+<p><strong>Johnny:</strong> La vera complessità non sta nemmeno nelle righe di codice, ma nel numero di dipendenze che abbiamo dovuto trascinare al suo interno. Tieni presente che abbiamo due factory qui. Ogni factory è una dipendenza e crea un'altra dipendenza. Questo si vede meglio nello Statement che nel metodo di produzione ed è per questo che trovo una buona idea prestare molta attenzione a come uno Statement sta crescendo e usarlo come meccanismo di feedback per la qualità del mio design. Per questa classe particolare, il problema di progettazione che osserviamo nello Statement non può essere risolto molto poiché, come ho già detto, questo è il confine in cui dobbiamo racchiudere le cose nelle astrazioni.</p>
+<p><strong>Benjamin:</strong> Dovrai spiegare meglio questo aspetto della qualità del design più avanti.</p>
+<p><strong>Johnny:</strong> Certo. Tè?</p>
+<p><strong>Benjamin:</strong> Caffè.</p>
+<p><strong>Johnny:</strong> Comunque, andiamo.</p>
+</section>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>È così che Johnny e Benjamin hanno realizzato il loro primo Statement utilizzando TDD e mock con un approccio progettuale &quot;outside-in&quot;. Ciò che seguirà nel prossimo capitolo è una piccola retrospettiva con commenti su ciò che hanno fatto questi ragazzi. Una cosa che vorrei menzionare ora è che l'approccio &quot;outside-in&quot; non si basa esclusivamente su Statement a livello di unità, quindi quello che hai visto qui non è il quadro completo. Ci arriveremo presto.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="poeaa" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Patterns of enterprise application architecture, M. Fowler.</p>
+</aside>
+<aside class="footnote brackets" id="facadepattern" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>https://www.pmi.org/disciplined-agile/the-design-patterns-repository/the-facade-pattern</p>
+</aside>
+<aside class="footnote brackets" id="commandpattern" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>https://www.pmi.org/disciplined-agile/the-design-patterns-repository/the-command-pattern</p>
+</aside>
+<aside class="footnote brackets" id="kerievskycollectingparameter" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Refactoring to Patterns, Joshua Kerievsky</p>
+</aside>
+<aside class="footnote brackets" id="decoratorpattern" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<p>https://www.pmi.org/disciplined-agile/the-design-patterns-repository/the-decorator-pattern</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Il test-driving ai confini di input</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#fixing-the-ticket-office">Sistemazione della biglietteria</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#initial-objects">Oggetti iniziali</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bootstrap">Bootstrap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#writing-the-first-statement">Scrivere il primo Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="280_Start_with_a_failing_test_mocks.html" title="capitolo precedente">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+      <li>Next: <a href="300_NeedDrivenRetrospective1.html" title="capitolo successivo">Il test-driving ai confini di input -- una retrospettiva</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/290_NeedDrivenDevelopment.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

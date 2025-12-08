@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Come iniziare? &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="In che modo il TDD riguarda l&#39;analisi e cosa significa &#34;GIVEN-WHEN-THEN&#34;?" href="100_Analysis_In_TDD.html" />
+    <link rel="prev" title="Facciamo un po&#39; d&#39;ordine" href="080_Sorting_out_the_bits.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="how-to-start">
+<h1>Come iniziare?<a class="headerlink" href="#how-to-start" title="Link to this heading">¶</a></h1>
+<p>Ogni volta che mi sedevo con qualcuno che stava per scrivere codice in modalità Statement per la prima volta, la persona fissava lo schermo, poi me, quindi diceva: &quot;e adesso?&quot;. È facile dire: &quot;Sai scrivere codice, sai scrivere un test, solo che questa volta inizia con quest'ultimo anziché con il primo&quot;, ma per molte persone questo è qualcosa che li blocca completamente. Se siete uno di loro, non preoccupatevi -- non siete soli. Ho deciso di dedicare questo capitolo esclusivamente alle tecniche per avviare uno Statement in assenza di codice.</p>
+<section id="start-with-a-good-name">
+<h2>Si inizia con un buon nome<a class="headerlink" href="#start-with-a-good-name" title="Link to this heading">¶</a></h2>
+<p>Ho già detto che uno Statement è una descrizione del comportamento espressa in codice. Un processo di pensiero che porta alla creazione di tale Statement eseguibile potrebbe assomigliare alla seguente sequenza di domande:</p>
+<ol class="arabic simple">
+<li><p>Qual è lo &quot;scope&quot; [l'ambito] del comportamento che sto cercando di specificare? Risposta di esempio: sto cercando di specificare un comportamento di una classe <code class="docutils literal notranslate"><span class="pre">Calculator</span></code>.</p></li>
+<li><p>Qual è il comportamento di una classe <code class="docutils literal notranslate"><span class="pre">Calculator</span></code> che sto cercando di specificare? Risposta di esempio: dovrebbe visualizzare tutte le cifre immesse che non precedono gli zeri.</p></li>
+<li><p>Come specificare questo comportamento tramite il codice? Risposta di esempio: <code class="docutils literal notranslate"><span class="pre">[Fact]</span> <span class="pre">public</span> <span class="pre">void</span> <span class="pre">ShouldDisplayAllEnteredDigitsThatAreNotLeadingZeroes()</span> <span class="pre">...</span></code> (ovvero un pezzo di codice).</p></li>
+</ol>
+<p>Notare che prima di scrivere qualsiasi codice, ci sono almeno due domande a cui è possibile rispondere nel linguaggio umano. Spesso, rispondere a queste domande prima di iniziare a scrivere il codice dello Statement, facilita le cose. Anche se questo può ancora essere un processo impegnativo. Per applicare con successo questo consiglio, è necessaria una certa conoscenza su come denominare correttamente gli Statement. So che non tutti prestano attenzione a dare un nome ai propri Statement, soprattutto perché gli Statement sono spesso considerati cittadini di serie B -- finché funzionano e &quot;dimostrano che il codice non contiene difetti&quot;, sono considerati sufficienti. Daremo un'occhiata ad alcuni esempi di nomi sbagliati e poi entreremo in alcune regole per una buona nomenclatura.</p>
+<section id="consequences-of-bad-naming">
+<h3>Conseguenze di una cattiva nomenclatura<a class="headerlink" href="#consequences-of-bad-naming" title="Link to this heading">¶</a></h3>
+<p>Ho visto molte persone non preoccuparsi del nome dei loro Statement. Questo è un sintomo del fatto che si trattano le Specifiche come spazzatura o avanzi -- considero questo approccio pericoloso perché ho visto che porta a Specifiche difficili da mantenere e che assomigliano più a pezzi di codice messi insieme accidentalmente in fretta che a una sorta di &quot;documentazione reale&quot;. Si immagini che la Specifica sia composta da Statement denominati in questo modo:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TrySendPacket()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TrySendPacket2()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testSendingManyPackets()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testWrongPacketOrder1()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testWrongPacketOrder2()</span></code></p></li>
+</ul>
+<p>e si vede quanto sia difficile rispondere alle seguenti domande:</p>
+<ol class="arabic simple">
+<li><p>Come si fa a sapere quale situazione descrive ciascuno Statement?</p></li>
+<li><p>Come si fa a sapere se lo Statement descrive una singola situazione o più situazioni contemporaneamente?</p></li>
+<li><p>Come si fa a sapere se le asserzioni contenute in quegli Statement sono quelle giuste presupponendo che ciascuno Statement sia stato scritto da qualcun altro o molto tempo fa?</p></li>
+<li><p>Come si fa a sapere se lo Statement deve rimanere o essere rimosso dalle Specifiche quando si modifica la funzionalità descritta da questo Statement?</p></li>
+<li><p>Se le modifiche apportate al codice di produzione rendono falso uno Statement, come si fa a sapere se lo Statement non è più corretta o il codice di produzione è sbagliato?</p></li>
+<li><p>Come si fa a sapere se non si introdurrà uno Statement duplicato per uno scenario quando si aggiunge una Specifica creata da un altro membro del team?</p></li>
+<li><p>Come si valuta, esaminando il report del tool runner, se la correzione di uno Statement non riuscito sarà facile o meno?</p></li>
+<li><p>Cosa si risponde ai nuovi sviluppatori del team quando chiedono &quot;a cosa serve questo Statement?&quot;</p></li>
+<li><p>Come si fa a sapere quando la Specifica è completa se non si riesce a distinguere dai nomi degli Statement quali comportamenti hai già coperto e quali no??</p></li>
+</ol>
+</section>
+<section id="what-does-a-good-name-contain">
+<h3>Cosa contiene un buon nome?<a class="headerlink" href="#what-does-a-good-name-contain" title="Link to this heading">¶</a></h3>
+<p>Per essere di qualche utilità, il nome di una Statement deve descriverne il comportamento previsto. Come minimo, dovrebbe descrivere cosa succede in quali circostanze. Diamo un'occhiata a uno dei nomi che Steve Freeman e Nat Pryce hanno inventato nel loro fantastico libro <a class="reference external" href="http://www.growing-object-oriented-software.com/">Growing Object-Oriented Software Guided By Tests</a>:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">notifiesListenersThatServerIsUnavailableWhenCannotConnectToItsMonitoringPort</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Notare alcune cose sul nome dello Statement:</p>
+<ol class="arabic">
+<li><p>Descrive un comportamento di un'istanza di una classe specifica. Da notare che non contiene il nome del metodo che attiva il comportamento, perché ciò che viene specificato non è un singolo metodo, ma il comportamento stesso (questo verrà trattato in maggior dettaglio nei prossimi capitoli). Il nome dello Statement indica semplicemente cosa fa un'istanza (&quot;notifica agli ascoltatori che il server non è disponibile&quot;) in determinate circostanze (&quot;quando non è possibile connettersi alla sua porta di monitoraggio&quot;). È importante per me perché posso ricavare una descrizione del genere pensando alle responsabilità di una classe senza la necessità di conoscere le firme dei suoi metodi o il codice all'interno della classe. Quindi, questo è qualcosa che posso inventare prima di implementarlo -- devo solo sapere perché ho creato questa classe e basarmi su questa conoscenza.</p></li>
+<li><p>Il nome è relativamente lungo. Veramente, veramente, <strong>veramente</strong> non c'è da preoccuparsi. Finché si descrive un singolo comportamento, direi che va bene. Ho visto persone esitare a dare nomi lunghi agli Statement perché cercavano di applicare a quei nomi le stesse regole dei nomi dei metodi nel codice di produzione. Nel codice di produzione, un nome di metodo lungo può essere un segno che il metodo ha troppe responsabilità o che viene utilizzato un livello di astrazione insufficiente per descrivere la funzionalità e che il nome potrebbe rivelare inutilmente dettagli di implementazione. La mia opinione è che queste due ragioni non si applicano tanto agli Statement. Nel caso degli Statement, i metodi non vengono invocati da nessuno oltre al runner automatico dei test, quindi non offuscheranno alcun codice che avrebbe bisogno di chiamarli con i loro nomi lunghi. Inoltre, i nomi degli statement non devono essere astratti come i nomi dei metodi del codice di produzione -- possono rivelare di più.</p>
+<p>In alternativa, potremmo inserire tutte le informazioni in un commento invece del nome dello Statement e lasciare il nome breve, in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="c1">//Notifies listeners that server </span>
+<span class="c1">//is unavailable when cannot connect</span>
+<span class="c1">//to its monitoring port</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Statement_002</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>tuttavia, ci sono due aspetti negativi in questo. Innanzitutto, ora dobbiamo aggiungere un'ulteriore informazione (<code class="docutils literal notranslate"><span class="pre">Statement_002</span></code>) solo per soddisfare il compilatore, perché ogni metodo deve comunque avere un nome -- e di solito non esiste alcun valore che un essere umano possa derivare da un nome come <code class="docutils literal notranslate"><span class="pre">Statement_002</span></code>. Il secondo svantaggio è che quando l'istruzione diventa falsa, il test runner mostra la seguente riga: <code class="docutils literal notranslate"><span class="pre">Statement_002:</span> <span class="pre">FAILED</span></code> -- notare che tutte le informazioni incluse nel commento mancano dal rapporto dell'errore. Considero molto più prezioso ricevere un report del tipo:</p>
+<p><code class="docutils literal notranslate"><span class="pre">notifiesListenersThatServerIsUnavailableWhenCannotConnectToItsMonitoringPort:</span> <span class="pre">FAILED</span></code></p>
+<p>perché in tal caso, molte informazioni sulla dichiarazione fallita sono disponibili nel rapporto del test runner.</p>
+</li>
+<li><p>Usare un nome che descrive un singolo comportamento mi permette di scoprire velocemente perché lo Statement è risultato falso. Diciamo che uno Statement è vero quando inizio il refactoring, ma a un certo punto diventa falsa e il report nel runner assomiglia a questo: <code class="docutils literal notranslate"><span class="pre">TrySendingHttpRequest:</span> <span class="pre">FAILED</span></code> -- mi dice solo che è stato effettuato un tentativo di inviare una richiesta HTTP, ma, ad esempio, non mi dice se l'oggetto che ho specificato in quello Statement è una sorta di mittente che dovrebbe provare a inviare questa richiesta in alcune circostanze, o se è un destinatario che dovrebbe gestire tale richiesta correttamente. Per sapere cosa è andato storto, devo aprire il codice sorgente dello Statement. D'altra parte, quando ho uno Statement denominato <code class="docutils literal notranslate"><span class="pre">ShouldRespondWithAnAckWheneverItReceivesAnHttpRequest</span></code>, se diventa falso, so cosa non funziona -- l'oggetto non risponde più con un ACK a una richiesta HTTP. Questo potrebbe essere sufficiente per identificare quale parte del codice è difettosa e quale delle mie modifiche ha reso falso lo Statement.</p></li>
+</ol>
+</section>
+<section id="my-favorite-convention">
+<h3>La mia convenzione preferita<a class="headerlink" href="#my-favorite-convention" title="Link to this heading">¶</a></h3>
+<p>Esistono molte convenzioni per denominare gli Statement in modo appropriato. Il mio preferito è quello <a class="reference external" href="https://dannorth.net/introducing-bdd/">sviluppato da Dan North</a>, in cui il nome di ogni istruzione inizia con la parola <code class="docutils literal notranslate"><span class="pre">Should</span></code> [Dovrebbe]. Quindi, ad esempio, chiamerei uno Statement:</p>
+<p><code class="docutils literal notranslate"><span class="pre">ShouldReportAllErrorsSortedAlphabeticallyWhenErrorsOccurDuringSearch()</span></code></p>
+<p>Il nome della Specifica (ovvero il nome della classe) risponde alla domanda &quot;chi dovrebbe farlo?&quot;, ovvero quando ho una classe denominata <code class="docutils literal notranslate"><span class="pre">SortingOperation</span></code> e voglio dire che &quot;dovrebbe ordinare tutti gli elementi in ordine crescente quando eseguita&quot;, lo dico in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">SortingOperationSpecification</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="w"> </span><span class="n">ShouldSortAllItemsInAscendingOrderWhenPerformed</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Scrivendo quanto sopra, dico che &quot;L'operazione di ordinamento <em>(deriva dal nome della classe della Specifica)</em> dovrebbe ordinare tutti gli elementi in ordine crescente quando eseguita <em>(questo deriva dal nome dello Statement)</em>&quot;.</p>
+<p>La parola &quot;should&quot; [dovrebbe] è stata introdotta da Dan per indebolire l'affermazione che la segue e permettere così di mettere in discussione ciò che si sta affermando e porsi la domanda: &quot;davvero dovrebbe?&quot;. Se questo causa incertezza, allora è giunto il momento di parlare con un esperto del settore e assicurarsi di capire bene cosa si deve realizzare. Se non si è madrelingua inglese, il prefisso &quot;should&quot; probabilmente avrà un'influenza minore -- questo è uno dei motivi per cui non insisto sul suo uso. Mi piace però<a class="footnote-reference brackets" href="#argumentsagainstshould" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Quando si inventa un nome, è importante concentrarsi principalmente sul risultato o sull'azione che ci si aspetta da un oggetto, non ad es. da uno dei suoi metodi. Se non lo si fa, potrebbe diventare rapidamente problematico. Ad esempio, uno dei miei colleghi ha specificato una classe <code class="docutils literal notranslate"><span class="pre">UserId</span></code> (che consisteva in un nome utente e alcune altre informazioni) e ha scritto il seguente nome per lo Statement relativo al confronto di due identificatori:</p>
+<p><code class="docutils literal notranslate"><span class="pre">EqualOperationShouldFailForTwoInstancesWithTheSameUserName()</span></code> [L'operazione uguale dovrebbe fallire per due istanze con lo stesso nome utente].</p>
+<p>Si noti che questo nome non è scritto dalla prospettiva di un singolo oggetto, ma piuttosto dalla prospettiva di un'operazione che viene eseguita su di esso. Abbiamo smesso di pensare in termini di responsabilità degli oggetti e abbiamo iniziato a pensare in termini di correttezza operativa. Per riflettere la prospettiva dell'oggetto, questo nome dovrebbe essere qualcosa di più simile a:</p>
+<p><code class="docutils literal notranslate"><span class="pre">ShouldNotBeEqualToAnotherIdThatHasDifferentUserName()</span></code> [Non deve essere uguale a un altro ID con un username diverso].</p>
+<p>Quando mi ritrovo ad avere problemi con la nomenclatura in questo modo, sospetto che potrebbe essere uno di questi casi:</p>
+<ol class="arabic simple">
+<li><p>Non sto specificando il comportamento di una classe, ma piuttosto il risultato di un metodo.</p></li>
+<li><p>Sto specificando più di un comportamento.</p></li>
+<li><p>Il comportamento è troppo complicato e quindi devo modificare il mio design (ne parleremo più avanti).</p></li>
+<li><p>Sto nominando il comportamento di un'astrazione di livello troppo basso, inserendo troppi dettagli nel nome. Di solito arrivo a questa conclusione solo quando tutti i punti precedenti sono falsi.</p></li>
+</ol>
+</section>
+<section id="can-t-the-name-really-become-too-long">
+<h3>Il nome non può davvero diventare troppo lungo?<a class="headerlink" href="#can-t-the-name-really-become-too-long" title="Link to this heading">¶</a></h3>
+<p>Qualche paragrafo fa ho detto che non ci si dovrebbe preoccupare della lunghezza dei nomi degli Statement, ma devo ammettere che il nome può diventare occasionalmente troppo lungo. Una regola che cerco di seguire è che il nome di uno Statement dovrebbe essere più facile da leggere del suo contenuto. Pertanto, se mi occorre meno tempo per comprendere il senso di uno Statement leggendone il corpo che leggendone il nome, allora considero il nome troppo lungo. Se questo è il caso, provo ad applicare l'euristica sopra descritta per trovare e risolvere la causa principale del problema.</p>
+</section>
+</section>
+<section id="start-by-filling-the-given-when-then-structure-with-the-obvious">
+<h2>Iniziare riempiendo la struttura GIVEN-WHEN-THEN con l'ovvio<a class="headerlink" href="#start-by-filling-the-given-when-then-structure-with-the-obvious" title="Link to this heading">¶</a></h2>
+<p>Questa tecnica può essere utilizzata come estensione della precedente (cioè iniziare con un buon nome), inserendo un'altra domanda nella sequenza di domande che abbiamo seguito l'ultima volta:</p>
+<ol class="arabic simple">
+<li><p>Qual è lo &quot;scope&quot; [l'ambito] del comportamento che sto cercando di specificare? Risposta di esempio: sto cercando di specificare il comportamento di una classe <code class="docutils literal notranslate"><span class="pre">Calculator</span></code>.</p></li>
+<li><p>Qual è il comportamento di una classe <code class="docutils literal notranslate"><span class="pre">Calculator</span></code> che sto cercando di specificare? Risposta di esempio: dovrebbe visualizzare tutte le cifre immesse che non precedono gli zeri.</p></li>
+<li><p><strong>Qual è il contesto (&quot;GIVEN&quot;) del comportamento, l'azione (&quot;WHEN&quot;) che lo innesca e la reazione attesa (&quot;THEN&quot;) dell'oggetto specificato? Risposta di esempio: Se accendo la calcolatrice, quando inserisco qualsiasi cifra diversa da 0 seguita da qualsiasi cifra, queste dovrebbero essere visibili sul display</strong>.</p></li>
+<li><p>Come specificare questo comportamento tramite il codice? Risposta di esempio: <code class="docutils literal notranslate"><span class="pre">[Fact]</span> <span class="pre">public</span> <span class="pre">void</span> <span class="pre">ShouldDisplayAllEnteredDigitsThatAreNotLeadingZeroes()</span> <span class="pre">...</span></code> (ovvero un pezzo di codice).</p></li>
+</ol>
+<p>In alternativa, può essere utilizzato senza la fase di denominazione, quando è più difficile trovare un nome che con una struttura GIVEN-WHEN-THEN. In altre parole, una struttura GIVEN-WHEN-THEN può essere facilmente derivata da un buon nome e viceversa.</p>
+<p>Questa tecnica consiste nel prendere le parti GIVEN, WHEN e THEN e tradurle in codice in modo quasi letterale e con forza bruta (senza prestare attenzione alle classi, ai metodi o alle variabili mancanti), quindi aggiungere tutti i pezzi mancanti necessari per il codice da compilare ed eseguire.</p>
+<section id="example">
+<h3>Esempio<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
+<p>Proviamolo su un semplice problema di confronto tra due utenti in termini di uguaglianza. Assumiamo che due utenti debbano essere uguali tra loro se hanno lo stesso nome:</p>
+<div class="highlight-gherkin notranslate"><div class="highlight"><pre><span></span><span class="k">Given </span><span class="nf">a user with any name</span>
+<span class="k">When </span><span class="nf">I compare it to another user with the same name</span>
+<span class="k">Then </span><span class="nf">it should appear equal to this other user</span>
+</pre></div>
+</div>
+<p>Cominciamo con la parte della traduzione. Ancora una volta, ricordarsi che stiamo cercando di rendere la traduzione il più letterale possibile senza prestare attenzione a tutti i pezzi mancanti per ora.</p>
+<p>La prima riga:</p>
+<div class="highlight-gherkin notranslate"><div class="highlight"><pre><span></span><span class="k">Given </span><span class="nf">a user with any name</span>
+</pre></div>
+</div>
+<p>può essere tradotta letteralmente nel seguente pezzo di codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">User</span><span class="p">(</span><span class="n">anyName</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Notare che non abbiamo ancora la classe <code class="docutils literal notranslate"><span class="pre">User</span></code> e per ora non ci preoccupiamo di cosa sia realmente <code class="docutils literal notranslate"><span class="pre">anyName</span></code>. Va bene.</p>
+<p>Poi la seconda riga:</p>
+<div class="highlight-gherkin notranslate"><div class="highlight"><pre><span></span><span class="k">When </span><span class="nf">I compare it to another user with the same name</span>
+</pre></div>
+</div>
+<p>può essere scritta come:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">user</span><span class="p">.</span><span class="n">Equals</span><span class="p">(</span><span class="n">anotherUserWithTheSameName</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Grande! Ancora una volta, non ci interessa cosa sia <code class="docutils literal notranslate"><span class="pre">anotherUserWithTheSameName</span></code>. Lo trattiamo come un segnaposto. Ora l'ultima riga:</p>
+<div class="highlight-gherkin notranslate"><div class="highlight"><pre><span></span><span class="k">Then </span><span class="nf">it should appear equal to this other user</span>
+</pre></div>
+</div>
+<p>e la sua traduzione nel codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">usersAreEqual</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Ok, ora che la traduzione letterale è completa, mettiamo insieme tutte le parti e vediamo cosa manca per compilare questo codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldAppearEqualToAnotherUserWithTheSameName</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">User</span><span class="p">(</span><span class="n">anyName</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="n">user</span><span class="p">.</span><span class="n">Equals</span><span class="p">(</span><span class="n">anotherUserWithTheSameName</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">usersAreEqual</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Come ci aspettavamo, questo non viene compilato. In particolare, il nostro compilatore potrebbe indicarci le seguenti lacune:</p>
+<ol class="arabic simple">
+<li><p>La variabile <code class="docutils literal notranslate"><span class="pre">anyName</span></code> non è dichiarata.</p></li>
+<li><p>L'oggetto <code class="docutils literal notranslate"><span class="pre">anotherUserWithTheSameName</span></code> non è dichiarato.</p></li>
+<li><p>La variabile <code class="docutils literal notranslate"><span class="pre">usersAreEqual</span></code> non è dichiarata e non contiene il risultato del confronto.</p></li>
+<li><p>Se questa è la nostra prima istruzione, potremmo non avere nemmeno la classe <code class="docutils literal notranslate"><span class="pre">User</span></code> definita.</p></li>
+</ol>
+<p>Il compilatore ha creato per noi una sorta di piccolo elenco di TODO, il che è carino. Notare che sebbene non disponiamo di un pezzo di codice da compilare, colmare le lacune per farlo compilare si riduce a fare alcune banali dichiarazioni e assegnazioni:</p>
+<ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">anyName</span></code> può essere definito come:</p>
+<p><code class="docutils literal notranslate"><span class="pre">var</span> <span class="pre">anyName</span> <span class="pre">=</span> <span class="pre">Any.String();</span></code></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">anotherUserWithTheSameName</span></code> può essere definito come:</p>
+<p><code class="docutils literal notranslate"><span class="pre">var</span> <span class="pre">anotherUserWithTheSameName</span> <span class="pre">=</span> <span class="pre">new</span> <span class="pre">User(anyName);</span></code></p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">usersAreEqual</span></code> può essere definito come una variabile a cui assegniamo il risultato del confronto:</p>
+<p><code class="docutils literal notranslate"><span class="pre">var</span> <span class="pre">usersAreEqual</span> <span class="pre">=</span> <span class="pre">user.Equals(anotherUserWithTheSameName);</span></code></p>
+</li>
+<li><p>Se la classe <code class="docutils literal notranslate"><span class="pre">User</span></code> non esiste ancora, possiamo aggiungerla semplicemente affermando:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">User</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">User</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Rimettere il tutto insieme, dopo aver colmato le lacune, ci dà:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldAppearEqualToAnotherUserWithTheSameName</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">anyName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">String</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">User</span><span class="p">(</span><span class="n">anyName</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">anotherUserWithTheSameName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">User</span><span class="p">(</span><span class="n">anyName</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">usersAreEqual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="n">Equals</span><span class="p">(</span><span class="n">anotherUserWithTheSameName</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">usersAreEqual</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E questo è tutto -- lo Statement stesso è completo!</p>
+</section>
+</section>
+<section id="start-from-the-end">
+<h2>Iniziare dalla fine<a class="headerlink" href="#start-from-the-end" title="Link to this heading">¶</a></h2>
+<p>Questa è una tecnica che suggerisco alle persone che sembrano non avere idea di come iniziare. L'ho preso dal libro di Kent Beck &quot;Test-Driven Development by Example&quot;. A prima vista sembra buffo, ma a volte l'ho trovato piuttosto potente. Il trucco sta nello scrivere lo Statement &quot;all'indietro&quot;, cioè iniziando da ciò che verifica il risultato (in termini di struttura <em>GIVEN-WHEN-THEN</em>, diremmo che iniziamo con la nostra parte <em>THEN</em>).</p>
+<p>Funziona bene quando siamo abbastanza sicuri di quale dovrebbe essere il risultato nel nostro scenario, ma non così sicuri di come arrivarci.</p>
+<section id="id2">
+<h3>Esempio<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<p>Immaginiamo di scrivere una classe contenente le regole per concedere o negare l'accesso a una funzionalità di reporting. Questa funzionalità di reporting si basa sui ruoli. Non abbiamo idea di come dovrebbe essere l'API e di come scrivere il nostro Statement, ma sappiamo una cosa: nel nostro dominio l'accesso può essere concesso o negato. Prendiamo il primo caso che ci viene in mente -- il caso di &quot;accesso concesso&quot; -- e, mentre torniamo indietro dalla fine, iniziamo con la seguente asserzione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//THEN</span>
+<span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">accessGranted</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Ok, quella parte è stata facile, ma abbiamo fatto qualche progresso? Ovviamente l'abbiamo fatto -- ora abbiamo codice che non viene compilato, con l'errore causato dalla variabile <code class="docutils literal notranslate"><span class="pre">accessGranted</span></code>. Ora, a differenza dell'approccio precedente in cui traducevamo una struttura GIVEN-WHEN-THEN in uno Statement, il nostro obiettivo non è quello di completare questa compilazione il prima possibile. Dobbiamo invece rispondere alla domanda: come faccio a sapere se l'accesso è concesso o meno? La risposta: è il risultato dell'autorizzazione del ruolo consentito. Ok, quindi scriviamolo semplicemente nel codice, ignorando tutto ciò che ci ostacola:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//WHEN</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">accessGranted</span><span class="w"> </span>
+<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">access</span><span class="p">.</span><span class="n">ToReportingIsGrantedTo</span><span class="p">(</span><span class="n">roleAllowedToUseReporting</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Per ora, provare a resistere all'impulso di definire una classe o una variabile per rendere felice il compilatore, poiché ciò potrebbe portare fuori strada e distogliere l'attenzione da ciò che è importante. La chiave per eseguire con successo il TDD è imparare a utilizzare qualcosa che non esiste ancora come se esistesse e non preoccuparsi finché non sia necessario.</p>
+<p>Notare che non sappiamo cosa sia <code class="docutils literal notranslate"><span class="pre">roleAllowedToUseReporting</span></code>, né sappiamo cosa significhi l'oggetto <code class="docutils literal notranslate"><span class="pre">access</span></code>, ma ciò non ci ha impedito di scrivere questa riga. Inoltre, il metodo <code class="docutils literal notranslate"><span class="pre">ToReportingIsGrantedTo()</span></code> ci è stato semplicemente tolto dalla testa. Non è definito da nessuna parte, semplicemente aveva senso scriverlo così, perché è la traduzione più diretta di ciò che avevamo in mente.</p>
+<p>Ad ogni modo, questa nuova riga risponde alla domanda su da dove prendiamo il valore <code class="docutils literal notranslate"><span class="pre">accessGranted</span></code>, ma ci fa anche porre ulteriori domande:</p>
+<ol class="arabic simple">
+<li><p>Da dove viene la variabile <code class="docutils literal notranslate"><span class="pre">access</span></code>?</p></li>
+<li><p>Da dove viene la variabile <code class="docutils literal notranslate"><span class="pre">roleAllowedToUseReporting</span></code>?</p></li>
+</ol>
+<p>Per quanto riguarda <code class="docutils literal notranslate"><span class="pre">access</span></code>, non abbiamo nulla di specifico da dire a parte il fatto che si tratta di un oggetto di una classe non ancora definita. Ciò che dobbiamo fare ora è fingere di avere una classe del genere (ma non definiamola ancora). Come lo chiamiamo? Il nome dell'istanza è <code class="docutils literal notranslate"><span class="pre">access</span></code>, quindi è abbastanza semplice chiamare la classe <code class="docutils literal notranslate"><span class="pre">Access</span></code> e istanziarla nel modo più semplice a cui possiamo pensare:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Access</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Ora passiamo a <code class="docutils literal notranslate"><span class="pre">roleAllowedToUseReporting</span></code>. La prima domanda che viene in mente quando si esamina la questione è: quali ruoli sono autorizzati a utilizzare il reporting? Supponiamo che nel nostro dominio si tratti di un Administrator [amministratore] o di un Auditor [revisore].
+Let's assume that in our domain, this is either an Administrator or an Auditor. Quindi, sappiamo quale sarà il valore di questa variabile. Per quanto riguarda il tipo, ci sono vari modi in cui possiamo modellare un ruolo, ma quello più ovvio per un tipo che ha pochi valori possibili è un enum<a class="footnote-reference brackets" href="#differenttestingenums" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. Quindi:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//GIVEN</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">roleAllowedToUseReporting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="p">(</span><span class="n">Roles</span><span class="p">.</span><span class="n">Admin</span><span class="p">,</span><span class="w"> </span><span class="n">Roles</span><span class="p">.</span><span class="n">Auditor</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>E così, procedendo all'indietro, siamo arrivati alla soluzione finale (nel codice seguente, ho già dato un nome allo Statement -- questo è l'ultimo passaggio):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldAllowAccessToReportingWhenAskedForEitherAdministratorOrAuditor</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">roleAllowedToUseReporting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="p">(</span><span class="n">Roles</span><span class="p">.</span><span class="n">Admin</span><span class="p">,</span><span class="w"> </span><span class="n">Roles</span><span class="p">.</span><span class="n">Auditor</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Access</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">accessGranted</span><span class="w"> </span>
+<span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">access</span><span class="p">.</span><span class="n">ToReportingIsGrantedTo</span><span class="p">(</span><span class="n">roleAllowedToUseReporting</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">accessGranted</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Utilizzando ciò che abbiamo imparato formulando lo Statement, è stato facile dargli un nome.</p>
+</section>
+</section>
+<section id="start-by-invoking-a-method-if-you-have-one">
+<h2>Iniziare invocando un metodo se c'è<a class="headerlink" href="#start-by-invoking-a-method-if-you-have-one" title="Link to this heading">¶</a></h2>
+<p>Se vengono soddisfatte le precondizioni per questo approccio, è il più semplice e lo uso molto<a class="footnote-reference brackets" href="#lookfordetailsinchapter2" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+<p>Molte volte dobbiamo aggiungere una nuova classe che implementa un'interfaccia già esistente. L'interfaccia impone quali metodi deve supportare la nuova classe. Se le firme dei metodi sono già decise, possiamo iniziare il nostro Statement con una chiamata a uno dei metodi e poi capire il resto del contesto di cui abbiamo bisogno per farlo funzionare correttamente.</p>
+<section id="id5">
+<h3>Esempio<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<p>Immaginiamo di avere un'applicazione che, tra le altre cose, gestisce l'importazione di un database esistente esportato da un'altra istanza dell'applicazione. Dato che il database è di grandi dimensioni e la sua importazione può essere un processo lungo, viene visualizzata una &quot;message box&quot; ogni volta che un utente esegue l'import. Supponendo che il nome dell'utente sia Johnny, la &quot;message box&quot; visualizza il messaggio &quot;Johnny, please sit down and enjoy your coffee for a few minutes as we take time to import your database&quot;. La classe che lo implementa è simile a:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">FriendlyMessages</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span>
+<span class="w">  </span><span class="nf">HoldOnASecondWhileWeImportYourDatabase</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">userName</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;{0}, &quot;</span>
+<span class="w">      </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;please sit down and enjoy your coffee &quot;</span>
+<span class="w">      </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;for a few minutes as we take time &quot;</span>
+<span class="w">      </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;to import your database&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="n">userName</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Immaginiamo ora di voler fornire una versione di prova dell'applicazione con alcune funzionalità disabilitate, una delle quali è l'importazione del database. Una delle cose che dobbiamo fare è visualizzare un messaggio che informa che si tratta di una versione di prova e che la funzione di importazione è bloccata. Possiamo farlo estraendo un'interfaccia dalla classe <code class="docutils literal notranslate"><span class="pre">FriendlyMessages</span></code> e implementando questa interfaccia in una nuova classe utilizzata quando l'applicazione viene eseguita come versione di prova. L'interfaccia estratta è simile alla seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Messages</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="nf">HoldOnASecondWhileWeImportYourDatabase</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">userName</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi la nostra nuova implementazione è costretta a supportare il metodo <code class="docutils literal notranslate"><span class="pre">HoldOnASecondWhileWeImportYourDatabase()</span></code> [<em>Aspetta un attimo mentre importiamo il tuo database</em>]. Chiamiamo questa nuova classe <code class="docutils literal notranslate"><span class="pre">TrialVersionMessages</span></code> (ma non la creiamo ancora!) e possiamo scrivere uno Statement per il suo comportamento. Supponendo di non sapere da dove cominciare, iniziamo semplicemente creando un oggetto della classe (conosciamo già il nome) e invocando il metodo che già sappiamo di dover implementare:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">TODO</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">trialMessages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TrialVersionMessages</span><span class="p">();</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">trialMessages</span><span class="p">.</span><span class="n">HoldOnASecondWhileWeImportYourDatabase</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span><span class="w"> </span><span class="c1">//so we don&#39;t forget this later</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Come potete vedere, abbiamo aggiunto un'asserzione che alla fine non riesce mai a ricordarci che lo Statement non è ancora finito. Poiché non disponiamo ancora di asserzioni rilevanti, lo Statement sarà considerato vero non appena verrà compilata ed eseguita e potremmo non notare che è incompleto. Allo stato attuale, lo Statement non viene comunque compilato, perché non esiste ancora una classe <code class="docutils literal notranslate"><span class="pre">TrialVersionMessages</span></code>. Creiamone una con la minima implementazione possibile:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TrialVersionMessages</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Messages</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">HoldOnASecondWhileWeImportYourDatabase</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">userName</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che in questa classe è presente solo la quantità di implementazione richiesta per compilare questo codice. Tuttavia, lo Statement non sarà ancora compilato. Questo perché il metodo <code class="docutils literal notranslate"><span class="pre">HoldOnASecondWhileWeImportYourDatabase()</span></code> accetta un argomento di tipo stringa e non ne abbiamo passato nessuna nello Statement. Questo ci porta a chiederci quale sia questo argomento e quale sia il suo ruolo nel comportamento attivato dal metodo <code class="docutils literal notranslate"><span class="pre">HoldOnASecondWhileWeImportYourDatabase()</span></code>. Sembra che sia un nome utente. Pertanto, possiamo aggiungerlo allo Statement in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">TODO</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">trialMessages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TrialVersionMessages</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">userName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">String</span><span class="p">();</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">trialMessages</span><span class="p">.</span>
+<span class="w">  </span><span class="n">HoldOnASecondWhileWeImportYourDatabase</span><span class="p">(</span><span class="n">userName</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="k">false</span><span class="p">);</span><span class="w"> </span><span class="c1">//to remember about it</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, questo viene compilato ma è considerato falso a causa dell'asserzione di guardia che abbiamo messo alla fine. Il nostro obiettivo è sostituirla con un'asserzione adeguata per il risultato atteso. Il valore restituito della chiamata a <code class="docutils literal notranslate"><span class="pre">HoldOnASecondWhileWeImportYourDatabase</span></code> è un messaggio di tipo stringa, quindi tutto ciò che dobbiamo fare è visualizzare il messaggio che ci aspettiamo in caso di versione di prova:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">TODO</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">trialMessages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TrialVersionMessages</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">userName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">String</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">expectedMessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">  </span><span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;{0}, better get some pocket money and buy a full version!&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="n">userName</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trialMessages</span><span class="p">.</span>
+<span class="w">  </span><span class="n">HoldOnASecondWhileWeImportYourDatabase</span><span class="p">(</span><span class="n">userName</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedMessage</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Tutto ciò che resta da fare è trovare un buon nome per lo Statement. Questo non è un problema poiché abbiamo già specificato il comportamento desiderato nel codice, quindi possiamo semplicemente riassumerlo in qualcosa come <code class="docutils literal notranslate"><span class="pre">ShouldCreateAPromptForFullVersionPurchaseWhenAskedForImportDatabaseMessage()</span></code>.</p>
+</section>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>Quando sono bloccato e non so come iniziare a scrivere un nuovo Statement che fallisce, le tecniche di questo capitolo mi aiutano a spingere le cose nella giusta direzione. Notare che gli esempi forniti sono semplicistici e basati sul presupposto che esista un solo oggetto che accetta un qualche tipo di parametro di input e restituisce un risultato ben definito. Tuttavia, questo non è il modo in cui è costruito la maggior parte del mondo orientato agli oggetti. In quel mondo, abbiamo spesso oggetti che comunicano con altri oggetti, inviano messaggi, invocano metodi l'uno dall'altro e questi metodi spesso non hanno alcun valore di ritorno ma sono invece dichiarati come <code class="docutils literal notranslate"><span class="pre">void</span></code>. Anche se tutte le tecniche descritte in questo capitolo funzioneranno comunque in questo caso e le rivisiteremo non appena impareremo come eseguire TDD nel più ampio mondo orientato agli oggetti (dopo l'introduzione del concetto di oggetti mock nella Parte 2). Qui ho cercato di mantenerlo semplice.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="argumentsagainstshould" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Ci sono anche alcuni argomenti contro l'uso della parola &quot;should&quot; [dovrebbe], ad es. di Kevlin Henney (vedere https://www.infoq.com/presentations/testing-communication).</p>
+</aside>
+<aside class="footnote brackets" id="differenttestingenums" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>Questo approccio di scegliere un singolo valore tra diversi utilizzando <code class="docutils literal notranslate"><span class="pre">Any.From()</span></code> non sempre funziona bene con le enumerazioni. A volte risulta migliore un test parametrizzato (una &quot;theory&quot; A volte è migliore un test parametrizzato). Questo argomento verrà trattato in uno dei prossimi capitoli.</p>
+</aside>
+<aside class="footnote brackets" id="lookfordetailsinchapter2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p>Cercare i dettagli nel capitolo 2.</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Come iniziare?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#start-with-a-good-name">Si inizia con un buon nome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#start-by-filling-the-given-when-then-structure-with-the-obvious">Iniziare riempiendo la struttura GIVEN-WHEN-THEN con l'ovvio</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#start-from-the-end">Iniziare dalla fine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#start-by-invoking-a-method-if-you-have-one">Iniziare invocando un metodo se c'è</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="080_Sorting_out_the_bits.html" title="capitolo precedente">Facciamo un po' d'ordine</a></li>
+      <li>Next: <a href="100_Analysis_In_TDD.html" title="capitolo successivo">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/090_How_to_start.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Mettere in pratica ciò che abbiamo già imparato &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Facciamo un po&#39; d&#39;ordine" href="080_Sorting_out_the_bits.html" />
+    <link rel="prev" title="La programmazione Statement-first" href="060_Statement_First_Programming.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="practicing-what-we-have-already-learned">
+<h1>Mettere in pratica ciò che abbiamo già imparato<a class="headerlink" href="#practicing-what-we-have-already-learned" title="Link to this heading">¶</a></h1>
+<blockquote>
+<div><p>E ora, un assaggio di quello che verrà!</p>
+<p>-- Shang Tsung, Mortal Kombat Il Film</p>
+</div></blockquote>
+<p>La citazione precedente è avvenuta poco prima di una <a class="reference external" href="https://www.youtube.com/watch?v=b0vhGEGJC8g">scena di combattimento</a> in cui un guerriero senza nome saltava su Sub-Zero solo per essere congelato e spezzato in più pezzi dopo aver colpito il muro. La scena non era spettacolare in termini di tecnica di combattimento o di durata. Inoltre, il ragazzo senza nome non si è nemmeno sforzato -- l'unica cosa che ha fatto è stata saltare solo per essere colpito da una palla congelata, che, tra l'altro, poteva effettivamente vedere arrivare. Sembrava che il combattimento fosse stato organizzato solo per mostrare l'abilità di congelamento di Sub-Zero. Indovinate un po'? In questo capitolo faremo più o meno la stessa cosa -- creeremo uno scenario facile e fasullo solo per mostrare alcuni degli elementi base del TDD!</p>
+<p>Il capitolo precedente era pieno di molta teoria e filosofia, vero? Spero che non vi siate addormentati nel leggerlo. A dire il vero, dobbiamo comprendere molta più teoria prima di poter scrivere applicazioni realistiche utilizzando il TDD. Per compensare in qualche modo questo, propongo di fare una deviazione dal sentiero e provare ciò che abbiamo già imparato in un esempio semplice e veloce. Nell'esaminare l'esempio, ci si potrebbe chiedere come diavolo si potrebbero scrivere applicazioni reali nel modo in cui scriveremo il nostro semplice programma. Non c'è da preoccuparsi, non mostrerò ancora tutti i trucchi, quindi lo si consideri come un &quot;assaggio delle cose a venire&quot;. In altre parole, l'esempio sarà tanto vicino ai problemi reali quanto il combattimento tra Sub-Zero e il ninja senza nome lo era al vero combattimento di arti marziali, ma mostrerà alcuni degli elementi del processo TDD.</p>
+<section id="let-me-tell-you-a-story">
+<h2>Lasciate che racconti una storia<a class="headerlink" href="#let-me-tell-you-a-story" title="Link to this heading">¶</a></h2>
+<p>Incontriamo Johnny e Benjamin, due sviluppatori della Buthig Company. Johnny è abbastanza fluente nella programmazione e nello sviluppo basato sui test, mentre Benjamin è uno stagista sotto la guida di Johnny ed è ansioso di imparare il TDD. Stanno andando dalla loro cliente, Jane, che ha richiesto la loro presenza perché vuole che scrivano un piccolo programma per lei. Insieme a loro vedremo come interagiscono col cliente e come Benjamin cerca di comprendere le basi del TDD. Come altri, Benjamin è un principiante, quindi le sue domande potrebbero riflettere quelle di altri principianti. Tuttavia, se si trova qualcosa spiegato in modo non sufficientemente dettagliato, non c'è da preoccuparsi -- nei prossimi capitoli approfondiremo questo argomento.</p>
+</section>
+<section id="act-1-the-car">
+<h2>Atto 1: L'Auto<a class="headerlink" href="#act-1-the-car" title="Link to this heading">¶</a></h2>
+<p><strong>Johnny:</strong> Come ti senti riguardo al tuo primo incarico?</p>
+<p><strong>Benjamin:</strong> Sono piuttosto emozionato! Spero di poter imparare alcune delle cose sul TDD che hai promesso di insegnarmi.</p>
+<p><strong>Johnny:</strong> Non solo TDD, ma utilizzeremo anche alcune delle pratiche associate a un processo chiamato &quot;Acceptance Test-Driven Development&quot; [<em>sviluppo basato sui test di accettazione</em>], anche se in una forma semplificata.</p>
+<p><strong>Benjamin:</strong> Acceptance Test-Driven Development? Che cos'è?</p>
+<p><strong>Johnny:</strong> Mentre il TDD viene solitamente definito una tecnica di sviluppo, l'Acceptance Test-Driven Development (ATDD) è qualcosa di più di un metodo di collaborazione. Sia ATDD che TDD contengono un po' di analisi e funzionano molto bene insieme poiché entrambi utilizzano gli stessi principi di base, solo a livelli diversi. Avremo bisogno solo di un piccolo sottoinsieme di ciò che ATDD ha da offrire, quindi non esagerare.</p>
+<p><strong>Benjamin:</strong> Certo. Chi è il nostro cliente?</p>
+<p><strong>Johnny:</strong> Si chiama Jane. Gestisce un piccolo negozio nelle vicinanze e vuole che scriviamo un'applicazione per il suo nuovo cellulare. Avrai l'opportunità di incontrarla tra un minuto, dato che siamo quasi arrivati.</p>
+</section>
+<section id="act-2-the-customer-s-site">
+<h2>Atto 2: Presso il Cliente<a class="headerlink" href="#act-2-the-customer-s-site" title="Link to this heading">¶</a></h2>
+<p><strong>Johnny:</strong> Ciao, Jane, come stai?</p>
+<p><strong>Jane:</strong> Bene, grazie e tu?</p>
+<p><strong>Johnny:</strong> Anch'io, grazie. Benjamin, lei è Jane, la nostra cliente. Jane, questo è Benjamin, lavoreremo insieme sul compito che hai per noi.</p>
+<p><strong>Benjamin:</strong> Ciao, piacere di conoscerti.</p>
+<p><strong>Jane:</strong> Ciao, piacere di conoscerti anch'io.</p>
+<p><strong>Johnny:</strong> Allora, puoi dirci qualcosa sul software che dobbiamo scriverti?</p>
+<p><strong>Jane:</strong> Certo. Di recente ho acquistato un nuovo smartphone in sostituzione di quello vecchio. Il fatto è che sono davvero abituato all'applicazione calcolatrice che girava sul mio telefono precedente e non riesco a trovare una controparte per il mio nuovo dispositivo.</p>
+<p><strong>Benjamin:</strong> Non potresti semplicemente usare un'altra app calcolatrice? Probabilmente ce ne sono molte disponibili per il download dal web.</p>
+<p><strong>Jane:</strong> Questo è vero. Le ho controllate tutte e nessuna ha lo stesso comportamento di quella che ho utilizzato per i miei calcoli fiscali. Vedi, questa app è stata come una mano destra per me e aveva alcune belle scorciatoie che mi hanno reso la vita più semplice.</p>
+<p><strong>Johnny:</strong> Quindi vuoi che riproduciamo l'applicazione per eseguirla sul tuo nuovo dispositivo?</p>
+<p><strong>Jane:</strong> Esattamente.</p>
+<p><strong>Johnny:</strong> Sei consapevole che, a parte le fantasiose funzionalità che stavi utilizzando, dovremo impegnarci per implementare le funzionalità di base di cui dispongono tutte le calcolatrici?</p>
+<p><strong>Jane:</strong> Certo, mi va bene. Mi sono abituata così tanto all'applicazione della calcolatrice che, se uso qualcos'altro per più di qualche mese, dovrò pagare uno psicoterapeuta al posto vostro. A parte questo, scrivere un'app per la calcolatrice mi sembra un compito facile, quindi il costo non sarà eccessivo, giusto?</p>
+<p><strong>Johnny:</strong> Penso di aver capito. Allora diamoci da fare. Implementeremo la funzionalità in modo incrementale, iniziando con le funzionalità più essenziali. Quale caratteristica della calcolatrice considereresti più essenziale?</p>
+<p><strong>Jane:</strong> Si tratterebbe della somma di numeri, immagino.</p>
+<p><strong>Johnny:</strong> Ok, questo sarà il nostro obiettivo per la prima iterazione. Dopo l'iterazione, forniremo questa parte della funzionalità affinché tu possa provarla e darci un feedback. Tuttavia, prima ancora di poter fornire la funzione aggiuntiva, dovremo implementare la visualizzazione delle cifre sullo schermo mentre le inserisci. È corretto?</p>
+<p><strong>Jane:</strong> Sì, ho bisogno che anche gli elementi di visualizzazione funzionino: è un prerequisito per altre funzionalità, quindi...</p>
+<p><strong>Johnny:</strong> Ok, questa è una funzionalità semplice, quindi permettimi di suggerire alcune &quot;user story&quot; quando ho capito quello che hai già detto e mi correggerai dove sbaglio. Eccoci qui:</p>
+<ol class="arabic simple">
+<li><p><strong>Per</strong> sapere che la calcolatrice è accesa, <strong>Come</strong> contribuente <strong>voglio</strong> vedere &quot;0&quot; sullo schermo non appena la accendo.</p></li>
+<li><p><em>Per</em>* vedere su quali numeri sto operando attualmente, <strong>Come</strong> contribuente, <strong>voglio</strong> che la calcolatrice visualizzi i valori che inserisco</p></li>
+<li><p><strong>Per</strong> calcolare la somma dei miei diversi redditi, <strong>Come</strong> contribuente <strong>voglio</strong> che la calcolatrice consenta l'addizione di più numeri</p></li>
+</ol>
+<p>Cosa ne pensi?</p>
+<p><strong>Jane</strong>: Le &quot;story&quot; riflettono più o meno ciò che voglio per la prima iterazione. Non credo di avere correzioni da apportare.</p>
+<p><strong>Johnny:</strong> Ora prenderemo ogni &quot;story&quot; e raccoglieremo alcuni esempi di come dovrebbe funzionare.</p>
+<p><strong>Benjamin:</strong> Johnny, non pensi che sia abbastanza ovvio procedere subito con l'implementazione?</p>
+<p><strong>Johnny:</strong> Credimi, Benjamin, se c'è una parola che temo di più nella comunicazione, è &quot;ovvio&quot;. I problemi di comunicazione si verificano più spesso riguardo a cose che le persone considerano ovvie, semplicemente perché altre persone non lo fanno.</p>
+<p><strong>Jane:</strong> Ok, ci sto. Cosa devo fare?</p>
+<p><strong>Johnny:</strong> Esaminiamo le &quot;story&quot; una per una e vediamo se riusciamo a trovare alcuni esempi chiave di come dovrebbero funzionare le funzionalità. La prima story è...</p>
+<section id="in-order-to-know-that-the-calculator-is-turned-on-as-a-taxpayer-i-want-to-see-0-on-the-screen-as-soon-as-i-turn-it-on">
+<h3><strong>Per</strong> sapere che la calcolatrice è accesa, <strong>Come</strong> contribuente <strong>voglio</strong> vedere &quot;0&quot; sullo schermo non appena la accendo.<a class="headerlink" href="#in-order-to-know-that-the-calculator-is-turned-on-as-a-taxpayer-i-want-to-see-0-on-the-screen-as-soon-as-i-turn-it-on" title="Link to this heading">¶</a></h3>
+<p><strong>Jane:</strong> Non credo che ci sia molto di cui parlare. Se visualizzi &quot;0&quot;, sarò felice. È tutto.</p>
+<p><strong>Johnny:</strong> Scriviamo questo esempio utilizzando una tabella:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>N/A</p></td>
+<td><p>0</p></td>
+<td><p>Valore visualizzato iniziale</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Benjamin:</strong> Questo mi fa pensare... cosa dovrebbe succedere se premo di nuovo &quot;0&quot; in questa fase?</p>
+<p><strong>Johnny:</strong> Bella questione, ecco a cosa servono questi esempi -- rendono concreto il nostro pensiero. Come dice Ken Pugh<a class="footnote-reference brackets" href="#prefactoring" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>: &quot;Spesso la completa comprensione di un concetto non avviene finché qualcuno non tenta di utilizzare il concetto&quot;. Normalmente, inseriremmo l'esempio &quot;premere zero più volte&quot; in un elenco di TODO e lo lasceremmo per dopo, perché fa parte di una &quot;story&quot; diversa. Tuttavia, sembra che abbiamo finito con la &quot;story&quot; attuale, quindi andiamo avanti. La &quot;story&quot; successiva riguarda la visualizzazione delle cifre immesse. Che ne dici, Jane?</p>
+<p><strong>Jane:</strong> Sono d'accordo.</p>
+<p><strong>Johnny:</strong> Benjamin?</p>
+<p><strong>Benjamin:</strong> Sì, vai avanti.</p>
+</section>
+<section id="in-order-to-see-what-numbers-i-am-currently-operating-on-as-a-taxpayer-i-want-the-calculator-to-display-the-values-i-enter">
+<h3><em>Per</em>* vedere su quali numeri sto operando attualmente, <strong>Come</strong> contribuente, <strong>voglio</strong> che la calcolatrice visualizzi i valori che inserisco<a class="headerlink" href="#in-order-to-see-what-numbers-i-am-currently-operating-on-as-a-taxpayer-i-want-the-calculator-to-display-the-values-i-enter" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Cominciamo con il caso sollevato da Benjamin. Cosa dovrebbe succedere se inserisco &quot;0&quot; più volte dopo che sul display è visualizzato solo &quot;0&quot;?</p>
+<p><strong>Jane:</strong> Dovrebbe essere visualizzato un singolo &quot;0&quot;, indipendentemente da quante volte premo &quot;0&quot;.</p>
+<p><strong>Johnny:</strong> Vuoi dire questo?</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0,0,0</p></td>
+<td><p>0</p></td>
+<td><p>Lo zero è un caso speciale – viene visualizzato solo una volta</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jane:</strong> Questo è vero. Oltre a questo, le cifre dovrebbero semplicemente essere visualizzate sullo schermo, in questo modo:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1,2,3</p></td>
+<td><p>123</p></td>
+<td><p>Vengono visualizzate le cifre immesse</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Benjamin:</strong> Che ne dici di questo:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1,2,3,4,5,6,7,1,2,3,4,5,6</p></td>
+<td><p>1234567123456?</p></td>
+<td><p>Le cifre immesse vengono visualizzate?</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jane:</strong> A dire il vero no. La mia vecchia app calcolatrice ha un limite di sei cifre che posso inserire, quindi dovrebbe essere:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1,2,3,4,5,6,7,1,2,3,4,5,6</p></td>
+<td><p>123456</p></td>
+<td><p>Display limitato a sei cifre</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Johnny:</strong> Un'altra bella questione, Benjamin!</p>
+<p><strong>Benjamin:</strong> Penso di cominciare a capire perché ti piace lavorare con gli esempi!</p>
+<p><strong>Johnny:</strong> Bene. C'è qualcos'altro, Jane?</p>
+<p><strong>Jane:</strong> No, praticamente è tutto. Cominciamo a lavorare su un'altra &quot;story&quot;.</p>
+</section>
+<section id="in-order-to-calculate-the-sum-of-my-different-incomes-as-a-taxpayer-i-want-the-calculator-to-enable-addition-of-multiple-numbers">
+<h3><strong>Per</strong> calcolare la somma dei miei diversi redditi, <strong>Come</strong> contribuente <strong>voglio</strong> che la calcolatrice consenta l'addizione di più numeri<a class="headerlink" href="#in-order-to-calculate-the-sum-of-my-different-incomes-as-a-taxpayer-i-want-the-calculator-to-enable-addition-of-multiple-numbers" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Il seguente scenario è l'unico che dobbiamo supportare?</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2,+,3,+,4,=</p></td>
+<td><p>9</p></td>
+<td><p>Semplice addizione di numeri</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jane:</strong> Questo scenario è corretto, tuttavia, c'è anche un caso in cui inizio con &quot;+&quot; senza aver prima inserito alcun numero. Questo dovrebbe essere considerato come un'aggiunta a zero:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>+,1,=</p></td>
+<td><p>1</p></td>
+<td><p>Scorciatoia per l'addizione – trattata come 0+1</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Benjamin:</strong> Che ne dici di quando l'output è un numero più lungo del limite di sei cifre? È corretto troncarlo in questo modo?</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>9,9,9,9,9,9,+,9,9,9,9,9,9,=</p></td>
+<td><p>199999</p></td>
+<td><p>Il nostro display è limitato a sole sei cifre</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jane:</strong> Certo, non mi dispiace. Comunque non aggiungo numeri così grandi.</p>
+<p><strong>Johnny:</strong> C'è ancora una domanda che ci è sfuggita. Diciamo che inserisco un numero, quindi premo &quot;+&quot; e poi un altro numero senza chiedere il risultato con &quot;=&quot;. Cosa dovrei vedere?</p>
+<p><strong>Jane:</strong> Ogni volta che premi &quot;+&quot;, la calcolatrice considera terminato l'inserimento del numero corrente e lo sovrascrive non appena premi qualsiasi altra cifra:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2,+,3</p></td>
+<td><p>3</p></td>
+<td><p>Le cifre immesse dopo l'operatore + vengono trattate come cifre di un nuovo numero, quello precedente viene memorizzato</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jane:</strong> Oh, e chiedere il risultato subito dopo aver acceso la calcolatrice dovrebbe risultare &quot;0&quot;.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>=</p></td>
+<td><p>0</p></td>
+<td><p>Il tasto risultato di per sé non fa nulla</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Johnny:</strong> Riassumiamo le nostre scoperte:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>N/A</p></td>
+<td><p>0</p></td>
+<td><p>Valore visualizzato iniziale</p></td>
+</tr>
+<tr class="row-odd"><td><p>1,2,3</p></td>
+<td><p>123</p></td>
+<td><p>Vengono visualizzate le cifre immesse</p></td>
+</tr>
+<tr class="row-even"><td><p>0,0,0</p></td>
+<td><p>0</p></td>
+<td><p>Lo zero è un caso speciale – viene visualizzato solo una volta</p></td>
+</tr>
+<tr class="row-odd"><td><p>1,2,3,4,5,6,7</p></td>
+<td><p>123456</p></td>
+<td><p>Il nostro display è limitato a sole sei cifre</p></td>
+</tr>
+<tr class="row-even"><td><p>2,+,3</p></td>
+<td><p>3</p></td>
+<td><p>Le cifre immesse dopo l'operatore + vengono trattate come cifre di un nuovo numero, quello precedente viene memorizzato</p></td>
+</tr>
+<tr class="row-odd"><td><p>=</p></td>
+<td><p>0</p></td>
+<td><p>Il tasto risultato di per sé non fa nulla</p></td>
+</tr>
+<tr class="row-even"><td><p>+,1,=</p></td>
+<td><p>1</p></td>
+<td><p>Scorciatoia per l'addizione – trattata come 0+1</p></td>
+</tr>
+<tr class="row-odd"><td><p>2,+,3,+,4,=</p></td>
+<td><p>9</p></td>
+<td><p>Semplice addizione di numeri</p></td>
+</tr>
+<tr class="row-even"><td><p>9,9,9,9,9,9,+,9,9,9,9,9,9,=</p></td>
+<td><p>199999</p></td>
+<td><p>Il nostro display è limitato a sole sei cifre</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Johnny:</strong> La limitazione delle cifre visualizzate sembra una funzionalità completamente nuova, quindi suggerisco di aggiungerla al backlog e di farlo in un altro sprint. In questo sprint non gestiremo affatto una situazione del genere. Che ne dici, Jane?</p>
+<p><strong>Jane:</strong> Per me va bene. Sembra che ci sia molto lavoro. È bello che l'abbiamo scoperto in anticipo. Per me, la capacità limitante sembrava così ovvia che non pensavo nemmeno che valesse la pena menzionarla.</p>
+<p><strong>Johnny:</strong> Vedi? Ecco perché non mi piace la parola &quot;ovvio&quot;. Jane, ti ricontatteremo se dovessero sorgere altre domande. Per ora, penso che ne sappiamo abbastanza per implementare queste tre &quot;story&quot; per te.</p>
+<p><strong>Jane:</strong> buona fortuna!</p>
+</section>
+</section>
+<section id="act-3-test-driven-development">
+<h2>Atto 3: Test-Driven Development<a class="headerlink" href="#act-3-test-driven-development" title="Link to this heading">¶</a></h2>
+<p><strong>Benjamin:</strong> Wow, è stato fantastico. Si trattava di uno &quot;Acceptance Test-Driven Development&quot;?</p>
+<p><strong>Johnny:</strong> In una versione molto semplificata, sì. Il motivo per cui ti ho portato con me è stato per mostrarti le somiglianze tra lavorare con il cliente come abbiamo fatto noi e lavorare con il codice utilizzando il processo TDD. Entrambi applicano gli stessi principi, solo a livelli diversi.</p>
+<p><strong>Benjamin:</strong> Muoio dalla voglia di vederlo con i miei occhi. Cominciamo?</p>
+<p><strong>Johnny:</strong> Certo. Se seguissimo il processo ATDD, inizieremmo a scrivere quelle che chiamiamo specifiche del livello di accettazione (acceptance-level specification). Nel nostro caso, tuttavia, sarà sufficiente una specifica a livello di unità (unit-level). Prendiamo il primo esempio:</p>
+<section id="statement-1-calculator-should-display-0-on-creation">
+<h3>Statement 1: La calcolatrice dovrebbe visualizzare 0 al momento della creazione<a class="headerlink" href="#statement-1-calculator-should-display-0-on-creation" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>N/A</p></td>
+<td><p>0</p></td>
+<td><p>Valore visualizzato iniziale</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Johnny:</strong> Benjamin, prova a scrivere il primo Statement.</p>
+<p><strong>Benjamin:</strong> Oh cavolo, non so come iniziare.</p>
+<p><strong>Johnny:</strong> Inizia scrivendo la dichiarazione in un inglese semplice. Cosa dovrebbe fare la calcolatrice?</p>
+<p><strong>Benjamin:</strong> Dovrebbe essere visualizzato &quot;0&quot; quando accendo l'applicazione.</p>
+<p><strong>Johnny:</strong> Nel nostro caso, &quot;accendere&quot; significa creare una calcolatrice. Scriviamolo come nome del metodo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CalculatorSpecification</span>
+<span class="p">{</span>
+
+<span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldDisplay0WhenCreated</span><span class="p">()</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Perché il nome della classe è <code class="docutils literal notranslate"><span class="pre">CalculatorSpecification</span></code> e il nome del metodo <code class="docutils literal notranslate"><span class="pre">ShouldDisplay0WhenCreated</span></code>?</p>
+<p><strong>Johnny:</strong> È una convenzione di denominazione. Ce ne sono molti altri, ma questo è quello che mi piace. In questa convenzione, la regola è che quando prendi il nome della classe senza la parte <code class="docutils literal notranslate"><span class="pre">Specification</span></code> seguita dal nome del metodo, dovrebbe formare una frase valida. Ad esempio, se lo applico a ciò che abbiamo scritto, creerebbe una frase: &quot;Calculator should display 0 when created&quot; [La calcolatrice dovrebbe visualizzare 0 quando viene creata].</p>
+<p><strong>Benjamin:</strong> Ah, ora capisco. Quindi è una dichiarazione di comportamento, giusto?</p>
+<p><strong>Johnny:</strong> Esatto. Ora, il secondo trucco che posso dirti è che se non sai con quale codice iniziare il tuo Statement, inizia con il risultato atteso. Nel nostro caso, ci aspettiamo che il comportamento finisca per visualizzare &quot;0&quot;, giusto? Quindi scriviamolo semplicemente sotto forma di affermazione.</p>
+<p><strong>Benjamin:</strong> Intendi qualcosa del genere?</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CalculatorSpecification</span>
+<span class="p">{</span>
+
+<span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldDisplay0WhenCreated</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">displayedResult</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Esattamente.</p>
+<p><strong>Benjamin:</strong> Ma questo non è nemmeno compilabile. A cosa serve?</p>
+<p><strong>Johnny:</strong> Il codice che non viene compilato è il feedback di cui avevi bisogno per procedere. Mentre prima non sapevi da dove cominciare, ora hai un obiettivo chiaro -- compilare questo codice. Innanzitutto, da dove prendi il valore visualizzato?</p>
+<p><strong>Benjamin:</strong> Dal display della calcolatrice, ovviamente!</p>
+<p><strong>Johnny:</strong> Quindi scrivi come ottieni il valore dal display.</p>
+<p><strong>Benjamin:</strong> Tipo come?</p>
+<p><strong>Johnny:</strong> In questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CalculatorSpecification</span>
+<span class="p">{</span>
+
+<span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldDisplay0WhenCreated</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">displayedResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Display</span><span class="p">();</span>
+
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">displayedResult</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Capisco. Ora la calcolatrice non viene creata da nessuna parte. Devo crearla da qualche parte adesso altrimenti non verrà compilato: così capisco che è il prossimo passo. È così che funziona?</p>
+<p><strong>Johnny:</strong> Sì, stai capendo velocemente.</p>
+<p><strong>Benjamin:</strong> Ok allora, ecco qui:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CalculatorSpecification</span>
+<span class="p">{</span>
+
+<span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldDisplay0WhenCreated</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">calculator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Calculator</span><span class="p">();</span>
+
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">displayedResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Display</span><span class="p">();</span>
+
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">displayedResult</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Bravo!</p>
+<p><strong>Benjamin:</strong> Il codice non viene ancora compilato, perché non ho definito la classe <code class="docutils literal notranslate"><span class="pre">Calculator</span></code>...</p>
+<p><strong>Johnny:</strong> Sembra un buon motivo per crearla.</p>
+<p><strong>Benjamin:</strong> OK.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Sembra che manchi anche il metodo <code class="docutils literal notranslate"><span class="pre">Display()</span></code>. Lo aggiungerò.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Display</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Ehi ehi, non così in fretta!</p>
+<p><strong>Benjamin:</strong> Cosa?</p>
+<p><strong>Johnny:</strong> Hai già fornito un'implementazione di <code class="docutils literal notranslate"><span class="pre">Display()</span></code> che renderà vero il nostro Statement attuale. Ricordi il suo nome? <code class="docutils literal notranslate"><span class="pre">ShouldDisplay0WhenCreated</span></code> -- ed è esattamente ciò che fa il codice che hai scritto. Prima di arrivare a questo punto, assicuriamoci che questa affermazione possa mai essere valutata come falsa. Non otterrai questo risultato fornendo un'implementazione corretta e pronta all'uso. Quindi per ora, cambiamolo in questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Display</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Once upon a time in Africa&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Guarda, ora possiamo eseguire la Specifica e guardare lo Statement valutato come falso, perché si aspetta &quot;0&quot;, ma ottiene &quot;Once upon a time in Africa&quot; [C'era una volta in Africa].</p>
+<p><strong>Benjamin:</strong> In esecuzione... Ok, è falso. A proposito, usi sempre valori così stupidi per rendere falsi i tuoi Statement?</p>
+<p><strong>Johnny:</strong> Hahaha, no, l'ho fatto solo per enfatizzare il punto. Normalmente, scriverei <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">&quot;&quot;;</span></code> o qualcosa di simile. Ora possiamo valutare lo Statement e vederlo diventare falso. Siamo quindi sicuri di non aver ancora implementato quanto richiesto affinché lo Statement sia vero.</p>
+<p><strong>Benjamin:</strong> Penso di aver capito. Per ora, lo Statement mostra che non abbiamo qualcosa di cui abbiamo bisogno e ci dà un motivo per aggiungere questa &quot;cosa&quot;. Quando lo faremo, questo Statement dimostrerà che abbiamo ciò di cui abbiamo bisogno. Quindi, cosa facciamo ora?</p>
+<p><strong>Johnny:</strong> Scrivi la cosa più semplice che rende vero questo Statement.</p>
+<p><strong>Benjamin:</strong> così?</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Display</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Sì.</p>
+<p><strong>Benjamin:</strong> Ma questa non è una implementazione reale. A cosa serve inserire una stringa hardcoded? L'implementazione finale non sarà sicuramente così!</p>
+<p><strong>Johnny:</strong> Hai ragione. Molto probabilmente l’implementazione finale sarà diversa. Ciò che abbiamo fatto, tuttavia, è ancora prezioso perché:</p>
+<ol class="arabic simple">
+<li><p>Sei ad un passo dall'implementazione della soluzione finale</p></li>
+<li><p>La sensazione che questa non sia l'implementazione finale ti spinge a scrivere più Statement. Quando ci sono abbastanza Statement per completare la tua implementazione, di solito significa che hai anche una Specifica completa dei comportamenti della classe.</p></li>
+<li><p>Se consideri il rendere vera ogni Statement come un risultato, questa pratica ti consentirà di evolvere il tuo codice senza perdere ciò che hai già ottenuto. Se per sbaglio guasti uno qualsiasi dei comportamenti che hai già implementato, la Specifica te lo dirà perché uno degli Statement esistenti che prima erano veri diventerà falso. Puoi quindi risolverlo o annullare le modifiche utilizzando il controllo della versione e ricominciare dal punto in cui tutti gli Statement esistenti erano veri.</p></li>
+</ol>
+<p><strong>Benjamin:</strong> Ok, sembra che dopo tutto ci siano dei vantaggi. Dovrò comunque abituarmi a questo modo di lavorare.</p>
+<p><strong>Johnny:</strong> Non preoccuparti, questo approccio è una parte importante del TDD, quindi lo capirai in pochissimo tempo. Ora, prima di procedere col prossimo Statement, diamo un'occhiata a ciò che abbiamo già ottenuto. Per prima cosa abbiamo scritto uno Statement che si è rivelato falso. Poi, abbiamo scritto il codice sufficiente per rendere vera lo Statement. È ora di eseguire un passaggio chiamato Refactoring. In questo passaggio, daremo un'occhiata allo Statement e al codice ed elimineremo le duplicazioni. Riesci a vedere cosa è duplicato tra lo Statement e il codice?</p>
+<p><strong>Benjamin:</strong> entrambi contengono lo &quot;0&quot; letterale. Lo Statement lo dice qui:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">&quot;0&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">displayedResult</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>e l'implementazione qui:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">return</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Bene, eliminiamo questa duplicazione introducendo una costante chiamata <code class="docutils literal notranslate"><span class="pre">InitialValue</span></code>. Lo Statement ora sarà simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldDisplayInitialValueWhenCreated</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">calculator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Calculator</span><span class="p">();</span>
+
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">displayedResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Display</span><span class="p">();</span>
+
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">Calculator</span><span class="p">.</span><span class="n">InitialValue</span><span class="p">,</span><span class="w"> </span><span class="n">displayedResult</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e l'implementazione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">InitialValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Display</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">InitialValue</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> l codice sembra migliore e avere la costante &quot;0&quot; in un unico posto lo renderà più gestibile. Tuttavia, penso che lo Statement nella sua forma attuale sia più debole di prima. Voglio dire, possiamo cambiare <code class="docutils literal notranslate"><span class="pre">InitialValue</span></code> in qualsiasi cosa e la dichiarazione sarà comunque vera poiché non afferma che questa costante deve avere un valore di &quot;0&quot;.</p>
+<p><strong>Johnny:</strong> Esatto. Dobbiamo aggiungerlo alla lista dei nostri TODO per gestire questo caso. Puoi scriverlo?</p>
+<p><strong>Benjamin:</strong> Certo. Lo scriverò come &quot;TODO: 0 deve essere utilizzato come valore iniziale&quot;.</p>
+<p><strong>Johnny:</strong> Ok. Dovremmo occuparcene ora, soprattutto perché fa parte della &quot;story&quot; che stiamo attualmente implementando, ma lo lascerò per dopo solo per mostrare la potenza della lista TODO nel TDD -- qualunque cosa stia nella lista, possiamo dimenticarla e tornare indietro a quando non abbiamo niente di meglio da fare. Il prossimo elemento della lista è questo:</p>
+</section>
+<section id="statement-2-calculator-should-display-entered-digits">
+<h3>Statement 2: La calcolatrice dovrebbe visualizzare le cifre immesse<a class="headerlink" href="#statement-2-calculator-should-display-entered-digits" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>sequenza di tasti</p></th>
+<th class="head"><p>Output visualizzato</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1,2,3</p></td>
+<td><p>123</p></td>
+<td><p>Vengono visualizzate le cifre immesse</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Johnny:</strong> Benjamin, puoi presentare uno Statement per questo comportamento?</p>
+<p><strong>Benjamin:</strong> Ci proverò. Ecco qui:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldDisplayEnteredDigits</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">calculator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Calculator</span><span class="p">();</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span>
+<span class="w">  </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">  </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">displayedValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Display</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">displayedValue</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Vedo che stai imparando velocemente. Hai capito bene le parti relative alla denominazione e alla strutturazione di una Dichiarazione. C'è una cosa su cui dovremo lavorare qui però.</p>
+<p><strong>Benjamin:</strong> Che succede?</p>
+<p><strong>Johnny:</strong> Quando abbiamo parlato con Jane, abbiamo utilizzato esempi con valori reali. Questi valori reali sono stati estremamente utili per individuare i casi limite e scoprire gli scenari mancanti. Erano anche più facili da immaginare, quindi erano perfetti per la conversazione. Se automatizzassimo questi esempi a livello di accettazione, utilizzeremmo anche quei valori reali. Quando scriviamo dichiarazioni a livello di unità, però, utilizziamo una tecnica diversa per rendere questo tipo di specifica più astratta. Prima di tutto, lasciami elencare i punti deboli dell'approccio che hai appena utilizzato:</p>
+<ol class="arabic simple">
+<li><p>Fare in modo che un metodo <code class="docutils literal notranslate"><span class="pre">Enter()</span></code> accetti un valore intero suggerisce che è possibile inserire più di una cifra contemporaneamente, ad es. <code class="docutils literal notranslate"><span class="pre">calculator.Enter(123)</span></code>, che non è ciò che vogliamo. Potremmo rilevare tali casi e generare eccezioni se il valore non è compreso nell'intervallo 0-9, ma ci sono modi migliori quando sappiamo che supporteremo solo dieci cifre (0,1,2,3,4,5,6,7,8,9).</p></li>
+<li><p>Lo Statement non mostra chiaramente la relazione tra input e output. Naturalmente, in questo semplice caso, è abbastanza evidente che la somma è una concatenazione di cifre immesse. In generale, tuttavia, non vogliamo che chiunque legga le nostre Specifiche in futuro debba indovinare queste cose.</p></li>
+<li><p>Il nome dello Statement suggerisce che ciò che hai scritto è vero per qualsiasi valore, mentre in realtà è vero solo per cifre diverse da &quot;0&quot; poiché il comportamento per &quot;0&quot; è diverso (non importa quante volte inseriamo &quot;0&quot;, il risultato è solo &quot;0&quot;). Ci sono alcuni buoni modi per comunicarlo.</p></li>
+</ol>
+<p>Pertanto, propongo quanto segue:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldDisplayAllEnteredDigitsThatAreNotLeadingZeroes</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">calculator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Calculator</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">nonZeroDigit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">OtherThan</span><span class="p">(</span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">anyDigit1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="o">&lt;</span><span class="n">DigitKeys</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">anyDigit2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="o">&lt;</span><span class="n">DigitKeys</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">nonZeroDigit</span><span class="p">);</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">anyDigit1</span><span class="p">);</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">anyDigit2</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;{0}{1}{2}&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">nonZeroDigit</span><span class="p">,</span>
+<span class="w">   </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">anyDigit1</span><span class="p">,</span>
+<span class="w">   </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">anyDigit2</span>
+<span class="w">  </span><span class="p">),</span>
+<span class="w">  </span><span class="n">calculator</span><span class="p">.</span><span class="n">Display</span><span class="p">()</span>
+<span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Johnny, mi sono perso! Puoi spiegare cosa sta succedendo qui?</p>
+<p><strong>Johnny:</strong> Certo, cosa vuoi sapere?</p>
+<p><strong>Benjamin:</strong> Ad esempio, cosa ci fa qui questo tipo <code class="docutils literal notranslate"><span class="pre">DigitKeys</span></code>?</p>
+<p><strong>Johnny:</strong> Dovrebbe essere un'enumerazione (nota che non esiste ancora, supponiamo semplicemente di averla) per contenere tutte le possibili cifre che un utente può inserire, comprese nell'intervallo 0-9. Questo per garantire che l'utente non scriva <code class="docutils literal notranslate"><span class="pre">calculator.Enter(123)</span></code>. Invece di consentire ai nostri utenti di inserire qualsiasi numero e quindi di rilevare gli errori, diamo loro la possibilità di scegliere solo tra i valori validi.</p>
+<p><strong>Benjamin:</strong> Adesso ho capito. Che ne dici di <code class="docutils literal notranslate"><span class="pre">Any.OtherThan()</span></code> e <code class="docutils literal notranslate"><span class="pre">Any.Of()</span></code>? Cosa fanno?</p>
+<p><strong>Johnny:</strong> Sono metodi di una piccola libreria di utilità che utilizzo quando scrivo Specifiche a livello di unità (unit-level). <code class="docutils literal notranslate"><span class="pre">Any.OtherThan()</span></code> restituisce qualsiasi valore dall'enumerazione oltre a quello passato come argomento. Pertanto, la chiamata <code class="docutils literal notranslate"><span class="pre">Any.OtherThan(DigitKeys.Zero)</span></code> significa &quot;qualsiasi valore contenuto nell'enumerazione DigitKeys, ma non DigitKeys.Zero&quot;.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Any.Of()</span></code> è più semplice -- restituisce semplicemente qualsiasi valore in un'enumerazione.</p>
+<p>Notare che dicendo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">nonZeroDigit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">OtherThan</span><span class="p">(</span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">anyDigit1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="o">&lt;</span><span class="n">DigitKeys</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">anyDigit2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="o">&lt;</span><span class="n">DigitKeys</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Specifico esplicitamente che il primo valore inserito deve essere diverso da &quot;0&quot; e che questo vincolo non vale per la seconda cifra, la terza e così via..</p>
+<p>A proposito, questa tecnica di utilizzo dei valori generati anziché dei valori letterali ha i suoi principi e vincoli che devi conoscere per utilizzarla in modo efficace. Lasciamo questo argomento per ora e prometto che ti terrò una lezione dettagliata più tardi. D'accordo?</p>
+<p><strong>Benjamin:</strong> È meglio che tu lo faccia, perché per ora mi sento un po' a disagio nel generare i valori -- sembra che la dichiarazione che stiamo scrivendo stia diventando meno deterministica in questo modo. L'ultima domanda -- che dire di quegli strani commenti che hai inserito nel codice? <code class="docutils literal notranslate"><span class="pre">GIVEN</span></code>? <code class="docutils literal notranslate"><span class="pre">WHEN</span></code>? <code class="docutils literal notranslate"><span class="pre">THEN</span></code>?</p>
+<p><strong>Johnny:</strong> Sì, questa è una convenzione che utilizzo non solo nello scrivere, ma anche nel pensare. Mi piace pensare a ogni comportamento in termini di tre elementi: presupposti (given-dato), trigger (when-quando) e risultato atteso (then-allora). Usando le parole, possiamo riassumere lo Statement che stiamo scrivendo nel modo seguente : &quot;<strong>Given-Data</strong> una calcolatrice, <strong>when-quando</strong> inserisco alcune cifre, la prima delle quali è diversa da zero, <strong>then-allora</strong> esse dovrebbero essere visualizzate tutte nell'ordine in cui sono stati immesse&quot;. Anche questo è qualcosa di cui ti parlerò più avanti.</p>
+<p><strong>Benjamin:</strong> Certo, per ora mi servono solo i dettagli sufficienti per poter andare avanti -- dei principi, dei pro e dei contro potremo parlare più tardi. A proposito, la seguente sequenza di cast sembra bruttina:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;{0}{1}{2}&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">nonZeroDigit</span><span class="p">,</span>
+<span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">anyDigit1</span><span class="p">,</span>
+<span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">anyDigit2</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Ci torneremo su e lo renderemo &quot;più intelligente&quot; tra un secondo dopo aver reso vera questo statement. Per ora, abbiamo bisogno di qualcosa di ovvio. Qualcosa che sappiamo che funziona. Valutiamo questo Statement. Qual è il risultato?</p>
+<p><strong>Benjamin:</strong> Fallito: atteso &quot;351&quot;, ma era &quot;0&quot;.</p>
+<p><strong>Johnny:</strong> Bene, ora scriviamo del codice per rendere vero questo Statement. Per prima cosa introdurremo un'enumerazione di digit. Questa enumerazione conterrà la cifra che utilizziamo nello Statement (che è <code class="docutils literal notranslate"><span class="pre">DigitKeys.Zero</span></code>) e alcuni valori fasulli:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">DigitKeys</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="n">Zero</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w"> </span><span class="n">TODO1</span><span class="p">,</span><span class="w"> </span><span class="c1">//TODO - bogus value for now</span>
+<span class="w"> </span><span class="n">TODO2</span><span class="p">,</span><span class="w"> </span><span class="c1">//TODO - bogus value for now</span>
+<span class="w"> </span><span class="n">TODO3</span><span class="p">,</span><span class="w"> </span><span class="c1">//TODO - bogus value for now</span>
+<span class="w"> </span><span class="n">TODO4</span><span class="p">,</span><span class="w"> </span><span class="c1">//TODO - bogus value for now</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Cosa significano tutti questi valori fasulli? Non dovremmo definire correttamente i valori per tutte le cifre che supportiamo?</p>
+<p><strong>Johnny:</strong> No, non ancora. Non abbiamo ancora uno Statement che indichi quali cifre sono supportate e che ci induca ad aggiungerle, giusto?</p>
+<p><strong>Benjamin:</strong> Dici che hai bisogno di uno Statement affinché un elemento sia in un enum?</p>
+<p><strong>Johnny:</strong> Questa è una specifica che stiamo scrivendo, ricordi? Dovrebbe dire da qualche parte quali cifre supportiamo, no?</p>
+<p><strong>Benjamin:</strong> È difficile essere d'accordo, voglio dire, posso vedere i valori nell'enumerazione, dovrei testare qualcosa quando non è coinvolta la complessità?</p>
+<p><strong>Johnny:</strong> Ancora una volta, non stiamo solo testando ma stiamo anche specificando. Cercherò di fornirti ulteriori argomentazioni in seguito. Per ora, abbi pazienza e nota che quando potremo specificare gli elementi enum, aggiungere tale Statement sarà quasi semplice.</p>
+<p><strong>Benjamin:</strong> OK.</p>
+<p><strong>Johnny:</strong> Ora passiamo all'implementazione. Giusto per ricordarti -- quello che abbiamo finora assomiglia a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">InitialValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Display</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">InitialValue</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span><span class="w"> </span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo non supporta ancora la visualizzazione di più cifre (come abbiamo appena dimostrato, perché lo Statement che afferma che sono supportate si è rivelata falso). Quindi modifichiamo il codice per gestire questo caso:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">InitialValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Enter</span><span class="p">(</span><span class="n">DigitKeys</span><span class="w"> </span><span class="n">digit</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_result</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="w">  </span><span class="n">_result</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">digit</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Display</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_result</span><span class="p">.</span><span class="n">ToString</span><span class="p">();</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Ora lo Statement è vero, quindi possiamo tornarci ed abbellirlo. Diamo una seconda occhiata:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldDisplayAllEnteredDigitsThatAreNotLeadingZeroes</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">calculator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Calculator</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">nonZeroDigit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">OtherThan</span><span class="p">(</span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">anyDigit1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="o">&lt;</span><span class="n">DigitKeys</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">anyDigit2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="o">&lt;</span><span class="n">DigitKeys</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">nonZeroDigit</span><span class="p">);</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">anyDigit1</span><span class="p">);</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">anyDigit2</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;{0}{1}{2}&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">nonZeroDigit</span><span class="p">,</span>
+<span class="w">   </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">anyDigit1</span><span class="p">,</span>
+<span class="w">   </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">anyDigit2</span>
+<span class="w">  </span><span class="p">),</span>
+<span class="w">  </span><span class="n">calculator</span><span class="p">.</span><span class="n">Display</span><span class="p">()</span>
+<span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Ricordi che hai detto che non ti piace la parte in cui viene utilizzato<code class="docutils literal notranslate"><span class="pre">string.Format()</span></code>?</p>
+<p><strong>Benjamin:</strong> Sì, sembra poco leggibile.</p>
+<p><strong>Johnny:</strong> Estraiamo questa parte in un metodo di utilità e rendiamola più generale: avremo bisogno di un modo per costruire l'output visualizzato previsto in molti dei nostri futuri Statement. Ecco il mio metodo helper:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">string</span><span class="w"> </span><span class="nf">StringConsistingOf</span><span class="p">(</span><span class="k">params</span><span class="w"> </span><span class="n">DigitKeys</span><span class="p">[]</span><span class="w"> </span><span class="n">digits</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">digit</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">digits</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">result</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">digit</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che questo è più generale poiché supporta un numero qualsiasi di parametri. E lo Statement dopo questa estrazione assomiglia a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldDisplayAllEnteredDigitsThatAreNotLeadingZeroes</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">calculator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Calculator</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">nonZeroDigit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">OtherThan</span><span class="p">(</span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">);</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">anyDigit1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="o">&lt;</span><span class="n">DigitKeys</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">anyDigit2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="o">&lt;</span><span class="n">DigitKeys</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">nonZeroDigit</span><span class="p">);</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">anyDigit1</span><span class="p">);</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">anyDigit2</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span>
+<span class="w">  </span><span class="n">StringConsistingOf</span><span class="p">(</span><span class="n">nonZeroDigit</span><span class="p">,</span><span class="w"> </span><span class="n">anyDigit1</span><span class="p">,</span><span class="w"> </span><span class="n">anyDigit2</span><span class="p">),</span>
+<span class="w">  </span><span class="n">calculator</span><span class="p">.</span><span class="n">Display</span><span class="p">()</span>
+<span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Mi sembra migliore. Lo Statement viene comunque valutato come vero, il che significa che abbiamo capito bene, no?</p>
+<p><strong>Johnny:</strong> Non esattamente. Con mosse come questa, mi piace prestare particolare attenzione e ricontrollare se lo Statement descrive ancora il comportamento in modo accurato. Per assicurarci che sia ancora così, commentiamo il corpo del metodo <code class="docutils literal notranslate"><span class="pre">Enter()</span></code> e vediamo se questo Statement risulta comunque falso:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Enter</span><span class="p">(</span><span class="n">DigitKeys</span><span class="w"> </span><span class="n">digit</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//_result *= 10;</span>
+<span class="w"> </span><span class="c1">//_result += (int)digit; </span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> In esecuzione... Ok, adesso è falso. Era previsto&quot;243&quot;, ottenuto &quot;0&quot;.</p>
+<p><strong>Johnny:</strong> Bene, ora siamo abbastanza sicuri che funzioni bene. Decommentiamo le righe che abbiamo appena commentato e andiamo avanti.</p>
+<p><strong>Benjamin:</strong> Ma aspetta, c'è una cosa che mi preoccupa.</p>
+<p><strong>Johnny:</strong> Penso di saperlo -- mi chiedevo se l'avresti capito. Va avanti.</p>
+<p><strong>Benjamin:</strong> Ciò che mi preoccupa sono queste due righe:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">InitialValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span>
+<span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Non è questa una duplicazione? Voglio dire, non è esattamente una duplicazione del codice, ma in entrambe le righe il valore &quot;0&quot; ha lo stesso intento. Non dovremmo rimuovere questa duplicazione in qualche modo?</p>
+<p><strong>Johnny:</strong> Sì, facciamolo. Preferirei cambiare <code class="docutils literal notranslate"><span class="pre">InitialValue</span></code> in <code class="docutils literal notranslate"><span class="pre">int</span></code> invece di string e usarlo. Ma non posso farlo in un unico passaggio poiché i due Statement dipendono dal fatto che <code class="docutils literal notranslate"><span class="pre">InitialValue</span></code> sia una stringa. se cambiassi semplicemente il tipo in <code class="docutils literal notranslate"><span class="pre">int</span></code>, guasterei quei test e l'implementazione e vorrei sempre risolvere una cosa alla volta.</p>
+<p><strong>Benjamin:</strong> Allora cosa facciamo?</p>
+<p><strong>Johnny:</strong> Bene, il mio primo passo sarebbe andare agli Statement che utilizzano <code class="docutils literal notranslate"><span class="pre">InitialValue</span></code> e utilizzare un metodo <code class="docutils literal notranslate"><span class="pre">ToString()</span></code>. Ad esempio, nello Statement <code class="docutils literal notranslate"><span class="pre">ShouldDisplayInitialValueWhenCreated()</span></code>, ho un'asserzione [affermazione]:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">Calculator</span><span class="p">.</span><span class="n">InitialValue</span><span class="p">,</span><span class="w"> </span><span class="n">displayedResult</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>che posso modificare in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">Calculator</span><span class="p">.</span><span class="n">InitialValue</span><span class="p">.</span><span class="n">ToString</span><span class="p">(),</span><span class="w"> </span><span class="n">displayedResult</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Ma chiamare <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> su una <code class="docutils literal notranslate"><span class="pre">string</span></code> restituisce semplicemente lo stesso valore, qual è il punto?</p>
+<p><strong>Johnny:</strong> Il punto è rendere irrilevante il tipo di ciò che si trova sul lato sinistro di <code class="docutils literal notranslate"><span class="pre">.ToString()</span></code>. Quindi potrò modificare quel tipo senza guastare lo Statement. La nuova implementazione della classe <code class="docutils literal notranslate"><span class="pre">Calculator</span></code> sarà simile a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">InitialValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InitialValue</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Enter</span><span class="p">(</span><span class="n">DigitKeys</span><span class="w"> </span><span class="n">digit</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_result</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="w">  </span><span class="n">_result</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">digit</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Display</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_result</span><span class="p">.</span><span class="n">ToString</span><span class="p">();</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Oh, capisco. E gli Statement vengono comunque valutati come veri.</p>
+<p><strong>Johnny:</strong> Sì. Facciamo un altro Statement?</p>
+</section>
+<section id="statement-3-calculator-should-display-only-one-zero-digit-if-it-is-the-only-entered-digit-even-if-it-is-entered-multiple-times">
+<h3>Statement 3: La calcolatrice dovrebbe visualizzare solo una cifra zero se è l'unica cifra immessa, anche se viene immessa più volte<a class="headerlink" href="#statement-3-calculator-should-display-only-one-zero-digit-if-it-is-the-only-entered-digit-even-if-it-is-entered-multiple-times" title="Link to this heading">¶</a></h3>
+<p><strong>Johnny:</strong> Benjamin, dovrebbe essere facile per te, quindi vai avanti e provalo. Si tratta in realtà di una variante dello Statement precedente.</p>
+<p><strong>Benjamin:</strong> Fammi provare... ok, eccolo qui:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldDisplayOnlyOneZeroDigitWhenItIsTheOnlyEnteredDigitEvenIfItIsEnteredMultipleTimes</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">calculator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Calculator</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">);</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">);</span>
+<span class="w"> </span><span class="n">calculator</span><span class="p">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span>
+<span class="w">  </span><span class="n">StringConsistingOf</span><span class="p">(</span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">),</span><span class="w"> </span>
+<span class="w">  </span><span class="n">calculator</span><span class="p">.</span><span class="n">Display</span><span class="p">()</span>
+<span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Bene, stai imparando in fretta! Valutiamo questo Statement.</p>
+<p><strong>Benjamin:</strong> Sembra che il nostro codice attuale soddisfi già lo Statement. Dovrei provare a commentare del codice per assicurarmi che questo Statement possa fallire proprio come hai fatto tu nello Statement precedente?</p>
+<p><strong>Johnny:</strong> Sarebbe una cosa saggia da fare. Quando uno  Statement risulta vero senza richiedere la modifica del codice di produzione, è sempre sospetto. Proprio come hai detto tu, dobbiamo modificare il codice di produzione per un secondo per forzare questo Statement a diventare falso, poi annullare questa modifica per renderlo nuovamente vero. Questo non è così ovvio come in precedenza, quindi lasciamelo fare. Contrassegnerò tutte le righe aggiunte con il commento <code class="docutils literal notranslate"><span class="pre">//+</span></code> in modo che tu possa vederle facilmente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Calculator</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">InitialValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InitialValue</span><span class="p">;</span>
+<span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">_fakeResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">//+</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Enter</span><span class="p">(</span><span class="n">DigitKeys</span><span class="w"> </span><span class="n">digit</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_result</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="w">  </span><span class="n">_result</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">digit</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">digit</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">DigitKeys</span><span class="p">.</span><span class="n">Zero</span><span class="p">)</span><span class="w"> </span><span class="c1">//+</span>
+<span class="w">  </span><span class="p">{</span><span class="w">  </span><span class="c1">//+</span>
+<span class="w">   </span><span class="n">_fakeResult</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">//+</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="c1">//+</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">Display</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">_result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w">  </span><span class="c1">//+</span>
+<span class="w">  </span><span class="p">{</span><span class="w">  </span><span class="c1">//+</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">_fakeResult</span><span class="p">;</span><span class="w">  </span><span class="c1">//+</span>
+<span class="w">  </span><span class="p">}</span><span class="w">  </span><span class="c1">//+</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_result</span><span class="p">.</span><span class="n">ToString</span><span class="p">();</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Wow, sembra che ci sia un sacco di codice solo per rendere falso lo Statement! Ne vale la pena? Annulleremo comunque l'intera modifica tra un secondo...</p>
+<p><strong>Johnny:</strong> Dipende da quanto vuoi sentirti sicuro. Direi che di solito ne vale la pena -- almeno sai di aver fatto tutto bene. Potrebbe sembrare molto lavoro, ma mi ci è voluto solo un minuto circa per aggiungere questo codice e immaginare di aver sbagliato e di aver dovuto eseguirne il debug in un ambiente di produzione. Ora, <em>quello</em> sarebbe una perdita di tempo.</p>
+<p><strong>Benjamin:</strong> Ok, penso di aver capito. Poiché abbiamo visto questo Statement diventare falso, annullerò questa modifica per renderlo nuovamente vero.</p>
+<p><strong>Johnny:</strong> Certo.</p>
+</section>
+</section>
+<section id="epilogue">
+<h2>Epilogo<a class="headerlink" href="#epilogue" title="Link to this heading">¶</a></h2>
+<p>È ora di lasciare Johnny e Benjamin, almeno per ora. Avevo intenzione di rendere questo capitolo più lungo e di coprire tutte le altre operazioni, ma temo che questo lo renderebbe noioso. Si dovrebbe avere un'idea di come appare il ciclo TDD, soprattutto perché nel frattempo Johnny e Benjamin hanno avuto molte conversazioni su molti altri argomenti. Rivisiterò questi argomenti più avanti nel libro. Per ora, se ci si sente persi o non si è convinti su uno qualsiasi degli argomenti menzionati da Johnny, non c'è da preoccuparsi: non mi aspetto che siate esperti con nessuna delle tecniche mostrate in questo capitolo. Verrà il momento per quello.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="prefactoring" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>K. Pugh, Prefactoring, O'Reilly Media, 2005</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mettere in pratica ciò che abbiamo già imparato</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#let-me-tell-you-a-story">Lasciate che racconti una storia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#act-1-the-car">Atto 1: L'Auto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#act-2-the-customer-s-site">Atto 2: Presso il Cliente</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#act-3-test-driven-development">Atto 3: Test-Driven Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#epilogue">Epilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="060_Statement_First_Programming.html" title="capitolo precedente">La programmazione Statement-first</a></li>
+      <li>Next: <a href="080_Sorting_out_the_bits.html" title="capitolo successivo">Facciamo un po' d'ordine</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/070_Practicing_What_We_Already_Learned.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

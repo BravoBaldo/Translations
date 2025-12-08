@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Oggetti Mock come strumento di test &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Test-first [Testare prima] utilizzando oggetti mock" href="280_Start_with_a_failing_test_mocks.html" />
+    <link rel="prev" title="Parte 3: TDD nel Mondo Object-Oriented" href="260_Part3Marker.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="mock-objects-as-a-testing-tool">
+<h1>Oggetti Mock come strumento di test<a class="headerlink" href="#mock-objects-as-a-testing-tool" title="Link to this heading">¶</a></h1>
+<p>Ricordate uno dei primi capitoli di questo libro, in cui ho introdotto oggetti mock e ho detto che avevo mentito sul loro vero scopo e natura? Ora che abbiamo molta più conoscenza della progettazione object-oriented (almeno da un punto di vista specifico e supponente al riguardo), possiamo veramente capire da dove provengono i mock e a cosa servono.</p>
+<p>In questo capitolo non dirò ancora nulla sul ruolo degli oggetti mock nel codice object-oriented test-driving. Per ora, voglio concentrarmi sulla giustificazione del loro posto nel contesto del test di oggetti scritti nello stile descritto nella parte 2.</p>
+<section id="a-backing-example">
+<h2>Un esempio a sostegno<a class="headerlink" href="#a-backing-example" title="Link to this heading">¶</a></h2>
+<p>Per questo capitolo, userò un esempio semplice. Prima di descriverlo, si deve sapere che non considero questo esempio una vetrina per oggetti mock. I mock brillano dove ci sono interazioni domain-driven [<em>guidate dal dominio</em>] tra oggetti e questo esempio non è così - le interazioni qui sono più guidate dall'implementazione. Tuttavia, ho deciso di usarlo comunque perché lo considero qualcosa di facile da capire e abbastanza buono per discutere alcuni meccanismi degli oggetti mock. Nel prossimo capitolo userò lo stesso esempio come illustrazione, ma dopo lo abbandonerò e mi addentrerò in argomenti più interessanti.</p>
+<p>L'esempio è una singola classe, chiamata <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, che è responsabile dell'invio dei dati ricevuti a un canale (rappresentato da un'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code>). Il <code class="docutils literal notranslate"><span class="pre">Channel</span></code> deve essere aperto prima che i dati vengano inviati e chiuso dopo. <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> implementa questo requisito. Ecco il codice completo per la classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DataDispatch</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Channel</span><span class="w"> </span><span class="n">_channel</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">DataDispatch</span><span class="p">(</span><span class="n">Channel</span><span class="w"> </span><span class="n">channel</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">channel</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Dispatch</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w">    </span><span class="k">try</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">_channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">finally</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">_channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il resto di questo capitolo si concentrerà sull'analisi dei comportamenti di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> e del loro contesto.</p>
+<p>Inizierò a descrivere questo contesto osservando l'interfaccia utilizzata da <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>.</p>
+</section>
+<section id="interfaces">
+<h2>Interfacce<a class="headerlink" href="#interfaces" title="Link to this heading">¶</a></h2>
+<p>Come mostrato sopra, <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> dipende da una singola interfaccia chiamata <code class="docutils literal notranslate"><span class="pre">Channel</span></code>. Ecco la definizione completa di questa interfaccia:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Channel</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Open</span><span class="p">();</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Send</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Un'implementazione di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> viene passata al costruttore di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>. In altre parole, <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> può essere composto con qualsiasi cosa che implementi l'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code>. Almeno dal punto di vista del compilatore. Questo perché, come ho accennato nell'ultima parte, affinché due oggetti composti possano lavorare insieme con successo, le interfacce non sono sufficienti. Devono anche stabilire e seguire un protocollo.</p>
+</section>
+<section id="protocols">
+<h2>Protocolli<a class="headerlink" href="#protocols" title="Link to this heading">¶</a></h2>
+<p>Notare che quando esaminiamo la classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, ci sono due protocolli che deve seguire. Li descriverò uno per uno.</p>
+<section id="protocol-between-datadispatch-and-its-user">
+<h3>Protocollo tra <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> e il suo utente<a class="headerlink" href="#protocol-between-datadispatch-and-its-user" title="Link to this heading">¶</a></h3>
+<p>Il primo protocollo è tra <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> e il codice che lo utilizza, cioè quello che chiama il metodo <code class="docutils literal notranslate"><span class="pre">Dispatch()</span></code>. Qualcuno, da qualche parte, deve fare quanto segue:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">dataDispatch</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">messageInBytes</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>oppure non ci sarebbe motivo per l'esistenza di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>. Analizzando più a fondo questo protocollo, possiamo notare che <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> non richiede troppo ai suoi utenti -- non ha alcun tipo di valore di ritorno. L'unico feedback che fornisce al codice che lo utilizza è rilanciare qualsiasi eccezione sollevata da un canale, quindi il codice utente deve essere preparato a gestire l'eccezione. Notaree che <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> non conosce né definisce i tipi di eccezioni che possono essere lanciate. Questa è la responsabilità di una particolare implementazione del canale. Lo stesso vale per decidere in quale condizione deve essere lanciata un'eccezione.</p>
+</section>
+<section id="protocol-between-datadispatch-and-channel">
+<h3>Protocollo tra <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> e <code class="docutils literal notranslate"><span class="pre">Channel</span></code><a class="headerlink" href="#protocol-between-datadispatch-and-channel" title="Link to this heading">¶</a></h3>
+<p>Il secondo protocollo è tra <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> e <code class="docutils literal notranslate"><span class="pre">Channel</span></code>. In questo caso, <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> funzionerà con qualsiasi implementazione di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> e gli consente di invocare i metodi di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> un numero specificato di volte in un ordine specificato:</p>
+<ol class="arabic simple">
+<li><p>Apre il canale -- una volta,</p></li>
+<li><p>Inviare i dati -- una volta,</p></li>
+<li><p>Chiudere il canale -- una volta.</p></li>
+</ol>
+<p>Qualunque sia l'effettiva implementazione dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> passata a <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, funzionerà presupponendo che questo sia effettivamente il conteggio e l'ordine in cui verranno chiamati i metodi. Inoltre, <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> presuppone che sia necessario chiudere il canale in caso di errore durante l'invio dei dati (da qui il blocco <code class="docutils literal notranslate"><span class="pre">finally</span></code> che racchiude l'invocazione del metodo <code class="docutils literal notranslate"><span class="pre">Close()</span></code>).</p>
+</section>
+<section id="two-conversations">
+<h3>Due conversazioni<a class="headerlink" href="#two-conversations" title="Link to this heading">¶</a></h3>
+<p>Riassumendo, ci sono due &quot;conversazioni&quot; in cui un oggetto <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> è coinvolto quando adempie alle sue responsabilità -- una con il suo utente e una con una dipendenza passata dal suo creatore. Non possiamo specificare queste due conversazioni separatamente poiché l'esito di ciascuna di queste due conversazioni dipende dall'altra. Pertanto, dobbiamo specificare la classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, poiché è coinvolta in entrambe le conversazioni contemporaneamente.</p>
+</section>
+</section>
+<section id="roles">
+<h2>Ruoli<a class="headerlink" href="#roles" title="Link to this heading">¶</a></h2>
+<p>La nostra conclusione dall'ultima sezione è che l'ambiente in cui hanno luogo i comportamenti di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> è composto da tre ruoli (le frecce mostrano la direzione delle dipendenze o &quot;chi invia messaggi a chi&quot;):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User -&gt; DataDispatch -&gt; Channel
+</pre></div>
+</div>
+<p>Dove <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> è la classe specificata e il resto è il suo contesto (<code class="docutils literal notranslate"><span class="pre">Channel</span></code> è la parte del contesto da cui dipende <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>. Per quanto io adori l'indipendenza dal contesto, la maggior parte delle classi ha bisogno di dipendere da qualche tipo di contesto, anche se in misura minima).</p>
+<p>Usiamo questo ambiente per definire i comportamenti di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> che dobbiamo specificare.</p>
+</section>
+<section id="behaviors">
+<h2>Comportamenti<a class="headerlink" href="#behaviors" title="Link to this heading">¶</a></h2>
+<p>I comportamenti di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> definiti in termini di questo contesto sono:</p>
+<ol class="arabic simple">
+<li><p>Invio dati validi:</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GIVEN User wants to dispatch a piece of data
+AND a DataDispatch instance is connected to a Channel
+  that accepts such data
+WHEN the User dispatches the data via the DataDispatch instance
+THEN the DataDispatch object should
+  open the channel,
+  then send the User data through the channel,
+  then close the channel
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Invio dati non validi:</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GIVEN User wants to dispatch a piece of data
+AND a DataDispatch instance is connected to a Channel
+  that rejects such data
+WHEN the User dispatches the data via the DataDispatch instance
+THEN the DataDispatch object should report to the User
+  that data is invalid
+AND close the connection anyway
+</pre></div>
+</div>
+<p>Per il resto di questo capitolo, mi concentrerò sul primo comportamento poiché il nostro obiettivo per ora non è creare una Specifica completa della classe DataDispatch, ma piuttosto osservare alcuni meccanismi degli oggetti mock come strumento di test.</p>
+</section>
+<section id="filling-in-the-roles">
+<h2>Riempimento dei ruoli<a class="headerlink" href="#filling-in-the-roles" title="Link to this heading">¶</a></h2>
+<p>Come accennato in precedenza, l’ambiente in cui avviene il comportamento si presenta così:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User -&gt; DataDispatch -&gt; Channel
+</pre></div>
+</div>
+<p>Ora bisogna dire chi ricoprirà questi ruoli. Quelli che non abbiamo ancora riempito ho contrassegnato con punti interrogativi (<code class="docutils literal notranslate"><span class="pre">?</span></code>):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User? -&gt; DataDispatch? -&gt; Channel?
+</pre></div>
+</div>
+<p>Cominciamo con il ruolo di DataDispatch. Probabilmente non sorprende che sarà riempito dalla classe concreta <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> -- dopo tutto, questa è la classe che specifichiamo.</p>
+<p>Il nostro ambiente ora appare così:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User? -&gt; DataDispatch (concrete class) -&gt; Channel?
+</pre></div>
+</div>
+<p>Successivamente, chi sarà l'utente della classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>? Per questa domanda, ho una risposta semplice -- il corpo dello Statement sarà l'utenza, interagirà con <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> per attivare i comportamenti specificati. Ciò significa che il nostro ambiente ora appare così:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Statement body -&gt; DataDispatch (concrete class) -&gt; Channel?
+</pre></div>
+</div>
+<p>Ora, l'ultimo elemento è decidere chi svolgerà il ruolo di un canale. Possiamo esprimere questo problema col seguente Statement incompiuto (ho contrassegnato tutte le incognite attuali con un doppio punto interrogativo: <code class="docutils literal notranslate"><span class="pre">??</span></code>):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldSendDataThroughOpenChannelThenCloseWhenAskedToDispatch</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="n">Channel</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">??</span><span class="p">;</span><span class="w"> </span><span class="c1">//what is it going to be?</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="o">??</span><span class="w"> </span><span class="c1">//how to specify DataDispatch behavior?</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Come si vede, dobbiamo passare un'implementazione di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> a un <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, ma non sappiamo quale dovrebbe essere questo canale. Allo stesso modo, non abbiamo una buona idea di come specificare le chiamate previste e il loro ordine.</p>
+<p>Dal punto di vista di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, è progettato per funzionare con tutto ciò che implementa l'interfaccia <code class="docutils literal notranslate"><span class="pre">Channel</span></code> e segue il protocollo, quindi non esiste un'unica implementazione &quot;privilegiata&quot; che sia più appropriata di altre. Ciò significa che possiamo praticamente scegliere quello che ci piace di più. Quale ci piace di più? Quello che rende più semplice la scrittura delle specifiche, ovviamente. Idealmente, vorremmo passare un canale che soddisfi al meglio i seguenti requisiti:</p>
+<ol class="arabic simple">
+<li><p>Aggiunge il minor numero possibile di effetti collaterali. Se l'implementazione di un canale utilizzata in uno Statement aggiungesse effetti collaterali, non saremmo mai sicuri se il comportamento che osserviamo durante l'esecuzione della nostra Specifica sia il comportamento di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> o forse il comportamento della particolare implementazione di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> utilizzata in questo Statement. Questo è un requisito di fiducia -- vogliamo avere fiducia che le nostre Specifiche specifichino cosa dicono di fare.</p></li>
+<li><p>È facile da controllare -- in modo da poter facilmente attivare condizioni diverse nell'oggetto che stiamo specificando. Inoltre, vogliamo essere in grado di verificare facilmente come l'oggetto specificato interagisce con esso. Questo è un requisito di convenienza.</p></li>
+<li><p>È veloce da creare e facile da mantenere -- perché vogliamo concentrarci sui comportamenti che specifichiamo, non sul mantenimento o sulla creazione di classi helper. Questo è un requisito di basso attrito.</p></li>
+</ol>
+<p>Esiste uno strumento che soddisfa questi tre requisiti meglio di altri che conosco e si chiama oggetto mock. Ecco come soddisfa i requisiti menzionati:</p>
+<ol class="arabic simple">
+<li><p>I mock non aggiungono quasi alcun effetto collaterale. Sebbene abbiano alcuni comportamenti predefiniti codificati (ad esempio quando un metodo che restituisce <code class="docutils literal notranslate"><span class="pre">int</span></code> viene chiamato su un mock, restituisce <code class="docutils literal notranslate"><span class="pre">0</span></code> per default), ma questi comportamenti sono predefiniti e privi di significato quanto possono essere. Ciò ci consente di riporre maggiore fiducia nelle nostre Specifiche.</p></li>
+<li><p>I mock sono facili da controllare - ogni libreria di mock viene fornita con un'API per definire i risultati delle chiamate ai metodi predefiniti e per la verifica delle chiamate ricevute. Avere tale API offre comodità, almeno dal mio punto di vista.</p></li>
+<li><p>I mock possono essere banali da mantenere. Sebbene sia possibile scrivere i propri mock (ovvero la propria implementazione di un'interfaccia che consenta l'impostazione e la verifica delle chiamate), la maggior parte di noi utilizza librerie che li generano, in genere utilizzando una funzionalità di <em>reflection</em> di un linguaggio di programmazione (nel nostro caso, C#). In genere, le librerie mock ci liberano dalla necessità di mantenere implementazioni mock, riducendo l'attrito della scrittura e del mantenimento dei nostri Statement.</p></li>
+</ol>
+<p>Quindi usiamo un mock al posto di <code class="docutils literal notranslate"><span class="pre">Channel</span></code>! Questo fa sì che il nostro ambiente del comportamento specificato assomigli a questo:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Statement body -&gt; DataDispatch (concrete class) -&gt; Mock Channel
+</pre></div>
+</div>
+<p>Notare che l'unica parte di questo ambiente che proviene dal codice di produzione è <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>, mentre il suo contesto è Statement-specific.</p>
+</section>
+<section id="using-a-mock-channel">
+<h2>Uso di un canale mock<a class="headerlink" href="#using-a-mock-channel" title="Link to this heading">¶</a></h2>
+<p>Spero che ricordiate la libreria NSubstitute per la creazione di oggetti mock introdotto all'inizio del libro. Ora possiamo usarlo per creare rapidamente un'implementazione di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> che si comporti come vogliamo, consenta una facile verifica del protocollo e tra <code class="docutils literal notranslate"><span class="pre">Dispatch</span></code> e <code class="docutils literal notranslate"><span class="pre">Channel</span></code> e introduca il numero minimo di effetti collaterali.</p>
+<p>Usando questo mock per colmare le lacune nel nostro Statement, questo è ciò che otterremo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldSendDataThroughOpenChannelThenCloseWhenAskedToDispatch</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataDispatch</span><span class="p">(</span><span class="n">channel</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">byte</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="n">dispatch</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w">    </span><span class="n">channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">    </span><span class="n">channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>in precedenza, questo Statement era incompleto, perché mancava la risposta alle seguenti due domande:</p>
+<ol class="arabic simple">
+<li><p>Da dove prendere il canale?</p></li>
+<li><p>Come verificare il comportamento di <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code>?</p></li>
+</ol>
+<p>Ho risposto alla domanda &quot;da dove prendere il canale?&quot; creandolo come un mock:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Channel</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Poi la seconda domanda: &quot;come verificare il comportamento di DataDispatch?&quot; è stata data risposta utilizzando l'API NSubstitute per verificare che il mock abbia ricevuto tre chiamate (o tre messaggi) in un ordine specifico:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">  </span><span class="n">channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>La conseguenza è che se riorganizzo l'ordine dei messaggi inviati a <code class="docutils literal notranslate"><span class="pre">Channel</span></code> nell'implementazione del metodo <code class="docutils literal notranslate"><span class="pre">ApplyTo()</span></code> da questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Dispatch</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w">  </span><span class="n">_channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>a questo (notare l'ordine della chiamata modificato):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Dispatch</span><span class="p">(</span><span class="kt">byte</span><span class="p">[]</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_channel</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"> </span><span class="c1">//before Open()!</span>
+<span class="w">  </span><span class="n">_channel</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="w">  </span><span class="n">_channel</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Lo Statement diventerà falso (cioè fallirà).</p>
+</section>
+<section id="mocks-as-yet-another-context">
+<h2>I mock come ancora un altro contesto<a class="headerlink" href="#mocks-as-yet-another-context" title="Link to this heading">¶</a></h2>
+<p>Ciò che abbiamo fatto nell'esempio precedente è stato inserire il nostro <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> in un contesto che fosse il più affidabile, conveniente e senza attriti da utilizzare nel nostro Statement.</p>
+<p>Alcuni dicono che specificare le interazioni degli oggetti nel contesto dei mock significa &quot;specificare in isolamento&quot; e che fornire tali dipendenze mock significa &quot;isolare&quot; la classe dalle sue dipendenze &quot;reali&quot;. Non mi identifico molto con questo punto di vista. Dal punto di vista di una classe specifica, i mock sono ancora un altro contesto -- non sono né migliori né peggiori, non sono né più né meno reali di altri contesti in cui vogliamo inserire il nostro <code class="docutils literal notranslate"><span class="pre">Dispatch</span></code>. Certo, questo non è il contesto in cui viene eseguito in produzione, ma potremmo avere altre situazioni oltre al mero lavoro di produzione -- ad es. potremmo avere un contesto speciale per le demo, in cui contiamo i pacchetti inviati e mostriamo il throughput su una schermata della GUI. Potremmo anche avere un contesto di debug che in ogni metodo, prima di passare il controllo al codice di produzione, scrive un messaggio di trace in un log. La classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> può essere utilizzata nel codice di produzione in più contesti contemporaneamente. Possiamo inviare dati attraverso la rete, a un database e a un file contemporaneamente nella nostra applicazione e la classe <code class="docutils literal notranslate"><span class="pre">DataDispatch</span></code> è utilizzabile in tutti questi scenari, ogni volta connessa a una diversa implementazione di <code class="docutils literal notranslate"><span class="pre">Channel</span></code> e utilizzata da un pezzo di codice diverso.</p>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>Lo scopo di questo capitolo era solo quello di mostrare come gli oggetti mock si inseriscono nel test del codice scritto in uno stile &quot;tell don't ask&quot;, concentrandosi su ruoli, responsabilità, comportamenti, interfacce e protocolli degli oggetti. Questo esempio è stato pensato come qualcosa di facilmente comprensibile, non come una vetrina per TDD che utilizza mock. Per un altro capitolo lavoreremo su questo esempio minimale e poi proverò a mostrare come applico gli oggetti mock in casi più interessanti.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Oggetti Mock come strumento di test</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#a-backing-example">Un esempio a sostegno</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interfaces">Interfacce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#protocols">Protocolli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#roles">Ruoli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#behaviors">Comportamenti</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filling-in-the-roles">Riempimento dei ruoli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-a-mock-channel">Uso di un canale mock</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mocks-as-yet-another-context">I mock come ancora un altro contesto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="260_Part3Marker.html" title="capitolo precedente">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+      <li>Next: <a href="280_Start_with_a_failing_test_mocks.html" title="capitolo successivo">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/270_Mock_Objects.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Protocolli &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Le Classi" href="235_Classes.html" />
+    <link rel="prev" title="Interfacce" href="220_Designing_for_composabiity_interfaces.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="protocols">
+<h1>Protocolli<a class="headerlink" href="#protocols" title="Link to this heading">¶</a></h1>
+<p>Già sappiamo che gli oggetti sono collegati (composti) insieme e comunicano attraverso interfacce, proprio come in una rete IP. C'è un'altra somiglianza, altrettanto importante. Sono i <em>protocolli</em>. In questa sezione esamineremo i protocolli tra gli oggetti e la loro posizione nel nostro approccio progettuale.</p>
+<section id="protocols-exist">
+<h2>I protocolli esistono<a class="headerlink" href="#protocols-exist" title="Link to this heading">¶</a></h2>
+<p>Non voglio introdurre alcuna definizione scientifica, quindi stabiliamo semplicemente che i protocolli sono insiemi di regole su come gli oggetti comunicano tra loro.</p>
+<p>Veramente? Ci sono delle regole? Non è sufficiente che gli oggetti possano essere composti insieme tramite interfacce, come ho spiegato nelle sezioni precedenti? Ebbene no, non basta e facciamo un breve esempio.</p>
+<p>Immaginiamo una classe <code class="docutils literal notranslate"><span class="pre">Sender</span></code> che, in uno dei suoi metodi, chieda a <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> (supponiamo che <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> sia un'interfaccia) di estrarre il codice di stato da un qualche tipo di oggetto di risposta e prende una decisione in base a quel codice se notificare o meno ad un observer di un errore:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="n">recipient</span><span class="p">.</span><span class="n">ExtractStatusCodeFrom</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">observer</span><span class="p">.</span><span class="n">NotifyErrorOccured</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo design è un po’ semplicistico ma non importa. Il suo ruolo è quello di sottolineare un certo punto. Chiunque sia il <code class="docutils literal notranslate"><span class="pre">recipient</span></code>, è previsto che segnali un errore restituendo il valore <code class="docutils literal notranslate"><span class="pre">-1</span></code>. In caso contrario, il <code class="docutils literal notranslate"><span class="pre">Sender</span></code> (che controlla esplicitamente questo valore) non sarà in grado di reagire adeguatamente alla situazione di errore. Allo stesso modo, se non è presente alcun errore, il destinatario non deve segnalarlo restituendo <code class="docutils literal notranslate"><span class="pre">-1</span></code>, perché in tal caso il <code class="docutils literal notranslate"><span class="pre">Sender</span></code> lo riconoscerà erroneamente come un errore. Quindi, ad esempio, questa implementazione di <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>, sebbene implementi l'interfaccia richiesta da <code class="docutils literal notranslate"><span class="pre">Sender</span></code>, è sbagliata, perché non si comporta come <code class="docutils literal notranslate"><span class="pre">Sender</span></code> si aspetta:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">WrongRecipient</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Recipient</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">ExtractStatusFrom</span><span class="p">(</span><span class="n">Response</span><span class="w"> </span><span class="n">response</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="cm">/* success */</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// but -1 is for errors!</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// -1 should be used!</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi, non possiamo semplicemente scrivere qualcosa in una classe che implementa un'interfaccia, a causa di un protocollo che impone determinati vincoli sia al mittente che al destinatario.</p>
+<p>Questo protocollo può non solo determinare i valori restituiti necessari affinché due oggetti interagiscano correttamente, ma può anche determinare i tipi di eccezioni lanciate o l'ordine delle chiamate ai metodi. Ad esempio, chiunque utilizzi un qualche tipo di oggetto connessione immaginerebbe il seguente modo di utilizzare la connessione: prima aprirla, poi farne qualcosa e chiuderla una volta terminato, ad es.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">connection</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+<span class="n">connection</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="n">connection</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Supponendo che la <code class="docutils literal notranslate"><span class="pre">connection</span></code> di cui sopra sia un'implementazione dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Connection</span></code>, se dovessimo implementarla in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">WrongConnection</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Connection</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Open</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// imagine implementation</span>
+<span class="w">    </span><span class="c1">// for *closing* the connection is here!!</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Close</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// imagine implementation for</span>
+<span class="w">    </span><span class="c1">// *opening* the connection is here!!</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>allora si compilerebbe bene ma fallirebbe gravemente una volta eseguito. Questo perché il comportamento sarebbe contrario al protocollo impostato tra l'astrazione <code class="docutils literal notranslate"><span class="pre">Connection</span></code> e il suo utilizzatore. Tutte le implementazioni di <code class="docutils literal notranslate"><span class="pre">Connection</span></code> devono seguire questo protocollo.</p>
+<p>Quindi, ancora una volta, ci sono regole che limitano il modo in cui due oggetti possono comunicare. Sia il mittente che il destinatario di un messaggio devono rispettare le regole, altrimenti non saranno in grado di lavorare insieme.</p>
+<p>La buona notizia è che la maggior parte delle volte, <em>noi</em> siamo quelli che progettano questi protocolli, insieme alle interfacce, progettandoli in modo che siano più facili o più difficili da seguire attraverso diverse implementazioni di un'interfaccia. Naturalmente, siamo con tutto il cuore per la parte &quot;più facile&quot;.</p>
+</section>
+<section id="protocol-stability">
+<h2>Stabilità del protocollo<a class="headerlink" href="#protocol-stability" title="Link to this heading">¶</a></h2>
+<p>Ricordate l'ultima storia di Johnny e Benjamin quando hanno dovuto apportare una modifica al design per aggiungere un altro tipo di dipendenti ([contractor]) all'applicazione? Per fare ciò, hanno dovuto modificare le interfacce esistenti e aggiungerne di nuove. È stato un sacco di lavoro. Non vogliamo fare così tanto lavoro ogni volta che apportiamo una modifica, soprattutto quando introduciamo una nuova variazione di un concetto che è già presente nel nostro design (ad esempio, Johnny e Benjamin avevano già il concetto di &quot;dipendente&quot; e ne stavano aggiungendo una nuova variante, detta “contractor”).</p>
+<p>Per raggiungere questo obiettivo, abbiamo bisogno che i protocolli siano più stabili, cioè meno inclini al cambiamento. Traendo alcune conclusioni dalle esperienze di Johnny e Benjamin, possiamo dire che hanno avuto problemi con la stabilità dei protocolli perché i protocolli erano:</p>
+<ol class="arabic simple">
+<li><p>complicati anziché semplici</p></li>
+<li><p>concreti anziché astratti</p></li>
+<li><p>granfi anziché piccoli</p></li>
+</ol>
+<p>Sulla base dell'analisi dei fattori che compromettono la stabilità dei protocolli, possiamo elaborare alcune condizioni in cui questi protocolli potrebbero essere più stabili:</p>
+<ol class="arabic simple">
+<li><p>i protocolli dovrebbero essere semplici</p></li>
+<li><p>i protocolli dovrebbero essere astratti</p></li>
+<li><p>i protocolli dovrebbero essere logici</p></li>
+<li><p>i protocolli dovrebbero essere piccoli</p></li>
+</ol>
+<p>E alcune euristiche ci aiutano ad avvicinarci a queste qualità:</p>
+</section>
+<section id="craft-messages-to-reflect-the-sender-s-intention">
+<h2>Creare messaggi che riflettano le intenzioni del mittente<a class="headerlink" href="#craft-messages-to-reflect-the-sender-s-intention" title="Link to this heading">¶</a></h2>
+<p>I protocolli sono più semplici se sono progettati dal punto di vista dell'oggetto che invia il messaggio, non di quello che lo riceve. In altre parole, le firme dei metodi dovrebbero riflettere l’intenzione dei mittenti piuttosto che le capacità dei destinatari.</p>
+<p>Ad esempio, diamo un'occhiata a un codice per il login che utilizza un'istanza di una classe <code class="docutils literal notranslate"><span class="pre">AccessGuard</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">accessGuard</span><span class="p">.</span><span class="n">SetLogin</span><span class="p">(</span><span class="n">login</span><span class="p">);</span>
+<span class="n">accessGuard</span><span class="p">.</span><span class="n">SetPassword</span><span class="p">(</span><span class="n">password</span><span class="p">);</span>
+<span class="n">accessGuard</span><span class="p">.</span><span class="n">Login</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>In questo piccolo frammento, il mittente deve inviare tre messaggi all'oggetto <code class="docutils literal notranslate"><span class="pre">accessGuard</span></code>: <code class="docutils literal notranslate"><span class="pre">SetLogin()</span></code>, <code class="docutils literal notranslate"><span class="pre">SetPassword()</span></code> e <code class="docutils literal notranslate"><span class="pre">Login()</span></code>, anche se non c'è una reale necessità di dividere la logica in tre passaggi -- vengono comunque eseguiti tutti nello stesso posto. Il creatore della classe <code class="docutils literal notranslate"><span class="pre">AccessGuard</span></code> potrebbe aver pensato che questa divisione renda la classe più &quot;generale&quot;, ma sembra che si tratti di una &quot;ottimizzazione prematura&quot; che rende solo più difficile per il mittente lavorare con l'oggetto <code class="docutils literal notranslate"><span class="pre">accessGuard</span></code>. Pertanto, il protocollo più semplice dal punto di vista del mittente sarebbe:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">accessGuard</span><span class="p">.</span><span class="n">LoginWith</span><span class="p">(</span><span class="n">login</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="p">);</span>
+</pre></div>
+</div>
+<section id="naming-by-intention">
+<h3>Denominare secondo l'intenzione<a class="headerlink" href="#naming-by-intention" title="Link to this heading">¶</a></h3>
+<p>Un'altra lezione appresa dall'esempio precedente è: i setter (come <code class="docutils literal notranslate"><span class="pre">SetLogin</span></code> e <code class="docutils literal notranslate"><span class="pre">SetPassword</span></code> nel nostro esempio) raramente riflettono le intenzioni dei mittenti -- più spesso sono &quot;cose&quot; artificiali introdotte per gestire direttamente lo stato dell'oggetto. Questo potrebbe anche essere stato il motivo per cui qualcuno ha introdotto tre messaggi invece di uno -- forse la classe <code class="docutils literal notranslate"><span class="pre">AccessGuard</span></code> è stata implementata per contenere due campi (login e password) all'interno, quindi il programmatore potrebbe aver pensato che qualcuno volesse manipolarli separatamente dalla fase di accesso... In ogni caso, i setter dovrebbero essere evitati o sostituiti con qualcosa che rifletta meglio le intenzioni. Ad esempio, quando si ha a che fare con il pattern observer, non vogliamo dire: <code class="docutils literal notranslate"><span class="pre">SetObserver(screen)</span></code>, ma piuttosto qualcosa come <code class="docutils literal notranslate"><span class="pre">FromNowOnReportCurrentWeatherTo(screen)</span></code>.</p>
+<p>Il problema della denominazione può essere riassunto con la seguente affermazione: il nome di un'interfaccia dovrebbe essere assegnato in base al <em>ruolo</em> svolto dalle sue implementazioni e i metodi dovrebbero essere nominati in base alle <em>responsabilità</em> che vogliamo che il ruolo abbia. Mi piace l'esempio che Scott Bain fa nel suo libro Emergent Design<a class="footnote-reference brackets" href="#emergentdesign" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>: se ti chiedessi di darmi il numero della tua patente, potresti reagire diversamente a seconda che tu abbia la patente in tasca o nel portafoglio , o nella tua borsa, o a casa tua (nel qual caso dovresti chiamare qualcuno che lo legga per te). Il punto è: a me, in quanto mittente di questo messaggio &quot;dammi il numero della tua patente&quot;, non interessa come lo ottieni. Dico <code class="docutils literal notranslate"><span class="pre">RetrieveDrivingLicenseNumber()</span></code>, non <code class="docutils literal notranslate"><span class="pre">OpenYourWalletAndReadTheNumber()</span></code>.</p>
+<p>Questo è importante perché se il nome rappresenta l'intenzione del mittente, il metodo non dovrà essere rinominato quando verranno create nuove classi che soddisfano questa intenzione in modo diverso.</p>
+</section>
+</section>
+<section id="model-interactions-after-the-problem-domain">
+<h2>Modellare le interazioni dopo il dominio del problema<a class="headerlink" href="#model-interactions-after-the-problem-domain" title="Link to this heading">¶</a></h2>
+<p>A volte al lavoro mi viene chiesto di condurre un workshop di design. L'esempio che do spesso ai miei colleghi è quello di progettare un sistema per la prenotazione degli ordini (i clienti effettuano ordini e i corrieri del negozio possono prenotare chi può consegnare un certo ordine). La cosa che mi ha colpito le prime volte che ho partecipato a questo workshop è che, anche se l'applicazione riguardava esclusivamente gli ordini e la loro prenotazione, quasi nessuno dei partecipanti ha introdotto alcun tipo di interfaccia o classe <code class="docutils literal notranslate"><span class="pre">Order</span></code> contenente il metodo <code class="docutils literal notranslate"><span class="pre">Reserve()</span></code>. La maggior parte dei partecipanti presuppone che <code class="docutils literal notranslate"><span class="pre">Order</span></code> sia una struttura dati e gestisce la prenotazione aggiungendola a una &quot;collezione di articoli prenotati&quot; che può essere immaginata come il seguente frammento di codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">// order is just a data structure,</span>
+<span class="c1">// added to a collection</span>
+<span class="n">reservedOrders</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sebbene ciò raggiunga l'obiettivo in termini tecnici (ovvero che l'applicazione funzioni), il codice non riflette il dominio.</p>
+<p>Se ruoli, responsabilità e collaborazioni tra oggetti riflettono il dominio, allora qualsiasi cambiamento naturale nel dominio lo è anche nel codice. Se così non fosse, i cambiamenti che sembrano piccoli dal punto di vista del dominio del problema finirebbero per toccare molte classi e metodi in modi molto insoliti. In altre parole, le interazioni tra gli oggetti diventano meno stabili (che è proprio ciò che vogliamo evitare).</p>
+<p>D'altra parte, supponiamo di aver modellato la progettazione in base al dominio e di aver introdotto un ruolo <code class="docutils literal notranslate"><span class="pre">Order</span></code> appropriato. Allora, la logica per prenotare un ordine potrebbe assomigliare a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">order</span><span class="p">.</span><span class="n">ReserveBy</span><span class="p">(</span><span class="n">deliverer</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Notare che questa linea è stabile quanto il dominio stesso. Deve cambiare, ad es. quando gli ordini non vengono più prenotati o qualcuno diverso dai corrieri inizia a prenotare gli ordini. Quindi, direi che la stabilità di questa piccola interazione è dannatamente alta.</p>
+<p>Anche nei casi in cui la comprensione del dominio si evolve e cambia rapidamente, la stabilità del dominio, sebbene non così elevata come al solito, è comunque una delle più alte che il mondo intorno a noi ha da offrire.</p>
+<section id="another-example">
+<h3>Un altro esempio<a class="headerlink" href="#another-example" title="Link to this heading">¶</a></h3>
+<p>Supponiamo di avere un codice per la gestione degli allarmi. Quando viene attivato un allarme, tutti i cancelli vengono chiusi, le sirene vengono attivate e viene inviato un messaggio alle forze speciali con la massima priorità affinché arrivino e arrestino l'intruso. Qualsiasi errore in questa procedura porta all'interruzione dell'energia elettrica nell'edificio. Se questo flusso di lavoro è codificato in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">try</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">gates</span><span class="p">.</span><span class="n">CloseAll</span><span class="p">();</span>
+<span class="w">  </span><span class="n">sirens</span><span class="p">.</span><span class="n">TurnOn</span><span class="p">();</span>
+<span class="w">  </span><span class="n">specialForces</span><span class="p">.</span><span class="n">NotifyWith</span><span class="p">(</span><span class="n">Priority</span><span class="p">.</span><span class="n">High</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span>
+<span class="k">catch</span><span class="p">(</span><span class="n">SecurityFailure</span><span class="w"> </span><span class="n">failure</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">powerSystem</span><span class="p">.</span><span class="n">TurnOffBecauseOf</span><span class="p">(</span><span class="n">failure</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Allora il rischio che questo codice cambi per ragioni diverse dal cambiamento del funzionamento del dominio (ad esempio non chiudiamo più i cancelli ma attiviamo invece le pistole laser) è piccolo. Pertanto, le interazioni che utilizzano astrazioni e metodi che esprimono direttamente le regole di dominio sono più stabili.</p>
+<p>Quindi, per riassumere -- se un progetto riflette il dominio, è più facile prevedere come un cambiamento delle regole del dominio influenzerà il progetto. Ciò contribuisce alla manutenibilità e alla stabilità delle interazioni e del design nel suo insieme.</p>
+</section>
+</section>
+<section id="message-recipients-should-be-told-what-to-do-instead-of-being-asked-for-information">
+<h2>Ai destinatari del messaggio dovrebbe essere detto cosa fare, invece di chiedergli informazioni<a class="headerlink" href="#message-recipients-should-be-told-what-to-do-instead-of-being-asked-for-information" title="Link to this heading">¶</a></h2>
+<p>Diciamo che stiamo pagando un'imposta annuale sul reddito ogni anno e siamo troppo occupati (cioè abbiamo troppe responsabilità) per farlo da soli. Pertanto, assumiamo un ragioniere esperto per calcolare e pagare le tasse. È un esperto nel pagare le tasse, sa come calcolare tutto, dove presentarlo, ecc. ma c'è una cosa che non conosce -- il contesto. In altre parole, non sa quale banca stiamo utilizzando o cosa abbiamo guadagnato quest'anno per cui dobbiamo pagare le tasse. Questo è qualcosa che dobbiamo dargli.</p>
+<p>Ecco l'accordo tra noi e l'esperto fiscale riassunto in una tabella:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Chi?</p></th>
+<th class="head"><p>Bisogni</p></th>
+<th class="head"><p>Può fornire</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Noi</p></td>
+<td><p>L'imposta pagata</p></td>
+<td><p>contesto (banca, documenti sul reddito)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Esperto fiscale</p></td>
+<td><p>contesto (banca, documenti sul reddito)</p></td>
+<td><p>Il servizio di pagamento dell'imposta</p></td>
+</tr>
+</tbody>
+</table>
+<p>Siamo noi ad assumere l'esperto e noi ad avviare la trattativa, quindi dobbiamo fornire il contesto, come mostrato nella tabella sopra. Se dovessimo modellare questo accordo come un'interazione tra due oggetti, potrebbe ad es. assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">taxExpert</span><span class="p">.</span><span class="n">PayAnnualIncomeTax</span><span class="p">(</span>
+<span class="w">  </span><span class="n">ourIncomeDocuments</span><span class="p">,</span>
+<span class="w">  </span><span class="n">ourBank</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Un giorno, la nostra amica Joan ci dice che anche lei ha bisogno di un esperto fiscale. Siamo soddisfatti della persona che abbiamo assunto, quindi lo consigliamo a Joan. Ha i suoi documenti di reddito, ma sono funzionalmente simili ai nostri, solo con numeri diversi qua e là e forse qualche formattazione diversa. Inoltre, Joan utilizza una banca diversa, ma oggigiorno interagire con qualsiasi banca è quasi identico. Pertanto, il nostro esperto fiscale sa come gestire la sua richiesta. Se modelliamo questo come interazione tra oggetti, potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">taxExpert</span><span class="p">.</span><span class="n">PayAnnualIncomeTax</span><span class="p">(</span>
+<span class="w">  </span><span class="n">joansIncomeDocuments</span><span class="p">,</span>
+<span class="w">  </span><span class="n">joansBank</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Pertanto, quando interagisce con Joan, l'esperto fiscale può comunque utilizzare le sue capacità per calcolare e pagare le tasse allo stesso modo del nostro caso. Questo perché le sue competenze sono indipendenti dal contesto.</p>
+<p>Un altro giorno decidiamo che non siamo più contenti del nostro esperto fiscale, quindi decidiamo di stringere un accordo con uno nuovo. Per fortuna, non abbiamo bisogno di sapere come svolgono il loro lavoro gli esperti fiscali: diciamo loro semplicemente di farlo, così possiamo interagire con quello nuovo proprio come con quello precedente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//this is the new tax expert,</span>
+<span class="c1">//but no change to the way we talk to him:</span>
+
+<span class="n">taxExpert</span><span class="p">.</span><span class="n">PayAnnualIncomeTax</span><span class="p">(</span>
+<span class="w">  </span><span class="n">ourIncomeDocuments</span><span class="p">,</span>
+<span class="w">  </span><span class="n">ourBank</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Questo piccolo esempio non va preso alla lettera. Le interazioni sociali sono molto più complicate e complesse di quelle che fanno normalmente gli oggetti. Ma, con questo, spero di essere riuscito a illustrare un aspetto importante dello stile di comunicazione preferito nella progettazione object-oriented: l'euristica <em>Dire non chiedere</em>.</p>
+<p>Dire non chiedere significa che ogni oggetto, in quanto esperto nel proprio lavoro, lo gestisce bene delegando altre responsabilità ad altri oggetti che sono esperti nei rispettivi lavori e fornendo loro tutto il contesto di cui hanno bisogno per il compito assegnato come parametri dei messaggi inviati loro.</p>
+<p>Questo può essere illustrato con un pattern di codice generico:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">recipient</span><span class="p">.</span><span class="n">DoSomethingForMe</span><span class="p">(</span><span class="n">allTheContextYouNeedToKnow</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In questo modo si ottiene un doppio vantaggio:</p>
+<ol class="arabic simple">
+<li><p>Il nostro destinatario (ad esempio il <code class="docutils literal notranslate"><span class="pre">taxExpert</span></code> dell'esempio) può essere utilizzato da altri mittenti (ad esempio pagare le tasse di Joan) senza bisogno di cambiare. Tutto ciò di cui ha bisogno è un contesto diverso passato all'interno di un costruttore e dei messaggi.</p></li>
+<li><p>Noi, come mittenti, possiamo facilmente utilizzare destinatari diversi (ad esempio diversi esperti fiscali che svolgono il compito assegnato in modo diverso) senza imparare come interagire con ciascuno di essi.</p></li>
+</ol>
+<p>Se si guarda la cosa, così come la banca e i documenti sono un contesto per l’esperto fiscale, l’esperto fiscale è un contesto per noi. Pertanto, potremmo dire che <em>un progetto che segue il principio Dire Non Chiedere crea classi indipendenti dal contesto</em>.</p>
+<p>Ciò ha un’influenza molto profonda sulla stabilità dei protocolli. Per quanto gli oggetti siano indipendenti dal contesto, essi (e le loro interazioni) non hanno bisogno di cambiare quando cambia il contesto.</p>
+<p>Ancora una volta, citando Scott Bain, “ciò che si nasconde, si può cambiare”. Pertanto, dire a un oggetto cosa fare richiede meno conoscenza che chiedere dati e informazioni. Usando ancora la metafora della patente di guida: potrei chiedere a un'altra persona il numero della patente di guida per assicurarmi che abbia la patente e che sia valida (controllando il numero da qualche parte). Potrei anche chiedere a un'altra persona di fornirmi le indicazioni per raggiungere il luogo in cui voglio che la prima persona guidi. Ma non è più semplice dire semplicemente &quot;comprami del pane e del burro&quot;? Quindi, chiunque lo chieda, ha la libertà di guidare o camminare (se conosce un buon negozio nelle vicinanze) o chiedere a un'altra persona di farlo. Non mi interessa, basta che domani mattina trovi il pane e il burro nel mio frigorifero.</p>
+<p>Tutti questi vantaggi sono, tra l'altro, esattamente ciò a cui Johnny e Benjamin miravano durante il refactoring del sistema di gestione delle retribuzioni. Sono partiti da questo codice, dove <em>ponevano</em> molte domande agli <code class="docutils literal notranslate"><span class="pre">employee</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">newSalary</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span>
+<span class="w">  </span><span class="o">+</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span>
+<span class="w">  </span><span class="o">*</span><span class="w"> </span><span class="mf">0.1</span><span class="p">;</span>
+<span class="n">employee</span><span class="p">.</span><span class="n">SetSalary</span><span class="p">(</span><span class="n">newSalary</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>a questo progetto in cui <em>ha detto</em> a <code class="docutils literal notranslate"><span class="pre">employee</span></code> di fare il suo lavoro:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">employee</span><span class="p">.</span><span class="n">EvaluateRaise</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>In questo modo, sono riusciti a far interagire questo codice sia con <code class="docutils literal notranslate"><span class="pre">RegularEmployee</span></code> che con <code class="docutils literal notranslate"><span class="pre">ContractorEmployee</span></code> allo stesso modo.</p>
+<p>Questa linea guida dovrebbe essere trattata molto, molto seriamente e applicata in modo quasi estremo. Naturalmente ci sono pochi posti in cui non si applica e ci torneremo più tardi.</p>
+<p>Oh, quasi dimenticavo una cosa! Il contesto che stiamo passando non è necessariamente quello dei dati. È ancora più frequente passare comportamenti che dati. Ad esempio, nella nostra interazione con l'esperto fiscale:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">taxExpert</span><span class="p">.</span><span class="n">PayAnnualIncomeTax</span><span class="p">(</span>
+<span class="w">  </span><span class="n">ourIncomeDocuments</span><span class="p">,</span>
+<span class="w">  </span><span class="n">ourBank</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>La classe <code class="docutils literal notranslate"><span class="pre">Bank</span></code> probabilmente non è un dato. Piuttosto, immagino che la <code class="docutils literal notranslate"><span class="pre">Bank</span></code> implementi un'interfaccia simile a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Bank</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">TransferMoney</span><span class="p">(</span>
+<span class="w">    </span><span class="n">Amount</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="n">AccountId</span><span class="w"> </span><span class="n">sourceAccount</span><span class="p">,</span>
+<span class="w">    </span><span class="n">AccountId</span><span class="w"> </span><span class="n">destinationAccount</span><span class="p">);</span><span class="w"> </span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi, questa <code class="docutils literal notranslate"><span class="pre">Bank</span></code> espone comportamenti, non dati, e segue anche lo stile Dire Non Chiedere (fa qualcosa di buono e prende tutto il contesto di cui ha bisogno dall'esterno).</p>
+<section id="where-tell-don-t-ask-does-not-apply">
+<h3>Quando Dire Non Chiedere non si applica<a class="headerlink" href="#where-tell-don-t-ask-does-not-apply" title="Link to this heading">¶</a></h3>
+<p>Come ho detto prima, ci sono posti in cui Dire Non Chiedere non si applica. Ecco alcuni esempi che mi vengono in mente:</p>
+<ol class="arabic simple">
+<li><p>Le factory -- questi sono oggetti che producono altri oggetti per noi, quindi sono intrinsecamente &quot;pull-based&quot; -- viene sempre chiesto loro di consegnare oggetti.</p></li>
+<li><p>Le collection -- sono semplicemente contenitori per oggetti, quindi tutto ciò che vogliamo da loro è aggiungere oggetti e recuperare oggetti (per indice, per predicato, usando una chiave, ecc.). Notare, tuttavia, che quando scriviamo una classe che racchiude una collection al suo interno, vogliamo che questa classe esponga un'interfaccia modellata in modo Dire Non Chiedere.</p></li>
+<li><p>Data source, come i database -- ancora una volta, si tratta di archivi di dati, quindi è più probabile che dovremo chiedere questi dati per ottenerli.</p></li>
+<li><p>Alcune API a cui si accede tramite la rete -- sebbene sia utile utilizzare quanto più possibile il &quot;Dire Non Chiedere&quot;, le API Web hanno una limitazione -- è difficile o impossibile trasmettere comportamenti come oggetti polimorfici attraverso di esse. Di solito possiamo solo trasmettere dati.</p></li>
+<li><p>Le cosiddette &quot;fluent API&quot;, chiamate anche &quot;linguaggi interni specifici del dominio&quot;<a class="footnote-reference brackets" href="#domainspecificlanguages" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a></p></li>
+</ol>
+<p>Anche nei casi in cui otteniamo altri oggetti da una chiamata al metodo, vogliamo essere in grado di applicare il &quot;Dire Non Chiedere&quot; a questi altri oggetti. Ad esempio, vogliamo evitare la seguente catena di chiamate:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Radio</span><span class="w"> </span><span class="n">radio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">radioRepository</span><span class="p">().</span><span class="n">GetRadio</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">userName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">radio</span><span class="p">.</span><span class="n">GetUsers</span><span class="p">().</span><span class="n">First</span><span class="p">().</span><span class="n">GetName</span><span class="p">();</span>
+<span class="n">primaryUsersList</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">userName</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In questo modo rendiamo la comunicazione legata ai seguenti presupposti:</p>
+<ol class="arabic simple">
+<li><p>La radio ha molti utenti</p></li>
+<li><p>La radio deve avere almeno un utente</p></li>
+<li><p>Ogni utente deve avere un nome</p></li>
+<li><p>Il nome non è nullo</p></li>
+</ol>
+<p>D'altra parte, consideriamo questa implementazione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Radio</span><span class="w"> </span><span class="n">radio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">radioRepository</span><span class="p">().</span><span class="n">GetRadio</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
+<span class="n">radio</span><span class="p">.</span><span class="n">AddPrimaryUserNameTo</span><span class="p">(</span><span class="n">primaryUsersList</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Non presenta nessuno dei punti deboli dell'esempio precedente. Pertanto, è più stabile di fronte al cambiamento.</p>
+</section>
+</section>
+<section id="most-of-the-getters-should-be-removed-return-values-should-be-avoided">
+<h2>La maggior parte dei getter dovrebbero essere rimossi, i valori restituiti dovrebbero essere evitati<a class="headerlink" href="#most-of-the-getters-should-be-removed-return-values-should-be-avoided" title="Link to this heading">¶</a></h2>
+<p>La linea guida summenzionata di &quot;Tell Don't Ask&quot; ha un'implicazione pratica di sbarazzarsi di (quasi) tutti i getter. Abbiamo detto che ogni oggetto dovrebbe attenersi al proprio lavoro e dire agli altri oggetti di fare il proprio lavoro, passando loro il contesto, no? Se è così, allora perché dovremmo &quot;ottenere&quot; (get) qualcosa da altri oggetti?</p>
+<p>Per me, l'idea di &quot;no getter&quot; all'inizio era molto estrema, ma in breve tempo ho imparato che questo è in realtà il modo in cui dovrei scrivere codice object-oriented. Ho iniziato a imparare a programmare utilizzando linguaggi procedurali come il C, dove un programma era diviso in procedure o funzioni e strutture dati. Poi sono passato ai linguaggi object-oriented che avevano meccanismi di astrazione molto migliori, ma il mio stile di codifica non è cambiato molto. Avrei ancora procedure e funzioni, semplicemente suddivise in oggetti. Avrei ancora strutture dati, ma ora più astratte, ad es. oggetti con setter, getter e alcuni metodi di query.</p>
+<p>Ma quali alternative abbiamo? Bene, ho già introdotto &quot;Tell Don't Ask&quot;, quindi dovrebbe essere nota la risposta. Tuttavia, voglio mostrare un altro esempio, questa volta specifico sui getter e i setter.</p>
+<p>Diciamo che abbiamo un software che gestisce le sessioni utente. Una sessione è rappresentata nel codice utilizzando una classe <code class="docutils literal notranslate"><span class="pre">Session</span></code>. Vogliamo essere in grado di fare tre cose con le nostre sessioni: visualizzarle sulla GUI, inviarle attraverso la rete e renderle persistenti. Nella nostra applicazione, vogliamo che ciascuna di queste responsabilità sia gestita da una classe separata, perché riteniamo che sia positivo se non sono legate insieme.</p>
+<p>Quindi, abbiamo bisogno di tre classi che si occupino dei dati posseduti dalla sessione. Ciò significa che ciascuna di queste classi dovrebbe in qualche modo ottenere l'accesso ai dati. Altrimenti, come possono essere questi dati, ad es. persistere? Sembra che non abbiamo scelta e dobbiamo esporli utilizzando i getter.</p>
+<p>Naturalmente, potremmo riconsiderare la nostra scelta di creare classi separate per l'invio, la persistenza, ecc. e considerare la scelta di inserire tutta questa logica all'interno di una classe <code class="docutils literal notranslate"><span class="pre">Session</span></code>. Se lo facessimo, tuttavia, renderemmo il concetto di dominio core [<em>principale</em>] (una sessione) dipendente da un brutto insieme di librerie di terze parti (come una particolare libreria GUI), il che significherebbe che ad es. ogni volta che il concetto di visualizzazione della GUI cambia, saremo costretti ad armeggiare con il codice del dominio principale, il che è piuttosto rischioso. Inoltre, se lo facessimo, la <code class="docutils literal notranslate"><span class="pre">Session</span></code> sarebbe difficile da riutilizzare, perché in ogni posto in cui vorremmo riutilizzare questa classe, dovremmo portare con noi tutte queste pesanti librerie da cui dipende. Inoltre, non saremmo in grado ad es. di utilizzare <code class="docutils literal notranslate"><span class="pre">Session</span></code> con diverse GUI o librerie di persistenza. Quindi, ancora una volta, sembra che la nostra unica scelta (non così buona, come vedremo) sia quella di introdurre getter per le informazioni memorizzate all'interno di una sessione, in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Session</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="nf">GetOwner</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="nf">GetTarget</span><span class="p">();</span>
+<span class="w">  </span><span class="n">DateTime</span><span class="w"> </span><span class="nf">GetExpiryTime</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi sì, in un certo senso, abbiamo disaccoppiato <code class="docutils literal notranslate"><span class="pre">Session</span></code> da queste librerie di terze parti e potremmo anche dire che abbiamo raggiunto l'indipendenza dal contesto per quanto riguarda la stssa <code class="docutils literal notranslate"><span class="pre">Session</span></code>: ora possiamo estrarre tutti i suoi dati, ad es. in un codice GUI e visualizzarlo come tabella. La <code class="docutils literal notranslate"><span class="pre">Session</span></code> non ne sa nulla. Vediamo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Display sessions as a table on GUI</span>
+<span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">sessions</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">tableRow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TableRow</span><span class="p">.</span><span class="n">Create</span><span class="p">();</span>
+<span class="w">  </span><span class="n">tableRow</span><span class="p">.</span><span class="n">SetCellContentFor</span><span class="p">(</span><span class="s">&quot;owner&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetOwner</span><span class="p">());</span>
+<span class="w">  </span><span class="n">tableRow</span><span class="p">.</span><span class="n">SetCellContentFor</span><span class="p">(</span><span class="s">&quot;target&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetTarget</span><span class="p">());</span>
+<span class="w">  </span><span class="n">tableRow</span><span class="p">.</span><span class="n">SetCellContentFor</span><span class="p">(</span><span class="s">&quot;expiryTime&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetExpiryTime</span><span class="p">());</span>
+<span class="w">  </span><span class="n">table</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">tableRow</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Sembra che abbiamo risolto il problema separando i dati dal contesto in cui vengono utilizzati e portando i dati in un luogo che abbia il contesto, cioè sappia cosa fare con questi dati. Siamo felici? Potremmo esserlo, a meno che non guardiamo come appaiono le altre parti: ci si ricordi che oltre a visualizzare le sessioni, vogliamo anche inviarle e renderle persistenti. La logica dell'invio è simile alla seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//part of sending logic</span>
+<span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">sessions</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SessionMessage</span><span class="p">.</span><span class="n">Blank</span><span class="p">();</span>
+<span class="w">  </span><span class="n">message</span><span class="p">.</span><span class="n">Owner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetOwner</span><span class="p">();</span>
+<span class="w">  </span><span class="n">message</span><span class="p">.</span><span class="n">Target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetTarget</span><span class="p">();</span>
+<span class="w">  </span><span class="n">message</span><span class="p">.</span><span class="n">ExpiryTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetExpiryTime</span><span class="p">();</span>
+<span class="w">  </span><span class="n">connection</span><span class="p">.</span><span class="n">Send</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e la logica della persistenza in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//part of storing logic</span>
+<span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">sessions</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="k">record</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Record</span><span class="p">.</span><span class="n">Blank</span><span class="p">();</span>
+<span class="w">  </span><span class="n">dataRecord</span><span class="p">.</span><span class="n">Owner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetOwner</span><span class="p">();</span>
+<span class="w">  </span><span class="n">dataRecord</span><span class="p">.</span><span class="n">Target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetTarget</span><span class="p">();</span>
+<span class="w">  </span><span class="n">dataRecord</span><span class="p">.</span><span class="n">ExpiryTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">GetExpiryTime</span><span class="p">();</span>
+<span class="w">  </span><span class="n">database</span><span class="p">.</span><span class="n">Save</span><span class="p">(</span><span class="k">record</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Si vede qualcosa di inquietante qui? Se no, immaginiamo cosa succede quando aggiungiamo un'altra informazione alla <code class="docutils literal notranslate"><span class="pre">Session</span></code>, ad esempio una priorità. Ora abbiamo tre posti da aggiornare e dobbiamo ricordarci di aggiornarli tutti ogni volta. Questo si chiama &quot;ridondanza&quot; o &quot;cercare guai&quot;. Inoltre, la componibilità di queste tre classi è piuttosto scarsa, perché dovranno cambiare molto solo perché cambiano i dati in una sessione.</p>
+<p>La ragione di ciò è che abbiamo reso la classe <code class="docutils literal notranslate"><span class="pre">Session</span></code> effettivamente una struttura dati. Non implementa alcun comportamento relativo al dominio, espone semplicemente i dati. Ci sono due implicazioni di questo:</p>
+<ol class="arabic simple">
+<li><p>Costringe tutti gli utenti di questa classe a definire comportamenti relativi alla sessione per conto della <code class="docutils literal notranslate"><span class="pre">Session</span></code>, il che significa che questi comportamenti sono sparsi ovunque<a class="footnote-reference brackets" href="#featureenvy" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. Se si vuole apportare una modifica alla sessione, è necessario individuare tutti i comportamenti correlati e correggerli.</p></li>
+<li><p>Poiché un insieme di comportamenti degli oggetti è generalmente più stabile dei suoi dati interni (ad esempio, una sessione potrebbe avere più di un obiettivo un giorno, ma avvieremo e arresteremo sempre le sessioni), ciò porta a interfacce e protocolli fragili -- certamente il contrario di ciò per cui stiamo lottando.</p></li>
+</ol>
+<p>Peccato, questa soluzione è piuttosto pessima, ma sembra che non abbiamo più opzioni. Dovremmo semplicemente accettare che ci saranno problemi con questa implementazione e andare avanti? Per fortuna, non dobbiamo farlo. Finora, abbiamo riscontrato che le seguenti opzioni sono problematiche:</p>
+<ol class="arabic simple">
+<li><p>La classe <code class="docutils literal notranslate"><span class="pre">Session</span></code> contenente la logica di visualizzazione, archiviazione e invio, ovvero tutto il contesto necessario -- eccessivo accoppiamento con dipendenze pesanti.</p></li>
+<li><p>La classe <code class="docutils literal notranslate"><span class="pre">Session</span></code> per esporre i suoi dati tramite getter, in modo da poterli inserire dove abbiamo abbastanza contesto per sapere come usarli -- la comunicazione è troppo fragile e si insinua della ridondanza (a proposito, anche questo design sarà pessimo per il multithreading, ma ne parleremo un'altra volta).</p></li>
+</ol>
+<p>Per fortuna, abbiamo una terza alternativa, che è migliore delle due già menzionate. Possiamo semplicemente <strong>passare</strong> il contesto <strong>nella</strong> classe <code class="docutils literal notranslate"><span class="pre">Session</span></code>. &quot;Non è questo solo un altro modo di fare ciò che abbiamo delineato al punto 1? Se passiamo il contesto, <code class="docutils literal notranslate"><span class="pre">Session</span></code> non è ancora accoppiata a questo contesto?&quot;, ci si potrebbe chiedere. La risposta è: non necessariamente perché possiamo fare in modo che la classe <code class="docutils literal notranslate"><span class="pre">Session</span></code> dipenda solo dalle interfacce invece che dalla cosa reale per renderla sufficientemente indipendente dal contesto.</p>
+<p>Vediamo come funziona nella pratica. Innanzitutto, rimuoviamo questi getter dalla <code class="docutils literal notranslate"><span class="pre">Session</span></code> e introduciamo un nuovo metodo chiamato <code class="docutils literal notranslate"><span class="pre">DumpInto()</span></code> che prenderà un'implementazione dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Destination</span></code> come parametro:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Session</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">DumpInto</span><span class="p">(</span><span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>L'implementazione di <code class="docutils literal notranslate"><span class="pre">Session</span></code>, ad es. una <code class="docutils literal notranslate"><span class="pre">RealSession</span></code> può passare tutti i campi in questa destinazione in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">RealSession</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Session</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DumpInto</span><span class="p">(</span><span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">destination</span><span class="p">.</span><span class="n">AcceptOwner</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">owner</span><span class="p">);</span>
+<span class="w">    </span><span class="n">destination</span><span class="p">.</span><span class="n">AcceptTarget</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">target</span><span class="p">);</span>
+<span class="w">    </span><span class="n">destination</span><span class="p">.</span><span class="n">AcceptExpiryTime</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">expiryTime</span><span class="p">);</span>
+<span class="w">    </span><span class="n">destination</span><span class="p">.</span><span class="n">Done</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E il ciclo delle sessioni ora assomiglia a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">sessions</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">session</span><span class="p">.</span><span class="n">DumpInto</span><span class="p">(</span><span class="n">destination</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo progetto, <code class="docutils literal notranslate"><span class="pre">RealSession</span></code> stesso decide quali parametri passare e in quale ordine (se è importante) -- nessuno chiede i suoi dati. Questo metodo <code class="docutils literal notranslate"><span class="pre">DumpInto()</span></code> è abbastanza generale, quindi possiamo usarlo per implementare tutti e tre i comportamenti menzionati (visualizzazione, persistenza, invio), creando un'implementazione per ciascun tipo di destinazione, ad es. per la GUI, potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">GuiDestination</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Destination</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">TableRow</span><span class="w"> </span><span class="n">_row</span><span class="p">;</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Table</span><span class="w"> </span><span class="n">_table</span><span class="p">;</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">GuiDestination</span><span class="p">(</span><span class="n">Table</span><span class="w"> </span><span class="n">table</span><span class="p">,</span><span class="w"> </span><span class="n">TableRow</span><span class="w"> </span><span class="n">row</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_table</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">table</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">row</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">AcceptOwner</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">owner</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_row</span><span class="p">.</span><span class="n">SetCellContentFor</span><span class="p">(</span><span class="s">&quot;owner&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">owner</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">AcceptTarget</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">target</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_row</span><span class="p">.</span><span class="n">SetCellContentFor</span><span class="p">(</span><span class="s">&quot;target&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">AcceptExpiryTime</span><span class="p">(</span><span class="n">DateTime</span><span class="w"> </span><span class="n">expiryTime</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_row</span><span class="p">.</span><span class="n">SetCellContentFor</span><span class="p">(</span><span class="s">&quot;expiryTime&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">expiryTime</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Done</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_table</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">_row</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il protocollo è ora più stabile per quanto riguarda i consumatori dei dati di sessione. In precedenza, quando avevamo i getter nella classe <code class="docutils literal notranslate"><span class="pre">Session</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Session</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="nf">GetOwner</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="nf">GetTarget</span><span class="p">();</span>
+<span class="w">  </span><span class="n">DateTime</span><span class="w"> </span><span class="nf">GetExpiryTime</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>i getter <strong>dovevano</strong> restituire <strong>qualcosa</strong>. E se avessimo sessioni che potrebbero scadere e decidessimo di volerle ignorare quando lo fanno (ovvero non visualizzarle, archiviarle, inviarle o fare qualsiasi altra cosa con esse)? In caso di &quot;approccio getter&quot; visto nello snippet sopra, dovremmo aggiungere un altro getter, ad es. chiamato <code class="docutils literal notranslate"><span class="pre">IsExpired()</span></code> nella classe della sessione e ricordare di aggiornare ciascun consumatore allo stesso modo -- per controllare la scadenza prima di consumare i dati... si vede dove si sta andando, vero? D'altra parte, con l'attuale design dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Session</span></code>, possiamo ad es. introdurre una funzionalità in cui le sessioni scadute non vengono elaborate affatto in un unico posto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TimedSession</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Session</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DumpInto</span><span class="p">(</span><span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">IsExpired</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">destination</span><span class="p">.</span><span class="n">AcceptOwner</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">owner</span><span class="p">);</span>
+<span class="w">      </span><span class="n">destination</span><span class="p">.</span><span class="n">AcceptTarget</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">target</span><span class="p">);</span>
+<span class="w">      </span><span class="n">destination</span><span class="p">.</span><span class="n">AcceptExpiryTime</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">expiryTime</span><span class="p">);</span>
+<span class="w">      </span><span class="n">destination</span><span class="p">.</span><span class="n">Done</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e non è necessario modificare nessun altro codice per farlo funzionare<a class="footnote-reference brackets" href="#statemachine" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<p>Un altro vantaggio di progettare/creare <code class="docutils literal notranslate"><span class="pre">Session</span></code> in modo che non restituisca nulla dai suoi metodi è che abbiamo maggiore flessibilità nell'applicazione di pattern come proxy e decorator alle implementazioni di <code class="docutils literal notranslate"><span class="pre">Session</span></code>. Ad esempio, possiamo utilizzare il pattern proxy per implementare sessioni nascoste che non vengono visualizzate/memorizzate/inviate affatto, ma allo stesso tempo si comportano come un'altra sessione in tutti gli altri casi. Un proxy di questo tipo inoltra tutti i messaggi che riceve all'oggetto <code class="docutils literal notranslate"><span class="pre">Session</span></code> originale, racchiuso, ma scarta le chiamate <code class="docutils literal notranslate"><span class="pre">DumpInto()</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">HiddenSession</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Session</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Session</span><span class="w"> </span><span class="n">_innerSession</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">HiddenSession</span><span class="p">(</span><span class="n">Session</span><span class="w"> </span><span class="n">innerSession</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_innerSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">innerSession</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DoSomething</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// forward the message to wrapped instance:</span>
+<span class="w">    </span><span class="n">_innerSession</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">DumpInto</span><span class="p">(</span><span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// discard the message - do nothing</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>I client di questo codice non noteranno affatto questo cambiamento. Quando non siamo obbligati a restituire nulla siamo più liberi di fare ciò che vogliamo. Ancora una volta, &quot;Tell, Don't Ask&quot;.</p>
+</section>
+<section id="protocols-should-be-small-and-abstract">
+<h2>I protocolli dovrebbero essere brevi e astratti<a class="headerlink" href="#protocols-should-be-small-and-abstract" title="Link to this heading">¶</a></h2>
+<p>Ho già detto che le interfacce dovrebbero essere piccole e astratte, quindi non mi sto semplicemente ripetendo qui? La risposta è: esiste una differenza tra la dimensione dei protocolli e la dimensione delle interfacce. Come esempio estremo, prendiamo la seguente interfaccia:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Interpreter</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Execute</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">command</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>L'interfaccia è piccola? Ovviamente! È astratta? Beh, più o meno sì. &quot;Tell Don't Ask&quot;? Sicuro! Ma vediamo come viene utilizzato da uno dei suoi collaboratori:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">RunScript</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;cd dir1&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;copy *.cs ../../dir2/src&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;copy *.xml ../../dir2/config&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;cd ../../dir2/&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;compile *.cs&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;cd dir3&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;copy *.cs ../../dir4/src&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;copy *.xml ../../dir4/config&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;cd ../../dir4/&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;compile *.cs&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;cd dir5&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;copy *.cs ../../dir6/src&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;copy *.xml ../../dir6/config&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;cd ../../dir6/&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">_interpreter</span><span class="p">.</span><span class="n">Execute</span><span class="p">(</span><span class="s">&quot;compile *.cs&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il punto è: il protocollo non è né astratto né piccolo. Pertanto, realizzare implementazioni di un'interfaccia utilizzata come tale può essere piuttosto faticoso.</p>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>In questo lungo capitolo ho cercato di mostrarvi il valore, spesso sottovalutato, della progettazione di protocolli di comunicazione tra oggetti. Non sono una &quot;cosa bella da avere&quot;, ma piuttosto una parte fondamentale dell'approccio progettuale che rende utili gli oggetti mock, come si vedrà quando finalmente ci arriveremo. Ma prima è necessario assimilare qualche altra idea di progettazione object-oriented. Prometto che darà i suoi frutti.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="emergentdesign" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Scott Bain, Emergent Design</p>
+</aside>
+<aside class="footnote brackets" id="domainspecificlanguages" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Questo argomento non rientra nell'ambito del libro, ma si può dare un'occhiata a: M. Fowler, Domain-Specific Languages, Addison-Wesley 2010</p>
+</aside>
+<aside class="footnote brackets" id="featureenvy" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Questo a volte è detto Feature Envy (<em>invidia dei dati</em>). Significa che una classe è più interessata ai dati di altre classi che ai propri.</p>
+</aside>
+<aside class="footnote brackets" id="statemachine" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Possiamo ulteriormente rifattorizzarlo in una macchina a stati utilizzando un pattern della Gang of Four: <em>State</em>. Ci sarebbero due stati in una macchina a stati: partito e scaduto.</p>
+</aside>
+<aside class="footnote brackets" id="humanprotocols" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<p>Naturalmente, le interazioni umane sono molto più complesse, quindi non sto cercando di dirvi che &quot;l'interazione tra oggetti è come l'interazione tra esseri umani&quot;, sto solo usando questo esempio come una bella illustrazione.</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Protocolli</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#protocols-exist">I protocolli esistono</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#protocol-stability">Stabilità del protocollo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#craft-messages-to-reflect-the-sender-s-intention">Creare messaggi che riflettano le intenzioni del mittente</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-interactions-after-the-problem-domain">Modellare le interazioni dopo il dominio del problema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#message-recipients-should-be-told-what-to-do-instead-of-being-asked-for-information">Ai destinatari del messaggio dovrebbe essere detto cosa fare, invece di chiedergli informazioni</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#most-of-the-getters-should-be-removed-return-values-should-be-avoided">La maggior parte dei getter dovrebbero essere rimossi, i valori restituiti dovrebbero essere evitati</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#protocols-should-be-small-and-abstract">I protocolli dovrebbero essere brevi e astratti</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="220_Designing_for_composabiity_interfaces.html" title="capitolo precedente">Interfacce</a></li>
+      <li>Next: <a href="235_Classes.html" title="capitolo successivo">Le Classi</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/230_Designing_for_composabiity_protocols.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

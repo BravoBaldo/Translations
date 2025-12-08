@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Non è (solo) un test &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="La programmazione Statement-first" href="060_Statement_First_Programming.html" />
+    <link rel="prev" title="Gli strumenti essenziali" href="040_Three_Essential_Tools.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="it-s-not-only-a-test">
+<h1>Non è (solo) un test<a class="headerlink" href="#it-s-not-only-a-test" title="Link to this heading">¶</a></h1>
+<p>Il ruolo di un test è solo quello di &quot;verificare&quot; o &quot;controllare&quot; se un pezzo di software funziona? Sicuramente questa è una parte significativa del suo valore a runtime, ovvero il valore che otteniamo quando eseguiamo il test. Tuttavia, quando limitiamo la nostra visione sui test solo a questo, potremmo portarci alla conclusione che l’unica cosa preziosa nell’avere un test è poterlo eseguire e visualizzare il risultato. Atti come la progettazione di un test o la sua implementazione avrebbero solo il valore di produrre qualcosa che possiamo eseguire. La lettura di un test avrebbe valore solo durante il debug. È proprio così?</p>
+<p>In questo capitolo sostengo che gli atti di progettazione, implementazione, compilazione e lettura di un test sono tutte attività molto preziose. E ci permettono di considerare i test come qualcosa di più di semplici &quot;controlli automatici&quot;.</p>
+<section id="when-a-test-becomes-something-more">
+<h2>Quando un test diventa qualcosa di più<a class="headerlink" href="#when-a-test-becomes-something-more" title="Link to this heading">¶</a></h2>
+<p>Ho studiato a Łódź, una grande città nel centro della Polonia. Come probabilmente tutti gli altri studenti in tutti gli altri paesi, abbiamo avuto lezioni, esercitazioni ed esami. Gli esami erano piuttosto difficili. Dato che il mio gruppo di informatica frequentava la facoltà di ingegneria elettronica ed elettrica, dovevamo seguire molte lezioni che non avevano nulla a che fare con la programmazione. Ad esempio: elettrotecnica, fisica dello stato solido o metrologia elettronica ed elettrica.</p>
+<p>Sapendo che gli esami erano difficili e che era difficile imparare tutto durante il semestre, i docenti a volte ci davano esami esempi dagli anni precedenti. Le domande erano diverse dagli esami effettivi che dovevamo sostenere, ma la struttura e il tipo di domande poste (pratica vs teoria, ecc.) erano simili. Di solito ricevevamo queste domande di esempio prima di iniziare a imparare davvero (che di solito avveniva alla fine di un semestre). Indovina cosa è successo allora? Come potresti sospettare, non abbiamo utilizzato i test ricevuti solo per &quot;verificare&quot; o &quot;controllare&quot; le nostre conoscenze dopo aver finito di apprendere. Al contrario, esaminare questi test è stato il primo passo della nostra preparazione. Perché è stato così? A cosa servivano i test quando sapevamo che non avremmo saputo la maggior parte delle risposte?</p>
+<p>Immagino che i miei docenti non sarebbero d'accordo con me, ma trovo piuttosto divertente che ciò che stavamo realmente facendo allora fosse simile allo &quot;sviluppo di software lean&quot; [<em>snello</em>]. Lean è una filosofia in cui, tra le altre cose, c'è una rigorosa enfasi sull'eliminazione degli sprechi. Ogni caratteristica o prodotto che viene fatto ma non è necessario a nessuno è considerato uno spreco. Questo perché se qualcosa non è necessario, non c'è motivo di presumere che lo sarà mai. In tal caso, l’intera funzionalità o prodotto non aggiunge alcun valore. Anche se mai <em>sarà</em> necessario, molto probabilmente richiederà una rielaborazione per soddisfare le esigenze del cliente in quel momento. In tal caso, il lavoro svolto sulle parti della soluzione originale che dovevano essere rielaborate è uno spreco: ha avuto un costo, ma non ha portato alcun beneficio (non sto parlando di cose come demo dei clienti, ma di cose finite, funzionalità o prodotti nuovi).</p>
+<p>Quindi, per eliminare gli sprechi, di solito proviamo a &quot;estrarre funzionalità dalla domanda&quot; invece di &quot;inserirle&quot; in un prodotto, sperando che un giorno possano diventare utili. In altre parole, ogni funzionalità è lì per soddisfare un bisogno concreto. In caso contrario, lo sforzo è considerato sprecato e il denaro &quot;annegato&quot;.</p>
+<p>Tornando all'esempio degli esami, perché l'approccio di visione preliminare degli esempi di test può essere considerato “lean” [<em>snello</em>]? Questo perché, quando consideriamo il superamento di un esame il nostro obiettivo, allora tutto ciò che non ci avvicina a questo obiettivo è considerato uno spreco. Supponiamo che l'esame riguardi solo la teoria: perché allora far pratica con gli esercizi? Probabilmente varrebbe molto di più studiare il lato teorico degli argomenti. Tale conoscenza si potrebbe acquisire da questi test di esempio. Quindi, i test erano una sorta di specifica di ciò che era necessario per superare l'esame. Ci ha permesso di trarre valore (ovvero la nostra conoscenza) dalla domanda (informazioni ottenute da test realistici) piuttosto che spingerlo dall'implementazione (ovvero imparare tutto in un libro di testo, capitolo dopo capitolo).</p>
+<p>Quindi i test sono diventati qualcosa di più. Si sono rivelati molto preziosi prima della &quot;implementazione&quot; (cioè dell'apprendimento per l'esame) perché:</p>
+<ol class="arabic simple">
+<li><p>ci hanno aiutato a concentrarci su ciò che era necessario per raggiungere il nostro obiettivo</p></li>
+<li><p>hanno distolto la nostra attenzione da ciò che <strong>non</strong> era necessario per raggiungere il nostro obiettivo</p></li>
+</ol>
+<p>Questo era il valore di un test prima di imparare. Notare che i test che riceveremo di solito non erano esattamente quelli che avremmo incontrato al momento dell'esame, quindi dovevamo ancora indovinare. Tuttavia, il ruolo di un <strong>test come specifica di un bisogno</strong> era già visibile.</p>
+</section>
+<section id="taking-it-to-the-software-development-land">
+<h2>Torniamo nella terra dello sviluppo del software<a class="headerlink" href="#taking-it-to-the-software-development-land" title="Link to this heading">¶</a></h2>
+<p>Ho scelto questa lunga metafora per mostrare che scrivere un &quot;test&quot; è in realtà un altro modo per specificare un requisito o un bisogno e che non è contro-intuitivo pensare in questo modo: accade nella nostra vita quotidiana. Questo vale anche per lo sviluppo del software. Facciamo il seguente &quot;test&quot; e vediamo che tipo di esigenze vengono specificate:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">reporting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ReportingFeature</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">anyPowerUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Of</span><span class="p">(</span><span class="n">Users</span><span class="p">.</span><span class="n">Admin</span><span class="p">,</span><span class="w"> </span><span class="n">Users</span><span class="p">.</span><span class="n">Auditor</span><span class="p">);</span>
+<span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">reporting</span><span class="p">.</span><span class="n">CanBePerformedBy</span><span class="p">(</span><span class="n">anyPowerUser</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>(In questo esempio, abbiamo utilizzato il metodo <code class="docutils literal notranslate"><span class="pre">Any.Of()</span></code> che restituisce qualsiasi valore di enumerazione dalla lista specificata. Qui diciamo &quot;dammi un valore che sia <code class="docutils literal notranslate"><span class="pre">Users.Admin</span></code> o <code class="docutils literal notranslate"><span class="pre">Users.Auditor</span></code>&quot;).</p>
+<p>Diamo un'occhiata a quelle (sole!) tre righe di codice e immaginiamo che il codice di produzione che fa passare questo &quot;test&quot; non esista ancora. Cosa possiamo imparare da queste tre righe su ciò che questo codice di produzione deve fornire? Contate con me:</p>
+<ol class="arabic simple">
+<li><p>Abbiamo bisogno di una funzionalità di reporting.</p></li>
+<li><p>Dobbiamo supportare la nozione di utenti e privilegi.</p></li>
+<li><p>Dobbiamo supportare il concetto di utente &quot;power&quot;, che sia un amministratore o un revisore.</p></li>
+<li><p>Gli utenti &quot;power&quot; devono essere autorizzati a utilizzare la funzionalità di reporting (notare che non specifica quali altri utenti dovrebbero o non dovrebbero essere in grado di utilizzare questa funzionalità: per questo avremmo bisogno di un &quot;test&quot; separato).</p></li>
+</ol>
+<p>Inoltre, siamo già alla fase di progettazione di un'API (perché il test la sta già utilizzando) che soddisferà l'esigenza. Non credete che queste siano già alcune informazioni sulla funzionalità dell'applicazione da sole tre righe di codice?</p>
+</section>
+<section id="a-specification-rather-than-a-test-suite">
+<h2>Una Specifica invece di una &quot;test suite&quot;<a class="headerlink" href="#a-specification-rather-than-a-test-suite" title="Link to this heading">¶</a></h2>
+<p>Spero che ora si possa capire che quello che abbiamo chiamato &quot;test&quot; può essere visto anche come una sorta di specifica. Questa è anche la risposta alla domanda sollevata all’inizio di questo capitolo.</p>
+<p>In realtà il ruolo di un test, se scritto prima del codice di produzione, può essere ulteriormente scomposto:</p>
+<ul class="simple">
+<li><p>progettare uno scenario -- è quando specifichiamo le nostre esigenze fornendo esempi concreti di comportamenti che ci aspettiamo</p></li>
+<li><p>scrivere il codice di test -- è quando specifichiamo un'API attraverso la quale vogliamo utilizzare il codice che stiamo testando</p></li>
+<li><p>compilazione -- è quando riceviamo feedback sul fatto che il codice di produzione abbia le classi e i metodi richiesti dalle specifiche che abbiamo scritto. In caso contrario, la compilazione fallirà.</p></li>
+<li><p>esecuzione -- è dove riceviamo feedback sul fatto che il codice di produzione presenti i comportamenti descritti dalle specifiche</p></li>
+<li><p>lettura -- è dove utilizziamo le specifiche già scritte per ottenere informazioni sul codice di produzione.</p></li>
+</ul>
+<p>Pertanto, il nome &quot;test&quot; sembra restringere troppo il campo di ciò che stiamo facendo qui. La mia sensazione è che forse un nome diverso sarebbe migliore, da qui il termine <em>specifica</em>.</p>
+<p>La scoperta del ruolo dei test come specifica è piuttosto recente e non esiste ancora una terminologia uniforme ad essa collegata. Ad alcuni piace chiamare il processo di utilizzo dei test come <em>Specifica Per Esempi</em> per dire che i test sono esempi che aiutano a specificare e chiarire la funzionalità in fase di sviluppo. Alcuni usano il termine BDD (<em>Behavior-Driven Development</em>) per sottolineare che scrivere test riguarda in realtà l'analisi e la descrizione dei comportamenti. Inoltre, si potrebbero incontrare nomi diversi per alcuni elementi particolari di questo approccio, ad esempio, un &quot;test&quot; può essere definito &quot;specifica&quot;, un &quot;esempio&quot; o una &quot;descrizione del comportamento&quot; o una &quot;dichiarazione di specifiche&quot; &quot; o &quot;un fatto relativo al sistema&quot; (come già visto nel capitolo sugli strumenti, il framework xUnit.NET contrassegna ogni &quot;test&quot; con un attributo <code class="docutils literal notranslate"><span class="pre">[Fact]</span></code>, suggerendo che scrivendolo stiamo enunciando un singolo fatto sul codice sviluppato. A proposito, xUnit.NET ci permette anche di formulare ‘theories' [<em>teorie</em>] sul nostro codice, ma lasciamo questo argomento per un'altra volta).</p>
+<p>Data questa varietà terminologica, vorrei fare un accordo: per essere coerente in tutto questo libro, stabilirò una convenzione sulla nomenclatura, ma lascerò la libertà di seguire la propria se lo si desidera. Il motivo di questa convenzione sui nomi è pedagogico: non sto cercando di creare un movimento per cambiare i termini stabiliti o per inventare una nuova metodologia o altro. Spero che, utilizzando questa terminologia in tutto il libro, si vedranno alcune cose diversamente<a class="footnote-reference brackets" href="#opensourcebook" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. Quindi, concordiamo che per il bene di questo libro:</p>
+<p><strong>Specification Statement</strong> (o semplicemente <strong>Statement</strong>, con la 'S' maiuscola)</p>
+<p>:   verrà utilizzato al posto delle parole &quot;test&quot; e &quot;metodo di test&quot;</p>
+<p><strong>Specifica</strong> (o semplicemente <strong>Spec</strong>, anch'essa con la 'S' maiuscola)</p>
+<p>:   verrà utilizzato al posto delle parole &quot;test suite&quot; e &quot;test list&quot;</p>
+<p><strong>Statement &quot;False&quot;</strong></p>
+<p>:   verrà utilizzato al posto di &quot;test fallito&quot;</p>
+<p><strong>Statement &quot;True&quot;</strong></p>
+<p>:   verrà utilizzato al posto di &quot;test superato&quot;</p>
+<p>Di tanto in tanto farò riferimento alla terminologia &quot;tradizionale&quot;, perché è meglio consolidata e perché si potrebbe aver già sentito altri termini consolidati e chiedersi come dovrebbero essere intesi nel contesto in cui consideriamo i test come una specifica.</p>
+</section>
+<section id="the-differences-between-executable-and-traditional-specifications">
+<h2>Le differenze tra specifiche eseguibili e &quot;tradizionali&quot;.<a class="headerlink" href="#the-differences-between-executable-and-traditional-specifications" title="Link to this heading">¶</a></h2>
+<p>Si potrebbe avere familiarità con le specifiche dei requisiti o le specifiche di progettazione scritte in inglese semplice o in un'altra lingua parlata. Tuttavia, le nostre Specifiche differiscono da esse in diversi modi. In particolare, il tipo di Specifica che creiamo scrivendo i test:</p>
+<ol class="arabic simple">
+<li><p>Non è <em>completamente</em> scritto in anticipo come sono state scritte molte di queste specifiche &quot;tradizionali&quot; (il che non significa che sia scritto dopo che il completamento del codice - ne parleremo più approfonditamente nei prossimi capitoli).</p></li>
+<li><p>È eseguibile: la si può eseguire per vedere se il codice aderisce o meno alle specifiche. Ciò riduce il rischio di imprecisioni nelle Specifiche e di non sincronizzazione con il codice di produzione.</p></li>
+<li><p>È scritto nel codice sorgente piuttosto che nel linguaggio parlato -- il che è sia positivo, poiché la struttura e la formalità del codice lasciano meno spazio a malintesi, sia impegnativo, poiché è necessario prestare molta attenzione per mantenere tali specifiche leggibili.</p></li>
+</ol>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="opensourcebook" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>inoltre, questo libro è open source, quindi se non piace la terminologia, si è liberi di creare un fork e modificarlo a piacimento!</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Non è (solo) un test</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#when-a-test-becomes-something-more">Quando un test diventa qualcosa di più</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#taking-it-to-the-software-development-land">Torniamo nella terra dello sviluppo del software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-specification-rather-than-a-test-suite">Una Specifica invece di una &quot;test suite&quot;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-differences-between-executable-and-traditional-specifications">Le differenze tra specifiche eseguibili e &quot;tradizionali&quot;.</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="040_Three_Essential_Tools.html" title="capitolo precedente"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+      <li>Next: <a href="060_Statement_First_Programming.html" title="capitolo successivo">La programmazione Statement-first</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/050_Its_Not_a_Test.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

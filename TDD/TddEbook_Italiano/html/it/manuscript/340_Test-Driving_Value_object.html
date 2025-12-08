@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Oggetti valore nel test-driving &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Raggiungere la rete dei confini degli oggetti" href="350_Web_of_objects_boundaries.html" />
+    <link rel="prev" title="Logica dell&#39;applicazione test-driving" href="330_Test-Driving_Command.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="test-driving-value-objects">
+<h1><em>Oggetti valore</em> nel test-driving<a class="headerlink" href="#test-driving-value-objects" title="Link to this heading">¶</a></h1>
+<p>In questo capitolo andiamo più avanti nel tempo. Johnny e Benjamin hanno appena estratto un tipo di <em>oggetto valore</em> per un ID treno e hanno iniziato il lavoro per specificarlo ulteriormente.</p>
+<section id="initial-value-object">
+<h2><em>Oggetto valore</em> iniziale<a class="headerlink" href="#initial-value-object" title="Link to this heading">¶</a></h2>
+<p><strong>Johnny</strong>: Oh, sei tornato. Il refactoring è terminato -- abbiamo estratto un tipo di <em>oggetto di valore</em> interessante dal codice corrente. Ecco il codice sorgente della classe <code class="docutils literal notranslate"><span class="pre">TrainId</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TrainId</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">TrainId</span><span class="w"> </span><span class="nf">From</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">trainIdAsString</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">TrainId</span><span class="p">(</span><span class="n">trainIdAsString</span><span class="p">);</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="nf">TrainId</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="kt">object</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="p">((</span><span class="n">TrainId</span><span class="p">)</span><span class="w"> </span><span class="n">obj</span><span class="p">).</span><span class="n">_value</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">ToString</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin</strong>: Aspetta, ma non abbiamo ancora alcuna specifica per questa classe. Da dove viene tutta questa implementazione?</p>
+<p><strong>Johnny</strong>: Questo perché mentre stavi bevendo il tuo tè, ho estratto questo tipo da un'implementazione esistente che era già una risposta Statement falsi.</p>
+<p><strong>Benjamin</strong>: Capisco. Quindi non abbiamo la mock della classe <code class="docutils literal notranslate"><span class="pre">TrainId</span></code> class in altri Statement, giusto?</p>
+<p><strong>Johnny</strong>: No. Questa è una regola generale -- non creiamo mock di <em>oggetti di valore</em>.
+This is a general rule -- we don't mock value objects. Non rappresentano comportamenti astratti e polimorfici. Per gli stessi motivi per cui non creiamo interfacce e mock per <code class="docutils literal notranslate"><span class="pre">string</span></code> e <code class="docutils literal notranslate"><span class="pre">int</span></code>, non lo facciamo per <code class="docutils literal notranslate"><span class="pre">TrainId</span></code>.</p>
+</section>
+<section id="value-semantics">
+<h2>Semantica del valore<a class="headerlink" href="#value-semantics" title="Link to this heading">¶</a></h2>
+<p><strong>Benjamin</strong>: Quindi, data l'implementazione esistente, c'è ancora qualcosa da scrivere?</p>
+<p><strong>Johnny</strong>: Sì. Ho deciso che questo <code class="docutils literal notranslate"><span class="pre">TrainId</span></code> dovrebbe essere un <em>oggetto valore</em> e i miei principi di progettazione per gli <em>oggetti valore</em> richiedono che fornisca alcune garanzie in più rispetto a quelle risultanti da un semplice refactoring. Inoltre, non si deve dimenticare che il confronto degli ID dei treni non deve fare distinzione tra maiuscole e minuscole. Questo è qualcosa che non abbiamo specificato da nessuna parte.</p>
+<p><strong>Benjamin</strong>: Hai parlato di &quot;maggiori garanzie&quot;. Intendi l'uguaglianza?</p>
+<p><strong>Johnny</strong>: Sì, C# come linguaggio prevede che <a class="reference external" href="https://docs.microsoft.com/en-us/dotnet/api/system.object.equals">l'uguaglianza</a> segua determinate regole. Voglio che questa classe li implementi. Inoltre, voglio che implementi <code class="docutils literal notranslate"><span class="pre">GetHashCode</span></code> <a class="reference external" href="https://docs.microsoft.com/en-us/dotnet/api/system.object.gethashcode">correttamente</a> e mi assicuro che le istanze di questa classe siano immutabili. Ultimo ma non meno importante, vorrei che il metodo factory <code class="docutils literal notranslate"><span class="pre">From</span></code> lanciasse un'eccezione quando viene passata una stringa nulla o vuota. Nessuno di questi input dovrebbe portare alla creazione di un ID valido.</p>
+<p><strong>Benjamin</strong>: Sembra che ci siano molte dichiarazioni da scrivere.</p>
+<p><strong>Johnny</strong>: Non proprio. Aggiungi la validazione e il confronto in minuscolo alla lista dei TODO. Nel frattempo -- guarda -- ho scaricato una libreria che mi aiuterà con la parte relativa all'immutabilità e all'uguaglianza. In questo modo, tutto ciò che devo scrivere è:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldHaveValueObjectSemantics</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">trainIdString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">String</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">otherTrainIdString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">OtherThan</span><span class="p">(</span><span class="n">trainIdString</span><span class="p">);</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">HasValueSemantics</span><span class="o">&lt;</span><span class="n">TrainId</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">   </span><span class="k">new</span><span class="w"> </span><span class="n">Func</span><span class="o">&lt;</span><span class="n">TrainId</span><span class="o">&gt;</span><span class="p">[]</span>
+<span class="w">   </span><span class="p">{</span>
+<span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">TrainId</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">trainIdString</span><span class="p">)</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="k">new</span><span class="w"> </span><span class="n">Func</span><span class="o">&lt;</span><span class="n">TrainId</span><span class="o">&gt;</span><span class="p">[]</span>
+<span class="w">   </span><span class="p">{</span>
+<span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">TrainId</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">otherTrainIdString</span><span class="p">);</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questa asserzione accetta due array:</p>
+<ul class="simple">
+<li><p>il primo array contiene funzioni di factory che creano oggetti che dovrebbero essere uguali tra loro. Per ora, abbiamo solo un esempio, perché non ho toccato la questione delle lettere minuscole e maiuscole. Ma quando lo faccio, l'array conterrà più voci per sottolineare che gli ID creati dalla stessa stringa con lettere maiuscole e minuscole diverse dovrebbero essere considerati uguali.</p></li>
+<li><p>il secondo array contiene funzioni factory che creano oggetti di esempio che dovrebbero essere considerati non uguali a nessuno degli oggetti generati dalle funzioni factory &quot;uguali&quot;. C'è anche un singolo esempio qui poiché il metodo <code class="docutils literal notranslate"><span class="pre">From</span></code> di <code class="docutils literal notranslate"><span class="pre">TrainId</span></code> ha un singolo argomento, quindi l'unico modo in cui un'istanza può differire da un'altra è creata con un valore diverso di questo argomento.</p></li>
+</ul>
+<p>Dopo aver valutato questo Statement, ottengo il seguente output:</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>- TrainId must be sealed, or derivatives will be able to override GetHashCode() with mutable code.
+
+- a.GetHashCode() and b.GetHashCode() should return same values for equal objects.
+
+- a.Equals(null) should return false, but instead threw System.NullReferenceException: Object reference not set to an instance of an object.
+
+- &#39;==&#39; and &#39;!=&#39; operators are not implemented
+</pre></div>
+</div>
+<p><strong>Benjamin</strong>: Molto furbo. Quindi queste sono le regole che il nostro <code class="docutils literal notranslate"><span class="pre">TrainId</span></code> non segue ancora. Le implementerete una per una?</p>
+<p><strong>Johnny</strong>: Eheh, no. L'implementazione sarebbe così noiosa che utilizzerei il mio IDE per generare l'implementazione necessaria o, ancora una volta, utilizzare una libreria. Ultimamente preferisco quest'ultima. Lasciami quindi scaricare una libreria chiamata <a class="reference external" href="https://www.nuget.org/packages/Value/">Value</a> e usarla sul nostro <code class="docutils literal notranslate"><span class="pre">TrainId</span></code>.</p>
+<p>Prima di tutto, <code class="docutils literal notranslate"><span class="pre">TrainId</span></code> deve ereditare dalla classe generica <code class="docutils literal notranslate"><span class="pre">ValueType</span></code> come questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TrainId</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ValueType</span><span class="o">&lt;</span><span class="n">TrainId</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Questa eredità ci impone di implementare il seguente metodo &quot;speciale&quot;:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAllAttributesToBeUsedForEquality</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">NotImplementedException</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin</strong>: Strano, cosa fa?</p>
+<p><strong>Johnny</strong>: È così che la libreria automatizza l'implementazione dell'uguaglianza. Dobbiamo solo restituire un array di valori che vogliamo confrontare tra due istanze. Poiché la nostra uguaglianza si basa esclusivamente sul campo <code class="docutils literal notranslate"><span class="pre">_value</span></code>, dobbiamo restituire proprio questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAllAttributesToBeUsedForEquality</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Dobbiamo anche rimuovere il metodo Equals() esistente.</p>
+<p><strong>Benjamin</strong>: Ottimo, ora l'unica ragione per cui l'asserzione fallisce è:</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>- TrainId must be sealed, or derivatives will be able to override GetHashCode() with mutable code.
+</pre></div>
+</div>
+<p>Sono colpito dal fatto che questa libreria <a class="reference external" href="https://www.nuget.org/packages/Value/">Value</a> si sia occupata dei metodi di uguaglianza, degli operatori di uguaglianza e di <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code>.</p>
+<p><strong>Johnny</strong>: Bello, eh? Ok, terminiamo questa parte e aggiungiamo la parola chiave <code class="docutils literal notranslate"><span class="pre">sealed</span></code>. Il codice sorgente completo della classe è simile al seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TrainId</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ValueType</span><span class="o">&lt;</span><span class="n">TrainId</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">TrainId</span><span class="w"> </span><span class="nf">From</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">trainIdAsString</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">TrainId</span><span class="p">(</span><span class="n">trainIdAsString</span><span class="p">);</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="nf">TrainId</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAllAttributesToBeUsedForEquality</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">ToString</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin</strong>: E lo Statement è &quot;true&quot;.</p>
+</section>
+<section id="case-insensitive-comparison">
+<h2>Confronto &quot;case-insensitive&quot;<a class="headerlink" href="#case-insensitive-comparison" title="Link to this heading">¶</a></h2>
+<p><strong>Johnny</strong>: Cosa resta nella nostra lista dei TODO?</p>
+<p><strong>Benjamin</strong>: Due elementi:</p>
+<ul class="simple">
+<li><p>Il confronto degli ID dei treni non deve fare distinzione tra maiuscole e minuscole.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">null</span></code> e stringhe vuote non dovrebbero essere consentite come ID treno validi.</p></li>
+</ul>
+<p><strong>Johnny</strong>: Facciamo il confronto case-insensitive , dovrebbe essere relativamente semplice.</p>
+<p><strong>Benjamin</strong>: Ok, hai detto che avremmo bisogno di espandere lo Statement che hai scritto, aggiungendovi un'altra &quot;equal value factory&quot;. Fammi provare. Cosa ne pensi di questo?</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldHaveValueSemantics</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">trainIdString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">String</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">otherTrainIdString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">OtherThan</span><span class="p">(</span><span class="n">trainIdString</span><span class="p">);</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">HasValueSemantics</span><span class="o">&lt;</span><span class="n">TrainId</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">   </span><span class="k">new</span><span class="w"> </span><span class="n">Func</span><span class="o">&lt;</span><span class="n">TrainId</span><span class="o">&gt;</span><span class="p">[]</span>
+<span class="w">   </span><span class="p">{</span>
+<span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">TrainId</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">trainIdString</span><span class="p">.</span><span class="n">ToUpper</span><span class="p">())</span>
+<span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">TrainId</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">trainIdString</span><span class="p">.</span><span class="n">ToLower</span><span class="p">())</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="k">new</span><span class="w"> </span><span class="n">Func</span><span class="o">&lt;</span><span class="n">TrainId</span><span class="o">&gt;</span><span class="p">[]</span>
+<span class="w">   </span><span class="p">{</span>
+<span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">TrainId</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="n">otherTrainIdString</span><span class="p">);</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w"> </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Che ne dici di quello? Da quello che mi hai spiegato, capisco che aggiungendo una seconda factory al primo array, dico che entrambe le istanze dovrebbero essere trattate come uguali - quella con la stringa minuscola e quella con la stringa maiuscola.</p>
+<p><strong>Johnny</strong>: Esattamente. Ora, rendiamo &quot;true&quot; lo Statement. Fortunatamente, possiamo farlo modificando il metodo <code class="docutils literal notranslate"><span class="pre">GetAllAttributesToBeUsedForEquality</span></code> da:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAllAttributesToBeUsedForEquality</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">protected</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="n">IEnumerable</span><span class="o">&lt;</span><span class="kt">object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GetAllAttributesToBeUsedForEquality</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">yield</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">_value</span><span class="p">.</span><span class="n">ToLower</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Eeee!!! fatto! L'asserzione ha controllato <code class="docutils literal notranslate"><span class="pre">Equals</span></code>, operatori di uguaglianza e <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code> e tutto sembra funzionare. Possiamo passare all'elemento successivo nel nostro elenco di TODO.</p>
+</section>
+<section id="input-validation">
+<h2>Validazione dell'Input<a class="headerlink" href="#input-validation" title="Link to this heading">¶</a></h2>
+<p><strong>Johnny</strong>: Prendiamoci cura del metodo <code class="docutils literal notranslate"><span class="pre">From</span></code>  - dovrebbe non consentire l'input <code class="docutils literal notranslate"><span class="pre">null</span></code> -- ci aspettiamo un'eccezione quando passiamo un <code class="docutils literal notranslate"><span class="pre">null</span></code> all'interno.</p>
+<p>Per ora, il metodo è il seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">TrainId</span><span class="w"> </span><span class="nf">From</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">trainIdAsString</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">TrainId</span><span class="p">(</span><span class="n">trainIdAsString</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin</strong>: OK, lasciami scrivere uno Statement sul comportamento previsto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldThrowWhenCreatedWithANullInput</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Throws</span><span class="o">&lt;</span><span class="n">ArgumentNullException</span><span class="o">&gt;</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">TrainId</span><span class="p">.</span><span class="n">From</span><span class="p">(</span><span class="k">null</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>È stato facile, eh?</p>
+<p><strong>Johnny</strong>: Grazie. Lo Statement è attualmente falso perché prevede un'eccezione ma non viene generato nulla. Rendiamolo &quot;true&quot; implementando il controllo di <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">TrainId</span><span class="w"> </span><span class="nf">From</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">trainIdAsString</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">trainIdAsString</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">null</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ArgumentNullException</span><span class="p">(</span><span class="k">nameof</span><span class="p">(</span><span class="n">trainIdAsString</span><span class="p">));</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">TrainId</span><span class="p">(</span><span class="n">trainIdAsString</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin</strong>: Fantastico, ha funzionato!</p>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>Johnny e Benjamin hanno ancora un comportamento da specificare -- lanciare un'eccezione quando una stringa vuota viene passata al metodo factory -- ma seguirli ulteriormente probabilmente non ci porterà alcuna nuova intuizione. Vorrei quindi chiudere questo capitolo. Prima di farlo, alcuni punti di riepilogo su cosa ricordare su test-driving degli <em>oggetti valore</em>:</p>
+<ol class="arabic simple">
+<li><p>Gli <em>oggetti valore</em> vengono spesso (anche se non sempre) sottoposti a refactoring retroattivamente dal codice esistente. In tal caso, avranno già una certa copertura dalle specifiche delle classi che utilizzano questi <em>oggetti valore</em>. Non è necessario specificare nuovamente i comportamenti coperti nella specifica dell'<em>oggetto valore</em>. Anche se lo faccio quasi sempre, Johnny e Benjamin hanno scelto di non farlo e rispetto la loro decisione.</p></li>
+<li><p>Anche se scegliamo di non scrivere Statement per comportamenti già coperti dalle specifiche esistenti, dobbiamo comunque scrivere Statement aggiuntivi per garantire che un tipo sia un <em>oggetto valore</em> appropriato. Queste dichiarazioni non sono guidate dalla logica esistente, ma dai nostri principi di progettazione.</p></li>
+<li><p>Esistono molte condizioni che si applicano ai codici di uguaglianza e hash degli <em>oggetti valore</em>. Invece di scrivere test per questi comportamenti per ogni <em>oggetto valore</em>, consiglio di utilizzare un'asserzione personalizzata generica per questo. Trovare una libreria che contenga già tale asserzione o scriverne una propria.</p></li>
+<li><p>Quando si implementano metodi di uguaglianza e codici hash, anch'io consiglio di considerare fortemente l'utilizzo di qualche tipo di libreria di supporto o almeno di generarle utilizzando una funzionalità dell'IDE.</p></li>
+<li><p>Non facciamo mai mock di <em>oggetti di valore</em> nelle Specifiche di altre classi. In queste Specifiche utilizziamo gli <em>oggetti valore</em> allo stesso modo degli <code class="docutils literal notranslate"><span class="pre">int</span></code> e delle <code class="docutils literal notranslate"><span class="pre">string</span></code>.</p></li>
+</ol>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><em>Oggetti valore</em> nel test-driving</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initial-value-object"><em>Oggetto valore</em> iniziale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#value-semantics">Semantica del valore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-insensitive-comparison">Confronto &quot;case-insensitive&quot;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#input-validation">Validazione dell'Input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="330_Test-Driving_Command.html" title="capitolo precedente">Logica dell'applicazione test-driving</a></li>
+      <li>Next: <a href="350_Web_of_objects_boundaries.html" title="capitolo successivo">Raggiungere la rete dei confini degli oggetti</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/340_Test-Driving_Value_object.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

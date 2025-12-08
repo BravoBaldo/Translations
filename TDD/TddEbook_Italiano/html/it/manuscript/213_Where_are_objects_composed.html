@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Dove vengono composti gli oggetti? &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Interfacce" href="220_Designing_for_composabiity_interfaces.html" />
+    <link rel="prev" title="Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?" href="212_How_are_the_connections_made.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="where-are-objects-composed">
+<h1>Dove vengono composti gli oggetti?<a class="headerlink" href="#where-are-objects-composed" title="Link to this heading">¶</a></h1>
+<p>Ok, abbiamo esaminato alcuni modi per passare un destinatario a un mittente. Lo abbiamo fatto dalla prospettiva &quot;interna&quot; di un mittente a cui viene assegnato un destinatario. Ciò che abbiamo tralasciato, in gran parte, è la prospettiva “esterna”, cioè chi dovrebbe passare il destinatario nel mittente?</p>
+<p>Per quasi tutti gli approcci descritti nel capitolo precedente, non esiste alcuna limitazione -- si passa il destinatario da dove è necessario passarlo.</p>
+<p>Esiste, tuttavia, un approccio più limitato e questo <strong>passa un parametro costruttore</strong>.</p>
+<p>Perché? Perché cerchiamo di essere fedeli al principio di &quot;separare la creazione degli oggetti dall'uso&quot; e questo, a sua volta, è il risultato della nostra ricerca della componibilità.</p>
+<p>Ad ogni modo, se un oggetto non può né utilizzare né creare un altro oggetto, dobbiamo creare oggetti speciali solo per creare altri oggetti (ci sono alcuni design pattern su come progettare tali oggetti, ma il più popolare e utile è il <strong>factory</strong> ) o rinviare la creazione fino al punto di ingresso dell'applicazione (esiste anche un pattern per questo, chiamato <strong>composition root</strong>).</p>
+<p>Quindi, abbiamo due casi da considerare. Inizierò con il secondo -- composition root.</p>
+<section id="composition-root">
+<h2>Composition Root<a class="headerlink" href="#composition-root" title="Link to this heading">¶</a></h2>
+<p>Supponiamo, solo per divertimento, che stiamo creando un gioco per cellulare in cui un giocatore deve difendere un castello. Questo gioco ha due livelli. Ogni livello ha un castello da difendere. Quando riusciamo a difendere il castello abbastanza a lungo, il livello si considera completato e si passa a quello successivo. Quindi, possiamo suddividere la logica del dominio in tre classi: un <code class="docutils literal notranslate"><span class="pre">Game</span></code> che ha due <code class="docutils literal notranslate"><span class="pre">Level</span></code> e ognuno di essi che contiene un <code class="docutils literal notranslate"><span class="pre">Castle</span></code>. Ipotizziamo anche che le prime due classi violino il principio di separare l'uso dalla costruzione, cioè che un <code class="docutils literal notranslate"><span class="pre">Game</span></code> crei i propri livelli e ogni <code class="docutils literal notranslate"><span class="pre">Level</span></code> crei il proprio castello.</p>
+<p>Una classe <code class="docutils literal notranslate"><span class="pre">Game</span></code> viene creata nel metodo <code class="docutils literal notranslate"><span class="pre">Main()</span></code> dell'applicazione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">game</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Game</span><span class="p">();</span>
+
+<span class="w">  </span><span class="n">game</span><span class="p">.</span><span class="n">Play</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Game</span></code> crea crea i propri oggetti <code class="docutils literal notranslate"><span class="pre">Level</span></code> di classi specifiche che implementano l'interfaccia <code class="docutils literal notranslate"><span class="pre">Level</span></code> e li memorizza in un array:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Game</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Level</span><span class="p">[]</span><span class="w"> </span><span class="n">_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Level1</span><span class="p">(),</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Level2</span><span class="p">()</span>
+<span class="w">  </span><span class="p">};</span>
+
+<span class="w">  </span><span class="c1">//some methods here that use the levels</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E le implementazioni di <code class="docutils literal notranslate"><span class="pre">Level</span></code> creano i propri castelli e li assegnano a campi del tipo dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Castle</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Level1</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Castle</span><span class="w"> </span><span class="n">_castle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SmallCastle</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//some methods here that use the castle</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Level2</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Castle</span><span class="w"> </span><span class="n">_castle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BigCastle</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//some methods here that use the castle</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, ho detto (e spero che si veda nel codice sopra) che le classi <code class="docutils literal notranslate"><span class="pre">Game</span></code>, <code class="docutils literal notranslate"><span class="pre">Level1</span></code> e <code class="docutils literal notranslate"><span class="pre">Level2</span></code> violano il principio di separare l'uso dalla costruzione. Questo non ci piace, vero? Proviamo a renderli più conformi al principio.</p>
+<section id="achieving-separation-of-use-from-construction">
+<h3>Realizzare la separazione dell'uso dalla costruzione<a class="headerlink" href="#achieving-separation-of-use-from-construction" title="Link to this heading">¶</a></h3>
+<p>Innanzitutto, eseguiamo il refactoring di <code class="docutils literal notranslate"><span class="pre">Level1</span></code> e <code class="docutils literal notranslate"><span class="pre">Level2</span></code> secondo il principio spostando l'istanziazione dei relativi castelli all'esterno. Poiché l'esistenza di un castello è necessaria affinché un livello abbia un senso -- lo diremo nel codice utilizzando l'approccio di far passare un castello attraverso il costruttore di <code class="docutils literal notranslate"><span class="pre">Level</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Level1</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Castle</span><span class="w"> </span><span class="n">_castle</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">//now castle is received as</span>
+<span class="w">  </span><span class="c1">//constructor parameter</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">Level1</span><span class="p">(</span><span class="n">Castle</span><span class="w"> </span><span class="n">castle</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_castle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">castle</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//some methods here that use the castle</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Level2</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Castle</span><span class="w"> </span><span class="n">_castle</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">//now castle is received as</span>
+<span class="w">  </span><span class="c1">//constructor parameter</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">Level2</span><span class="p">(</span><span class="n">Castle</span><span class="w"> </span><span class="n">castle</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_castle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">castle</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//some methods here that use the castle</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>È stato facile, vero? Tuttavia, ci lascia con un problema da risolvere: se le istanziazioni dei castelli non sono più in <code class="docutils literal notranslate"><span class="pre">Level1</span></code> e in <code class="docutils literal notranslate"><span class="pre">Level2</span></code>, allora devono essere passate da chi crea i livelli. Nel nostro caso, questo ricade sulle spalle della classe <code class="docutils literal notranslate"><span class="pre">Game</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Game</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Level</span><span class="p">[]</span><span class="w"> </span><span class="n">_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//now castles are created here as well:</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Level1</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SmallCastle</span><span class="p">()),</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Level2</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">BigCastle</span><span class="p">())</span>
+<span class="w">  </span><span class="p">};</span>
+
+<span class="w">  </span><span class="c1">//some methods here that use the levels</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ma, notare che -- questa classe soffre della stessa violazione di non separare l'uso degli oggetti dalla loro costruzione come hanno fatto i livelli. Pertanto, per rendere anche questa classe conforme al principio, dobbiamo trattarla come abbiamo fatto con le classi del livello -- spostare la creazione dei livelli all'esterno:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Game</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">Level</span><span class="p">[]</span><span class="w"> </span><span class="n">_levels</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">//now levels are received as </span>
+<span class="w">  </span><span class="c1">//constructor parameter</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">Game</span><span class="p">(</span><span class="n">Level</span><span class="p">[]</span><span class="w"> </span><span class="n">levels</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">levels</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//some methods here that use the levels</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ecco, l'abbiamo fatto, ma ancora una volta i livelli ora devono essere forniti da chi crea <code class="docutils literal notranslate"><span class="pre">Game</span></code>. Dove li mettiamo? Nel nostro caso, l'unica scelta rimasta è il metodo <code class="docutils literal notranslate"><span class="pre">Main()</span></code> della nostra applicazione, quindi è esattamente qui che creeremo tutti gli oggetti che passeremo a un <code class="docutils literal notranslate"><span class="pre">Game</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">game</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Game</span><span class="p">(</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">Level</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Level1</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SmallCastle</span><span class="p">()),</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">Level2</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">BigCastle</span><span class="p">())</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="n">game</span><span class="p">.</span><span class="n">Play</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A proposito, <code class="docutils literal notranslate"><span class="pre">Level1</span></code> e <code class="docutils literal notranslate"><span class="pre">Level2</span></code> differiscono solo per i tipi di castello e questa differenza non c'è più, dato che l'abbiamo rifattorizzata, quindi possiamo renderli un'unica classe e chiamarla ad es. <code class="docutils literal notranslate"><span class="pre">TimeSurvivalLevel</span></code> (perché tale livello si considera completato quando riusciamo a difendere il nostro castello per un determinato periodo). Dopo questa mossa, ora abbiamo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">game</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Game</span><span class="p">(</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">Level</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">TimeSurvivalLevel</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SmallCastle</span><span class="p">()),</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">TimeSurvivalLevel</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">BigCastle</span><span class="p">())</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="n">game</span><span class="p">.</span><span class="n">Play</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Osservando il codice qui sopra, potremmo giungere ad un'altra conclusione divertente -- anche questo viola il principio di separare l'uso dalla costruzione! Per prima cosa creiamo e colleghiamo la rete di oggetti e poi inviamo il messaggio <code class="docutils literal notranslate"><span class="pre">Play()</span></code> all'oggetto <code class="docutils literal notranslate"><span class="pre">game</span></code>. Possiamo risolvere anche questo?</p>
+<p>Direi &quot;no&quot;, per due motivi:</p>
+<ol class="arabic simple">
+<li><p>Non c’è altro posto in cui possiamo rinviare la creazione. Certo, potremmo spostare la creazione dell'oggetto <code class="docutils literal notranslate"><span class="pre">Game</span></code> e delle sue dipendenze in un oggetto separato responsabile solo della creazione (ad esempio una factory), ma ci lascerebbe comunque con la domanda: dove creiamo la factory? Naturalmente, potremmo usare un metodo statico per chiamarlo nel nostro <code class="docutils literal notranslate"><span class="pre">Main()</span></code> in questo modo: <code class="docutils literal notranslate"><span class="pre">var</span> <span class="pre">app</span> <span class="pre">=</span> <span class="pre">ApplicationRoot.Create()</span></code>, ma questo delegherebbe la composizione, non la estrarrebbe.</p></li>
+<li><p>Il punto centrale del principio che stiamo cercando di applicare è il disaccoppiamento, cioè darci la possibilità di cambiare una cosa senza dover cambiarne un’altra. Se ci pensiamo, non ha senso disaccoppiare il punto di ingresso dell'applicazione dall'applicazione stessa, poiché questa è la parte dell'applicazione più specifica e non riutilizzabile per l'applicazione che possiamo immaginare.</p></li>
+</ol>
+<p>Ciò che considero importante è che siamo arrivati a un punto in cui la rete di oggetti viene creata utilizzando l'approccio del costruttore e non abbiamo più spazio per rinviare la creazione della rete (in altre parole, è il più vicino possibile al punto di ingresso dell'applicazione). Questo posto è detto <a class="reference external" href="http://blog.ploeh.dk/2011/07/28/CompositionRoot/"><strong>composition root</strong></a>.</p>
+<p>Diciamo che la composition root è &quot;il più vicino possibile&quot; al punto di ingresso dell'applicazione perché potrebbero esserci diversi framework che controllano l'applicazione e non si avrà sempre il metodo <code class="docutils literal notranslate"><span class="pre">Main()</span></code> a disposizione<a class="footnote-reference brackets" href="#seemanndi" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Oltre alle invocazioni del costruttore, la composition root può contenere anche, ad esempio, registrazioni di observer (vedere approccio della registrazione nel passare i destinatari) se tali observer sono già noti a questo punto. È inoltre responsabile dell'eliminazione di tutti gli oggetti creati che richiedono l'eliminazione esplicita al termine dell'esecuzione dell'applicazione. uesto perché li crea e quindi è l'unico punto nel codice che può determinare in modo sicuro quando non sono necessari.</p>
+<p>La composition root sopra sembra piuttosto piccola, ma si può immaginare che cresca molto nelle applicazioni più grandi. Esistono tecniche per rifattorizzare la composition root per renderla più leggibile e più pulita -- esploreremo tali tecniche in un capitolo dedicato.</p>
+</section>
+</section>
+<section id="factories">
+<h2>Factory<a class="headerlink" href="#factories" title="Link to this heading">¶</a></h2>
+<p>In precedenza ho descritto come non sia sempre possibile far passare tutto attraverso il costruttore. Uno degli approcci di cui abbiamo discusso che possiamo utilizzare in questi casi è <strong>una factory</strong>.</p>
+<p>Quando in precedenza abbiamo parlato di factory, ci siamo concentrati sul fatto che siano solo una fonte di oggetti. Questa volta daremo uno sguardo molto più approfondito a cosa sono le factory e quali sono i loro vantaggi.</p>
+<p>Ma prima, diamo un'occhiata all'esempio di una factory che emerge nel codice che non la utilizzava, come mera conseguenza del tentativo di seguire il principio di separare l'uso degli oggetti dalla loro costruzione.</p>
+<section id="emerging-factory-example">
+<h3>Factory emergente -- esempio<a class="headerlink" href="#emerging-factory-example" title="Link to this heading">¶</a></h3>
+<p>Si consideri il seguente codice che riceve un frame proveniente dalla rete (come dati grezzi), poi lo inserisce in un oggetto, lo convalida e lo applica al sistema:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MessageInbound</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...initialization code here...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Handle</span><span class="p">(</span><span class="n">Frame</span><span class="w"> </span><span class="n">frame</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// determine the type of message</span>
+<span class="w">    </span><span class="c1">// and wrap it with an object</span>
+<span class="w">    </span><span class="n">ChangeMessage</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">null</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FrameTypes</span><span class="p">.</span><span class="n">Update</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">change</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UpdateRequest</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FrameTypes</span><span class="p">.</span><span class="n">Insert</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">change</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InsertRequest</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">InvalidRequestException</span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">Type</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">change</span><span class="p">.</span><span class="n">ValidateUsing</span><span class="p">(</span><span class="n">_validationRules</span><span class="p">);</span>
+<span class="w">    </span><span class="n">_system</span><span class="p">.</span><span class="n">Apply</span><span class="p">(</span><span class="n">change</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che questo codice viola il principio di separare l'uso dalla costruzione. <code class="docutils literal notranslate"><span class="pre">change</span></code> viene prima creato, a seconda del tipo di frame, e poi utilizzato (convalidato e applicato) nello stesso metodo. D'altra parte, se volessimo separare la costruzione di <code class="docutils literal notranslate"><span class="pre">change</span></code> dal suo utilizzo, dobbiamo notare che è impossibile passare un'istanza di <code class="docutils literal notranslate"><span class="pre">ChangeMessage</span></code> attraverso il costruttore <code class="docutils literal notranslate"><span class="pre">MessageInbound</span></code>, perché questo richiederebbe di creare il <code class="docutils literal notranslate"><span class="pre">ChangeMessage</span></code> prima di creare il <code class="docutils literal notranslate"><span class="pre">MessageInbound</span></code>. Raggiungere questo obiettivo è impossibile perché possiamo creare messaggi solo dopo aver conosciuto i dati del frame che <code class="docutils literal notranslate"><span class="pre">MessageInbound</span></code> riceve.</p>
+<p>Pertanto, la nostra scelta è quella di creare un oggetto speciale in cui sposteremo la creazione di nuovi messaggi. Questo produrrebbe nuove istanze quando richiesto, da qui il nome <strong>factory</strong> [<em>fabbrica</em>]. La stessa factory può essere passata attraverso un costruttore poiché non richiede l'esistenza di un frame -- ne ha bisogno solo quando gli viene chiesto di creare un messaggio.</p>
+<p>Sapendo questo, possiamo rifattorizzare il codice sopra come segue:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MessageInbound</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span>
+<span class="w">    </span><span class="n">MessageFactory</span><span class="w"> </span><span class="n">_messageFactory</span><span class="p">;</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span>
+<span class="w">    </span><span class="n">ValidationRules</span><span class="w"> </span><span class="n">_validationRules</span><span class="p">;</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span>
+<span class="w">    </span><span class="n">ProcessingSystem</span><span class="w"> </span><span class="n">_system</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">MessageInbound</span><span class="p">(</span>
+<span class="w">    </span><span class="c1">//this is the factory:</span>
+<span class="w">    </span><span class="n">MessageFactory</span><span class="w"> </span><span class="n">messageFactory</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ValidationRules</span><span class="w"> </span><span class="n">validationRules</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ProcessingSystem</span><span class="w"> </span><span class="n">system</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_messageFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">messageFactory</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_validationRules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">validationRules</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_system</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">system</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Handle</span><span class="p">(</span><span class="n">Frame</span><span class="w"> </span><span class="n">frame</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">change</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_messageFactory</span><span class="p">.</span><span class="n">CreateFrom</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+<span class="w">    </span><span class="n">change</span><span class="p">.</span><span class="n">ValidateUsing</span><span class="p">(</span><span class="n">_validationRules</span><span class="p">);</span>
+<span class="w">    </span><span class="n">_system</span><span class="p">.</span><span class="n">Apply</span><span class="p">(</span><span class="n">change</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo modo abbiamo separato la costruzione del messaggio dal suo utilizzo.</p>
+<p>A proposito, notare che abbiamo estratto non solo un singolo costruttore, ma l'intera logica di creazione dell'oggetto. Adesso è nella factory:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">InboundMessageFactory</span>
+<span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MessageFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">ChangeMessage</span><span class="w"> </span><span class="nf">CreateFrom</span><span class="p">(</span><span class="n">Frame</span><span class="w"> </span><span class="n">frame</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FrameTypes</span><span class="p">.</span><span class="n">Update</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">UpdateRequest</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FrameTypes</span><span class="p">.</span><span class="n">Insert</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">InsertRequest</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">InvalidRequestException</span><span class="p">(</span><span class="n">frame</span><span class="p">.</span><span class="n">Type</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E questo è tutto. Adesso abbiamo una factory e il modo in cui siamo arrivati a questo punto è stato cercando di aderire al principio di separare l'uso dalla costruzione.</p>
+<p>Ora che abbiamo finito con l'esempio, siamo pronti per qualche spiegazione più generale sulle factory.</p>
+</section>
+<section id="reasons-to-use-factories">
+<h3>Motivi per utilizzare le factory<a class="headerlink" href="#reasons-to-use-factories" title="Link to this heading">¶</a></h3>
+<p>Come dimostrato nell'esempio, le factory sono oggetti responsabili della creazione di altri oggetti. Sono utilizzate per ottenere la separazione della costruzione degli oggetti dal loro utilizzo. Sono utili per creare oggetti che vivono meno degli oggetti che li utilizzano. Una durata così breve deriva dal fatto che non tutto il contesto necessario per creare un oggetto è noto in anticipo (vale a dire finché un utente non immette le credenziali, non saremmo in grado di creare un oggetto che rappresenti il suo account). Passiamo la parte del contesto che conosciamo in anticipo (un cosiddetto <strong>contesto globale</strong>) nella factory tramite il suo costruttore e forniamo il resto che diventa disponibile in seguito (il cosiddetto <strong>contesto locale</strong>) sotto forma di parametri del metodo della factory quando diventa disponibile:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Factory</span><span class="p">(</span><span class="n">globalContextKnownUpFront</span><span class="p">);</span>
+
+<span class="c1">//... some time later:</span>
+<span class="n">factory</span><span class="p">.</span><span class="n">CreateInstance</span><span class="p">(</span><span class="n">localContext</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Un altro caso di utilizzo di una factory è quando dobbiamo creare un nuovo oggetto ogni volta che viene effettuata una richiesta (viene ricevuto un messaggio dalla rete o qualcuno fa clic su un pulsante):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Factory</span><span class="p">(</span><span class="n">globalContext</span><span class="p">);</span>
+
+<span class="c1">//...</span>
+
+<span class="c1">//we need a fresh instance</span>
+<span class="n">factory</span><span class="p">.</span><span class="n">CreateInstance</span><span class="p">();</span>
+
+<span class="c1">//...</span>
+
+<span class="c1">//we need another fresh instance</span>
+<span class="n">factory</span><span class="p">.</span><span class="n">CreateInstance</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Nell'esempio precedente vengono create due istanze indipendenti, anche se entrambe sono create in modo identico (non esiste un contesto locale che le differenzi).</p>
+<p>Entrambi questi motivi erano presenti nell'esempio dell'ultimo capitolo:</p>
+<ol class="arabic simple">
+<li><p>Non siamo riusciti a creare un <code class="docutils literal notranslate"><span class="pre">ChangeMessage</span></code> prima di conoscere il <code class="docutils literal notranslate"><span class="pre">Frame</span></code> effettivo.</p></li>
+<li><p>Per ogni <code class="docutils literal notranslate"><span class="pre">Frame</span></code> ricevuto, dovevamo creare una nuova istanza di <code class="docutils literal notranslate"><span class="pre">ChangeMessage</span></code>.</p></li>
+</ol>
+</section>
+<section id="simplest-factory">
+<h3>La più semplice factory<a class="headerlink" href="#simplest-factory" title="Link to this heading">¶</a></h3>
+<p>L'esempio più semplice possibile di un oggetto factory è qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MyMessageFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">MyMessage</span><span class="w"> </span><span class="nf">CreateMyMessage</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">MyMessage</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Anche in questa forma primitiva la factory ha già un certo valore (ad esempio possiamo rendere <code class="docutils literal notranslate"><span class="pre">MyMessage</span></code> un tipo astratto e restituire istanze delle sue sottoclassi dalla factory, e l'unico posto interessato dal cambiamento è la factory stessa<a class="footnote-reference brackets" href="#essentialskills" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>). Più spesso però, quando si parla di factory semplici, penso a qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//Let&#39;s assume MessageFactory</span>
+<span class="c1">//and Message are interfaces</span>
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">XmlMessageFactory</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MessageFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">Message</span><span class="w"> </span><span class="nf">CreateSessionInitialization</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">XmlSessionInitialization</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare le due cose che la factory nel secondo esempio ha e che quella nel primo esempio non aveva:</p>
+<ul class="simple">
+<li><p>implementa un'interfaccia (viene introdotto un livello di indirezione)</p></li>
+<li><p>il suo metodo <code class="docutils literal notranslate"><span class="pre">CreateSessionInitialization()</span></code> dichiara che un tipo restituito è un'interfaccia (viene introdotto un altro livello di riferimento indiretto)</p></li>
+</ul>
+<p>Pertanto, abbiamo introdotto due ulteriori livelli di indirezione. Per poter utilizzare le factory in modo efficace, è necessario capire perché e come questi livelli di indirezione sono utili, soprattutto quando si parla con persone, che spesso non comprendono i vantaggi dell'utilizzo delle factory, &quot;perché abbiamo già l'operatore <code class="docutils literal notranslate"><span class="pre">new</span></code> per creare oggetti&quot;. Il punto è che nascondendo (incapsulando) determinate informazioni otteniamo una maggiore flessibilità:</p>
+</section>
+<section id="factories-allow-creating-objects-polymorphically-encapsulation-of-type">
+<h3>Le factory consentono di creare oggetti in modo polimorfico (incapsulamento del tipo)<a class="headerlink" href="#factories-allow-creating-objects-polymorphically-encapsulation-of-type" title="Link to this heading">¶</a></h3>
+<p>Ogni volta che invochiamo un operatore <code class="docutils literal notranslate"><span class="pre">new</span></code>, dobbiamo mettergli accanto il nome di un tipo concreto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">//OK!</span>
+<span class="k">new</span><span class="w"> </span><span class="n">IList</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">//won&#39;t compile...</span>
+</pre></div>
+</div>
+<p>Ciò significa che ogni volta che cambiamo idea e invece di usare <code class="docutils literal notranslate"><span class="pre">List&lt;int&gt;()</span></code> vogliamo usare un oggetto di un'altra classe (ad esempio <code class="docutils literal notranslate"><span class="pre">SortedList&lt;int&gt;()</span></code>), dobbiamo cambiare il codice del delete del vecchio nome del tipo e inserire il nuovo nome del tipo o fornire una sorta di condizione (<code class="docutils literal notranslate"><span class="pre">if-else</span></code>). Entrambe le opzioni presentano degli svantaggi:</p>
+<ul class="simple">
+<li><p>cambiare il nome del tipo richiede una modifica del codice nella classe che chiama il costruttore ogni volta che cambiamo idea, legandoci di fatto ad un'unica implementazione,</p></li>
+<li><p>Le istruzioni condizionali ci richiedono di conoscere in anticipo tutte le possibili sottoclassi e la nostra classe manca dell'estensibilità di cui spesso abbiamo bisogno.</p></li>
+</ul>
+<p>Le factory consentono di far fronte a queste carenze. Poiché otteniamo oggetti da una factory invocando un metodo, non dicendo esplicitamente quale classe vogliamo istanziare, possiamo sfruttare il polimorfismo, ovvero la nostra factory potrebbe avere un metodo come questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">IList</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">CreateContainerForData</span><span class="p">()</span><span class="w"> </span><span class="p">{...}</span>
+</pre></div>
+</div>
+<p>che restituisce qualsiasi istanza di una classe reale che implementa <code class="docutils literal notranslate"><span class="pre">IList&lt;int&gt;</span></code> (ad esempio, <code class="docutils literal notranslate"><span class="pre">List&lt;int&gt;</span></code>):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">IList</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="cm">/* return type is interface */</span><span class="w"> </span>
+<span class="n">CreateContainerForData</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span><span class="w"> </span><span class="cm">/* instance of concrete class */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Naturalmente, non ha molto senso che il tipo restituito dalla factory sia una classe di libreria o un'interfaccia come nell'esempio precedente (piuttosto usiamo le factory per creare istanze delle nostre classi), ma si è capito, no?</p>
+<p>In ogni caso, è tipico che un tipo restituito dichiarato di una factory sia un'interfaccia o, nel peggiore dei casi, una classe astratta. Ciò significa che chi utilizza la factory, sa solo che riceve un oggetto di una classe che implementa un'interfaccia o deriva da una classe astratta. Ma non sa esattamente di che tipo <em>concreto</em> si tratta. Pertanto, una factory può restituire oggetti di tipo diverso in momenti diversi, in base ad alcune regole che solo lei conosce.</p>
+<p>È ora di guardare un esempio più realistico di come applicarlo. Diciamo di avere una factory di messaggi come questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Version1ProtocolMessageFactory</span>
+<span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="n">MessageFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">Message</span><span class="w"> </span><span class="nf">NewInstanceFrom</span><span class="p">(</span><span class="n">MessageData</span><span class="w"> </span><span class="n">rawData</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">rawData</span><span class="p">.</span><span class="n">IsSessionInit</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionInit</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">rawData</span><span class="p">.</span><span class="n">IsSessionEnd</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionEnd</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">rawData</span><span class="p">.</span><span class="n">IsSessionPayload</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionPayload</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">UnknownMessageException</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>La factory può creare molti tipi diversi di messaggi a seconda di cosa c'è all'interno dei dati grezzi, ma dal punto di vista dell'utente della factory questo è irrilevante. Tutto ciò che sa è che riceve un <code class="docutils literal notranslate"><span class="pre">Message</span></code>, quindi (e il resto del codice che opera sui messaggi nell'intera applicazione) può essere scritto come logica di uso generale, senza contenere &quot;casi speciali&quot; dipendenti dal tipo di messaggio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_messageFactory</span><span class="p">.</span><span class="n">NewInstanceFrom</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="n">message</span><span class="p">.</span><span class="n">ValidateUsing</span><span class="p">(</span><span class="n">_primitiveValidations</span><span class="p">);</span>
+<span class="n">message</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">_sessions</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Notare che non è necessario modificare questo codice nel caso in cui desideriamo aggiungere un nuovo tipo di messaggio compatibile con il flusso esistente di elaborazione dei messaggi<a class="footnote-reference brackets" href="#messageotherchangecase" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. L'unico posto che dobbiamo modificare in questo caso è la factory. Ad esempio, si immagini di aver deciso di aggiungere un messaggio di aggiornamento della sessione. La factory modificata sarebbe simile a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Version1ProtocolMessageFactory</span>
+<span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="n">MessageFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">Message</span><span class="w"> </span><span class="nf">NewInstanceFrom</span><span class="p">(</span><span class="n">MessageData</span><span class="w"> </span><span class="n">rawData</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">rawData</span><span class="p">.</span><span class="n">IsSessionInit</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionInit</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">rawData</span><span class="p">.</span><span class="n">IsSessionEnd</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionEnd</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">rawData</span><span class="p">.</span><span class="n">IsSessionPayload</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionPayload</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">rawData</span><span class="p">.</span><span class="n">IsSessionRefresh</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">//new message type!</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionRefresh</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">UnknownMessageException</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e il resto del codice potrebbe rimanere intatto.</p>
+<p>Usare la factory per nascondere il vero tipo di messaggio restituito semplifica la manutenzione del codice, perché ci sono meno posti nel codice influenzati dall'aggiunta di nuovi tipi di messaggi al sistema o dalla rimozione di quelli esistenti (nel nostro esempio, nel caso in cui lo facciamo non è più necessario avviare una sessione) <a class="footnote-reference brackets" href="#encapsulatewhatvaries" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> -- la factory lo nasconde e il resto dell'applicazione è codificato rispetto allo scenario generale.</p>
+<p>L'esempio sopra ha dimostrato come una factory possa nascondere che molte classi possono svolgere lo stesso ruolo (cioè messaggi diversi potrebbero svolgere il ruolo di un  <code class="docutils literal notranslate"><span class="pre">Message</span></code>), ma possiamo anche usare le factory per nascondere che la stessa classe gioca molti ruoli. Un oggetto della stessa classe può essere restituito da un metodo factory diverso, ogni volta come un'interfaccia diversa e i client non possono accedere ai metodi implementati da altre interfacce.
+An object of the same class can be returned from different factory method, each time as a different interface and clients cannot access the methods it implements from other interfaces.</p>
+</section>
+<section id="factories-are-themselves-polymorphic-encapsulation-of-rule">
+<h3>La factory sono esse stesse polimorfiche (incapsulamento delle regole)<a class="headerlink" href="#factories-are-themselves-polymorphic-encapsulation-of-rule" title="Link to this heading">¶</a></h3>
+<p>Un altro vantaggio delle factory rispetto alle chiamate al costruttore inline è che se una factory riceve un oggetto questo può essere passato come interfaccia, il che ci consente di utilizzare un'altra factory che implementa la stessa interfaccia al suo posto tramite polimorfismo. Ciò consente di sostituire la regola utilizzata per creare oggetti con un'altra, sostituendo un'implementazione di factory con un'altra.</p>
+<p>Torniamo all'esempio della sezione precedente, in cui avevamo una <code class="docutils literal notranslate"><span class="pre">Version1ProtocolMessageFactory</span></code> che poteva creare diversi tipi di messaggi in base ad alcuni flag impostati sui dati grezzi (ad esempio <code class="docutils literal notranslate"><span class="pre">IsSessionInit()</span></code>, <code class="docutils literal notranslate"><span class="pre">IsSessionEnd()</span></code> ecc.). Immaginiamo di aver deciso che non ci piace più questa versione. Il motivo è che avere così tanti flag booleani diversi è troppo complicato, poiché con un progetto del genere rischiamo di ricevere un messaggio in cui due o più flag sono impostati a true (ad esempio qualcuno potrebbe inviare un messaggio che indica che si tratta sia di un'inizializzazione della sessione che di fine della sessione). Supportare tali casi (ad esempio convalidando e rifiutando tali messaggi) richiede un lavoro aggiuntivo nel codice. Vogliamo migliorarlo prima che sempre più clienti inizino a utilizzare il protocollo. Pertanto, viene concepita una nuova versione del protocollo -- una versione 2. Questa versione, invece di utilizzare diversi flag, utilizza un enum (chiamato <code class="docutils literal notranslate"><span class="pre">MessageTypes</span></code>) per specificare il tipo di messaggio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="n">MessageTypes</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">SessionInit</span><span class="p">,</span>
+<span class="w">  </span><span class="n">SessionEnd</span><span class="p">,</span>
+<span class="w">  </span><span class="n">SessionPayload</span><span class="p">,</span>
+<span class="w">  </span><span class="n">SessionRefresh</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>pertanto, invece di interrogare flag diversi, la versione 2 consente di interrogare un singolo valore che definisce il tipo di messaggio.</p>
+<p>Sfortunatamente, per mantenere la compatibilità con alcuni client, entrambe le versioni del protocollo devono essere supportate, ciascuna versione ospitata su un endpoint separato. L'idea è che quando tutti i client migreranno alla nuova versione, quella vecchia verrà ritirata.</p>
+<p>Prima di introdurre la versione 2, la &quot;composition root&quot; aveva un codice simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MessagingApi</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Version1ProtocolMessageFactory</span><span class="p">());</span>
+<span class="c1">//...</span>
+<span class="n">controller</span><span class="p">.</span><span class="n">HostApi</span><span class="p">();</span><span class="w"> </span><span class="c1">//start listening to messages</span>
+</pre></div>
+</div>
+<p>dove <code class="docutils literal notranslate"><span class="pre">MessagingApi</span></code> ha un costruttore che accetta l'interfaccia <code class="docutils literal notranslate"><span class="pre">MessageFactory</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">MessagingApi</span><span class="p">(</span><span class="n">MessageFactory</span><span class="w"> </span><span class="n">messageFactory</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_messageFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">messageFactory</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e qualche codice generale per la gestione dei messaggi:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_messageFactory</span><span class="p">.</span><span class="n">NewInstanceFrom</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="n">message</span><span class="p">.</span><span class="n">ValidateUsing</span><span class="p">(</span><span class="n">_primitiveValidations</span><span class="p">);</span>
+<span class="n">message</span><span class="p">.</span><span class="n">ApplyTo</span><span class="p">(</span><span class="n">_sessions</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Questa logica deve rimanere la stessa in entrambe le versioni del protocollo. Come possiamo ottenere questo risultato senza duplicare questo codice per ogni versione?</p>
+<p>La soluzione è creare un'altra message factory, ovvero un'altra classe che implementa l'interfaccia <code class="docutils literal notranslate"><span class="pre">MessageFactory</span></code>. Chiamiamola <code class="docutils literal notranslate"><span class="pre">Version2ProtocolMessageFactory</span></code> e implementiamola in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//note that now it is a version 2 protocol factory</span>
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Version2ProtocolMessageFactory</span>
+<span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="n">MessageFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">Message</span><span class="w"> </span><span class="nf">NewInstanceFrom</span><span class="p">(</span><span class="n">MessageData</span><span class="w"> </span><span class="n">rawData</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">switch</span><span class="p">(</span><span class="n">rawData</span><span class="p">.</span><span class="n">GetMessageType</span><span class="p">())</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">MessageTypes</span><span class="p">.</span><span class="n">SessionInit</span><span class="p">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionInit</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">MessageTypes</span><span class="p">.</span><span class="n">SessionEnd</span><span class="p">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionEnd</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">MessageTypes</span><span class="p">.</span><span class="n">SessionPayload</span><span class="p">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionPayload</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">MessageTypes</span><span class="p">.</span><span class="n">SessionRefresh</span><span class="p">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">SessionRefresh</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">      </span><span class="k">default</span><span class="p">:</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">UnknownMessageException</span><span class="p">(</span><span class="n">rawData</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che questa factory può restituire oggetti delle stesse classi della factory della versione 1, ma prende la decisione utilizzando il valore ottenuto dal metodo <code class="docutils literal notranslate"><span class="pre">GetMessageType()</span></code> invece di fare affidamento sui flag.</p>
+<p>Avere questa factory ci consente di creare un'istanza <code class="docutils literal notranslate"><span class="pre">MessagingApi</span></code> che funziona con il protocollo della versione 1:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="nf">MessagingApi</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Version1ProtocolMessageFactory</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>o il protocollo della versione 2:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="nf">MessagingApi</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Version2ProtocolMessageFactory</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>e, poiché per il momento dobbiamo supportare entrambe le versioni, la nostra &quot;composition root&quot; avrà questo codice da qualche parte<a class="footnote-reference brackets" href="#skippingports" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">v1Controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MessagingApi</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Version1ProtocolMessageFactory</span><span class="p">());</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">v2Controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MessagingApi</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Version2ProtocolMessageFactory</span><span class="p">());</span>
+<span class="c1">//...</span>
+<span class="n">v1Controller</span><span class="p">.</span><span class="n">HostApi</span><span class="p">();</span><span class="w"> </span><span class="c1">//start listening to messages</span>
+<span class="n">v2Controller</span><span class="p">.</span><span class="n">HostApi</span><span class="p">();</span><span class="w"> </span><span class="c1">//start listening to messages</span>
+</pre></div>
+</div>
+<p>Notare che la classe <code class="docutils literal notranslate"><span class="pre">MessagingApi</span></code> stessa non ha bisogno di modifiche. Poiché dipende dall'interfaccia <code class="docutils literal notranslate"><span class="pre">MessageFactory</span></code>, tutto quello che dovevamo fare era fornire un oggetto factory diverso che prendesse la sua decisione in modo diverso.</p>
+<p>Questo esempio mostra qualcosa che mi piace chiamare &quot;incapsulamento di regole&quot;. La logica all'interno della factory è una regola su come, quando e quali oggetti creare. Pertanto, se facciamo in modo che la nostra factory implementi un'interfaccia e facciamo in modo che altri oggetti dipendano solo da questa interfaccia, saremo in grado di cambiare le regole di creazione degli oggetti fornendo un'altra factory senza dover modificare questi oggetti (come nel nostro caso in cui non abbiamo dovuto modificare la classe <code class="docutils literal notranslate"><span class="pre">MessagingApi</span></code>).</p>
+</section>
+<section id="factories-can-hide-some-of-the-created-object-dependencies-encapsulation-of-global-context">
+<h3>Le factory possono nascondere alcune delle dipendenze degli oggetti creati (incapsulamento del contesto globale)<a class="headerlink" href="#factories-can-hide-some-of-the-created-object-dependencies-encapsulation-of-global-context" title="Link to this heading">¶</a></h3>
+<p>Consideriamo un altro esempio semplice. Abbiamo un'applicazione che, ancora una volta, può elaborare i messaggi. Una delle cose che vengono fatte con questi messaggi è salvarli in un database e un'altra è la validazione. L'elaborazione del messaggio è, come negli esempi precedenti, gestita da una classe <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code>, che, questa volta, non utilizza alcuna factory, ma crea i messaggi in base ai dati del frame stesso. Diamo un'occhiata a questa classe:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MessageProcessing</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">DataDestination</span><span class="w"> </span><span class="n">_database</span><span class="p">;</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">ValidationRules</span><span class="w"> </span><span class="n">_validation</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">MessageProcessing</span><span class="p">(</span>
+<span class="w">    </span><span class="n">DataDestination</span><span class="w"> </span><span class="n">database</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ValidationRules</span><span class="w"> </span><span class="n">validation</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">database</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_validation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">validation</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTo</span><span class="p">(</span><span class="n">MessageData</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//note this creation:</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">Message</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">_database</span><span class="p">,</span><span class="w"> </span><span class="n">_validation</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">message</span><span class="p">.</span><span class="n">Validate</span><span class="p">();</span>
+<span class="w">    </span><span class="n">message</span><span class="p">.</span><span class="n">Persist</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">//... other actions</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>C'è una cosa notevole nella classe <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code>. Dipende dalle interfacce <code class="docutils literal notranslate"><span class="pre">DataDestination</span></code> e da <code class="docutils literal notranslate"><span class="pre">ValidationRules</span></code> ma non le utilizza. L'unica cosa per cui ha bisogno di queste interfacce è fornirle come parametri al costruttore di un <code class="docutils literal notranslate"><span class="pre">Message</span></code>. Man mano che il numero di parametri del costruttore di <code class="docutils literal notranslate"><span class="pre">Message</span></code> cresce, anche <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code> dovrà essere modificato per accettare più parametri. Pertanto, la classe <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code> viene inquinata da qualcosa di cui non ha direttamente bisogno.</p>
+<p>Possiamo rimuovere queste dipendenze da <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code> introducendo una factory che si occuperà di creare i messaggi al suo posto. In questo modo, dobbiamo solo passare <code class="docutils literal notranslate"><span class="pre">DataDestination</span></code> e <code class="docutils literal notranslate"><span class="pre">ValidationRules</span></code> alla factory, perché <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code> non ne ha mai avuto bisogno per nessun motivo diverso dalla creazione di messaggi. Questa factory potrebbe assomigliare a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MessageFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">DataDestination</span><span class="w"> </span><span class="n">_database</span><span class="p">;</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">ValidationRules</span><span class="w"> </span><span class="n">_validation</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">MessageFactory</span><span class="p">(</span>
+<span class="w">    </span><span class="n">DataDestination</span><span class="w"> </span><span class="n">database</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ValidationRules</span><span class="w"> </span><span class="n">validation</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_database</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">database</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_validation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">validation</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//clients only need to pass data here:</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">Message</span><span class="w"> </span><span class="nf">CreateFrom</span><span class="p">(</span><span class="n">MessageData</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">Message</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">_database</span><span class="p">,</span><span class="w"> </span><span class="n">_validation</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, notiamo che la creazione dei messaggi è stata spostata nella factory, insieme alle dipendenze necessarie a questo scopo. <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code> non ha più bisogno di avere queste dipendenze e può rimanere più fedele al suo vero scopo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">MessageProcessing</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="n">MessageFactory</span><span class="w"> </span><span class="n">_factory</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">//now we depend on the factory only:</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">MessageProcessing</span><span class="p">(</span>
+<span class="w">    </span><span class="n">MessageFactory</span><span class="w"> </span><span class="n">factory</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyTo</span><span class="p">(</span><span class="n">MessageData</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//no need to pass database and validation</span>
+<span class="w">    </span><span class="c1">//since they already are inside the factory:</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_factory</span><span class="p">.</span><span class="n">CreateFrom</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">message</span><span class="p">.</span><span class="n">Validate</span><span class="p">();</span>
+<span class="w">    </span><span class="n">message</span><span class="p">.</span><span class="n">Persist</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">//... other actions</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi, invece delle interfacce <code class="docutils literal notranslate"><span class="pre">DataDestination</span></code> e <code class="docutils literal notranslate"><span class="pre">ValidationRules</span></code>, <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code> dipende solo dalla factory. Questo potrebbe non sembrare un compromesso molto interessante (togliere due dipendenze e introdurne una), ma si noti che ogni volta che <code class="docutils literal notranslate"><span class="pre">MessageFactory</span></code> necessita di un'altra dipendenza simile alle due esistenti, la factory è tutto ciò che si dovrà cambiare. <code class="docutils literal notranslate"><span class="pre">MessageProcessing</span></code> rimarrà intatta e ancora accoppiato solo alla factory.</p>
+<p>L'ultima cosa che voglio menzionare è che non tutte le dipendenze possono essere nascoste all'interno di una factory. Notare che la factory deve ancora ricevere <code class="docutils literal notranslate"><span class="pre">MessageData</span></code> da chiunque stia richiedendo un <code class="docutils literal notranslate"><span class="pre">Message</span></code>, perché <code class="docutils literal notranslate"><span class="pre">MessageData</span></code> non è disponibile quando viene creata la factory. Ci si potrebbe ricordare che chiamo tali dipendenze un <strong>contesto locale</strong> (perché è specifico per un singolo utilizzo di una factory e passato da dove viene chiamato il metodo di creazione della factory). D'altra parte, ciò che una factory accetta attraverso il suo costruttore può essere chiamato un <strong>contesto globale</strong> (perché è lo stesso per tutta la vita della factory). Usando questa terminologia, il contesto locale non può essere nascosto agli utenti della factory, ma quello globale sì. Grazie a questo, le classi che utilizzano la factory non hanno bisogno di conoscere il contesto globale e possono rimanere più pulite, impegnate in meno cose e più concentrate.</p>
+</section>
+<section id="factories-can-help-increase-readability-and-reveal-intention-encapsulation-of-terminology">
+<h3>Le factory aumentano la leggibilità e rivelano l'intenzione (incapsulamento della terminologia)<a class="headerlink" href="#factories-can-help-increase-readability-and-reveal-intention-encapsulation-of-terminology" title="Link to this heading">¶</a></h3>
+<p>Supponiamo di scrivere un gioco di ruolo d'azione composto da molti livelli di gioco (da non confondere con i livelli di esperienza). I giocatori possono iniziare una nuova partita o continuarne una salvata. Quando scelgono di iniziare una nuova partita, vengono immediatamente portati al primo livello con l'inventario vuoto e senza abilità. Altrimenti, quando scelgono di continuare un vecchio gioco, devono selezionare un file con uno stato salvato (quindi il livello di gioco, le abilità e l'inventario vengono caricati dal file). Pertanto, nel nostro gioco abbiamo due flussi di lavoro separati che terminano con l'invocazione di due metodi diversi: <code class="docutils literal notranslate"><span class="pre">OnNewGame()</span></code> per una nuova modalità di gioco e <code class="docutils literal notranslate"><span class="pre">OnContinue()</span></code> per riprendere una partita salvata:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnNewGame</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnContinue</span><span class="p">(</span><span class="n">PathToFile</span><span class="w"> </span><span class="n">savedGameFilePath</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In ciascuno di questi metodi, dobbiamo in qualche modo assemblare un'istanza della classe <code class="docutils literal notranslate"><span class="pre">Game</span></code>. Il costruttore di <code class="docutils literal notranslate"><span class="pre">Game</span></code> consente di comporlo con un livello iniziale, l'inventario del personaggio e una serie di abilità che il personaggio può utilizzare:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">FantasyGame</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Game</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">FantasyGame</span><span class="p">(</span>
+<span class="w">      </span><span class="n">Level</span><span class="w"> </span><span class="n">startingLevel</span><span class="p">,</span>
+<span class="w">      </span><span class="n">Inventory</span><span class="w"> </span><span class="n">inventory</span><span class="p">,</span>
+<span class="w">      </span><span class="n">Skills</span><span class="w"> </span><span class="n">skills</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Nel nostro codice non esiste una classe speciale per il &quot;nuovo gioco&quot; o per il &quot;gioco ripreso&quot;. Un nuovo gioco è semplicemente un gioco che inizia dal primo livello con un inventario vuoto e senza abilità:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">newGame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FantasyGame</span><span class="p">(</span>
+<span class="w">  </span><span class="k">new</span><span class="w"> </span><span class="nf">FirstLevel</span><span class="p">(),</span>
+<span class="w">  </span><span class="k">new</span><span class="w"> </span><span class="nf">BackpackInventory</span><span class="p">(),</span>
+<span class="w">  </span><span class="k">new</span><span class="w"> </span><span class="nf">KnightSkills</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>In altre parole, il concetto di &quot;nuovo gioco&quot; è espresso da una composizione di oggetti piuttosto che da un'unica classe, chiamata ad es. <code class="docutils literal notranslate"><span class="pre">NewGame</span></code>.</p>
+<p>Allo stesso modo, quando vogliamo creare l'oggetto di game che rappresenti una partita ripresa, lo facciamo in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">try</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">saveFile</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">loadedGame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FantasyGame</span><span class="p">(</span>
+<span class="w">    </span><span class="n">saveFile</span><span class="p">.</span><span class="n">LoadLevel</span><span class="p">(),</span>
+<span class="w">    </span><span class="n">saveFile</span><span class="p">.</span><span class="n">LoadInventory</span><span class="p">(),</span>
+<span class="w">    </span><span class="n">saveFile</span><span class="p">.</span><span class="n">LoadSkills</span><span class="p">());</span>
+<span class="p">}</span>
+<span class="k">finally</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">saveFile</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Anche in questo caso il concetto di “partita ripresa” è rappresentato da una composizione anziché da una singola classe, proprio come nel caso di “nuova partita”. D'altra parte, i concetti di &quot;gioco nuovo&quot; e &quot;gioco ripreso&quot; fanno parte del dominio, quindi dobbiamo esplicitarli in qualche modo altrimenti perdiamo leggibilità.</p>
+<p>Uno dei modi per farlo è utilizzare una factory<a class="footnote-reference brackets" href="#simplerbutnotflexible" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>. Possiamo creare una tale factory e inserirvi due metodi: uno per creare un nuovo gioco, un altro per creare un gioco ripreso. Il codice della factory potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">FantasyGameFactory</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">GameFactory</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">Game</span><span class="w"> </span><span class="nf">NewGame</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">FantasyGame</span><span class="p">(</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">FirstLevel</span><span class="p">(),</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">BackpackInventory</span><span class="p">(),</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">KnightSkills</span><span class="p">());</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">Game</span><span class="w"> </span><span class="nf">GameSavedIn</span><span class="p">(</span><span class="n">PathToFile</span><span class="w"> </span><span class="n">savedGameFilePath</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">saveFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SaveFile</span><span class="p">(</span><span class="n">savedGameFilePath</span><span class="p">);</span>
+<span class="w">    </span><span class="k">try</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">saveFile</span><span class="p">.</span><span class="n">Open</span><span class="p">();</span>
+
+<span class="w">      </span><span class="kt">var</span><span class="w"> </span><span class="n">loadedGame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">FantasyGame</span><span class="p">(</span>
+<span class="w">        </span><span class="n">saveFile</span><span class="p">.</span><span class="n">LoadLevel</span><span class="p">(),</span>
+<span class="w">        </span><span class="n">saveFile</span><span class="p">.</span><span class="n">LoadInventory</span><span class="p">(),</span>
+<span class="w">        </span><span class="n">saveFile</span><span class="p">.</span><span class="n">LoadSkills</span><span class="p">());</span>
+
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">loadedGame</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">finally</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">saveFile</span><span class="p">.</span><span class="n">Close</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora possiamo utilizzare la factory nel luogo in cui ci viene notificata la scelta dell'utente. Ricordate? Questo era il posto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnNewGame</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnContinue</span><span class="p">(</span><span class="n">PathToFile</span><span class="w"> </span><span class="n">savedGameFilePath</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quando riempiamo i corpi del metodo con l'utilizzo di factory, il codice finisce così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnNewGame</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">game</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_gameFactory</span><span class="p">.</span><span class="n">NewGame</span><span class="p">();</span>
+<span class="w">  </span><span class="n">game</span><span class="p">.</span><span class="n">Start</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">OnContinue</span><span class="p">(</span><span class="n">PathToFile</span><span class="w"> </span><span class="n">savedGameFilePath</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">game</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_gameFactory</span><span class="p">.</span><span class="n">GameSavedIn</span><span class="p">(</span><span class="n">savedGameFilePath</span><span class="p">);</span>
+<span class="w">  </span><span class="n">game</span><span class="p">.</span><span class="n">Start</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che l'utilizzo di una factory rendere più leggibile il codice e ne rivela le intenzioni. Invece di utilizzare un insieme anonimo di oggetti connessi, i due metodi mostrati sopra richiedono l'utilizzo della terminologia del dominio (richiedendo esplicitamente <code class="docutils literal notranslate"><span class="pre">NewGame()</span></code> o <code class="docutils literal notranslate"><span class="pre">GameSavedIn(path)</span></code>). Pertanto, i concetti del dominio di &quot;nuovo gioco&quot; e &quot;gioco ripreso&quot; diventano espliciti. Ciò giustifica la prima parte del nome che ho dato a questa sezione (vale a dire &quot;Le factory aumentano la leggibilità e rivelano l'intenzione&quot;).</p>
+<p>C'è, tuttavia, la seconda parte del nome della sezione: &quot;incapsulamento della terminologia&quot; che devo spiegare. Ecco una spiegazione: notare che la factory è responsabile di sapere cosa significano esattamente i termini &quot;nuovo gioco&quot; e &quot;gioco ripreso&quot;. Poiché il significato dei termini è incapsulato nella factory, possiamo cambiare questo significato in tutta l'applicazione semplicemente modificando il codice all'interno della factory. Ad esempio, possiamo dire che il nuovo gioco inizia con un inventario che non è vuoto, ma contiene una spada base e uno scudo, modificando il metodo <code class="docutils literal notranslate"><span class="pre">NewGame()</span></code> della factory in questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="n">Game</span><span class="w"> </span><span class="nf">NewGame</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">FantasyGame</span><span class="p">(</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">FirstLevel</span><span class="p">(),</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">BackpackInventory</span><span class="p">(</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">BasicSword</span><span class="p">(),</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="nf">BasicShield</span><span class="p">()),</span>
+<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="nf">KnightSkills</span><span class="p">());</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Mettendo tutto insieme, le factory consentono di dare nomi ad alcune composizioni specifiche di oggetti per aumentare la leggibilità e consentono di nascondere il significato di alcuni termini del dominio per facilitarne il cambiamento in futuro perché possiamo modificare il significato del termine incapsulato cambiando il codice nei metodi della factory.</p>
+</section>
+<section id="factories-help-eliminate-redundancy">
+<h3>Le factory contribuiscono ad eliminare la ridondanza<a class="headerlink" href="#factories-help-eliminate-redundancy" title="Link to this heading">¶</a></h3>
+<p>La ridondanza nel codice significa che almeno due cose devono cambiare per lo stesso motivo e nello stesso modo<a class="footnote-reference brackets" href="#essentialskills" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. Di solito viene inteso come duplicazione del codice, ma ritengo che &quot;duplicazione concettuale&quot; sia un termine migliore. Ad esempio, i due metodi seguenti non sono ridondanti, anche se il codice sembra duplicato (a proposito, quello che segue non è un esempio di buon codice, ma solo una semplice illustrazione):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">MetersToCentimeters</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">value</span><span class="o">*</span><span class="mi">100</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">DollarsToCents</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">value</span><span class="o">*</span><span class="mi">100</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Come ho detto, non ritengo che ciò sia ridondante, perché i due metodi rappresentano concetti diversi che cambierebbero per ragioni diverse. Anche se dovessi estrarre la &quot;logica comune&quot; dai due metodi, l'unico nome sensato che potrei trovare sarebbe qualcosa come <code class="docutils literal notranslate"><span class="pre">MultiplyBy100()</span></code> che, secondo me, non aggiungerebbe alcun valore.</p>
+<p>Notare che finora abbiamo considerato quattro cose che le factory incapsulano nella creazione di oggetti:</p>
+<ol class="arabic simple">
+<li><p>Tipo</p></li>
+<li><p>Regola</p></li>
+<li><p>Contesto globale</p></li>
+<li><p>Terminologia</p></li>
+</ol>
+<p>Quindi, se le factory non esistessero, tutti questi concetti trapelerebbero nelle classi circostanti (abbiamo visto un esempio quando stavamo parlando dell'incapsulamento del contesto globale). Ora, non appena c'è più di una classe che necessita di creare istanze, queste cose si diffondono in tutte queste classi, creando ridondanza. In tal caso, qualsiasi modifica al modo in cui vengono create le istanze probabilmente significa una modifica a tutte le classi che necessitano di creare tali istanze.</p>
+<p>Per fortuna, avendo una factory -- un oggetto che si occupa di creare altri oggetti e nient'altro -- possiamo riutilizzare il set di regole, il contesto globale e le decisioni relative al tipo in molte classi senza un inutile lavoro superfluo. Tutto quello che dobbiamo fare è fare riferimento alla factory e richiederle un oggetto.</p>
+<p>Ci sono altri vantaggi con le factory, ma spero di essere riuscito a spiegare perché le considero un concetto davvero vantaggioso a un costo ragionevolmente basso.</p>
+</section>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>Nell'ultimo capitolo, in diversi capitoli, ho provato a mostrarvi una varietà di modi di comporre insieme gli oggetti. Nessuna paura, per la maggior parte, c'è da ricordare solo di seguire il principio di separare l'uso dalla costruzione e dovrebbe bastare.</p>
+<p>Le regole qui delineate si applicano alla maggior parte degli oggetti nella nostra applicazione. Aspetta, ho detto la maggior parte? Non in tutto? Quindi ci sono delle eccezioni? Sì, ci sono e ne parleremo tra poco quando presenterò gli <em>oggetti valore</em> [value object], ma prima dobbiamo esaminare ulteriormente l'influenza che la componibilità ha sul nostro approccio alla progettazione object-oriented.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="seemanndi" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Per i dettagli, consultare &quot;Dependency Injection in .NET&quot; di Mark Seemann.</p>
+</aside>
+<aside class="footnote brackets" id="essentialskills" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id7">2</a>)</span>
+<p>A. Shalloway et al., Essential Skills For The Agile Developer.</p>
+</aside>
+<aside class="footnote brackets" id="messageotherchangecase" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>sebbene sia necessario cambiare quando cambia la regola &quot;prima convalida, poi applica alle sessioni&quot;.</p>
+</aside>
+<aside class="footnote brackets" id="encapsulatewhatvaries" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Notare che questa è un'applicazione della linea guida della &quot;Gang of Four&quot;: &quot;incapsulare ciò che varia&quot;.</p>
+</aside>
+<aside class="footnote brackets" id="skippingports" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<p>Le due versioni dell'API sarebbero probabilmente ospitate su URL o porte diverse. In uno scenario reale, questi diversi valori dovrebbero probabilmente essere passati anche come parametri del costruttore.</p>
+</aside>
+<aside class="footnote brackets" id="simplerbutnotflexible" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
+<p>Esistono modi più semplici, ma nessuno è così flessibile come utilizzare le factory.</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dove vengono composti gli oggetti?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#composition-root">Composition Root</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#factories">Factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="212_How_are_the_connections_made.html" title="capitolo precedente">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+      <li>Next: <a href="220_Designing_for_composabiity_interfaces.html" title="capitolo successivo">Interfacce</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/213_Where_are_objects_composed.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

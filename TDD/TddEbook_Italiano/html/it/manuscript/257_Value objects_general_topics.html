@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Aspetti del design degli oggetti valore &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Oggetti di Trasferimento Dati" href="259_DataTransferObjects.html" />
+    <link rel="prev" title="Anatomia del oggetto valore" href="255_Value_Objects_properties.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="aspects-of-value-objects-design">
+<h1>Aspetti del design degli <em>oggetti valore</em><a class="headerlink" href="#aspects-of-value-objects-design" title="Link to this heading">¶</a></h1>
+<p>Nell'ultimo capitolo abbiamo esaminato l'anatomia di un <em>oggetto valore</em>. Tuttavia, ci sono molti altri aspetti del design degli <em>oggetti valore</em> che devo ancora menzionare per darvi un quadro completo.</p>
+<section id="immutability">
+<h2>Immutabilità<a class="headerlink" href="#immutability" title="Link to this heading">¶</a></h2>
+<p>Ho menzionato prima che gli <em>oggetti valore</em> sono generalmente immutabili. Alcuni dicono che l'immutabilità è la parte fondamentale del fatto che qualcosa sia un valore (ad esempio Kent Beck arriva addirittura a dire che 1 è sempre 1 e non diventerà mai 2), mentre altri non lo considerano un vincolo rigido. In un modo o nell'altro, progettare <em>oggetti valore</em> come immutabili mi è servito eccezionalmente bene al punto che non prendo nemmeno in considerazione la possibilità di scrivere classi di <em>oggetti valore</em> che siano mutabili. Consentitemi di descrivere tre dei motivi per cui considero l'immutabilità un vincolo chiave per gli <em>oggetti valore</em>.</p>
+<section id="accidental-change-of-hash-code">
+<h3>Modifica accidentale del codice hash<a class="headerlink" href="#accidental-change-of-hash-code" title="Link to this heading">¶</a></h3>
+<p>Molte volte, i valori vengono utilizzati come chiavi nelle mappe hash (ad esempio il <code class="docutils literal notranslate"><span class="pre">Dictionary&lt;K,V&gt;</span></code> di .NET è essenzialmente una mappa hash). Immaginiamo di avere un dizionario indicizzato con istanze di un tipo chiamato <code class="docutils literal notranslate"><span class="pre">KeyObject</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Dictionary</span><span class="o">&lt;</span><span class="n">KeyObject</span><span class="p">,</span><span class="w"> </span><span class="n">AnObject</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_objects</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Quando utilizziamo un <code class="docutils literal notranslate"><span class="pre">KeyObject</span></code> per inserire un valore in un dizionario:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">KeyObject</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span>
+<span class="n">_objects</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">anObject</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>il suo codice hash viene calcolato e memorizzato separatamente dalla chiave originale.</p>
+<p>Quando leggiamo dal dizionario usando la stessa chiave:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">AnObject</span><span class="w"> </span><span class="n">anObject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_objects</span><span class="p">[</span><span class="n">key</span><span class="p">];</span>
+</pre></div>
+</div>
+<p>viene ricalcolato il suo codice hash e solo quando questi corrispondono gli oggetti risultano uguali.</p>
+<p>Pertanto, per recuperare con successo un oggetto da un dizionario con una chiave, questo oggetto chiave deve soddisfare le seguenti condizioni relative alla chiave utilizzata in precedenza per inserire l'oggetto:</p>
+<ol class="arabic simple">
+<li><p>Il metodo <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code> della chiave utilizzata per recuperare l'oggetto deve restituire lo stesso codice hash della chiave utilizzata per inserire l'oggetto durante l'inserimento,</p></li>
+<li><p>Il metodo <code class="docutils literal notranslate"><span class="pre">Equals()</span></code> deve indicare che sia la chiave utilizzata per inserire l'oggetto sia la chiave utilizzata per recuperarlo sono uguali.</p></li>
+</ol>
+<p>La conclusione è: se una qualsiasi delle due condizioni non è soddisfatta, non possiamo aspettarci di ottenere l'oggetto che abbiamo inserito.</p>
+<p>Nel capitolo precedente ho accennato al fatto che il codice hash di un <em>oggetto valore</em> viene calcolato in base al suo stato. Una conclusione da ciò è che ogni volta che cambiamo lo stato di un <em>oggetto valore</em>, cambia anche il suo codice hash. Quindi, supponiamo che il nostro <code class="docutils literal notranslate"><span class="pre">KeyObject</span></code> consenta di modificare il suo stato, ad es. utilizzando un metodo <code class="docutils literal notranslate"><span class="pre">SetName()</span></code>. Pertanto, possiamo fare quanto segue:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">KeyObject</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyObject</span><span class="p">.</span><span class="n">With</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">);</span>
+<span class="n">_objects</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AnObject</span><span class="p">();</span>
+
+<span class="c1">// we mutate the state:</span>
+<span class="n">key</span><span class="p">.</span><span class="n">SetName</span><span class="p">(</span><span class="s">&quot;name2&quot;</span><span class="p">);</span>
+
+<span class="c1">//do we get the inserted object or not?</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">objectIInsertedTwoLinesAgo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_objects</span><span class="p">[</span><span class="n">key</span><span class="p">];</span>
+</pre></div>
+</div>
+<p>Ciò genererà una <code class="docutils literal notranslate"><span class="pre">KeyNotFoundException</span></code> (questo è il comportamento del dizionario quando è indicizzato con una chiave che non contiene), poiché il codice hash quando si recupera l'elemento è diverso da quando lo si inserisce. Modificando lo stato della <code class="docutils literal notranslate"><span class="pre">key</span></code> con l'istruzione: <code class="docutils literal notranslate"><span class="pre">key.SetName(&quot;name2&quot;);</span></code>, ne ho cambiato anche il codice hash calcolato, quindi quando ho chiesto l'oggetto precedentemente inserito con <code class="docutils literal notranslate"><span class="pre">_objects[val]</span></code>, ho provato ad accedere a una posizione completamente diversa nel dizionario rispetto a quella in cui è archiviato il mio oggetto.</p>
+<p>Poiché trovo che sia una situazione abbastanza comune che gli <em>oggetti valore</em> finiscano come chiavi all'interno dei dizionari, preferisco lasciarli immutabili per evitare brutte sorprese.</p>
+</section>
+<section id="accidental-modification-by-foreign-code">
+<h3>Modifica accidentale da codice esterno<a class="headerlink" href="#accidental-modification-by-foreign-code" title="Link to this heading">¶</a></h3>
+<p>Scommetto che molti di coloro che programmano o codificano in Java conoscono la sua classe <code class="docutils literal notranslate"><span class="pre">Date</span></code>. <code class="docutils literal notranslate"><span class="pre">Date</span></code> si comporta come un valore (ha overloaded [<em>sovraccaricato</em>] l'uguaglianza e la generazione del codice hash), ma è mutabile (con metodi come <code class="docutils literal notranslate"><span class="pre">setMonth()</span></code>, <code class="docutils literal notranslate"><span class="pre">setTime()</span></code>, <code class="docutils literal notranslate"><span class="pre">setHours()</span></code> ecc.).</p>
+<p>In genere, gli <em>oggetti valore</em> tendono ad essere passati molto in un'applicazione e utilizzati nei calcoli. Molti programmatori Java hanno esposto almeno una volta un valore <code class="docutils literal notranslate"><span class="pre">Date</span></code> utilizzando un getter:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ObjectWithDate</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Date</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Date</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//...</span>
+
+<span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Date</span><span class="w"> </span><span class="nf">getDate</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//oops...</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">date</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il metodo <code class="docutils literal notranslate"><span class="pre">getDate()</span></code> consente agli utenti della classe <code class="docutils literal notranslate"><span class="pre">ObjectWithDate</span></code> di accedere alla data. Ma ricordare, un oggetto data è mutabile e un getter restituisce un riferimento! Chiunque chiami il getter ottiene l'accesso all'istanza memorizzata internamente di <code class="docutils literal notranslate"><span class="pre">Date</span></code> e può modificarla in questo modo:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">ObjectWithDate</span><span class="w"> </span><span class="n">o</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ObjectWithDate</span><span class="p">();</span>
+
+<span class="n">o</span><span class="p">.</span><span class="na">getDate</span><span class="p">().</span><span class="na">setTime</span><span class="p">(</span><span class="n">date</span><span class="p">.</span><span class="na">getTime</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">10000</span><span class="p">);</span><span class="w"> </span><span class="c1">//oops!</span>
+
+<span class="k">return</span><span class="w"> </span><span class="n">date</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Naturalmente, quasi nessuno lo farebbe nella stessa riga come nello snippet sopra, ma di solito si accede a questa data, viene assegnata a una variabile e quindi passata attraverso diversi metodi, uno dei quali fa qualcosa del genere:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">doSomething</span><span class="p">(</span><span class="n">Date</span><span class="w"> </span><span class="n">date</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">date</span><span class="p">.</span><span class="na">setTime</span><span class="p">(</span><span class="n">date</span><span class="p">.</span><span class="na">getTime</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">10000</span><span class="p">);</span><span class="w"> </span><span class="c1">//oops!</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="na">nextUpdateTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">date</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ciò ha portato a situazioni impreviste poiché gli oggetti data sono stati modificati accidentalmente molto, molto lontano dal luogo in cui sono stati prelevati<a class="footnote-reference brackets" href="#aliasingbug" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>Poiché la maggior parte delle volte non era questa l'intenzione, il problema della mutabilità della data ci costringeva a creare manualmente una copia ogni volta che il codice restituiva una data:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="n">Date</span><span class="w"> </span><span class="nf">getDate</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">Date</span><span class="p">)</span><span class="k">this</span><span class="p">.</span><span class="na">date</span><span class="p">.</span><span class="na">clone</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>che molti di noi tendono a dimenticare. Questo approccio della clonazione, tra l'altro, potrebbe aver introdotto una penalizzazione delle prestazioni perché gli oggetti venivano clonati ogni volta, anche quando il codice che chiamava <code class="docutils literal notranslate"><span class="pre">getDate()</span></code> non aveva intenzione di modificare la data<a class="footnote-reference brackets" href="#dateoptimization" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
+<p>Anche se seguiamo il suggerimento di evitare i getter, lo stesso capita quando la nostra classe supera la data da qualche parte. Osserviamo il corpo di un metodo, chiamato <code class="docutils literal notranslate"><span class="pre">dumpInto()</span></code>:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">dumpInto</span><span class="p">(</span><span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">destination</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">date</span><span class="p">);</span><span class="w"> </span><span class="c1">//passing reference to mutable object</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo caso, la <code class="docutils literal notranslate"><span class="pre">destination</span></code> può modificare la data che riceve in qualsiasi modo, il che, ancora una volta, di solito va contro le intenzioni degli sviluppatori.</p>
+<p>Ho riscontrato moltissimi problemi nel codice di produzione causati dalla mutabilità del solo tipo Java <code class="docutils literal notranslate"><span class="pre">Date</span></code>. Questo è uno dei motivi per cui la nuova libreria time in Java 8 (<code class="docutils literal notranslate"><span class="pre">java.time</span></code>) contiene tipi immutabili per ora e data. Quando un tipo è immutabile, se ne può tranquillamente restituire l'istanza o passarla da qualche parte senza doversi preoccupare che qualcuno sovrascriva lo stato locale contro la nostra volontà.</p>
+</section>
+<section id="thread-safety">
+<h3>Thread safety<a class="headerlink" href="#thread-safety" title="Link to this heading">¶</a></h3>
+<p>Quando i valori mutabili vengono condivisi tra thread, esiste il rischio che vengano modificati da più thread contemporaneamente o modificati da un thread mentre vengono letti da un altro. Ciò può corrompere i dati. Come ho già detto, gli <em>oggetti valore</em> tendono a essere creati molte volte in molti posti e passati all'interno di metodi o restituiti spesso come risultati - questa sembra essere la loro natura. Pertanto, aumenta questo rischio di corruzione o incoerenza dei dati.</p>
+<p>Si immagini che il codice abbia preso possesso di un <em>oggetto valore</em> di tipo <code class="docutils literal notranslate"><span class="pre">Credentials</span></code>, contenente nome utente e password. Inoltre, supponiamo che gli oggetti <code class="docutils literal notranslate"><span class="pre">Credentials</span></code> siano modificabili. In tal caso, un thread potrebbe modificare accidentalmente l'oggetto mentre viene utilizzato da un altro thread, causando un'incoerenza dei dati. Pertanto, a condizione che sia necessario trasmettere login e password separatamente a un meccanismo di sicurezza di terze parti, potremmo riscontrare quanto segue:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">LogIn</span><span class="p">(</span><span class="n">Credentials</span><span class="w"> </span><span class="n">credentials</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">thirdPartySecuritySystem</span><span class="p">.</span><span class="n">LogIn</span><span class="p">(</span>
+<span class="w">    </span><span class="n">credentials</span><span class="p">.</span><span class="n">GetLogin</span><span class="p">(),</span>
+<span class="w">    </span><span class="c1">//imagine password is modified before the next line</span>
+<span class="w">    </span><span class="c1">//from a different thread</span>
+<span class="w">    </span><span class="n">credentials</span><span class="p">.</span><span class="n">GetPassword</span><span class="p">())</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>D'altra parte, quando un oggetto è immutabile, non ci sono problemi di multithreading. Se un dato è di sola lettura, può essere letto in sicurezza da tutti i thread che desideriamo. Dopotutto, nessuno può modificare lo stato di un oggetto, quindi non c'è possibilità di incoerenza<a class="footnote-reference brackets" href="#functionallanguages" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="if-not-mutability-then-what">
+<h3>Se non la mutabilità, allora cosa?<a class="headerlink" href="#if-not-mutability-then-what" title="Link to this heading">¶</a></h3>
+<p>Per le ragioni che ho descritto, considero l’immutabilità un aspetto cruciale della progettazione degli <em>oggetti valore</em> e in questo libro, quando parlo di <em>oggetti valore</em>, presumo che siano immutabili.</p>
+<p>Tuttavia, c'è una domanda che rimane senza risposta: che dire di una situazione in cui ho bisogno di:</p>
+<ul class="simple">
+<li><p>sostituire tutte le occorrenze della lettera 'r' in una stringa con la lettera 'l'?</p></li>
+<li><p>spostare una data in avanti di cinque giorni?</p></li>
+<li><p>aggiungere un nomefile a un path assoluto di directory per formare un percorso assoluto del file (ad esempio &quot;C:&quot; + &quot;myFile.txt&quot; = &quot;C:\myFile.txt&quot;)?</p></li>
+</ul>
+<p>Se non mi è consentito modificare un valore esistente, come posso raggiungere tali obiettivi?</p>
+<p>La risposta è semplice - gli <em>oggetti valore</em> hanno operazioni che, invece di modificare l'oggetto esistente, ne restituiscono uno nuovo, con lo stato che ci aspettiamo. Il vecchio valore rimane invariato. Questo è il modo ad es. di come le stringhe si comportano in Java e C#.</p>
+<p>Giusto per affrontare i tre esempi che ho citato</p>
+<ul class="simple">
+<li><p>quando ho una <code class="docutils literal notranslate"><span class="pre">string</span></code> esistente e voglio sostituire ogni occorrenza della lettera <code class="docutils literal notranslate"><span class="pre">r</span></code> con la lettera <code class="docutils literal notranslate"><span class="pre">l</span></code>:</p></li>
+</ul>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">string</span><span class="w"> </span><span class="n">oldString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;rrrr&quot;</span><span class="p">;</span>
+<span class="kt">string</span><span class="w"> </span><span class="n">newString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oldString</span><span class="p">.</span><span class="n">Replace</span><span class="p">(</span><span class="sc">&#39;r&#39;</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;l&#39;</span><span class="p">);</span>
+<span class="c1">//oldString is still &quot;rrrr&quot;, newString is &quot;llll&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Quando voglio spostare una data in avanti di cinque giorni:</p></li>
+</ul>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">DateTime</span><span class="w"> </span><span class="n">oldDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">Now</span><span class="p">;</span>
+<span class="n">DateTime</span><span class="w"> </span><span class="n">newString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oldDate</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromDays</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+<span class="c1">//oldDate is unchanged, newDate is later by 5 days</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Quando voglio aggiungere un filename a un path di directory per formare un percorso assoluto del file<a class="footnote-reference brackets" href="#atmafilesystem" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>:</p></li>
+</ul>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">AbsoluteDirectoryPath</span><span class="w"> </span><span class="n">oldPath</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">AbsoluteDirectoryPath</span><span class="p">.</span><span class="n">Value</span><span class="p">(</span><span class="s">@&quot;C:\Directory&quot;</span><span class="p">);</span>
+<span class="n">AbsoluteFilePath</span><span class="w"> </span><span class="n">newPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oldPath</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">FileName</span><span class="p">.</span><span class="n">Value</span><span class="p">(</span><span class="s">&quot;file.txt&quot;</span><span class="p">);</span>
+<span class="c1">//oldPath is &quot;C:\Directory&quot;, newPath is &quot;C:\Directory\file.txt&quot;</span>
+</pre></div>
+</div>
+<p>Quindi, ancora, ogni volta che vogliamo avere un valore basato su un valore precedente, invece di modificare l'oggetto precedente, creiamo un nuovo oggetto con lo stato desiderato.</p>
+</section>
+<section id="immutability-gotchas">
+<h3>I trucchi dell’immutabilità<a class="headerlink" href="#immutability-gotchas" title="Link to this heading">¶</a></h3>
+<section id="watch-out-for-the-constructor">
+<h4>Attenzione al costruttore!<a class="headerlink" href="#watch-out-for-the-constructor" title="Link to this heading">¶</a></h4>
+<p>Tornando all'esempio <code class="docutils literal notranslate"><span class="pre">Date</span></code> di Java - si potrebbe pensare che sia abbastanza facile abituarsi a casi come quello ed evitarli semplicemente stando più attenti, ma lo trovo difficile a causa di molti trabocchetti associati all'immutabilità in linguaggi come come C# o Java. Ad esempio, un'altra variante del caso <code class="docutils literal notranslate"><span class="pre">Date</span></code> da Java potrebbe essere qualcosa del genere: Immaginiamo di avere un tipo <code class="docutils literal notranslate"><span class="pre">Money</span></code>, che è definito come::</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Money</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_amount</span><span class="p">;</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Currencies</span><span class="w"> </span><span class="n">_currency</span><span class="p">;</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ExchangeRate</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_exchangeRates</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">Money</span><span class="p">(</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Currencies</span><span class="w"> </span><span class="n">currency</span><span class="p">,</span>
+<span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ExchangeRate</span><span class="o">&gt;</span><span class="w"> </span><span class="n">exchangeRates</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_currency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currency</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_exchangeRates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">exchangeRates</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//... other methods</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che questa classe ha un campo di tipo <code class="docutils literal notranslate"><span class="pre">List&lt;&gt;</span></code>, che è esso stesso mutabile. Ma immaginiamo anche di aver rivisto attentamente tutti i metodi di questa classe in modo che questi dati mutabili non vengano esposti. Significa che siamo al sicuro?</p>
+<p>La risposta è: finché il nostro costruttore resta così com'è, no. Da notare che il costruttore prende una lista mutabile e la assegna semplicemente a un campo privato. Quindi, qualcuno potrebbe fare qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">ExchangeRate</span><span class="o">&gt;</span><span class="w"> </span><span class="n">rates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetExchangeRates</span><span class="p">();</span>
+
+<span class="n">Money</span><span class="w"> </span><span class="n">dollars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Money</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="n">Currencies</span><span class="p">.</span><span class="n">USD</span><span class="p">,</span><span class="w"> </span><span class="n">rates</span><span class="p">);</span>
+
+<span class="c1">//modify the list that was passed to dollars object</span>
+<span class="n">rates</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">GetAnotherExchangeRate</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>Nell'esempio sopra, l'oggetto <code class="docutils literal notranslate"><span class="pre">dollars</span></code> è stato modificato cambiando la lista che gli era stata passata al suo interno. Per ottenere l'immutabilità, si dovrebbe utilizzare una libreria di collection immutabili o modificare la seguente riga:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">_exchangeRates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">exchangeRates</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">_exchangeRates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ExchangeRate</span><span class="o">&gt;</span><span class="p">(</span><span class="n">exchangeRates</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="inheritable-dependencies-can-surprise-you">
+<h4>Le dipendenze ereditabili possono sorprendere!<a class="headerlink" href="#inheritable-dependencies-can-surprise-you" title="Link to this heading">¶</a></h4>
+<p>Un altro problema ha a che fare con oggetti di tipo che possono essere sotto-classati (cioè non sono <code class="docutils literal notranslate"><span class="pre">sealed</span></code> [<em>sigillati</em>]). Diamo un'occhiata all'esempio di una classe chiamata <code class="docutils literal notranslate"><span class="pre">DateWithZone</span></code>, che rappresenta una data con un fuso orario. Diciamo che questa classe ha una dipendenza da un'altra classe chiamata <code class="docutils literal notranslate"><span class="pre">ZoneId</span></code> ed è definita come tale:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">DateWithZone</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IEquatable</span><span class="o">&lt;</span><span class="n">DateWithZone</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">ZoneId</span><span class="w"> </span><span class="n">_zoneId</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">DateWithZone</span><span class="p">(</span><span class="n">ZoneId</span><span class="w"> </span><span class="n">zoneId</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_zoneId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zoneId</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//... some equality methods and operators...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">GetHashCode</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">_zoneId</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">_zoneId</span><span class="p">.</span><span class="n">GetHashCode</span><span class="p">()</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che per semplicità ho fatto in modo che il tipo <code class="docutils literal notranslate"><span class="pre">DateWithZone</span></code> sia composto <em>solo</em> dall'id della zona, il che ovviamente in realtà non ha alcun senso. Lo faccio solo perché voglio che questo esempio sia ridotto all'osso. Questo è anche il motivo per cui, ai fini di questo esempio, il tipo <code class="docutils literal notranslate"><span class="pre">ZoneId</span></code> è definito semplicemente come:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ZoneId</span>
+<span class="p">{</span>
+
+<span class="p">}</span><span class="w"> </span>
+</pre></div>
+</div>
+<p>Ci sono due cose da notare su questa classe. Innanzitutto, ha un corpo vuoto, quindi nessun campo e metodo definito. La seconda cosa è che questo tipo non è <code class="docutils literal notranslate"><span class="pre">sealed</span></code> (OK, la terza cosa è che questo tipo non ha una semantica di valore, poiché le sue operazioni di uguaglianza sono ereditate come basate su riferimenti dalla classe <code class="docutils literal notranslate"><span class="pre">Object</span></code> ma, sempre per semplificare, ignoriamolo).</p>
+<p>Ho appena detto che <code class="docutils literal notranslate"><span class="pre">ZoneId</span></code> non ha campi e metodi, vero? Beh, ho mentito. Una classe in C# eredita da <code class="docutils literal notranslate"><span class="pre">Object</span></code>, il che significa che eredita implicitamente alcuni campi e metodi. Uno di questi metodi è <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code>, il che significa che viene compilato il seguente codice:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">zoneId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ZoneId</span><span class="p">();</span>
+<span class="n">Console</span><span class="p">.</span><span class="n">WriteLine</span><span class="p">(</span><span class="n">zoneId</span><span class="p">.</span><span class="n">GetHashCode</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>L'ultima informazione di cui abbiamo bisogno per vedere il quadro più ampio è che metodi come <code class="docutils literal notranslate"><span class="pre">Equals()</span></code> e <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code> possono essere sovrascritti. Questo, combinato con il fatto che il nostro <code class="docutils literal notranslate"><span class="pre">ZoneId</span></code> non è <code class="docutils literal notranslate"><span class="pre">sealed</span></code>, significa che qualcuno può fare qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">EvilZoneId</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ZoneId</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">_i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="nf">GetHashCode</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_i</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w">  </span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quando si chiama <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code> su un'istanza di questa classe più volte, restituirà 1,2,3,4,5,6,7... e così via. Questo perché il campo <code class="docutils literal notranslate"><span class="pre">_i</span></code> è un pezzo di stato mutabile e viene modificato ogni volta che richiediamo un codice hash. Ora, presumo che nessuna persona sana di mente scriverebbe un codice come questo, ma d'altra parte, il linguaggio non lo limita. Quindi, supponendo che una classe così malvagia venga alla luce in un codice che utilizza <code class="docutils literal notranslate"><span class="pre">DateWithZone</span></code>, vediamo quali potrebbero essere le conseguenze.</p>
+<p>Innanzitutto, immaginiamo che qualcuno faccia quanto segue:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DateWithZone</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">EvilZoneId</span><span class="p">());</span>
+
+<span class="c1">//...</span>
+
+<span class="n">DoSomething</span><span class="p">(</span><span class="n">date</span><span class="p">.</span><span class="n">GetHashCode</span><span class="p">());</span>
+<span class="n">DoSomething</span><span class="p">(</span><span class="n">date</span><span class="p">.</span><span class="n">GetHashCode</span><span class="p">());</span>
+<span class="n">DoSomething</span><span class="p">(</span><span class="n">date</span><span class="p">.</span><span class="n">GetHashCode</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>Notare che l'utente dell'istanza <code class="docutils literal notranslate"><span class="pre">DateWithZone</span></code> utilizza il suo codice hash, ma l'operazione <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code> di questa classe è implementata come:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">GetHashCode</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">_zoneId</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">_zoneId</span><span class="p">.</span><span class="n">GetHashCode</span><span class="p">()</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi utilizza il codice hash dell'ID della zona, che, nel nostro esempio, è della classe <code class="docutils literal notranslate"><span class="pre">EvilZoneId</span></code> che è mutabile. Di conseguenza, anche la nostra istanza di <code class="docutils literal notranslate"><span class="pre">DateWithZone</span></code> finisce per essere modificabile.</p>
+<p>Questo esempio mostra un caso banale e non troppo credibile di <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code> perché volevo mostrare che anche le classi vuote hanno alcuni metodi che possono essere sovrascritti per rendere gli oggetti mutabili. Per assicurarci che la classe non possa essere una sottoclasse di una classe mutabile, dovremmo rendere tutti i metodi <code class="docutils literal notranslate"><span class="pre">sealed</span></code> (compresi quelli ereditati da <code class="docutils literal notranslate"><span class="pre">Object</span></code>) o, meglio, rendere la classe <code class="docutils literal notranslate"><span class="pre">sealed</span></code>. Un'altra osservazione che si può fare è che se il nostro <code class="docutils literal notranslate"><span class="pre">ZoneId</span></code> fosse una classe astratta con almeno un metodo astratto, non avremmo alcuna possibilità di garantire l'immutabilità delle sue implementazioni, poiché per definizione esistono metodi astratti da implementare in sottoclassi, quindi non è possibile creare un metodo o una classe astratta <code class="docutils literal notranslate"><span class="pre">sealed</span></code>.</p>
+<p>Un altro modo per prevenire la mutabilità da parte delle sottoclassi è rendere il costruttore della classe <code class="docutils literal notranslate"><span class="pre">private</span></code>. Le classi con costruttori privati possono ancora essere sottoclassi, ma solo da classi nidificate, quindi c'è un modo per l'autore della classe originale di controllare l'intera gerarchia e assicurarsi che nessuna operazione muti alcuno stato.</p>
+<p>Ci sono altri trucchi (ad esempio uno simile applicato ai tipi generici), ma li lascerò per un'altra volta.</p>
+</section>
+</section>
+</section>
+<section id="handling-of-variability">
+<h2>Gestione della variabilità<a class="headerlink" href="#handling-of-variability" title="Link to this heading">¶</a></h2>
+<p>Come negli oggetti comuni, anche nel mondo dei <em>valori</em> può esserci una certa variabilità. Ad esempio, il denaro può essere dollari, sterline, zloty (moneta polacca), euro, ecc. Un altro esempio di qualcosa che può essere modellato come <em>valore</em> sono i valori dei path (ad esempio, <code class="docutils literal notranslate"><span class="pre">C:\Directory\file.txt</span></code> o <code class="docutils literal notranslate"><span class="pre">/usr/bin/sh</span></code>) -- possono esserci percorsi assoluti, percorsi relativi, percorsi per file e percorsi che puntano a directory, possiamo avere path Unix e path Windows.</p>
+<p>A differenza degli oggetti ordinari, tuttavia, dove abbiamo risolto la variabilità utilizzando interfacce e implementazioni diverse (ad esempio avevamo un'interfaccia <code class="docutils literal notranslate"><span class="pre">Alarm</span></code> con classi di implementazione come <code class="docutils literal notranslate"><span class="pre">LoudAlarm</span></code> o <code class="docutils literal notranslate"><span class="pre">SilentAlarm</span></code>), nei valori del mondo lo facciamo in modo diverso. Prendendo come esempio gli allarmi che ho appena citato, possiamo dire che le diverse tipologie di allarme variavano nel modo in cui assolvevano alla responsabilità di segnalare l'avvenuta attivazione (abbiamo detto che rispondevano allo stesso messaggio -- con risposte a volte del tutto diverse --  e comportamenti diversi). La variabilità nel mondo dei <em>valori</em> tipicamente non è comportamentale come nel caso degli oggetti. Consideriamo i seguenti esempi:</p>
+<ol class="arabic simple">
+<li><p>Il denaro può essere dollari, sterline, zloty, ecc., e i diversi tipi di valute differiscono per i tassi di cambio applicati (ad esempio &quot;quanti dollari ottengo da 10 euro e quanti da 10 sterline?&quot;), che non è una distinzione comportamentale. Pertanto, il polimorfismo non si adatta a questo caso.</p></li>
+<li><p>I path possono essere assoluti e relativi e puntano a file e directory. Differiscono nelle operazioni che possono essere applicate loro. Per esempio. possiamo immaginare che per i path che puntano a file, possiamo avere un'operazione chiamata <code class="docutils literal notranslate"><span class="pre">GetFileName()</span></code>, che non ha senso per un path che punta a una directory. Sebbene si tratti di una distinzione comportamentale, non possiamo dire che il &quot;path della directory&quot; e il &quot;path del file&quot; siano varianti della stessa astrazione, piuttosto che si tratta di due astrazioni diverse. Pertanto, anche in questo caso il polimorfismo non sembra essere la risposta.</p></li>
+<li><p>A volte, potremmo voler avere una distinzione comportamentale, come nell'esempio seguente. Abbiamo una <em>classe valore</em> che rappresenta i nomi dei prodotti e vogliamo scrivere in diversi formati a seconda della situazione.</p></li>
+</ol>
+<p>Come modelliamo questa variabilità? Solitamente considero tre approcci fondamentali, ciascuno applicabile in contesti diversi:</p>
+<ul class="simple">
+<li><p>implicito - che si applicherebbe all'esempio del denaro,</p></li>
+<li><p>esplicito - che si adatterebbe bene al caso dei path,</p></li>
+<li><p>delegato - che si adatterebbe al caso dei nomi di prodotto.</p></li>
+</ul>
+<p>Permettetemi di darvi una descrizione più ampia di ciascuno di questi approcci.</p>
+<section id="implicit-variability">
+<h3>Variabilità implicita<a class="headerlink" href="#implicit-variability" title="Link to this heading">¶</a></h3>
+<p>Torniamo all'esempio della modellazione del denaro utilizzando <em>oggetti valore</em><a class="footnote-reference brackets" href="#tddbyexample" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>. Il denaro può avere valute diverse, ma non vogliamo trattare ciascuna valuta in un modo speciale. Le uniche cose che sono influenzate dalla valuta sono i tassi con cui li scambiamo con altre valute. Vogliamo che il resto del nostro programma non sappia con quale valuta ha a che fare in quel momento (potrebbe anche funzionare con più valori, ciascuno di valuta diversa, contemporaneamente, durante un calcolo o un'altra operazione commerciale).</p>
+<p>Questo ci porta a rendere implicite le differenze tra valute, ovvero avremo un unico tipo chiamato <code class="docutils literal notranslate"><span class="pre">Money</span></code>, che non esporrà affatto la propria valuta. Dobbiamo solo dire qual è la valuta quando creiamo un'istanza:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Money</span><span class="w"> </span><span class="n">tenPounds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Money</span><span class="p">.</span><span class="n">Pounds</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">Money</span><span class="w"> </span><span class="n">tenBucks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Money</span><span class="p">.</span><span class="n">Dollars</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">Money</span><span class="w"> </span><span class="n">tenYens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Money</span><span class="p">.</span><span class="n">Yens</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>e quando vogliamo conoscere l'importo concreto in una determinata valuta:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//doesn&#39;t matter which currency it is, we want dollars.</span>
+<span class="kt">decimal</span><span class="w"> </span><span class="n">amountOfDollarsOnMyAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mySavings</span><span class="p">.</span><span class="n">AmountOfDollars</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>a parte questo, possiamo mescolare diverse valute quando e dove vogliamo<a class="footnote-reference brackets" href="#wecoulduseextensionmethods" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>6<span class="fn-bracket">]</span></a>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">Money</span><span class="w"> </span><span class="n">mySavings</span><span class="w"> </span><span class="o">=</span>
+<span class="w">  </span><span class="n">Money</span><span class="p">.</span><span class="n">Dollars</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="n">Money</span><span class="p">.</span><span class="n">Euros</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="n">Money</span><span class="p">.</span><span class="n">Zlotys</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Questo approccio funziona presupponendo che tutta la nostra logica sia comune per tutti i tipi di denaro e non abbiamo alcuna logica speciale solo per le sterline o solo per gli euro in cui non vogliamo trasferire altre valute per errore<a class="footnote-reference brackets" href="#naivemoneyexample" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>7<span class="fn-bracket">]</span></a>.</p>
+<p>Per riassumere, abbiamo progettato il tipo <code class="docutils literal notranslate"><span class="pre">Money</span></code> in modo che la variabilità della valuta sia implicita - la maggior parte del codice semplicemente non ne è consapevole e viene gestita bene all'interno della classe <code class="docutils literal notranslate"><span class="pre">Money</span></code>.</p>
+</section>
+<section id="explicit-variability">
+<h3>Variabilità esplicita<a class="headerlink" href="#explicit-variability" title="Link to this heading">¶</a></h3>
+<p>Ci sono momenti, tuttavia, in cui vogliamo che la variabilità sia esplicita, cioè modellata utilizzando tipi diversi. I percorsi del filesystem sono un buon esempio.</p>
+<p>Per cominciare, immaginiamo di avere il seguente metodo per creare archivi di backup che accetta un path di destinazione (per ora come una stringa - arriveremo agli oggetti path in seguito) come parametro di input:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">void</span><span class="w"> </span><span class="nf">Backup</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">destinationPath</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Questo metodo presenta un ovvio inconveniente - la sua firma non dice nulla sulle caratteristiche del path di destinazione, il che solleva alcune domande:</p>
+<ul class="simple">
+<li><p>Dovrebbe essere un percorso assoluto o relativo. Se relativo, allora rispetto a cosa?</p></li>
+<li><p>Il path dovrebbe contenere un nome file per il file di backup o dovrebbe essere solo un percorso di directory e un nome file verrà fornito in base a un qualche tipo di pattern (ad esempio una parola &quot;backup&quot; + il timestamp corrente)?</p></li>
+<li><p>O forse il nome del file nel percorso è facoltativo e se non ne viene fornito uno, viene utilizzato un nome di default?</p></li>
+</ul>
+<p>Queste domande suggeriscono che il design attuale non trasmette l'intenzione in modo sufficientemente esplicito. Possiamo provare ad aggirare il problema cambiando il nome del parametro per suggerire i vincoli, in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">void</span><span class="w"> </span><span class="nf">Backup</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">absoluteFilePath</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>ma l'efficacia di ciò si basa esclusivamente sul fatto che qualcuno legga il nome dell'argomento e inoltre, prima che un path (passato come stringa) raggiunga questo metodo, di solito viene passato più volte ed è molto difficile tenere traccia di cosa c'è dentro questa stringa, quindi diventa facile fare confusione e passare ad es. un percorso relativo laddove se ne prevede uno assoluto. Il compilatore non impone alcun vincolo. Inoltre, è possibile passare un argomento che non sia nemmeno un percorso, perché una <code class="docutils literal notranslate"><span class="pre">string</span></code> può contenere qualsiasi contenuto arbitrario.</p>
+<p>Sembra una buona situazione introdurre un <em>oggetto valore</em>, ma di che tipo o tipi dovremmo introdurre? Sicuramente, potremmo creare un singolo tipo chiamato <code class="docutils literal notranslate"><span class="pre">Path</span></code><a class="footnote-reference brackets" href="#javahaspath" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>8<span class="fn-bracket">]</span></a> che abbia metodi come <code class="docutils literal notranslate"><span class="pre">IsAbsolute()</span></code>, <code class="docutils literal notranslate"><span class="pre">IsRelative()</span></code>, <code class="docutils literal notranslate"><span class="pre">IsFilePath()</span></code> e <code class="docutils literal notranslate"><span class="pre">IsDirectoryPath()</span></code> (cioè gestirà la variabilità implicita), che risolverebbe (solo - lo vedremo tra poco) una parte del problema - la signature [<em>firma</em>] sarebbe:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">void</span><span class="w"> </span><span class="nf">Backup</span><span class="p">(</span><span class="n">Path</span><span class="w"> </span><span class="n">absoluteFilePath</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>e non saremmo in grado di passare una stringa arbitraria, solo un'istanza di un <code class="docutils literal notranslate"><span class="pre">Path</span></code>, che potrebbe esporre un metodo factory che controlla se la stringa passata è nel formato corretto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//the following could throw an exception</span>
+<span class="c1">//because the argument is not in a proper format</span>
+<span class="n">Path</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Path</span><span class="p">.</span><span class="n">Value</span><span class="p">(</span><span class="s">@&quot;C:\C:\C:\C:\//\/\/&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Un metodo factory di questo tipo potrebbe generare un'eccezione al momento della creazione dell'oggetto path. Questo è importante - in precedenza, quando non avevamo l'<em>oggetto valore</em>, potevamo assegnare spazzatura a una stringa, passarla tra diversi oggetti e ottenere un'eccezione dal metodo <code class="docutils literal notranslate"><span class="pre">Backup()</span></code>. Ora che abbiamo modellato i path come <em>oggetti valore</em>, c'è un'alta probabilità che il tipo <code class="docutils literal notranslate"><span class="pre">Path</span></code> venga utilizzato il prima possibile nella catena di chiamate. Grazie a questo e alla validazione all'interno del metodo factory, otterremo un'eccezione molto più vicino al luogo in cui è stato commesso l'errore, non alla fine della catena di chiamate.</p>
+<p>Quindi sì, l'introduzione di un <em>oggetto valore</em> <code class="docutils literal notranslate"><span class="pre">Path</span></code> generale potrebbe risolvere alcuni problemi, ma non tutti. Tuttavia, la firma del metodo <code class="docutils literal notranslate"><span class="pre">Backup()</span></code> non segnala che il path previsto deve essere un percorso assoluto per un file, quindi è possibile passare un percorso relativo o uno per una directory, anche se è presente solo un tipo di path accettabile.</p>
+<p>In questo caso, le diverse proprietà dei path non sono solo un ostacolo, un problema da risolvere, come nel caso del denaro. Sono il fattore chiave di differenziazione nella scelta se un comportamento è appropriato o meno per un valore. In tal caso, ha molto senso creare diversi <em>tipi valore</em> diversi, ciascuno dei quali rappresenta un diverso insieme di vincoli del percorso.</p>
+<p>Pertanto, potremmo decidere di introdurre tipi come<a class="footnote-reference brackets" href="#atmafilesystem2" id="id9" role="doc-noteref"><span class="fn-bracket">[</span>9<span class="fn-bracket">]</span></a>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AbsoluteFilePath</span></code> - rappresenta un percorso assoluto contenente un nome file, ad es. <code class="docutils literal notranslate"><span class="pre">C:\Dir\file.txt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RelativeFilePath</span></code> - rappresenta un percorso relativo contenente un nome file, ad es. <code class="docutils literal notranslate"><span class="pre">Dir\file.txt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AbsoluteDirPath</span></code> - rappresenta un percorso assoluto che non contiene un nome file, ad es. <code class="docutils literal notranslate"><span class="pre">C:\Dir\</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RelativeDirPath</span></code> - rappresenta un percorso relativo che non contiene un nome file, ad es. <code class="docutils literal notranslate"><span class="pre">Dir\</span></code></p></li>
+</ul>
+<p>Avendo tutti questi tipi, ora possiamo cambiare la firma del metodo <code class="docutils literal notranslate"><span class="pre">Backup()</span></code> in:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">void</span><span class="w"> </span><span class="nf">Backup</span><span class="p">(</span><span class="n">AbsoluteFilePath</span><span class="w"> </span><span class="n">path</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Notare che non dobbiamo spiegare i vincoli con il nome dell'argomento - possiamo semplicemente chiamarlo <code class="docutils literal notranslate"><span class="pre">path</span></code> perché il tipo dice già ciò che deve essere detto. E comunque nessuno potrà passare, ad es. un <code class="docutils literal notranslate"><span class="pre">RelativeDirPath</span></code> ora per sbaglio, per non parlare di una stringa arbitraria.</p>
+<p>Rendere esplicita la variabilità tra i valori creando tipi separati di solito ci porta a introdurre alcuni metodi di conversione tra questi tipi dove tale conversione è legale. Ad esempio, quando tutto ciò che abbiamo è un <code class="docutils literal notranslate"><span class="pre">AbsoluteDirPath</span></code>, ma vogliamo comunque invocare il metodo <code class="docutils literal notranslate"><span class="pre">Backup()</span></code>, dobbiamo convertire il nostro percorso in un <code class="docutils literal notranslate"><span class="pre">AbsoluteFilePath</span></code> aggiungendo un nome file, che può essere rappresentato da un <em>oggetto valore</em> stesso (chiamiamo la classe <code class="docutils literal notranslate"><span class="pre">FileName</span></code>). In C#, possiamo utilizzare l'overload degli operatori per alcune conversioni, ad es. l'operatore <code class="docutils literal notranslate"><span class="pre">+</span></code> andrebbe bene per aggiungere un nome di file al path di una directory. Il codice che esegue la conversione sarebbe quindi simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">AbsoluteDirPath</span><span class="w"> </span><span class="n">dirPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span>
+<span class="p">...</span>
+<span class="n">FileName</span><span class="w"> </span><span class="n">fileName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span>
+<span class="p">...</span>
+<span class="c1">//&#39;+&#39; operator is overloaded to handle the conversion:</span>
+<span class="n">AbsoluteFilePath</span><span class="w"> </span><span class="n">filePath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dirPath</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">fileName</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Naturalmente, creiamo metodi di conversione solo laddove abbiano senso nel dominio che stiamo modellando. Non inseriremo un metodo di conversione all'interno di <code class="docutils literal notranslate"><span class="pre">AbsoluteDirectoryPath</span></code> che lo combini con un altro <code class="docutils literal notranslate"><span class="pre">AbsoluteDirectoryPath</span></code><a class="footnote-reference brackets" href="#pathscomplex" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>10<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="delegated-variability">
+<h3>Variabilità delegata<a class="headerlink" href="#delegated-variability" title="Link to this heading">¶</a></h3>
+<p>Infine, possiamo ottenere la variabilità delegando il comportamento variabile a un'interfaccia e facendo in modo che l'<em>oggetto valore</em> accetti un'implementazione dell'interfaccia come parametro del metodo. Un esempio di ciò potrebbe essere la classe <code class="docutils literal notranslate"><span class="pre">Product</span></code> del capitolo precedente in cui era dichiarato il seguente metodo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">ToString</span><span class="p">(</span><span class="n">Format</span><span class="w"> </span><span class="n">format</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>dove <code class="docutils literal notranslate"><span class="pre">Format</span></code> era un'interfaccia e abbiamo passato diverse implementazioni di questa interfaccia a questo metodo, ad es. <code class="docutils literal notranslate"><span class="pre">ScreenFormat</span></code> o <code class="docutils literal notranslate"><span class="pre">ReportingFormat</span></code>. Da notare che avere il <code class="docutils literal notranslate"><span class="pre">Format</span></code> come parametro del metodo invece di ad es. un parametro costruttore ci consente di sostenere la semantica del valore perché <code class="docutils literal notranslate"><span class="pre">Format</span></code> non è parte dell'oggetto ma piuttosto un &quot;helper guest&quot;. Grazie a questo siamo liberi da dilemmi con &quot;il nome 'laptop' formattato per lo schermo è uguale a 'laptop' formattato per un report?&quot;</p>
+</section>
+<section id="summing-up-the-implicit-vs-explicit-vs-delegated-discussion">
+<h3>Riassumendo la discussione implicita, esplicita o delegata<a class="headerlink" href="#summing-up-the-implicit-vs-explicit-vs-delegated-discussion" title="Link to this heading">¶</a></h3>
+<p>Notare che mentre nel primo esempio (quello con il denaro), rendere implicita la variabilità (in valuta) tra i valori ci ha aiutato a raggiungere i nostri obiettivi di design, nell'esempio del path aveva più senso fare esattamente il contrario: rendere la variabilità (sia in assoluto/relativo che verso file/directory) in modo esplicito come creare un tipo separato per ciascuna combinazione di vincoli.</p>
+<p>Se scegliamo l'approccio implicito, possiamo trattare tutte le variazioni allo stesso modo, poiché sono tutte dello stesso tipo. Se decidiamo per l'approccio esplicito, ci ritroveremo con diversi tipi che solitamente sono incompatibili e consentiremo conversioni tra loro laddove tali conversioni abbiano senso. Ciò è utile quando vogliamo che alcune parti del nostro programma siano esplicitamente compatibili con solo una delle varianti.</p>
+<p>Devo dire che trovo la variabilità delegata un caso raro (la formattazione della conversione in stringa è un tipico esempio) e durante tutta la mia carriera ho avuto forse una o due situazioni in cui ho dovuto ricorrere ad essa. Tuttavia, alcune librerie utilizzano questo approccio e in un particolare dominio o tipo di applicazione, tali casi potrebbero essere molto più tipici.</p>
+</section>
+</section>
+<section id="special-values">
+<h2>Valori speciali<a class="headerlink" href="#special-values" title="Link to this heading">¶</a></h2>
+<p>Alcuni <em>tipi valore</em> hanno valori così specifici da avere nomi propri. Ad esempio, un valore stringa costituito da <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> è chiamata &quot;stringa vuota&quot;. <code class="docutils literal notranslate"><span class="pre">2,147,483,647</span></code> è chiamata &quot;un valore intero massimo a 32 bit&quot;. Questi valori speciali si fanno strada nel design degli <em>oggetti valore</em>. Ad esempio, in C#, abbiamo <code class="docutils literal notranslate"><span class="pre">Int32.MaxValue</span></code> e <code class="docutils literal notranslate"><span class="pre">Int32.MinValue</span></code> che sono costanti che rappresentano un valore massimo e minimo di un intero a 32 bit e <code class="docutils literal notranslate"><span class="pre">string.Empty</span></code> che rappresenta una stringa vuota. In Java, abbiamo cose come <code class="docutils literal notranslate"><span class="pre">Duration.ZERO</span></code> per rappresentare una durata zero o <code class="docutils literal notranslate"><span class="pre">DayOfWeek.MONDAY</span></code> per rappresentare un giorno specifico della settimana.</p>
+<p>Per tali valori, la pratica comune che ho visto è renderli accessibili a livello globale dalle classi di <em>oggetti valore</em>, come avviene in tutti gli esempi precedenti di C# e Java. Questo perché i valori sono immutabili, quindi l'accessibilità globale non danneggia. Ad esempio, possiamo immaginare <code class="docutils literal notranslate"><span class="pre">string.Empty</span></code> implementato in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">String</span><span class="w"> </span><span class="c1">//... some interfaces here</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">Empty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il modificatore <code class="docutils literal notranslate"><span class="pre">const</span></code> aggiuntivo garantisce che nessuno assegni un nuovo valore al campo <code class="docutils literal notranslate"><span class="pre">Empty</span></code>. A proposito, in C# possiamo usare <code class="docutils literal notranslate"><span class="pre">const</span></code> solo per i tipi che hanno valori letterali, come una string o un <code class="docutils literal notranslate"><span class="pre">int</span></code>. Per i nostri oggetti con valore personalizzato, dovremo utilizzare un modificatore <code class="docutils literal notranslate"><span class="pre">static</span> <span class="pre">readonly</span></code> (o <code class="docutils literal notranslate"><span class="pre">static</span> <span class="pre">final</span></code> nel caso di Java). Per dimostrarlo, torniamo all'esempio della moneta di questo capitolo e immaginiamo di voler avere un valore speciale chiamato <code class="docutils literal notranslate"><span class="pre">None</span></code> per simboleggiare l'assenza di denaro in qualsiasi valuta. Dato che il nostro tipo <code class="docutils literal notranslate"><span class="pre">Money</span></code> non ha valori letterali, non possiamo usare il modificatore <code class="docutils literal notranslate"><span class="pre">const</span></code>, quindi dobbiamo fare qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Money</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">readonly</span>
+<span class="w">    </span><span class="n">Money</span><span class="w"> </span><span class="n">None</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Money</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">Currencies</span><span class="p">.</span><span class="n">Whatever</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo modo di dire è l'unica eccezione che conosco rispetto alla regola che vi ho dato diversi capitoli fa riguardo al non utilizzare affatto campi statici. Ad ogni modo, ora che abbiamo questo valore <code class="docutils literal notranslate"><span class="pre">None</span></code>, possiamo usarlo in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="n">accountBalance</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Money</span><span class="p">.</span><span class="n">None</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="value-types-and-tell-don-t-ask">
+<h2><em>Tipi valore</em> e Tell Don't Ask<a class="headerlink" href="#value-types-and-tell-don-t-ask" title="Link to this heading">¶</a></h2>
+<p>Quando ho raccontato della metafora della &quot;rete di oggetti&quot;, ho sottolineato che agli oggetti dovrebbe essere detto cosa fare, non chiedere informazioni. Ho anche scritto che se una responsabilità è troppo grande per essere gestita da un singolo oggetto, non dovrebbe cercare di realizzarla da solo, ma piuttosto delegare ulteriormente il lavoro ad altri oggetti inviando loro messaggi. Ho detto che preferibilmente vorremmo avere metodi per lo più <code class="docutils literal notranslate"><span class="pre">void</span></code> che accettino il loro contesto come argomenti.</p>
+<p>E i valori? Questa metafora si applica a loro? E se sì, allora come? E che dire di &quot;Tell Don't Ask&quot; [<em>Dire non chiedere</em>]?</p>
+<p>Innanzitutto, i valori non appaiono esplicitamente nella metafora della rete di oggetti, almeno non sono &quot;nodi&quot; in questa rete. Sebbene in quasi tutti i linguaggi object-oriented, i valori siano implementati utilizzando lo stesso meccanismo degli oggetti - classi<a class="footnote-reference brackets" href="#csharpstructs" id="id11" role="doc-noteref"><span class="fn-bracket">[</span>11<span class="fn-bracket">]</span></a>, li tratto come un tipo di costrutto leggermente diverso con il proprio insieme di regole e vincoli. I valori possono essere passati tra oggetti nei messaggi, ma non parliamo di valori che inviano messaggi da soli.</p>
+<p>Una conclusione da ciò potrebbe essere che i valori non dovrebbero essere composti da oggetti (intesi come nodi nella &quot;rete&quot;). I valori dovrebbero essere composti da altri valori (poiché il nostro tipo <code class="docutils literal notranslate"><span class="pre">Path</span></code> aveva una <code class="docutils literal notranslate"><span class="pre">string</span></code> al suo interno), che ne garantisce l'immutabilità. Inoltre, possono occasionalmente accettare oggetti come parametri dei loro metodi (come la classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> del capitolo precedente che aveva un metodo <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> che accettava un'interfaccia <code class="docutils literal notranslate"><span class="pre">Format</span></code>), ma questa è più un'eccezione che una regola. In rari casi, devo utilizzare una collection all'interno di un oggetto valore. Le collection in Java e in C# non vengono generalmente trattate come valori, quindi questa è una sorta di eccezione alla regola. Tuttavia, quando utilizzo collection all'interno di <em>oggetti valore</em>, tendo a utilizzare quelle immutabili, come <a class="reference external" href="https://msdn.microsoft.com/en-us/library/dn467185(v=vs.111).aspx">ImmutableList</a>.</p>
+<p>Se le affermazioni di cui sopra sui valori sono vere, significa semplicemente che non ci si può aspettare che i valori siano conformi a &quot;Tell Don't Ask&quot;. Certo, vogliamo che incapsulano i concetti del dominio, forniscano un'interfaccia di livello superiore, ecc., quindi lottiamo molto affinché gli <em>oggetti valore</em> non diventino semplici strutture dati come quelle che conosciamo dal C, ma la natura dei valori è piuttosto come &quot;pezzi di dati intelligenti&quot; piuttosto che &quot;insiemi astratti di comportamenti&quot;.</p>
+<p>Pertanto, ci aspettiamo che i valori contengano metodi di query (anche se, come ho detto, il più delle volte miriamo a qualcosa di più astratto e più utile dei semplici metodi &quot;getter&quot;). Ad esempio, potrebbe piacere l'idea di avere un insieme di classi sui path (come <code class="docutils literal notranslate"><span class="pre">AbsoluteFilePath</span></code>), ma alla fine si dovrà interagire in qualche modo con una serie di API di terze parti che non sanno nulla di quelle classi. Quindi, tornerà utile un metodo <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> che restituisce semplicemente il valore mantenuto internamente.</p>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>Questo conclude l'argomento sugli <em>oggetti di valore</em>. Non avrei mai pensato che ci sarebbe stato così tanto da discutere su come credo che dovrebbero essere progettati. Per i lettori interessati a vedere un caso di studio all'avanguardia sugli <em>oggetti valore</em>, consiglio di consultare le librerie <a class="reference external" href="https://nodatime.org/">Noda Time</a> (per C#) e <a class="reference external" href="http://www.joda.org/joda-time/">Joda Time</a> (per Java) (o le <a class="reference external" href="http://www.oracle.com/technetwork/articles/java/jf14-date-time-2125367.html">nuove api time e date di Java 8</a>).</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="aliasingbug" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Questo a volte viene chiamato &quot;bug di aliasing&quot;: https://martinfowler.com/bliki/AliasingBug.html</p>
+</aside>
+<aside class="footnote brackets" id="dateoptimization" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>A meno che Java non lo ottimizzi in qualche modo, ad es. utilizzando l'approccio copy-on-write.</p>
+</aside>
+<aside class="footnote brackets" id="functionallanguages" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Questo è uno dei motivi per cui i linguaggi funzionali, in cui i dati sono immutabili per default, ottengono molta attenzione nei settori in cui è necessario fare molte cose in parallelo.</p>
+</aside>
+<aside class="footnote brackets" id="atmafilesystem" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>questo esempio utilizza una libreria chiamata Atma Filesystem: https://www.nuget.org/packages/AtmaFilesystem/</p>
+</aside>
+<aside class="footnote brackets" id="tddbyexample" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">5</a><span class="fn-bracket">]</span></span>
+<p>Questo esempio è vagamente basato sul libro Test-Driven Development By Example di Kent Beck.</p>
+</aside>
+<aside class="footnote brackets" id="wecoulduseextensionmethods" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">6</a><span class="fn-bracket">]</span></span>
+<p>Potrei usare metodi di estensione per rendere l'esempio ancora più idiomatico, ad es. essere in grado di scrivere <code class="docutils literal notranslate"><span class="pre">5.Dollars()</span></code>, ma non voglio andare troppo lontano nella terra degli idiomi specifici di qualsiasi linguaggio, perché il mio obiettivo è un pubblico più ampio dei soli programmatori C#.</p>
+</aside>
+<aside class="footnote brackets" id="naivemoneyexample" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">7</a><span class="fn-bracket">]</span></span>
+<p>Sono consapevole che questo esempio sembra un po' ingenuo - dopo tutto, aggiungere denaro in diverse valute implicherebbe che queste debbano essere convertite in un'unica valuta e si applicherebbero i tassi di cambio, il che potrebbe farci perdere denaro. Kent Beck ha riconosciuto e risolto questo problema nel suo libro  Test-Driven Development By Example - se si è interessati si deve dare un'occhiata alla sua soluzione.</p>
+</aside>
+<aside class="footnote brackets" id="javahaspath" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">8</a><span class="fn-bracket">]</span></span>
+<p>Questo è ciò che ha fatto Java. Non dico che i progettisti Java abbiano preso una decisione sbagliata - una singola classe <code class="docutils literal notranslate"><span class="pre">Path</span></code> è probabilmente molto più versatile. L'unica cosa che sto dicendo è che questo design non è ottimale per il nostro scenario particolare.</p>
+</aside>
+<aside class="footnote brackets" id="atmafilesystem2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id9">9</a><span class="fn-bracket">]</span></span>
+<p>per riferimento, consultare https://www.nuget.org/packages/AtmaFilesystem/</p>
+</aside>
+<aside class="footnote brackets" id="pathscomplex" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">10</a><span class="fn-bracket">]</span></span>
+<p>francamente, come nel caso del denaro, la visione dei path che ho qui descritto è un po' ingenua. Tuttavia, questa visione ingenua potrebbe essere tutto ciò di cui abbiamo bisogno nel nostro caso particolare.</p>
+</aside>
+<aside class="footnote brackets" id="csharpstructs" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id11">11</a><span class="fn-bracket">]</span></span>
+<p>C# ha struct, che a volte possono tornare utili quando si implementano valori, anche se hanno alcuni vincoli (vedere https://stackoverflow.com/questions/333829/why-cant-i-define-a-default-constructor-for-a-struct-in-net). Inoltre, a partire dalle versioni più recenti, C# contiene dei record che possono essere talvolta utilizzati per eliminare parte del codice boilerplate.</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Aspetti del design degli <em>oggetti valore</em></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#immutability">Immutabilità</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#handling-of-variability">Gestione della variabilità</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#special-values">Valori speciali</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#value-types-and-tell-don-t-ask"><em>Tipi valore</em> e Tell Don't Ask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="255_Value_Objects_properties.html" title="capitolo precedente">Anatomia del <em>oggetto valore</em></a></li>
+      <li>Next: <a href="259_DataTransferObjects.html" title="capitolo successivo">Oggetti di Trasferimento Dati</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/257_Value objects_general_topics.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

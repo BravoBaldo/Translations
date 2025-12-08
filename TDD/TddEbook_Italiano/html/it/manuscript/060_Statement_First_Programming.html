@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>La programmazione Statement-first &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Mettere in pratica ciò che abbiamo già imparato" href="070_Practicing_What_We_Already_Learned.html" />
+    <link rel="prev" title="Non è (solo) un test" href="050_Its_Not_a_Test.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="statement-first-programming">
+<h1>La programmazione Statement-first<a class="headerlink" href="#statement-first-programming" title="Link to this heading">¶</a></h1>
+<section id="what-s-the-point-of-writing-a-specification-after-the-fact">
+<h2>Che senso ha scrivere una specifica a posteriori?<a class="headerlink" href="#what-s-the-point-of-writing-a-specification-after-the-fact" title="Link to this heading">¶</a></h2>
+<p>Uno degli aspetti più noti del TDD è che prima che questo comportamento venga implementato viene scritto un test (che fallisce) per un comportamento di un pezzo di codice. Questo concetto è spesso chiamato &quot;sviluppo test-first&quot; e sembra controverso a molti.</p>
+<p>Nel capitolo precedente, ho detto che in TDD un &quot;test&quot; assume un ruolo aggiuntivo -- quello di un'affermazione che fa parte di una specifica. Se la mettiamo in questo modo, l'intero controverso concetto di &quot;scrivere un test prima del codice&quot; non costituisce affatto un problema. Al contrario, sembra naturale specificare cosa ci aspettiamo da un pezzo di codice prima di tentare di scriverlo. Ha senso anche il contrario? Una specifica scritta dopo aver completato l'implementazione non è altro che un tentativo di documentare la soluzione esistente. Certo, tali tentativi possono fornire un certo valore se eseguiti come una sorta di reverse engineering (ovvero scrivendo le specifiche per qualcosa che è stato implementato molto tempo fa e per il quale scopriamo le regole o le politiche aziendali precedentemente implicite mentre documentiamo la soluzione esistente) -- contiene l'eccitazione della scoperta, ma farlo subito dopo aver preso tutte le decisioni da soli non mi sembra un modo produttivo di passare il tempo, per non parlare del fatto che lo trovo mortalmente noioso (si può controllare se si è come me su questo. Provare a implementare una semplice app di una calcolatrice e poi scrivere le specifiche subito dopo averla implementata e verificato manualmente che funzioni). Ad ogni modo, difficilmente trovo creativo specificare come dovrebbe funzionare qualcosa dopo che ha funzionato. Forse è questo il motivo per cui, nel corso degli anni, ho osservato che le specifiche scritte dopo l'implementazione di una funzionalità erano molto meno complete di quelle scritte prima dell'implementazione.</p>
+<p>Oh, e ho detto che senza specifiche di alcun tipo non sappiamo se abbiamo finito di implementare le nostre modifiche o meno? Questo perché, per determinare se il cambiamento è completo, dobbiamo paragonare la funzionalità implementata a &quot;qualcosa&quot;, anche se questo &quot;qualcosa&quot; è solo nella testa del cliente. In TDD, lo &quot;confrontiamo&quot; con le aspettative stabilite da una serie di test automatizzati.</p>
+<p>Un'altra cosa che ho menzionato nel capitolo precedente è che ci avviciniamo alla scrittura di una Specifica di &quot;Istruzioni eseguibili&quot; in modo diverso dalla scrittura di un progetto testuale o di una specifica dei requisiti: anche se un comportamento viene implementato dopo che la sua Specifica è pronta, non scriviamo la Specifica interamente in anticipo. La sequenza abituale consiste nello specificare prima un pezzetto e poi codificarlo, ripetendolo un'istruzione alla volta. Quando eseguiamo il TDD, attraversiamo ripetutamente alcune fasi che compongono un ciclo. Ci piace che questi cicli siano brevi, in modo da ricevere feedback tempestivi e frequenti. Questo è fondamentale perché ci permette di andare avanti, certi che ciò che già abbiamo funzioni come avevamo previsto. Ci consente inoltre di rendere il ciclo successivo più efficiente grazie alla conoscenza acquisita nel ciclo precedente (se non credete che il feedback rapido sia importante, ci si ponga una domanda: &quot;quante volte al giorno si compila il codice su cui si sta lavorando a?&quot;).</p>
+<p>Leggendo così tanto sui cicli, probabilmente non sorprende che l'illustrazione tradizionale del processo TDD sia modellata visivamente come un flusso circolare:</p>
+<p><img alt="Ciclo Base del TDD" src="../_images/RedGreenRefactor.png" /></p>
+<p>Notare che il modulo sopra utilizza la terminologia tradizionale di TDD, quindi prima di spiegare i passaggi, ecco un'illustrazione simile che utilizza i nostri termini di Specifiche e [Statement]:</p>
+<p><img alt="Ciclo Base del TDD con la terminologia cambiata" src="../_images/RedGreenRefactor2.png" /></p>
+<p>La seconda versione sembra più simile al buon senso della prima -- specificare come dovrebbe comportarsi qualcosa prima di mettere in atto quel comportamento è molto più intuitivo che testare qualcosa che non esiste ancora.</p>
+<p>Ad ogni modo, questi tre passaggi meritano qualche spiegazione. Nei prossimi capitoli vi darò alcuni esempi di come funziona nella pratica questo processo e ne presenterò una versione ampliata, ma nel frattempo è sufficiente dire che:</p>
+<p>Scrivere uno [Statement] che si vorrebbe fosse vero ma non lo è: significa che lo [Statement] risulta falso. Nell'elenco dei test, appare come non superato, che la maggior parte dei framework xUnit contrassegna con il colore rosso.</p>
+<p>Aggiungere codice per renderlo vero: significa che scriviamo codice sufficiente per rendere vera la dichiarazione. Nell'elenco dei test appare come superato, che la maggior parte dei framework xUnit contrassegna con il colore verde. Più avanti nel corso del libro si vedrà quanto poco può essere “appena sufficiente”.</p>
+<p>Refactor :   è un passaggio che finora ho ignorato tacitamente e continuerò a farlo per molti altri capitoli. Non c'è da preoccuparsi, prima o poi ci torneremo. Per ora, è importante essere consapevoli che la Specifica eseguibile può fungere da rete di sicurezza mentre miglioriamo la qualità del codice senza modificarne il comportamento visibile esternamente: eseguendo spesso la Specifica, scopriamo rapidamente eventuali errori commessi nel processo.</p>
+<p>A proposito, questo processo viene talvolta definito &quot;Red-Green-Refactor&quot;, a causa dei colori visualizzati dagli strumenti xUnit per il test fallito e superato. Lo menziono qui solo per la cronaca -- non utilizzerò questo termine ulteriormente nel libro.</p>
+</section>
+<section id="test-first-means-seeing-a-failure">
+<h2>&quot;Test-First&quot; significa vedere un fallimento<a class="headerlink" href="#test-first-means-seeing-a-failure" title="Link to this heading">¶</a></h2>
+<p>Spiegando l'illustrazione con il processo TDD sopra, ho sottolineato che dovremmo scrivere una dichiarazione che vorremmo fosse vera <strong>ma non lo è</strong>. Ciò significa che non solo dobbiamo scrivere uno [Statement] prima di fornire un'implementazione che la renda vera, ma dobbiamo anche valutarla (ovvero eseguirla) e guardarla fallire nelle sue asserzioni prima di fornire l'implementazione.</p>
+<p>Perché è così importante? Non è sufficiente scrivere prima lo [Statement]? Perché eseguirlo e vederlo fallire? Ci sono diversi motivi e cercherò di delinearne brevemente alcuni.</p>
+<p>Il motivo principale per cui scrivo uno [Statement] e lo vedo fallire è che altrimenti non avrei alcuna prova che lo [Statement] possa mai fallire.</p>
+<p>Ogni [Statement] accurato fallisce quando non è soddisfatto e passa quando lo è. Questo è uno dei motivi principali per cui lo scriviamo: vedere questa transizione da <em>rosso</em> a <em>verde</em>, il che significa che ciò che prima non era stato implementato (e ne avevamo una prova) ora funziona (e ne abbiamo una prova). Osservare la transizione dimostra che abbiamo fatto progressi.</p>
+<p>Un'altra cosa da notare è che, dopo essere stato soddisfatto, lo [Statement] diventa parte della specifica eseguibile e inizia a fallire non appena il codice smette di soddisfarla, ad esempio a seguito di un errore commesso durante il refactoring del codice.</p>
+<p>Vedere uno [Statement] provato essere falso fornisce un feedback prezioso. Se eseguiamo uno [Statement] solo <em>dopo</em> che il comportamento descritto è stato implementato e valutato come vero, come facciamo a sapere se descrive accuratamente un'esigenza? Non l’abbiamo mai visto fallire, quindi quali prove abbiamo che fallirà mai?</p>
+<p>La prima volta che mi sono imbattuto in questo argomento è stato prima che iniziassi a pensare ai test come a una specifica eseguibile. &quot;Sul serio?&quot; -- ho pensato -- &quot;So quello che sto scrivendo. Se rendo i miei test abbastanza piccoli, è evidente che sto descrivendo il comportamento corretto. Questo è paranoico&quot;. Tuttavia, la vita ha rapidamente verificato le mie affermazioni e sono stato costretto a ritirare le mie argomentazioni. Vorrei descrivere tre dei modi in cui ho sperimentato come scrivere uno [Statement] che sia sempre vero, indipendentemente dal fatto che il codice sia corretto o meno. Ci sono più modi, tuttavia, penso che darvene tre dovrebbe essere un esempio sufficiente.</p>
+<p>Il &quot;Test-first&quot; mi ha permesso di evitare le seguenti situazioni in cui le dichiarazioni mi hanno ingannato facendomi credere che fossero soddisfatte anche quando non avrebbero dovuto esserlo:</p>
+<section id="accidental-omission-of-including-a-statement-in-a-specification">
+<h3>1. Accidental omission of including a Statement in a Specification<a class="headerlink" href="#accidental-omission-of-including-a-statement-in-a-specification" title="Link to this heading">¶</a></h3>
+<p>Di solito non è sufficiente scrivere semplicemente il codice di uno [Statement] -- dobbiamo anche far sapere al test runner che un metodo che abbiamo scritto è uno [Statement] (non, ad esempio, solo un metodo helper) e deve essere valutato, cioè eseguito dal runner.</p>
+<p>La maggior parte dei framework xUnit dispone di un qualche tipo di meccanismo per contrassegnare i metodi come [Statement], sia utilizzando attributi (C#, ad esempio <code class="docutils literal notranslate"><span class="pre">[Fact]</span></code>) o annotazioni (Java, ad esempio <code class="docutils literal notranslate"><span class="pre">&#64;Test</span></code>), sia utilizzando macro (C e C++), o utilizzando una convenzione sulla nomenclatura. Dobbiamo utilizzare un meccanismo del genere per far sapere al runner che dovrebbe eseguire tali metodi.</p>
+<p>Prendiamo xUnit.Net come esempio. Per trasformare un metodo in uno [Statement] in xUnit.Net, dobbiamo contrassegnarlo con l'attributo <code class="docutils literal notranslate"><span class="pre">[Fact]</span></code> in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CalculatorSpecification</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="na">[Fact]</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldDisplayAdditionResultAsSumOfArguments</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>È possibile che ci dimentichiamo di decorare un metodo con l'attributo <code class="docutils literal notranslate"><span class="pre">[Fact]</span></code> -- in tal caso, questo metodo non verrà mai eseguito dal test runner. Per quanto possa sembrare divertente, questo è esattamente quello che mi è successo più volte. Prendiamo come esempio lo [Statement] di cui sopra e immaginiamo di scriverlo post-factum come una &quot;unit test&quot; in un ambiente che ha, diciamo, più di trenta [Statement] già scritti e superati. Abbiamo scritto il codice e ora stiamo semplicemente creando test dopo test per garantire che il codice funzioni. Test -- passato, test -- passato, test -- passato. Quando eseguo i test, quasi sempre ne eseguo più di uno alla volta, poiché per me è più semplice che selezionare cosa valutare ogni volta. Inoltre, in questo modo ottengo più sicurezza di non commettere errori e di guastare qualcosa che già funziona. Immaginiamo di fare lo stesso qui. Quindi il flusso di lavoro in realtà è: Test -- tutto superato, test -- tutto superato, test -- tutto superato...</p>
+<p>Nel corso del tempo, ho imparato a utilizzare il meccanismo degli snippet di codice del mio IDE per generare un corpo di un template per i miei [Statement]. Tuttavia, nei primi giorni, di tanto in tanto ho scritto qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CalculatorSpecification</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//... some Statements here</span>
+
+<span class="w">  </span><span class="c1">//oops... forgot to insert the attribute!</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldDisplayZeroWhenResetIsPerformed</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//...</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Come puoi vedere, manca l'attributo <code class="docutils literal notranslate"><span class="pre">[Fact]</span></code>, il che significa che questo [Statement] non verrà eseguito. Ciò è accaduto non solo perché non si utilizzavano generatori di codice -- a volte -- per creare un nuovo [Statement], ma aveva senso copiare e incollare uno [Statement] esistente, modificare il nome e alcune righe di codice<a class="footnote-reference brackets" href="#copypaste" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. Non sempre mi ricordavo di includere l'attributo <code class="docutils literal notranslate"><span class="pre">[Fact]</span></code> nel codice sorgente copiato. Anche il compilatore non si è lamentato.</p>
+<p>Il motivo per cui non ho visto il mio errore è che stavo eseguendo più di un test alla volta -- quando ho ottenuto una barra verde (cioè tutte gli [Statement] si sono rivelati veri), ho pensato che anche lo [Statement] che avevo appena scritto funzionasse. Per me non era interessante cercare ogni nuovo [Statement] nell'elenco e assicurarmi che ci fosse. La ragione più importante, tuttavia, era che l'assenza dell'attributo <code class="docutils literal notranslate"><span class="pre">[Fact]</span></code> non disturbava il mio flusso di lavoro: test -- tutti superati, test -- tutti superati, test -- tutti superati... In altre parole, il mio processo non mi ha dato alcun feedback sul fatto che avessi commesso un errore. Quindi, in tal caso, ciò che ottengo è uno [Statement] che non solo non sarà mai dimostrato falso, ma <strong>non verrà affatto valutato</strong>.</p>
+<p>In che modo trattare i test come [Statement] e valutarli prima di renderli veri aiuta in questo caso? La differenza fondamentale è che il flusso di lavoro del TDD è: test -- fallito -- superato, test -- fallito -- superato, test -- fallito -- superato... In altre parole, ci aspettiamo che ogni [Statement] venga dimostrato falso almeno una volta. Pertanto, ogni volta che perdiamo la fase del &quot;fallimento&quot;, riceviamo un feedback dal nostro processo che indica che sta accadendo qualcosa di sospetto. Questo ci consente di indagare e risolvere il problema, se necessario.</p>
+</section>
+<section id="misplacing-statement-setup">
+<h3>2. Misplacing Statement setup<a class="headerlink" href="#misplacing-statement-setup" title="Link to this heading">¶</a></h3>
+<p>Ok, potrebbe sembrare ancora più divertente, ma è successo anche a me un paio di volte, quindi presumo che un giorno potrebbe succedere anche ad altri, soprattutto se si va di fretta.</p>
+<p>Consideriamo il seguente esempio banale: vogliamo convalidare una semplice struttura dati che modella un frame di dati che può arrivare tramite rete. La struttura è simile a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Frame</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">timeSlot</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e dobbiamo scrivere una Specifica per una classe <code class="docutils literal notranslate"><span class="pre">Validation</span></code> che accetti un oggetto <code class="docutils literal notranslate"><span class="pre">Frame</span></code> come argomento e controlli se l'intervallo di tempo (qualunque esso sia) al suo interno sia corretto. La correttezza viene determinata confrontando il &quot;time slot&quot; [intervallo di tempo] con un valore massimo consentito specificato in una costante chiamata <code class="docutils literal notranslate"><span class="pre">TimeSlot.MaxAllowed</span></code> (quindi è una costante definita in una classe <code class="docutils literal notranslate"><span class="pre">TimeSlot</span></code>). Se l'intervallo di tempo del frame è superiore al massimo consentito, si presuppone che non sia corretto e la convalida dovrebbe restituire <code class="docutils literal notranslate"><span class="pre">false</span></code>. Altrimenti, dovrebbe essere restituito <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
+<p>Diamo un'occhiata al seguente [Statement] che specifica che l'impostazione di un valore superiore a quello consentito per un campo di un <code class="docutils literal notranslate"><span class="pre">frame</span></code> dovrebbe far fallire la validazione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldRecognizeTimeSlotAboveMaximumAllowedAsInvalid</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Frame</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">validation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Validation</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">timeSlotAboveMaximumAllowed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeSlot</span><span class="p">.</span><span class="n">MaxAllowed</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">validation</span><span class="p">.</span><span class="n">PerformForTimeSlotIn</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+<span class="w">  </span><span class="n">frame</span><span class="p">.</span><span class="n">timeSlot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeSlotAboveMaximumAllowed</span><span class="p">;</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare come il metodo <code class="docutils literal notranslate"><span class="pre">PerformForTimeSlotIn()</span></code>, che attiva il comportamento specificato, viene accidentalmente chiamato <em>prima</em> che il valore di <code class="docutils literal notranslate"><span class="pre">timeSlotAboveMaximumAllowed</span></code> venga impostato e quindi questo valore non viene preso in considerazione nel momento in cui viene eseguita la validazione. Se, ad esempio, commettiamo un errore nell'implementazione della classe <code class="docutils literal notranslate"><span class="pre">Validation</span></code> in modo che restituisca <code class="docutils literal notranslate"><span class="pre">false</span></code> per valori inferiori al massimo e non superiori, tale errore potrebbe passare inosservato, poiché lo [Statement] sarà sempre vero.</p>
+<p>Ancora una volta, questo è un esempio: l'ho usato solo per illustrare qualcosa che può accadere quando si affrontano casi più complessi.</p>
+</section>
+<section id="using-static-data-inside-the-production-code">
+<h3>3. Using static data inside the production code<a class="headerlink" href="#using-static-data-inside-the-production-code" title="Link to this heading">¶</a></h3>
+<p>Di tanto in tanto, dobbiamo intervenire e aggiungere alcuni nuovi [Statement] a una Specification esistente e un po' di logica alla classe che descrive. Supponiamo che la classe e la sua Specifica siano state scritte da qualcun altro oltre a noi. Immaginiamo che il codice di cui stiamo parlando sia un wrapper attorno al file di configurazione XML del nostro prodotto. Decidiamo di scrivere i nostri [Statement] <em>dopo</em> aver applicato le modifiche (&quot;beh&quot;, potremmo dire, &quot;siamo tutti protetti dalle Specifiche già in vigore, quindi possiamo apportare le nostre modifiche senza il rischio di guastare accidentalmente le funzionalità esistenti, e poi basta testare le nostre modifiche e tutto va bene...&quot;).</p>
+<p>Iniziamo a programmare... fatto. Ora iniziamo a scrivere questo nuovo [Statement] che descrive la funzionalità che abbiamo appena aggiunto. Dopo aver esaminato la classe Specification , possiamo vedere che ha un campo membro come questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">XmlConfigurationSpecification</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">XmlConfiguration</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">XmlConfiguration</span><span class="p">(</span><span class="n">xmlFixtureString</span><span class="p">);</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">//...</span>
+</pre></div>
+</div>
+<p>Ciò che fa è impostare un oggetto utilizzato da ogni [Statement]. Pertanto, ogni [Statement ] utilizza un oggetto <code class="docutils literal notranslate"><span class="pre">config</span></code> inizializzato con lo stesso valore di stringa <code class="docutils literal notranslate"><span class="pre">xmlConfiguration</span></code>. Un altro rapido esame ci porta a scoprire il seguente contenuto della <code class="docutils literal notranslate"><span class="pre">xmlFixtureString</span></code>:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;config&gt;</span>
+<span class="w">  </span><span class="nt">&lt;section</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;General Settings&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;subsection</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Network Related&quot;</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;parameter</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;IP&quot;</span><span class="nt">&gt;</span>192.168.3.2<span class="nt">&lt;/parameter&gt;</span>
+<span class="w">      </span><span class="nt">&lt;parameter</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Port&quot;</span><span class="nt">&gt;</span>9000<span class="nt">&lt;/parameter&gt;</span>
+<span class="w">      </span><span class="nt">&lt;parameter</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Protocol&quot;</span><span class="nt">&gt;</span>AHJ-112<span class="nt">&lt;/parameter&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/subsection&gt;</span>
+<span class="w">      </span><span class="nt">&lt;subsection</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;User Related&quot;</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;parameter</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;login&quot;</span><span class="nt">&gt;</span>Johnny<span class="nt">&lt;/parameter&gt;</span>
+<span class="w">      </span><span class="nt">&lt;parameter</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Role&quot;</span><span class="nt">&gt;</span>Admin<span class="nt">&lt;/parameter&gt;</span>
+<span class="w">      </span><span class="nt">&lt;parameter</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;Password Expiry (days)&quot;</span><span class="nt">&gt;</span>30<span class="nt">&lt;/parameter&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/subsection&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- and so on and on and on...--&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/section&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+<p>La stringa è già piuttosto grande e disordinata poiché contiene tutte le informazioni richieste dagli [Statement] esistenti. Supponiamo di dover scrivere dei test per un piccolo caso particolare che non abbia bisogno di tutta questa schifezza all'interno di questa stringa. Decidiamo quindi di ricominciare da capo e di creare un oggetto separato della classe <code class="docutils literal notranslate"><span class="pre">XmlConfiguration</span></code> con la stringa minima. Lo [Statement] comincia così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">string</span><span class="w"> </span><span class="n">customFixture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CreateMyOwnFixtureForThisTestOnly</span><span class="p">();</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">XmlConfiguration</span><span class="p">(</span><span class="n">customFixture</span><span class="p">);</span>
+<span class="p">...</span>
+</pre></div>
+</div>
+<p>E continua con lo scenario. Quando lo eseguiamo, passa: bello... no. Ok, cosa c'è che non va? A prima vista va tutto bene, finché non leggiamo attentamente il codice sorgente della classe <code class="docutils literal notranslate"><span class="pre">XmlConfiguration</span></code>. All'interno possiamo vedere come viene memorizzata la stringa XML:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">xmlText</span><span class="p">;</span><span class="w"> </span><span class="c1">//note the static keyword!</span>
+</pre></div>
+</div>
+<p>È un campo statico, il che significa che il suo valore viene mantenuto tra le istanze. Che diavolo...? Bene, bene, ecco cosa è successo: l'autore di questa classe ha applicato una piccola ottimizzazione. Ha pensato: &quot;In questa app la configurazione viene modificata solo dai membri del personale di supporto e per farlo devono spegnere il sistema, quindi non è necessario leggere il file XML ogni volta che viene creato un oggetto XmlConfiguration. Posso risparmiare alcuni cicli della CPU e operazioni di I/O leggendolo solo una volta quando viene creato il primo oggetto. Gli oggetti successivi utilizzeranno semplicemente lo stesso XML!&quot;. Buono per lui, non altrettanto buono per noi. Perché? Perché, a seconda dell'ordine in cui vengono valutati gli [Statement], per tutti gli [Statement] verrà utilizzata la stringa XML originale o quella personalizzata! Pertanto le dichiarazioni contenute in questa Specifica potrebbero passare o fallire per il motivo sbagliato -- poiché utilizzano accidentalmente l'XML sbagliato.</p>
+<p>Iniziare lo sviluppo da uno Statement che prevediamo fallisca può essere d'aiuto quando tale Statement passa anche se il comportamento che descrive non è ancora stato implementato.</p>
+</section>
+</section>
+<section id="test-after-often-ends-up-as-test-never">
+<h2>&quot;Test-After&quot; [<em>testare-dopo</em>] spesso finisce come &quot;Test-Never&quot; [<em>testare-mai</em>]<a class="headerlink" href="#test-after-often-ends-up-as-test-never" title="Link to this heading">¶</a></h2>
+<p>Si consideri ancora la domanda che ho già posto in questo capitolo: avete mai dovuto scrivere i requisiti o un documento di progettazione per qualcosa che già implementato? È stato divertente? È stato di valore? È stato creativo? Per quanto mi riguarda, la mia risposta a queste domande è <em>no</em>. Ho osservato che la stessa risposta si applicava alla formulazione della mia Specifica eseguibile. Osservando me stesso e gli altri sviluppatori, ho concluso che dopo aver scritto il codice, abbiamo poca motivazione per specificare ciò che abbiamo scritto -- alcuni pezzi di codice &quot;che possiamo vedere adesso sono corretti&quot;, altri pezzi &quot;che abbiamo già visto funzionare&quot; quando abbiamo compilato e distribuito le nostre modifiche ed eseguito alcuni controlli manuali... Il progetto è pronto... La Specifica? Magari la prossima volta... Pertanto, la Specifica potrebbe non essere mai scritta e, se viene scritta, spesso trovo che copre la maggior parte del flusso principale del programma, ma mancano alcune dichiarazioni che dicono cosa dovrebbe accadere in caso di errori, ecc.</p>
+<p>Un altro motivo per cui si finisce per non scrivere la Specifica potrebbe essere la pressione del tempo, soprattutto in team non ancora maturi o che non hanno un’etica professionale molto forte. Molte volte ho visto persone reagire alla pressione abbandonando tutto oltre a scrivere il codice che implementa direttamente una funzionalità. Tra le cose che vengono abbandonate ci sono il design, i requisiti e i test. E anche imparare. Ho visto molte volte team che, quando sotto pressione, hanno smesso di sperimentare e apprendere e sono tornati a vecchi comportamenti &quot;sicuri&quot; con una mentalità di &quot;salvare una nave che affonda&quot; e &quot;sperare per il meglio&quot;. In tali situazioni, ho visto aumentare la pressione man mano che il progetto si avvicinava alla scadenza o al traguardo, lasciare la Specifica fino alla fine significa che è molto probabile che venga abbandonata, soprattutto nel caso in cui le modifiche vengono (in una certa misura) testate manualmente in seguito comunque.</p>
+<p>D'altra parte, quando si esegue TDD (come vedremo nei prossimi capitoli) la nostra Specifica cresce insieme al codice di produzione, quindi c'è molta meno tentazione di abbandonarla del tutto. Inoltre, in TDD, una Specifica scritta non è un'aggiunta al codice, ma piuttosto <em>un motivo</em> per scrivere il codice. La creazione di una Specifica eseguibile diventa una parte indispensabile dell'implementazione di una funzionalità.</p>
+</section>
+<section id="test-after-often-leads-to-design-rework">
+<h2>Il &quot;Test-After&quot; spesso porta a una rielaborazione del progetto<a class="headerlink" href="#test-after-often-leads-to-design-rework" title="Link to this heading">¶</a></h2>
+<p>Mi piace leggere e guardare Uncle Bob (Robert C. Martin) [https://it.wikipedia.org/wiki/Robert_Cecil_Martin]. Un giorno stavo ascoltando <a class="reference external" href="http://confreaks.tv/videos/rubymidwest2011-keynote-architecture-the-lost-years">il suo keynote al Ruby Midwest 2011, intitolato Architecture The Lost Years</a>. Alla fine, Robert ha fatto alcune digressioni, una delle quali sul TDD. Ha detto che scrivere test dopo il codice non è TDD e lo ha invece definito &quot;una perdita di tempo&quot;.</p>
+<p>Il mio pensiero iniziale era che il commento fosse forse un po' troppo esagerato e riguardasse solo il fatto di perdere tutti i vantaggi che mi porta iniziare con una dichiarazione falsa: la possibilità di vedere la dichiarazione fallire, la capacità di fare un'analisi pulita, ecc. Tuttavia, ora sento che c'è molto di più, grazie a qualcosa che ho imparato da Amir Kolsky e Scott Bain -- per poter scrivere una specifica gestibile per un pezzo di codice, il codice deve avere un alto livello di **testabilità **. Parleremo di questa qualità nella seconda parte di questo libro, ma per ora assumiamo la seguente definizione semplificata: maggiore è la testabilità di un pezzo di codice (ad esempio una classe), più facile sarà scrivere uno Statement per il suo comportamento.</p>
+<p>Ora, dov'è lo spreco nello scrivere le specifiche dopo aver scritto il codice? Per scoprirlo, confrontiamo gli approcci Statement-first e code-first. Nel flusso di lavoro Statement-first per il nuovo codice (non legacy), il mio flusso di lavoro e il mio approccio alla testabilità di solito assomigliano a questo:</p>
+<ol class="arabic simple">
+<li><p>Scrivere uno Statement che sia falso inizialmente (durante questo passaggio, si rileva e si correggono i problemi di testabilità anche prima che il codice di produzione venga scritto).</p></li>
+<li><p>Scrivere il codice per rendere vero lo Statement.</p></li>
+</ol>
+<p>Ed ecco cosa vedo spesso fare ai programmatori quando scrivono prima il codice (passaggi aggiuntivi contrassegnati in <strong>grassetto</strong>):</p>
+<ol class="arabic simple">
+<li><p>Scrivere del codice di produzione senza considerare come verrà testato (dopo questo passaggio, la testabilità è spesso non ottimale poiché di solito non viene presa in considerazione a questo punto).</p></li>
+<li><p><strong>Iniziare a scrivere una unit test</strong> (questo potrebbe non sembrare un passaggio aggiuntivo, poiché è presente anche nell'approccio precedente, ma una volta raggiunto il passaggio 5, si capirà cosa intendo).</p></li>
+<li><p><strong>Si nota che la unit test del codice che abbiamo scritto è complicato e insostenibile e i test diventano confusi mentre si cercano di aggirare i problemi di testabilità</strong>.</p></li>
+<li><p><strong>Sia decide di migliorare la testabilità ristrutturando il codice, ad es. per essere in grado di isolare gli oggetti e utilizzare tecniche come gli oggetti mock</strong>.</p></li>
+<li><p>Si scrivono unit test (questa volta dovrebbe essere più semplice poiché la testabilità del testato è migliore).</p></li>
+</ol>
+<p>Qual è l'equivalente dei passaggi contrassegnati nell'approccio Statement-first? Non c'è n'è nessuno! Fare queste cose è una perdita di tempo! Purtroppo, questo è uno spreco che incontro spesso.</p>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>In questo capitolo ho cercato di mostrare che la scelta di <em>quando</em> scriviamo la nostra Specifica spesso fa un'enorme differenza e che ci sono numerosi vantaggi nell'iniziare con uno [Statement]. Quando consideriamo la Specifica per quello che realmente è -- non solo come una serie di test che controllano la correttezza a runtime -- allora l'approccio Statement-first diventa meno scomodo e meno controintuitivo.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="copypaste" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>So che il codice copia-incolla è considerato dannoso e non dovremmo farlo. Quando scrivo [Statement] a livello di unità, faccio alcune eccezioni a questa regola. Ciò verrà spiegato nelle parti successive.</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">La programmazione Statement-first</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-s-the-point-of-writing-a-specification-after-the-fact">Che senso ha scrivere una specifica a posteriori?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-first-means-seeing-a-failure">&quot;Test-First&quot; significa vedere un fallimento</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-after-often-ends-up-as-test-never">&quot;Test-After&quot; [<em>testare-dopo</em>] spesso finisce come &quot;Test-Never&quot; [<em>testare-mai</em>]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-after-often-leads-to-design-rework">Il &quot;Test-After&quot; spesso porta a una rielaborazione del progetto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="050_Its_Not_a_Test.html" title="capitolo precedente">Non è (solo) un test</a></li>
+      <li>Next: <a href="070_Practicing_What_We_Already_Learned.html" title="capitolo successivo">Mettere in pratica ciò che abbiamo già imparato</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/060_Statement_First_Programming.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Interfacce &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Protocolli" href="230_Designing_for_composabiity_protocols.html" />
+    <link rel="prev" title="Dove vengono composti gli oggetti?" href="213_Where_are_objects_composed.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="interfaces">
+<h1>Interfacce<a class="headerlink" href="#interfaces" title="Link to this heading">¶</a></h1>
+<p>Alcuni oggetti sono più difficili da comporre con altri oggetti, altri sono più facili. Ovviamente, puntiamo a una maggiore componibilità. Numerosi fattori influenzano questo. Ne ho già discusso indirettamente alcuni, quindi è tempo di riassumere le cose e colmare le lacune. Questo capitolo tratterà del ruolo svolto dalle interfacce nel raggiungimento di un'elevata componibilità e il prossimo tratterà il concetto di protocollo.</p>
+<section id="classes-vs-interfaces">
+<h2>Classi e interfacce<a class="headerlink" href="#classes-vs-interfaces" title="Link to this heading">¶</a></h2>
+<p>Come abbiamo detto, un sender [<em>mittente</em>] si compone con un recipient [<em>destinatario</em>] ottenendo un riferimento ad esso. Inoltre, abbiamo detto che vogliamo che i nostri mittenti siano in grado di inviare messaggi a molti destinatari diversi. Questo, ovviamente, viene fatto usando il polimorfismo.</p>
+<p>Quindi, una delle domande che dobbiamo porci nella nostra ricerca di un’elevata componibilità è: da cosa dovrebbe dipendere un mittente per poter lavorare con il maggior numero possibile di destinatari? Dovrebbe dipendere da classi o da interfacce? In altre parole, quando inseriamo un oggetto come destinatario del messaggio in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">Sender</span><span class="p">(</span><span class="n">Recipient</span><span class="w"> </span><span class="n">recipient</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="n">_recipient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">recipient</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Il <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> dovrebbe essere una classe o un'interfaccia?</p>
+<p>Se assumiamo che <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> sia una classe, possiamo ottenere la componibilità che desideriamo derivando da essa un'altra classe e implementando metodi astratti o sovrascrivendo quelli virtuali. Tuttavia, dipendere da una classe come tipo base per un destinatario presenta i seguenti svantaggi:</p>
+<ol class="arabic simple">
+<li><p>La classe recipient può avere delle dipendenze reali. Ad esempio, se il nostro <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> dipende dallo stack &quot;Windows Communication Foundation (WCF)&quot;, tutte le classi che dipendono direttamente da <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> dipenderanno indirettamente da WCF, incluso il nostro <code class="docutils literal notranslate"><span class="pre">Sender</span></code>. Il danno maggiore del problema si ha quando una classe <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> fa qualcosa come aprire una connessione di rete in un costruttore -- le sottoclassi non sono in grado di impedirlo, non importa se gli piaccia o no perché una sottoclasse deve chiamare un costruttore della superclasse.</p></li>
+<li><p>Il costruttore di <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> deve essere invocato da qualsiasi classe derivata, il che può rappresentare un problema più o meno grande, a seconda del tipo di parametri che il costruttore accetta e di cosa fa.</p></li>
+<li><p>Nei linguaggi che supportano solo l'ereditarietà singola, la derivazione dalla classe <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> utilizza l'unico slot di ereditarietà, limitando il design.</p></li>
+<li><p>Dobbiamo contrassegnare tutti i metodi della classe <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> come <code class="docutils literal notranslate"><span class="pre">virtual</span></code> per consentirne l'override da parte delle sottoclassi. in caso contrario, non avremo la piena componibilità. Le sottoclassi non saranno in grado di ridefinire tutti i comportamenti del <code class="docutils literal notranslate"><span class="pre">Recipient</span></code>, quindi saranno molto limitate in ciò che possono fare.</p></li>
+</ol>
+<p>Come vedi, ci sono alcune difficoltà nell'usare le classi come &quot;slot per la componibilità&quot;, anche se la composizione è tecnicamente possibile in questo modo. Le interfacce sono di gran lunga migliori, proprio perché non presentano gli svantaggi di cui sopra.</p>
+<p>Si decide quindi che se un mittente vuole essere componibile con diversi destinatari, deve accettare un riferimento ad un destinatario sotto forma di riferimento di interfaccia. Possiamo dire che, essendo leggere e prive di comportamento, <strong>le interfacce possono essere trattate come &quot;slot&quot; o &quot;socket&quot; per collegare diversi oggetti</strong>.</p>
+<p>Di fatto, nei diagrammi UML, un modo per rappresentare una classe che implementa un'interfaccia è disegnarla con un plug. Sembra quindi che il concetto di &quot;interfaccia come slot per la pluggability [<em>collegabilità</em>]&quot; non sia così insolito.</p>
+<p><img alt="Classe ConcreteRecipient che implementa tre interfacce in UML. Le interfacce vengono mostrate come &quot;plug&quot; esposte dalla classe, il che significa che può essere collegato a qualsiasi cosa che utilizzi una qualsiasi delle tre interfacce" src="../_images/lollipop.png" /></p>
+<p>Come dai capitoli precedenti, stiamo portando all'estremo il concetto di &quot;pluggability &quot; [<em>collegabilità</em>] e componibilità, rendendola una delle massime priorità.</p>
+</section>
+<section id="events-callbacks-vs-interfaces-few-words-on-roles">
+<h2>Eventi/callback e interfacce: qualche parola sui ruoli<a class="headerlink" href="#events-callbacks-vs-interfaces-few-words-on-roles" title="Link to this heading">¶</a></h2>
+<p>Ho appena detto che la componibilità è &quot;una delle massime priorità&quot; nel nostro approccio progettuale? Wow, è una bella affermazione, vero? Sfortunatamente per me, solleva la seguente argomentazione: &quot;Ehi, le interfacce non sono il modo più estremo per ottenere la componibilità! Che dire ad es. degli eventi in C#? O le callback supportate da altri linguaggi? Non renderebbe le classi ancora più indipendenti dal contesto e componibili, se le collegassimo tramite eventi o callback, non tramite interfacce?&quot;</p>
+<p>Sì, lo farebbero, ma ci priverebbero anche di un altro aspetto molto importante del nostro approccio progettuale che finora non ho menzionato esplicitamente. Questo aspetto è: i ruoli. Quando usiamo le interfacce, possiamo dire che ciascuna interfaccia rappresenta un ruolo da svolgere per un oggetto reale. Quando questi ruoli sono espliciti, aiutano a progettare e descrivere la comunicazione tra gli oggetti.</p>
+<p>Diamo un'occhiata a un esempio di come la mancata definizione esplicita di ruoli possa togliere un po' di chiarezza alla progettazione. Questo è un metodo di esempio che invia alcuni messaggi a due destinatari tenuti come interfacce:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//role players:</span>
+<span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Role1</span><span class="w"> </span><span class="n">recipient1</span><span class="p">;</span>
+<span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Role2</span><span class="w"> </span><span class="n">recipient2</span><span class="p">;</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">SendSomethingToRecipients</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">recipient1</span><span class="p">.</span><span class="n">DoX</span><span class="p">();</span>
+<span class="w">  </span><span class="n">recipient1</span><span class="p">.</span><span class="n">DoY</span><span class="p">();</span>
+<span class="w">  </span><span class="n">recipient2</span><span class="p">.</span><span class="n">DoZ</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e lo confrontiamo con un effetto simile ottenuto utilizzando l'invocazione della callback:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//callbacks:</span>
+<span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Action</span><span class="w"> </span><span class="n">DoX</span><span class="p">;</span>
+<span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Action</span><span class="w"> </span><span class="n">DoY</span><span class="p">;</span>
+<span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Action</span><span class="w"> </span><span class="n">DoZ</span><span class="p">;</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">SendSomethingToRecipients</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">DoX</span><span class="p">();</span>
+<span class="w">  </span><span class="n">DoY</span><span class="p">();</span>
+<span class="w">  </span><span class="n">DoZ</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Possiamo vedere che nel secondo caso stiamo perdendo la nozione di quale messaggio appartiene a quale destinatario: ogni richiamata è autonoma dal punto di vista del mittente. Questo è un peccato perché, nel nostro approccio progettuale, vogliamo evidenziare i ruoli che ciascun destinatario gioca nella comunicazione, per renderla leggibile e logica. Inoltre, ironicamente, il disaccoppiamento tramite eventi o callback può rendere più difficile la componibilità. Questo perché i ruoli ci dicono quali insiemi di comportamenti stanno assieme e quindi devono cambiare insieme. Se ciascun comportamento viene attivato utilizzando un evento o una callback separata, ci viene imposto un sovraccarico per ricordare quali comportamenti dovrebbero essere modificati insieme e quali possono cambiare indipendentemente.</p>
+<p>Ciò non significa che eventi o callback siano dannosi. È solo che non sono adatti a sostituire le interfacce: in realtà, il loro scopo è leggermente diverso. Usiamo eventi o callback non per dire a qualcuno di fare qualcosa, ma per indicare cosa è successo (è per questo che li chiamiamo eventi, dopotutto...). Ciò si adatta bene allo schema dell’observer di cui abbiamo già parlato nel capitolo precedente. Quindi, invece di utilizzare oggetti observer, potremmo prendere in considerazione l'utilizzo di eventi o callback (come in ogni cosa, ci sono dei compromessi per ciascuna delle soluzioni). In altre parole, eventi e callback hanno il loro utilizzo nella composizione, ma sono adatti a un caso così specifico da non poter essere trattati come un scelta di default. Il vantaggio delle interfacce è che legano insieme messaggi che rappresentano astrazioni coerenti e trasmettono ruoli nella comunicazione. Ciò migliora la leggibilità e la chiarezza.</p>
+</section>
+<section id="small-interfaces">
+<h2>Piccole interfacce<a class="headerlink" href="#small-interfaces" title="Link to this heading">¶</a></h2>
+<p>Ok, quindi abbiamo detto che le interfacce sono &quot;la strada da percorrere&quot; per raggiungere la forte componibilità a cui miriamo. Il semplice utilizzo delle interfacce ci garantisce che la componibilità sarà forte? La risposta è &quot;no&quot; -- sebbene l'utilizzo delle interfacce come &quot;slot&quot; sia un passo necessario nella giusta direzione, da solo non produce la migliore componibilità.</p>
+<p>Una delle altre cose che dobbiamo considerare è la dimensione delle interfacce. Precisiamo una cosa ovvia a riguardo:</p>
+<p><strong>A parità di condizioni, le interfacce più piccole (ovvero con meno metodi) sono più facili da implementare rispetto a quelle più grandi</strong>.</p>
+<p>L'ovvia conclusione di ciò è che se vogliamo avere una forte componibilità, i nostri &quot;slot&quot;, cioè le interfacce, devono essere il più piccoli possibili (ma non i più piccoli -- vedere la sezione precedente su interfacce ed eventi/callback). Naturalmente, non possiamo raggiungere questo obiettivo rimuovendo ciecamente i metodi dalle interfacce, perché ciò guasterebbe le classi che utilizzano questi metodi, ad es. quando qualcuno utilizza un'implementazione dell'interfaccia come questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Process</span><span class="p">(</span><span class="n">Recipient</span><span class="w"> </span><span class="n">recipient</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">recipient</span><span class="p">.</span><span class="n">DoSomething</span><span class="p">();</span>
+<span class="w">  </span><span class="n">recipient</span><span class="p">.</span><span class="n">DoSomethingElse</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>È impossibile rimuovere uno dei metodi dall'interfaccia <code class="docutils literal notranslate"><span class="pre">Recipient</span></code> poiché causerebbe un errore di compilazione indicante che stiamo tentando di utilizzare un metodo che non esiste.</p>
+<p>Allora, cosa facciamo quindi? Cerchiamo di separare gruppi di metodi utilizzati da mittenti diversi e di spostarli su interfacce separate in modo che ciascun mittente abbia accesso solo ai metodi di cui ha bisogno. Dopotutto, una classe può implementare più di un'interfaccia, in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ImplementingObject</span>
+<span class="p">:</span><span class="w"> </span><span class="n">InterfaceForSender1</span><span class="p">,</span>
+<span class="w">  </span><span class="n">InterfaceForSender2</span><span class="p">,</span>
+<span class="w">  </span><span class="n">InterfaceForSender3</span>
+<span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>L'idea di creare un'interfaccia separata per ogni mittente invece di un'unica grande interfaccia per tutti i mittenti è nota come Principio di Segregazione dell'Interfaccia<a class="footnote-reference brackets" href="#interfacesegregation" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<section id="a-simple-example-separation-of-reading-from-writing">
+<h3>Un semplice esempio: separazione della lettura dalla scrittura<a class="headerlink" href="#a-simple-example-separation-of-reading-from-writing" title="Link to this heading">¶</a></h3>
+<p>Supponiamo di avere una classe nella nostra applicazione che rappresenta la struttura organizzativa dell'azienda. Questa applicazione espone due API. La prima serve per le notifiche sui cambiamenti della struttura organizzativa da parte di un amministratore (in modo che la nostra classe possa aggiornare i suoi dati). La seconda riguarda le operazioni lato client sui dati organizzativi, come la lista di tutti i dipendenti. L'interfaccia per la classe della struttura organizzativa può contenere metodi utilizzati da entrambe queste API:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span>
+<span class="n">OrganizationStructure</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//////////////////////</span>
+<span class="w">  </span><span class="c1">//used by administrator:</span>
+<span class="w">  </span><span class="c1">//////////////////////  </span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Make</span><span class="p">(</span><span class="n">Change</span><span class="w"> </span><span class="n">change</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">//...other administrative methods</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">//////////////////////</span>
+<span class="w">  </span><span class="c1">//used by clients:</span>
+<span class="w">  </span><span class="c1">//////////////////////</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">ListAllEmployees</span><span class="p">(</span>
+<span class="w">    </span><span class="n">EmployeeDestination</span><span class="w"> </span><span class="n">destination</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">//...other client-side methods  </span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Tuttavia, la gestione dell'API amministrativa viene eseguita da un codice diverso rispetto a quella dell'API lato client. Pertanto, la parte amministrativa non ha alcuna conoscenza relativa all'elenco dei dipendenti e viceversa: quella lato client non ha interesse ad apportare modifiche amministrative. Possiamo usare questa conoscenza per dividere la nostra interfaccia in due:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span>
+<span class="n">OrganizationalStructureAdminCommands</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Make</span><span class="p">(</span><span class="n">Change</span><span class="w"> </span><span class="n">change</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">//... other administrative methods</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="k">interface</span>
+<span class="n">OrganizationalStructureClientCommands</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">ListAllEmployees</span><span class="p">(</span>
+<span class="w">    </span><span class="n">EmployeeDestination</span><span class="w"> </span><span class="n">destination</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">//... other client-side methods</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che ciò non limita l'implementazione di queste interfacce: una classe reale può comunque implementarle entrambe se lo desidera:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">InMemoryOrganizationalStructure</span>
+<span class="p">:</span><span class="w"> </span><span class="n">OrganizationalStructureAdminCommands</span><span class="p">,</span>
+<span class="w">  </span><span class="n">OrganizationalStructureClientCommands</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo approccio creiamo più interfacce (cosa che a qualcuno potrebbe non piacere), ma questo non dovrebbe disturbarci molto perché, in cambio, ogni interfaccia è più facile da implementare (perché il numero di metodi da implementare è inferiore rispetto al caso in cui di una grande interfaccia). Ciò significa che viene migliorata la componibilità, che è ciò che desideriamo di più.</p>
+<p>Si ripaga. Ad esempio, un giorno, potremmo ottenere l'obbligo di tracciare tutte le scritture sulla struttura organizzativa (ovvero le operazioni relative all'amministrazione). In tal caso, tutto ciò che dobbiamo fare è creare una classe proxy che implementi l'interfaccia <code class="docutils literal notranslate"><span class="pre">OrganizationalStructureAdminCommands</span></code>, che avvolga i metodi della classe originale con una notifica a un observer (che può essere il &quot;trace&quot; richiesto o qualsiasi altra cosa ci piaccia):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">NotifyingAdminCommands</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">OrganizationalStructureAdminCommands</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">NotifyingCommands</span><span class="p">(</span>
+<span class="w">    </span><span class="n">OrganizationalStructureAdminCommands</span><span class="w"> </span><span class="n">wrapped</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ChangeObserver</span><span class="w"> </span><span class="n">observer</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_wrapped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wrapped</span><span class="p">;</span>
+<span class="w">    </span><span class="n">_observer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">observer</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Make</span><span class="p">(</span><span class="n">Change</span><span class="w"> </span><span class="n">change</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span>
+<span class="w">    </span><span class="n">_wrapped</span><span class="p">.</span><span class="n">Make</span><span class="p">(</span><span class="n">change</span><span class="p">);</span>
+<span class="w">    </span><span class="n">_observer</span><span class="p">.</span><span class="n">NotifyAbout</span><span class="p">(</span><span class="n">change</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">//...other administrative methods</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che durante la definizione della classe precedente, abbiamo dovuto implementare solo un'interfaccia: <code class="docutils literal notranslate"><span class="pre">OrganizationalStructureAdminCommands</span></code> e abbiamo potuto ignorare l'esistenza di <code class="docutils literal notranslate"><span class="pre">OrganizationalStructureClientCommands</span></code>. Ciò è dovuto alla suddivisione dell'interfaccia che abbiamo effettuato in precedenza. Se non avessimo separato le interfacce per l'accesso di admin e client, la classe <code class="docutils literal notranslate"><span class="pre">NotifyingAdminCommands</span></code> dovrebbe implementare il metodo <code class="docutils literal notranslate"><span class="pre">ListAllEmployees</span></code> (e altri) e delegarlo all'istanza wrapped [<em>impacchettata</em>] originale. Questo non è difficile, ma è un lavoro inutile. Dividere l'interfaccia in due più piccole ci ha risparmiato questo problema.</p>
+<section id="interfaces-should-model-roles">
+<h4>Le interfacce dovrebbero modellare i ruoli<a class="headerlink" href="#interfaces-should-model-roles" title="Link to this heading">¶</a></h4>
+<p>Nell'esempio sopra, abbiamo diviso l'interfaccia più grande in due più piccole, in realtà esponendo che gli oggetti della classe <code class="docutils literal notranslate"><span class="pre">InMemoryOrganizationalStructure</span></code> possono svolgere due ruoli.</p>
+<p>Considerare i ruoli è un altro modo efficace per separare le interfacce. Ad esempio, nella struttura organizzativa menzionata sopra, potremmo avere oggetti della classe <code class="docutils literal notranslate"><span class="pre">Employee</span></code>, ma ciò non significa che questa classe debba implementare un'interfaccia chiamata <code class="docutils literal notranslate"><span class="pre">IEmployee</span></code> o <code class="docutils literal notranslate"><span class="pre">EmployeeIfc</span></code> o qualcosa del genere. Onestamente, questa è una situazione da cui potremmo iniziare, quando non abbiamo ancora idee migliori, ma da cui vorremmo uscire il prima possibile attraverso il refactoring. Ciò che vorremmo fare appena possibile è riconoscere ruoli validi. Nel nostro esempio, dal punto di vista della struttura, il dipendente potrebbe svolgere un ruolo di <code class="docutils literal notranslate"><span class="pre">Node</span></code>. Se ha un genitore (ad esempio un'unità organizzativa) a cui appartiene, dal suo punto di vista potrebbe svolgere il ruolo di <code class="docutils literal notranslate"><span class="pre">ChildUnit</span></code>. Allo stesso modo, se nella struttura sono presenti figli (es. dipendenti da lui gestiti), potrà essere considerato il loro <code class="docutils literal notranslate"><span class="pre">Parent</span></code> o <code class="docutils literal notranslate"><span class="pre">DirectSupervisor</span></code>. Tutti questi ruoli dovrebbero essere modellati utilizzando le interfacce implementate dalla classe <code class="docutils literal notranslate"><span class="pre">Employee</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Employee</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Node</span><span class="p">,</span><span class="w"> </span><span class="n">ChildUnit</span><span class="p">,</span><span class="w"> </span><span class="n">DirectSupervisor</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//...</span>
+</pre></div>
+</div>
+<p>e a ciascuna di queste interfacce dovrebbero essere forniti solo i metodi necessari dal punto di vista degli oggetti che interagiscono con un ruolo modellato con questa interfaccia.</p>
+</section>
+<section id="interfaces-should-depend-on-abstractions-not-implementation-details">
+<h4>Le interfacce dovrebbero dipendere da astrazioni, non da dettagli di implementazione<a class="headerlink" href="#interfaces-should-depend-on-abstractions-not-implementation-details" title="Link to this heading">¶</a></h4>
+<p>È forte la tentazione di pensare che ogni interfaccia sia per definizione un'astrazione. Credo il contrario -- mentre le interfacce astraggono il tipo concreto della classe che lo implementa, potrebbero comunque contenere altre cose non astratte che sono dettagli di implementazione. Diamo un'occhiata alla seguente interfaccia:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Basket</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">WriteTo</span><span class="p">(</span><span class="n">SqlConnection</span><span class="w"> </span><span class="n">sqlConnection</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsAllowedToEditBy</span><span class="p">(</span><span class="n">SecurityPrincipal</span><span class="w"> </span><span class="n">user</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Si vedono gli argomenti di questi metodi? <code class="docutils literal notranslate"><span class="pre">SqlConnection</span></code> è un oggetto della libreria per interfacciarsi direttamente con un database SQL Server, quindi è una dipendenza molto concreta. <code class="docutils literal notranslate"><span class="pre">SecurityPrincipal</span></code> è una delle classi principali della libreria di autorizzazioni di .NET che funziona con un database di utenti su un sistema locale o in Active Directory. Quindi, ancora una volta, una dipendenza molto concreta. Con dipendenze del genere, sarà molto difficile scrivere altre implementazioni di questa interfaccia, perché saremo costretti a trascinarci dietro dipendenze concrete e per lo più non saremo in grado di aggirare il problema se vogliamo qualcosa di diverso. Pertanto, possiamo dire che questi tipi concreti menzionati sono dettagli di implementazione esposti nell'interfaccia. Pertanto, questa interfaccia è un'astrazione fallita. È essenziale astrarre questi dettagli di implementazione, ad es. come questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Basket</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">WriteTo</span><span class="p">(</span><span class="n">ProductOutput</span><span class="w"> </span><span class="n">output</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsAllowedToEditBy</span><span class="p">(</span><span class="n">BasketOwner</span><span class="w"> </span><span class="n">user</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questo è meglio. Ad esempio, poiché <code class="docutils literal notranslate"><span class="pre">ProductOutput</span></code> è un'astrazione di livello superiore (molto probabilmente un'interfaccia, come abbiamo discusso in precedenza), nessuna implementazione del metodo <code class="docutils literal notranslate"><span class="pre">WriteTo</span></code> deve essere legata a un particolare tipo di archiviazione. Ciò significa che abbiamo più libertà di sviluppare diverse implementazioni di questo metodo. Inoltre, ogni implementazione del metodo <code class="docutils literal notranslate"><span class="pre">WriteTo</span></code> è più utile in quanto è riutilizzabile con diversi tipi di <code class="docutils literal notranslate"><span class="pre">ProductOutput</span></code>.</p>
+<p>Un altro esempio potrebbe essere un'interfaccia dati, ovvero un'interfaccia solo con getter e setter. Guardando questo esempio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Employee</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">HumanName</span><span class="w"> </span><span class="n">Name</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="n">HumanAge</span><span class="w">  </span><span class="n">Age</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="n">Address</span><span class="w"> </span><span class="n">Address</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="n">Money</span><span class="w"> </span><span class="n">Pay</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="n">EmploymentStatus</span><span class="w"> </span><span class="n">EmploymentStatus</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">get</span><span class="p">;</span><span class="w"> </span><span class="k">set</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>in quanti modi diversi possiamo implementare tale interfaccia? Non molti -- l'unica domanda a cui possiamo rispondere in modo diverso nelle diverse implementazioni di <code class="docutils literal notranslate"><span class="pre">Employee</span></code> è: &quot;qual è l'archiviazione dei dati?&quot;. Tutto tranne questa domanda viene esposto, rendendola un'astrazione molto povera. Questo è simile a quello con cui Johnny e Benjamin stavano combattendo nel sistema dei salari quando volevano introdurre un altro tipo di dipendente -- un dipendente [contractor]. Quindi, molto probabilmente, un'astrazione migliore sarebbe qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Employee</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Sign</span><span class="p">(</span><span class="n">Document</span><span class="w"> </span><span class="n">document</span><span class="p">);</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Send</span><span class="p">(</span><span class="n">PayrollReport</span><span class="w"> </span><span class="n">payrollReport</span><span class="p">);</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">Fire</span><span class="p">();</span>
+<span class="w">  </span><span class="k">void</span><span class="w"> </span><span class="nf">GiveRaiseBy</span><span class="p">(</span><span class="n">Percentage</span><span class="w"> </span><span class="n">percentage</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Quindi la regola generale è: rendere le interfacce vere e proprie astrazioni estraendo da esse i dettagli dell'implementazione. Solo allora si sarà liberi di creare diverse implementazioni dell'interfaccia che non siano vincolate da dipendenze non volute o di cui non ce n'è bisogno.</p>
+</section>
+</section>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="interfacesegregation" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Interfacce</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#classes-vs-interfaces">Classi e interfacce</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#events-callbacks-vs-interfaces-few-words-on-roles">Eventi/callback e interfacce: qualche parola sui ruoli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#small-interfaces">Piccole interfacce</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="213_Where_are_objects_composed.html" title="capitolo precedente">Dove vengono composti gli oggetti?</a></li>
+      <li>Next: <a href="230_Designing_for_composabiity_protocols.html" title="capitolo successivo">Protocolli</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/220_Designing_for_composabiity_interfaces.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

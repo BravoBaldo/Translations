@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Raggiungere la rete dei confini degli oggetti &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Cosa c&#39;è dentro l&#39;oggetto?" href="360_Internals.html" />
+    <link rel="prev" title="Oggetti valore nel test-driving" href="340_Test-Driving_Value_object.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="reaching-the-web-of-objects-boundaries">
+<h1>Raggiungere la rete dei confini degli oggetti<a class="headerlink" href="#reaching-the-web-of-objects-boundaries" title="Link to this heading">¶</a></h1>
+<p>Quando si esegue il rilevamento dell'interfaccia outside-in e si implementa un collaboratore dopo l'altro, spesso arriva un punto in cui raggiungiamo i limiti della nostra applicazione, il che significa che dobbiamo eseguire qualche tipo di operazione di I/O (come chiamare un'API esterna tramite HTTP) o utilizzare un classe che fa parte di una sorta di pacchetto di terze parti (ad esempio fornito da un framework). In questi luoghi, la libertà con cui potremmo modellare la nostra realtà object-oriented è enormemente limitata da queste dipendenze. Anche se guidiamo ancora i comportamenti utilizzando la nostra intenzione, dobbiamo essere sempre più consapevoli che la direzione che prendiamo deve corrispondere alla tecnologia con cui comunichiamo con il mondo esterno.</p>
+<p>Esistono molteplici esempi di risorse che si trovano ai confini della nostra rete di oggetti. File, thread, clock, database, canali di comunicazione (ad esempio http, bus di servizio, websocket), interfacce utente grafiche... queste risorse vengono utilizzate per implementare meccanismi per cose che svolgono un ruolo nel nostro design. Dobbiamo in qualche modo raggiungere un consenso tra ciò che questi meccanismi di implementazione richiedono per svolgere il loro lavoro e qual è il ruolo del dominio che devono ricoprire.</p>
+<p>In questo capitolo descriverò diversi esempi di come raggiungere questo consenso con alcune indicazioni su come affrontarli. L'essenza di questa guida è nascondere tali dipendenze sotto interfacce che modellano i ruoli di cui abbiamo bisogno.</p>
+<section id="what-time-is-it">
+<h2>Che ore sono?<a class="headerlink" href="#what-time-is-it" title="Link to this heading">¶</a></h2>
+<p>Considerazione l'idea di ottenere l'ora corrente.</p>
+<p>Immaginiamo che la nostra applicazione gestisca sessioni che scadono a un certo punto. Modelliamo il concetto di sessione creando una classe chiamata <code class="docutils literal notranslate"><span class="pre">Session</span></code> e consentiamo di interrogarla se è scaduta o meno. Per rispondere a questa domanda, la sessione deve conoscere l'ora di scadenza e l'ora corrente e calcolare la loro differenza. In tal caso, possiamo modellare la sorgente dell'ora corrente come una sorta di astrazione di &quot;orologio&quot;. Ecco alcuni esempi di come farlo.</p>
+<section id="a-query-for-the-current-time-with-a-mock-framework">
+<h3>Una query per l'ora corrente con un framework mock<a class="headerlink" href="#a-query-for-the-current-time-with-a-mock-framework" title="Link to this heading">¶</a></h3>
+<p>Possiamo modellare l'orologio semplicemente come un servizio che fornisce l'ora corrente (ad esempio tramite una sorta di metodo <code class="docutils literal notranslate"><span class="pre">.CurrentTime()</span></code>). La classe <code class="docutils literal notranslate"><span class="pre">Session</span></code> è quindi responsabile dell'esecuzione del calcolo. Uno Statement di esempio che descrive questo comportamento potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldSayItIsExpiredWhenItsPastItsExpiryDate</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">expiryDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">DateTime</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Clock</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Session</span><span class="p">(</span><span class="n">expiryDate</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">);</span>
+
+<span class="w"> </span><span class="n">clock</span><span class="p">.</span><span class="n">CurrentTime</span><span class="p">().</span><span class="n">Returns</span><span class="p">(</span><span class="n">expiryDate</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromTicks</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">isExpired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">IsExpired</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">isExpired</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ho bloccato il mio orologio per restituire un punto temporale specifico per rendere deterministica l'esecuzione dello Statement e per descrivere un comportamento specifico, che indica la scadenza della sessione.</p>
+</section>
+<section id="more-responsibility-allocation-in-the-clock-abstraction">
+<h3>Maggiore allocazione delle responsabilità nell'astrazione dell'orologio<a class="headerlink" href="#more-responsibility-allocation-in-the-clock-abstraction" title="Link to this heading">¶</a></h3>
+<p>Il nostro precedente tentativo di astrazione dell'orologio era semplicemente quello di astrarre i servizi garantiti da una fonte in tempo reale (&quot;qual è l'ora corrente?&quot;). Possiamo rendere questa astrazione più adatta al nostro caso d'uso specifico fornendogli un metodo <code class="docutils literal notranslate"><span class="pre">IsPast()</span></code> che accetterà un tempo di scadenza e ci dirà semplicemente se è passato o meno quel tempo. Uno degli Statements che utilizzano il metodo <code class="docutils literal notranslate"><span class="pre">IsPast()</span></code> potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldSayItIsExpiredWhenItsPastItsExpiryDate</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">expiryDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">DateTime</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Clock</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Session</span><span class="p">(</span><span class="n">expiryDate</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">);</span>
+
+<span class="w"> </span><span class="n">clock</span><span class="p">.</span><span class="n">IsPast</span><span class="p">(</span><span class="n">expiryDate</span><span class="p">).</span><span class="n">Returns</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">isExpired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">IsExpired</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">isExpired</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questa volta utilizzo anche un mock per sostituire un'implementazione di <code class="docutils literal notranslate"><span class="pre">Clock</span></code>.</p>
+<p>Il vantaggio di ciò è che l’astrazione è più sintonizzata sulle nostre esigenze specifiche. Lo svantaggio è che il calcolo della differenza temporale tra il tempo corrente e quello di scadenza viene effettuato in una classe che sarà quantomeno molto difficile da descrivere con uno Statement deterministico poiché si baserà sull'orologio del sistema.</p>
+</section>
+<section id="a-fake-clock">
+<h3>Un orologio fake<a class="headerlink" href="#a-fake-clock" title="Link to this heading">¶</a></h3>
+<p>Se i servizi forniti da un'interfaccia come <code class="docutils literal notranslate"><span class="pre">Clock</span></code> sono abbastanza semplici, possiamo creare la nostra implementazione da utilizzare negli Statement. Tale implementazione eliminerebbe tutta la fatica di lavorare con una vera risorsa esterna e ci fornirebbe invece una versione semplificata o più controllabile. Ad esempio, una implementazione fake dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Clock</span></code> potrebbe assomigliare a questa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SettableClock</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Clock</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">_currentTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">MinValue</span><span class="p">;</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">SetCurrentTime</span><span class="p">(</span><span class="n">DateTime</span><span class="w"> </span><span class="n">currentTime</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">_currentTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentTime</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+
+<span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="nf">CurrentTime</span><span class="p">()</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_currentTime</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questa implementazione di <code class="docutils literal notranslate"><span class="pre">Clock</span></code> non ha solo un getter per l'ora corrente (che è ereditato dall'interfaccia <code class="docutils literal notranslate"><span class="pre">Clock</span></code>), ma ha anche un setter. L'&quot;ora corrente&quot; restituita dall'istanza <code class="docutils literal notranslate"><span class="pre">SettableClock</span></code> non proviene dall'orologio di sistema, ma può invece essere impostata su un valore specifico e deterministico. Ecco come appare l'uso di <code class="docutils literal notranslate"><span class="pre">SettableClock</span></code> in uno Statement:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldSayItIsExpiredWhenItsPastItsExpiryDate</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">expiryDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">DateTime</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SettableClock</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Session</span><span class="p">(</span><span class="n">expiryDate</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">);</span>
+
+<span class="w"> </span><span class="n">clock</span><span class="p">.</span><span class="n">SetCurrentTime</span><span class="p">(</span><span class="n">expiryDate</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">isExpired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">IsExpired</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">isExpired</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Potrei anche realizzare la seconda versione dell'orologio - quella con il metodo <code class="docutils literal notranslate"><span class="pre">IsPast()</span></code> - in modo molto simile. Avrei solo bisogno di aggiungere un po' di intelligenza extra a <code class="docutils literal notranslate"><span class="pre">SettableClock</span></code>, duplicando piccoli frammenti dell'implementazione reale di <code class="docutils literal notranslate"><span class="pre">Clock</span></code>. In questo caso, non è un grosso problema, ma ci possono essere casi in cui questo può essere eccessivo. Affinché un fake sia garantito, l'implementazione fake deve essere molto, molto più semplice dell'implementazione reale che intendiamo utilizzare.</p>
+<p>Un vantaggio di un falso è che può essere riutilizzato (ad esempio, un'astrazione di orologio impostabile riutilizzabile può essere trovata nelle librerie &quot;Noda Time&quot; e &quot;Joda Time&quot;). Uno svantaggio è che più il codice sofisticato si trova all'interno del falso, più è probabile che contenga bug. Se un falso molto intelligente vale ancora la pena nonostante la complessità (e ho visto diversi casi in cui lo era), prenderei in considerazione la possibilità di scrivere alcune specifiche sull'implementazione fake.</p>
+</section>
+<section id="other-usages-of-this-approach">
+<h3>Altri usi di questo approccio<a class="headerlink" href="#other-usages-of-this-approach" title="Link to this heading">¶</a></h3>
+<p>Lo stesso approccio che abbiamo utilizzato con un orologio di sistema può essere adottato con altre fonti di valori non deterministici, ad es. generatori di valori casuali.</p>
+</section>
+</section>
+<section id="timers">
+<h2>Timer<a class="headerlink" href="#timers" title="Link to this heading">¶</a></h2>
+<p>I timer sono oggetti che consentono l'esecuzione di codice differita o periodica, solitamente in modo asincrono.</p>
+<p>{{keyInfo}} Al giorno d'oggi in C#, quasi tutto ciò che è asincrono viene eseguito utilizzando la classe <code class="docutils literal notranslate"><span class="pre">Task</span></code> e le parole chiave <code class="docutils literal notranslate"><span class="pre">async</span></code>-<code class="docutils literal notranslate"><span class="pre">await</span></code>. Nonostante ciò, ho deciso di escluderli da questo capitolo per renderlo più comprensibile agli utenti non C#. Quindi perdonatemi per un esempio un po' meno realistico e spero che si possa mapparlo al proprio codice moderno.</p>
+<p>In genere, l'utilizzo del timer è composto da tre fasi:</p>
+<ol class="arabic simple">
+<li><p>lo &quot;scheduling&quot; [<em>pianificazione</em>] della scadenza del timer per un momento specifico, passandogli una callback da eseguire alla scadenza. Di solito è possibile dire a un timer se continuare il ciclo successivo al termine di quello corrente o interromperlo.</p></li>
+<li><p>Quando la scadenza del timer è schedulata, viene eseguita in modo asincrono in una sorta di thread in background.</p></li>
+<li><p>Quando il timer scade, la callback passata durante la pianificazione viene eseguita e il timer inizia un altro ciclo oppure si arresta.</p></li>
+</ol>
+<p>Dal punto di vista della progettazione della nostra collaborazione, le parti importanti sono i punti 1 e 3. Affrontiamoli uno per uno.</p>
+<section id="scheduling-a-periodic-task">
+<h3>Schedulare un task periodico<a class="headerlink" href="#scheduling-a-periodic-task" title="Link to this heading">¶</a></h3>
+<p>Per prima cosa immaginiamo di creare una nuova sessione, aggiungerla a una sorta di cache e impostare un timer che scade ogni 10 secondi per verificare se i privilegi del proprietario della sessione sono ancora validi. Uno Statement  per questo potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldAddCreatedSessionToCacheAndScheduleItsPeriodicPrivilegesRefreshWhenExecuted</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessionData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">SessionData</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">SessionId</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">Session</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessionFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">SessionFactory</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">SessionCache</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">periodicTasks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">PeriodicTasks</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CreateSessionCommand</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">sessionFactory</span><span class="p">,</span><span class="w"> </span><span class="n">cache</span><span class="p">,</span><span class="w"> </span><span class="n">sessionData</span><span class="p">);</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="n">sessionFactory</span><span class="p">.</span><span class="n">CreateNewSessionFrom</span><span class="p">(</span><span class="n">sessionData</span><span class="p">).</span><span class="n">Returns</span><span class="p">(</span><span class="n">session</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">command</span><span class="p">.</span><span class="n">Execute</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">Received</span><span class="p">.</span><span class="n">InOrder</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">cache</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">session</span><span class="p">);</span>
+<span class="w">  </span><span class="n">periodicTasks</span><span class="p">.</span><span class="n">RunEvery</span><span class="p">(</span><span class="n">TimeSpan</span><span class="p">.</span><span class="n">FromSeconds</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">RefreshPrivileges</span><span class="p">);</span>
+<span class="w"> </span><span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che ho creato un'interfaccia <code class="docutils literal notranslate"><span class="pre">PeriodicTasks</span></code> per modellare un'astrazione per l'esecuzione... beh... di attività periodiche. Sembra un'astrazione generica e, se necessario, potrebbe essere resa un po' più orientata al dominio. Per il nostro esempio, dovrebbe andare bene. L'interfaccia <code class="docutils literal notranslate"><span class="pre">PeriodicTask</span></code> si presenta così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">interface</span><span class="w"> </span><span class="n">PeriodicTasks</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">RunEvery</span><span class="p">(</span><span class="n">TimeSpan</span><span class="w"> </span><span class="n">period</span><span class="p">,</span><span class="w"> </span><span class="n">Action</span><span class="w"> </span><span class="n">actionRanOnExpiry</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Nello Statement sopra ho solo specificato che dovrà essere schedulata un'operazione periodica. Specificare come l'implementazione <code class="docutils literal notranslate"><span class="pre">PeriodicTasks</span></code> svolge il suo lavoro non rientra nello &quot;scope&quot;.</p>
+<p>L'interfaccia <code class="docutils literal notranslate"><span class="pre">PeriodicTasks</span></code> è progettata in modo da poter passare un gruppo di metodi anziché una lambda, poiché la richiesta di lambda renderebbe più difficile confrontare gli argomenti tra le invocazioni previste e quelle effettive nello Statement. Quindi, se volessi pianificare un'invocazione periodica di un metodo che ha un argomento (ad esempio, un singolo <code class="docutils literal notranslate"><span class="pre">int</span></code>), aggiungerei un metodo <code class="docutils literal notranslate"><span class="pre">RunEvery</span></code> che sarebbe simile a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">interface</span><span class="w"> </span><span class="n">PeriodicTasks</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">RunEvery</span><span class="p">(</span><span class="n">TimeSpan</span><span class="w"> </span><span class="n">period</span><span class="p">,</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">actionRanOnExpiry</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">argument</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>oppure potrei rendere il metodo generico:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">interface</span><span class="w"> </span><span class="n">PeriodicTasks</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="n">RunEvery</span><span class="o">&lt;</span><span class="n">TArg</span><span class="o">&gt;</span><span class="p">(</span><span class="n">TimeSpan</span><span class="w"> </span><span class="n">period</span><span class="p">,</span><span class="w"> </span><span class="n">Action</span><span class="o">&lt;</span><span class="n">TArg</span><span class="o">&gt;</span><span class="w"> </span><span class="n">actionRanOnExpiry</span><span class="p">,</span><span class="w"> </span><span class="n">TArg</span><span class="w"> </span><span class="n">argument</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Se avessi bisogno di insiemi di argomenti diversi, potrei semplicemente aggiungere più metodi all'interfaccia <code class="docutils literal notranslate"><span class="pre">PeriodicTasks</span></code>, a patto di non accoppiarlo a nessuna classe specifica relativa al dominio (se ne avessi bisogno, preferirei dividere <code class="docutils literal notranslate"><span class="pre">PeriodicTasks</span></code> in molte altre interfacce specifiche del dominio).</p>
+</section>
+<section id="expiry">
+<h3>Scadenza<a class="headerlink" href="#expiry" title="Link to this heading">¶</a></h3>
+<p>Specificare il caso in cui il timer scade e l'attività schedulata deve essere eseguita è ancora più semplice. Dobbiamo solo fare ciò che farebbe il codice del timer - richiamare il codice schedulato dal nostro Statement. Per il mio esempio di sessione, presupponendo che un'implementazione dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Session</span></code> sia una classe chiamata <code class="docutils literal notranslate"><span class="pre">UserSession</span></code>, potrei usare il seguente Statement per descrivere un comportamento in cui la perdita dei privilegi per accedere al contenuto della sessione porta alla generazione di eventi:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span>
+<span class="n">ShouldNotifyObserverThatSessionIsClosedOnPrivilegesRefreshWhenUserLosesAccessToSessionContent</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessionContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">SessionContent</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">sessionEventObserver</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">SessionEventObserver</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Instance</span><span class="o">&lt;</span><span class="n">SessionId</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">UserSession</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">sessionContent</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">sessionEventObserver</span><span class="p">);</span>
+<span class="w"> </span>
+<span class="w"> </span><span class="n">user</span><span class="p">.</span><span class="n">HasAccessTo</span><span class="p">(</span><span class="n">sessionContent</span><span class="p">).</span><span class="n">Returns</span><span class="p">(</span><span class="k">false</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="n">RefreshPrivileges</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">sessionEventObserver</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">OnSessionClosed</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ai fini di questo esempio, sto saltando altre istruzioni (ad esempio si potrebbe specificare un comportamento quando <code class="docutils literal notranslate"><span class="pre">RefreshPrivileges</span></code> viene chiamato più volte poiché è quello che farà il timer alla fine) e l'accesso multithread (le richiamate del timer sono in genere eseguiti da altri thread, quindi se accedono allo stato mutabile, questo stato deve essere protetto da modifiche simultanee).</p>
+</section>
+</section>
+<section id="threads">
+<h2>Thread<a class="headerlink" href="#threads" title="Link to this heading">¶</a></h2>
+<p>Di solito vedo i thread utilizzati in due situazioni:</p>
+<ol class="arabic simple">
+<li><p>Per eseguire più attività in parallelo. Ad esempio, abbiamo diversi calcoli indipendenti e pesanti e vogliamo eseguirli contemporaneamente (non uno dopo l'altro) per far sì che l'esecuzione del codice finisca prima.</p></li>
+<li><p>Per rinviare l'esecuzione di una parte della logica a un processo in background asincrono. Questo lavoro può essere ancora in esecuzione anche dopo che il metodo che lo ha avviato ha terminato l'esecuzione.</p></li>
+</ol>
+<section id="parallel-execution">
+<h3>Esecuzione parallela<a class="headerlink" href="#parallel-execution" title="Link to this heading">¶</a></h3>
+<p>Nel primo caso -- quello di esecuzione parallela -- il multithreading è un dettaglio di implementazione del metodo chiamato dallo Statement. Lo Statement stesso non deve sapere nulla al riguardo. A volte, però, è necessario sapere che alcune operazioni potrebbero non essere eseguite ogni volta nello stesso ordine.</p>
+<p>Consideriamo un esempio in cui valutiamo il pagamento per più dipendenti. Ogni valutazione è un'operazione costosa, quindi dal punto di vista dell'implementazione vogliamo farle in parallelo. Uno Statement che descrive tale operazione potrebbe assomigliare a questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="p">[</span><span class="n">Fact</span><span class="p">]</span>
+<span class="n">ShouldEvaluatePaymentForAllEmployees</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w"> </span><span class="c1">//GIVEN</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">employee1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">employee2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">employee3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="w"> </span><span class="kt">var</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Employees</span><span class="p">(</span><span class="n">employee1</span><span class="p">,</span><span class="w"> </span><span class="n">employee2</span><span class="p">,</span><span class="w"> </span><span class="n">employee3</span><span class="p">);</span>
+
+<span class="w"> </span><span class="c1">//WHEN</span>
+<span class="w"> </span><span class="n">employees</span><span class="p">.</span><span class="n">EvaluatePayment</span><span class="p">();</span>
+
+<span class="w"> </span><span class="c1">//THEN</span>
+<span class="w"> </span><span class="n">employee1</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">EvaluatePayment</span><span class="p">();</span>
+<span class="w"> </span><span class="n">employee2</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">EvaluatePayment</span><span class="p">();</span>
+<span class="w"> </span><span class="n">employee3</span><span class="p">.</span><span class="n">Received</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="n">EvaluatePayment</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che lo Statement non menziona affatto il multithreading, perché questo è il dettaglio dell'implementazione del metodo <code class="docutils literal notranslate"><span class="pre">EvaluatePayment</span></code> su <code class="docutils literal notranslate"><span class="pre">Employees</span></code>. Tuttavia, si noti anche che lo Statement  non specifica l'ordine in cui viene valutato il pagamento per ciascun dipendente. In parte ciò è dovuto al fatto che l'ordine non ha importanza e lo Statement lo descrive accuratamente. Se, tuttavia, lo Statement specificasse l'ordine, non solo sarebbe eccessivamente specificato, ma potrebbe anche essere valutato come vero o falso in modo non deterministico. Questo perché in caso di esecuzione parallela, l'ordine in cui i metodi verrebbero richiamati su ciascun dipendente potrebbe essere diverso.</p>
+</section>
+<section id="background-task">
+<h3>Attività in background<a class="headerlink" href="#background-task" title="Link to this heading">¶</a></h3>
+<p>Usare i thread per eseguire attività in background è come usare timer che vengono eseguiti solo una volta. Basta usare un approccio simile ai timer.</p>
+</section>
+</section>
+<section id="others">
+<h2>Altro<a class="headerlink" href="#others" title="Link to this heading">¶</a></h2>
+<p>Esistono altre dipendenze come dispositivi I/O, generatori di valori casuali o SDK di terze parti (ad esempio un SDK per la connessione a un bus di messaggi), ma non li approfondirò poiché la strategia per loro è la stessa - non usarli direttamente nel codice relativo al proprio dominio. Pensare invece al ruolo che svolgono a livello di dominio e modellare quel ruolo come un'interfaccia. Quindi utilizzare la risorsa problematica all'interno di una classe che implementa questa interfaccia. Tale classe sarà coperta da un altro tipo di Specifica che tratterò più avanti nel libro.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Raggiungere la rete dei confini degli oggetti</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-time-is-it">Che ore sono?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#timers">Timer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#threads">Thread</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#others">Altro</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="340_Test-Driving_Value_object.html" title="capitolo precedente"><em>Oggetti valore</em> nel test-driving</a></li>
+      <li>Next: <a href="360_Internals.html" title="capitolo successivo">Cosa c'è dentro l'oggetto?</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/350_Web_of_objects_boundaries.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

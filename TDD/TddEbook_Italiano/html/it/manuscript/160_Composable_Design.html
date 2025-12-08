@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>La Componibilità degli Oggetti &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Raccontare, non chiedere" href="170_TellDoNotAsk.html" />
+    <link rel="prev" title="Parte 2: Il Mondo Object-Oriented" href="150_Part2Marker.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="on-object-composability">
+<h1>La Componibilità degli Oggetti<a class="headerlink" href="#on-object-composability" title="Link to this heading">¶</a></h1>
+<p>In questo capitolo, cercherò di delineare brevemente perché la componibilità degli oggetti è un obiettivo che vale la pena raggiungere e come può essere raggiunto. Inizierò con un esempio di codice non gestibile e ne risolverò gradualmente i difetti nei prossimi capitoli. Per ora, correggeremo solo uno dei difetti, quindi il codice che otterremo non sarà affatto perfetto, tuttavia, sarà migliore per una qualità.</p>
+<p>Nei prossimi capitoli impareremo lezioni più preziose derivanti dalla modifica di questo piccolo pezzo di codice.</p>
+<section id="another-task-for-johnny-and-benjamin">
+<h2>Un altro compito per Johnny e Benjamin<a class="headerlink" href="#another-task-for-johnny-and-benjamin" title="Link to this heading">¶</a></h2>
+<p>Ricordate Johnny e Benjamin? Sembra che abbiano gestito il loro compito precedente e stiano facendo qualcos'altro. Ascoltiamo la loro conversazione mentre stanno lavorando ad un altro progetto...</p>
+<p><strong>Benjamin:</strong> Allora, di cosa tratta questo incarico?</p>
+<p><strong>Johnny:</strong> In realtà, non è niente di entusiasmante -- dovremo aggiungere due funzionalità a un'applicazione legacy che non è preparata per le modifiche.</p>
+<p><strong>Benjamin:</strong> A cosa serve il codice?</p>
+<p><strong>Johnny:</strong> È una classe C# che implementa le policy aziendali. Poiché l'azienda ha appena iniziato a utilizzare questo sistema automatizzato ed è stato avviato di recente, è stata implementata una sola politica: il piano di incentivi annuale. Molte aziende hanno quelli che chiamano piani di incentivi. Questi piani vengono utilizzati per promuovere comportamenti corretti e superare le aspettative da parte dei dipendenti di un'azienda.</p>
+<p><strong>Benjamin:</strong> Vuoi dire che il progetto è appena iniziato ed è già in cattive condizioni?</p>
+<p><strong>Johnny:</strong> Sì. I ragazzi che lo hanno scritto volevano &quot;mantenerlo semplice&quot;, qualunque cosa significhi, e ora sembra piuttosto brutto.</p>
+<p><strong>Benjamin:</strong> Capisco...</p>
+<p><strong>Johnny:</strong> A proposito, ti piacciono gli indovinelli?</p>
+<p><strong>Benjamin:</strong> Sempre!</p>
+<p><strong>Johnny:</strong> Quindi eccone uno: come si definisce una fase di sviluppo quando si garantisce un'elevata qualità del codice?</p>
+<p><strong>Benjamin:</strong> ... ... Nessun indizio... Allora come si chiama?</p>
+<p><strong>Johnny:</strong> Si chiama &quot;adesso&quot;.</p>
+<p><strong>Benjamin:</strong> Oh!</p>
+<p><strong>Johnny:</strong> Tornando all'argomento, ecco il piano di incentivi aziendale.</p>
+<p>Ogni dipendente ha un grado di retribuzione. Un dipendente può essere promosso a un grado di retribuzione più elevato, ma i meccanismi di come funziona è qualcosa di cui non dovremo occuparci.</p>
+<p>Normalmente, ogni anno, tutti ricevono un aumento del 10%. Ma per incoraggiare comportamenti che danno a un dipendente un grado di retribuzione più alto, tale dipendente non può ottenere aumenti indiscriminati su un determinato grado di retribuzione. Ad ogni grado è associata la retribuzione massima. Se viene raggiunta questa somma di denaro, un dipendente non riceve più un aumento finché non raggiunge un grado di retribuzione più elevato.</p>
+<p>Inoltre, ogni dipendente che compie 5 anni di lavoro per l'azienda riceve un bonus speciale una tantum pari al doppio della retribuzione attuale.</p>
+<p><strong>Benjamin:</strong> Pare che il repository del codice sorgente abbia appena terminato la sincronizzazione. Diamo un assaggio al codice!</p>
+<p><strong>Johnny:</strong> Certo, ecco qui:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CompanyPolicies</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IDisposable</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">readonly</span><span class="w"> </span><span class="n">SqlRepository</span><span class="w"> </span><span class="n">_repository</span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlRepository</span><span class="p">();</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyYearlyIncentivePlan</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_repository</span><span class="p">.</span><span class="n">CurrentEmployees</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">foreach</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">employee</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">employees</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="kt">var</span><span class="w"> </span><span class="n">payGrade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetPayGrade</span><span class="p">();</span>
+<span class="w">      </span><span class="c1">//evaluate raise</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">payGrade</span><span class="p">.</span><span class="n">Maximum</span><span class="p">)</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">newSalary</span><span class="w"> </span>
+<span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span>
+<span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span>
+<span class="w">          </span><span class="o">*</span><span class="w"> </span><span class="mf">0.1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">employee</span><span class="p">.</span><span class="n">SetSalary</span><span class="p">(</span><span class="n">newSalary</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">      </span><span class="c1">//evaluate one-time bonus</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">employee</span><span class="p">.</span><span class="n">GetYearsOfService</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">var</span><span class="w"> </span><span class="n">oneTimeBonus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">employee</span><span class="p">.</span><span class="n">GetSalary</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">        </span><span class="n">employee</span><span class="p">.</span><span class="n">SetBonusForYear</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span><span class="w"> </span><span class="n">oneTimeBonus</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">      </span><span class="n">employee</span><span class="p">.</span><span class="n">Save</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Dispose</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_repository</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Wow, ci sono un sacco di costanti letterali ovunque e la scomposizione funzionale è a malapena completata!</p>
+<p><strong>Johnny:</strong> Sì. Non aggiusteremo tutto questo oggi. Seguiremo comunque la regola dei boy scout e &quot;lasceremo il campeggio più pulito di come lo abbiamo trovato&quot;.</p>
+<p><strong>Benjamin:</strong> Qual è il nostro compito?</p>
+<p><strong>Johnny:</strong> Prima di tutto, dobbiamo offrire ai nostri utenti la possibilità di scegliere tra un database SQL e uno NoSQL. Per raggiungere il nostro obiettivo, dobbiamo essere in qualche modo in grado di rendere il database della classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> type-agnostic. Per ora, come puoi vedere, l'implementazione è accoppiata allo specifico <code class="docutils literal notranslate"><span class="pre">SqlRepository</span></code>, perché crea essa stessa un'istanza specifica:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CompanyPolicies</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IDisposable</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">readonly</span><span class="w"> </span><span class="n">SqlRepository</span><span class="w"> </span><span class="n">_repository</span>
+<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlRepository</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Ora dobbiamo valutare le opzioni a nostra disposizione per scegliere quella migliore. Che opzioni vedi, Benjamin?</p>
+<p><strong>Benjamin:</strong> Beh, potremmo certamente estrarre un'interfaccia da <code class="docutils literal notranslate"><span class="pre">SqlRepository</span></code> e introdurre un'istruzione if nel costruttore in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CompanyPolicies</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IDisposable</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">readonly</span><span class="w"> </span><span class="n">Repository</span><span class="w"> </span><span class="n">_repository</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">CompanyPolicies</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(...)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">_repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlRepository</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">_repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">NoSqlRepository</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Vero, ma questa opzione presenta poche carenze. Prima di tutto, ricorda che stiamo cercando di seguire la regola dei boy scout e utilizzando questa opzione introduciamo maggiore complessità nella classe <code class="docutils literal notranslate"><span class="pre">CommonPolicies</span></code>. Inoltre, supponiamo che domani qualcuno scriva un'altra classe, ad esempio, per il reporting e anche questa classe dovrà accedere al repository -- dovrà prendere la stessa decisione sui repository nel loro codice come facciamo noi nel nostro. Ciò significa effettivamente duplicare il codice. Quindi preferisco valutare ulteriori opzioni e vedere se possiamo trovare qualcosa di meglio. Qual è la nostra prossima opzione?</p>
+<p><strong>Benjamin:</strong> Un'altra opzione sarebbe quella di modificare lo stesso <code class="docutils literal notranslate"><span class="pre">SqlRepository</span></code> in modo che sia solo un wrapper per l'effettivo accesso al database, in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">SqlRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IDisposable</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">readonly</span><span class="w"> </span><span class="n">Repository</span><span class="w"> </span><span class="n">_repository</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">SqlRepository</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(...)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">_repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RealSqlRepository</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">_repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RealNoSqlRepository</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">IList</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="w"> </span><span class="n">CurrentEmployees</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">_repository</span><span class="p">.</span><span class="n">CurrentEmployees</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Certo, questo è un approccio che potrebbe funzionare e varrebbe la pena di essere preso in considerazione per codice legacy molto serio, poiché non ci obbliga affatto a modificare la classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code>. Tuttavia, ci sono alcuni problemi con esso. Innanzitutto il nome <code class="docutils literal notranslate"><span class="pre">SqlRepository</span></code> sarebbe fuorviante. In secondo luogo, guarda il metodo <code class="docutils literal notranslate"><span class="pre">CurrentEmployees()</span></code> -- tutto ciò che fa è delegare una chiamata all'implementazione scelta nel costruttore. Con ogni nuovo metodo richiesto dal repository, dovremo aggiungere nuovi metodi deleganti. In realtà, non è un grosso problema, ma forse possiamo fare di meglio?</p>
+<p><strong>Benjamin:</strong> Fammi pensare, fammi pensare... Ho valutato l'opzione in cui la classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> sceglie tra i repository. Ho anche valutato l'opzione in cui hackeriamo <code class="docutils literal notranslate"><span class="pre">SqlRepository</span></code> per fare questa scelta. L'ultima opzione a cui riesco a pensare è lasciare questa scelta a un altro, il codice di &quot;terze parti&quot;, che sceglierebbe il repository da utilizzare e lo passerebbe alla <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> tramite il suo costruttore, in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CompanyPolicies</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IDisposable</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="n">Repository</span><span class="w"> </span><span class="n">_repository</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">CompanyPolicies</span><span class="p">(</span><span class="n">Repository</span><span class="w"> </span><span class="n">repository</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo modo, <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> non saprà esattamente cosa gli viene passato tramite il suo costruttore e possiamo passare qualunque cosa vogliamo: un repository SQL o uno NoSQL!</p>
+<p><strong>Johnny:</strong> Fantastico! Questa è l'opzione che stiamo cercando! Per ora, credimi solo che questo approccio ci porterà a molte cose buone -- vedrai il perché più tardi.</p>
+<p><strong>Benjamin:</strong> OK, lasciami semplicemente estrarre l'istanza <code class="docutils literal notranslate"><span class="pre">SqlRepository</span></code> al di fuori della classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> e renderla un'implementazione dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Repository</span></code>, quindi creare un costruttore e passare l'istanza reale attraverso di esso...</p>
+<p><strong>Johnny:</strong> Certo, vado a prendere un caffè.</p>
+<p>... 10 minuti dopo</p>
+<p><strong>Benjamin:</strong> Haha! Guarda questo! Sono un GRANDE!</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CompanyPolicies</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">IDisposable</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//_repository is now an interface</span>
+<span class="w">  </span><span class="k">readonly</span><span class="w"> </span><span class="n">Repository</span><span class="w"> </span><span class="n">_repository</span><span class="p">;</span><span class="w"> </span>
+
+<span class="w">  </span><span class="c1">// repository is passed from outside.</span>
+<span class="w">  </span><span class="c1">// We don&#39;t know what exact implementation it is.</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">CompanyPolicies</span><span class="p">(</span><span class="n">Repository</span><span class="w"> </span><span class="n">repository</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyYearlyIncentivePlan</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//... body of the method. Unchanged.</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Dispose</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_repository</span><span class="p">.</span><span class="n">Dispose</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Ehi, ehi, frena! C'è una cosa che non va in questo codice.</p>
+<p><strong>Benjamin:</strong> Eh? Pensavo che questo fosse ciò a cui miravamo.</p>
+<p><strong>Johnny:</strong> Sì, tranne il metodo <code class="docutils literal notranslate"><span class="pre">Dispose()</span></code>. Osserva attentamente la classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code>. è stata modificata in modo che non sia responsabile, da solo, della creazione di un repository, ma ne dispone comunque. Ciò potrebbe causare problemi perché l'istanza <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> non ha alcun diritto di presumere che sia l'unico oggetto che utilizza il repository. In tal caso, non è possibile determinare il momento in cui il repository diventerà superfluo e potrà essere disposto in modo sicuro.</p>
+<p><strong>Benjamin:</strong> Ok, ho capito la teoria, ma perché in pratica è un male? Puoi farmi un esempio?</p>
+<p><strong>Johnny:</strong> Certo, lasciami fare un breve esempio. Non appena hai due istanze della classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code>, che condividono entrambe la stessa istanza di <code class="docutils literal notranslate"><span class="pre">Repository</span></code>, sei fritto. Questo perché un'istanza di <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> potrebbe eliminare il repository mentre l'altra potrebbe comunque volerlo utilizzare.</p>
+<p><strong>Benjamin:</strong> Quindi chi eliminerà il repository?</p>
+<p><strong>Johnny:</strong> La stessa parte del codice che lo crea, ad esempio il metodo <code class="docutils literal notranslate"><span class="pre">Main</span></code>. Lascia che ti mostri un esempio di come potrebbe apparire:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Main</span><span class="p">(</span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">using</span><span class="p">(</span><span class="kt">var</span><span class="w"> </span><span class="n">repo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SqlRepository</span><span class="p">())</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">policies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CompanyPolicies</span><span class="p">(</span><span class="n">repo</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">//use above created policies </span>
+<span class="w">    </span><span class="c1">//for anything you like</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo modo il repository viene creato all'avvio del programma ed eliminato alla fine. Grazie a ciò, <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> non ha campi usa e getta e non deve essere necessariamente usa e getta -- possiamo semplicemente eliminare [delete] il metodo <code class="docutils literal notranslate"><span class="pre">Dispose()</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//not implementing IDisposable anymore:</span>
+<span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">CompanyPolicies</span><span class="w"> </span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//_repository is now an interface</span>
+<span class="w">  </span><span class="k">readonly</span><span class="w"> </span><span class="n">Repository</span><span class="w"> </span><span class="n">_repository</span><span class="p">;</span><span class="w"> </span>
+
+<span class="w">  </span><span class="c1">//New constructor</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="nf">CompanyPolicies</span><span class="p">(</span><span class="n">Repository</span><span class="w"> </span><span class="n">repository</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ApplyYearlyIncentivePlan</span><span class="p">()</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//... body of the method. No changes</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//no Dispose() method anymore</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benjamin:</strong> Fantastico. E adesso? Sembra che la classe <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> dipenda da un'astrazione del repository anziché da un'implementazione effettiva, come il repository SQL. Immagino che saremo in grado di creare un'altra classe che implementi l'interfaccia per l'accesso ai dati NoSQL e passarla semplicemente attraverso il costruttore invece di quello originale.</p>
+<p><strong>Johnny:</strong> Sì. Ad esempio, guarda il componente <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code>. Possiamo comporlo con un repository come questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">policies</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CompanyPolicies</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">SqlRepository</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>o così:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">policies</span><span class="w"> </span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">CompanyPolicies</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">NoSqlRepository</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>senza modificare il codice di <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code>. Ciò significa che <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> non ha bisogno di sapere di quale <code class="docutils literal notranslate"><span class="pre">Repository</span></code> è composto esattamente, purché questo <code class="docutils literal notranslate"><span class="pre">Repository</span></code> segua l'interfaccia richiesta e soddisfi le aspettative di <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> (ad esempio, non generi eccezioni quando non è previsto fare così). Un'implementazione di <code class="docutils literal notranslate"><span class="pre">Repository</span></code> può essere essa stessa molto complessa e composta da un altro insieme di classi, ad esempio qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="nf">SqlRepository</span><span class="p">(</span>
+<span class="w">  </span><span class="k">new</span><span class="w"> </span><span class="nf">ConnectionString</span><span class="p">(</span><span class="s">&quot;...&quot;</span><span class="p">),</span><span class="w"> </span>
+<span class="w">  </span><span class="k">new</span><span class="w"> </span><span class="nf">AccessPrivileges</span><span class="p">(</span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Role</span><span class="p">(</span><span class="s">&quot;Admin&quot;</span><span class="p">),</span><span class="w"> </span>
+<span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="nf">Role</span><span class="p">(</span><span class="s">&quot;Auditor&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">),</span>
+<span class="w">  </span><span class="k">new</span><span class="w"> </span><span class="nf">InMemoryCache</span><span class="p">()</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<p>ma <code class="docutils literal notranslate"><span class="pre">CompanyPolicies</span></code> non lo sa né se ne preoccupa, purché possa utilizzare la nostra nuova implementazione di <code class="docutils literal notranslate"><span class="pre">Repository</span></code> proprio come gli altri repository.</p>
+<p><strong>Benjamin:</strong> Capisco... Quindi, tornando al nostro compito, procediamo con la realizzazione di un'implementazione NoSQL dell'interfaccia <code class="docutils literal notranslate"><span class="pre">Repository</span></code>?</p>
+<p><strong>Johnny:</strong> Per prima cosa mostrami l'interfaccia che hai estratto mentre cercavo il caffè.</p>
+<p><strong>Benjamin:</strong> Ecco:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">interface</span><span class="w"> </span><span class="n">Repository</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">IList</span><span class="o">&lt;</span><span class="n">Employee</span><span class="o">&gt;</span><span class="w"> </span><span class="n">CurrentEmployees</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Johnny:</strong> Ok, quindi ciò di cui abbiamo bisogno è creare semplicemente un'altra implementazione e passarla attraverso il costruttore a seconda dell'origine dati scelta e abbiamo finito con questa parte dell'attività.</p>
+<p><strong>Benjamin:</strong> Vuoi dire che c'è dell'altro?</p>
+<p><strong>Johnny:</strong> Sì, ma è qualcosa per domani. Sono esausto oggi.</p>
+</section>
+<section id="a-quick-retrospective">
+<h2>Una Rapida Retrospettiva<a class="headerlink" href="#a-quick-retrospective" title="Link to this heading">¶</a></h2>
+<p>In questo capitolo Benjamin ha imparato ad apprezzare la componibilità di un oggetto, ovvero la capacità di sostituirne le dipendenze, fornendo comportamenti diversi, senza la necessità di modificare il codice della classe dell'oggetto stesso. Pertanto, un oggetto, date le dipendenze sostituite, inizia a utilizzare i nuovi comportamenti senza notare che si è verificato alcun cambiamento.</p>
+<p>Il codice menzionato presenta alcuni gravi difetti. Per ora, Johnny e Benjamin non hanno avvertito il disperato bisogno di affrontarli.</p>
+<p>Inoltre, dopo che ci saremo nuovamente separati da Johnny e Benjamin, ribadiremo le idee in cui si sono imbattuti in modo più disciplinato.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">La Componibilità degli Oggetti</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#another-task-for-johnny-and-benjamin">Un altro compito per Johnny e Benjamin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-quick-retrospective">Una Rapida Retrospettiva</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="150_Part2Marker.html" title="capitolo precedente">Parte 2: Il Mondo Object-Oriented</a></li>
+      <li>Next: <a href="170_TellDoNotAsk.html" title="capitolo successivo"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/160_Composable_Design.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

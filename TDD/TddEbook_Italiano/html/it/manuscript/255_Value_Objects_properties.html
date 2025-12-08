@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Anatomia del oggetto valore &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Aspetti del design degli oggetti valore" href="257_Value%20objects_general_topics.html" />
+    <link rel="prev" title="Gli Oggetti Valore" href="250_Value_Objects.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="value-object-anatomy">
+<h1>Anatomia del <em>oggetto valore</em><a class="headerlink" href="#value-object-anatomy" title="Link to this heading">¶</a></h1>
+<p>Nel capitolo precedente abbiamo visto un <em>oggetto valore</em> - <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> in azione. In questo capitolo ne studieremo l'anatomia - riga per riga, campo per campo, metodo dopo metodo. Dopo aver fatto ciò, si spera che si abbia una idea migliore di alcune delle proprietà più generali degli <em>oggetti valore</em>.</p>
+<p>Iniziamo la nostra disamina dando un'occhiata alla definizione del tipo <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> del capitolo precedente (il codice che vi mostrerò non è legale C# - ho omesso i corpi dei metodi, inserendo un <code class="docutils literal notranslate"><span class="pre">;</span></code> dopo ogni dichiarazione di metodo. L'ho fatto perché altrimenti ci sarebbe molto codice da comprendere e non voglio necessariamente approfondire il codice di ciascun metodo). Ogni sezione della definizione della classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> è contrassegnata da un commento. Tali commenti contrassegnano gli argomenti che discuteremo in questo capitolo.</p>
+<p>Quindi ecco la definizione promessa di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">//This is the class we created and used</span>
+<span class="c1">//in the previous chapter</span>
+
+<span class="c1">// class signature</span>
+<span class="k">public</span><span class="w"> </span><span class="k">sealed</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ProductName</span>
+<span class="w">  </span><span class="p">:</span><span class="w"> </span><span class="n">IEquatable</span><span class="o">&lt;</span><span class="n">ProductName</span><span class="o">&gt;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">// Hidden data:</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Constructor - hidden as well:</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">);</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">// Static method for creating new instances:</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="nf">For</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">);</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">// Overridden version of ToString()</span>
+<span class="w">  </span><span class="c1">// from Object class</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">ToString</span><span class="p">();</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1">// Non-standard version of ToString().</span>
+<span class="w">  </span><span class="c1">// I will explain its purpose later</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">ToString</span><span class="p">(</span><span class="n">Format</span><span class="w"> </span><span class="n">format</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// For value types, we need to implement all the equality</span>
+<span class="w">  </span><span class="c1">// methods and operators, plus GetHashCode():     </span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="n">Object</span><span class="w"> </span><span class="n">other</span><span class="p">);</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="n">ProductName</span><span class="w"> </span><span class="n">other</span><span class="p">);</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">override</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">GetHashCode</span><span class="p">();</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="k">operator</span><span class="w"> </span><span class="o">==</span><span class="p">(</span><span class="n">ProductName</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="k">operator</span><span class="w"> </span><span class="o">!=</span><span class="p">(</span><span class="n">ProductName</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Usando i commenti, ho diviso la lezione in sezioni e le descriverò nell'ordine.</p>
+<section id="class-signature">
+<h2>Class [<em>firma</em>] della classe<a class="headerlink" href="#class-signature" title="Link to this heading">¶</a></h2>
+<p>Ci sono due cose da notare sulla firma della classe. La prima è che la classe è <code class="docutils literal notranslate"><span class="pre">sealed</span></code> [<em>sigillata</em>] (in Java sarebbe <code class="docutils literal notranslate"><span class="pre">final</span></code>), ovvero non consento l'ereditarietà da essa. Questo perché voglio che gli oggetti di questa classe siano immutabili. A prima vista, definire &quot;sealed&quot; la classe non ha nulla a che fare con l’immutabilità. Lo spiegherò nel prossimo capitolo quando discuterò gli aspetti della progettazione degli <em>oggetti valore</em>.</p>
+<p>La seconda cosa da notare è che la classe implementa un'interfaccia <code class="docutils literal notranslate"><span class="pre">IEquatable</span></code> che aggiunge versioni più fortemente tipizzate del metodo <code class="docutils literal notranslate"><span class="pre">Equals(T</span> <span class="pre">object)</span></code>. Questo non è strettamente richiesto come in C#, ogni oggetto ha un metodo <code class="docutils literal notranslate"><span class="pre">Equals(Object</span> <span class="pre">o)</span></code> predefinito, ma è generalmente considerato una buona pratica poiché consente ad es. l'uso più efficiente degli <em>oggetti valore</em> con collection C# come i <code class="docutils literal notranslate"><span class="pre">Dictionary</span></code><a class="footnote-reference brackets" href="#whyuseequatable" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+</section>
+<section id="hidden-data">
+<h2>Dati nascosti<a class="headerlink" href="#hidden-data" title="Link to this heading">¶</a></h2>
+<p>I dati effettivi sono privati:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">_value</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Solo i metodi che pubblichiamo possono essere utilizzati per operare sullo stato. Questo è utile per tre cose:</p>
+<ol class="arabic simple">
+<li><p>Limitare le operazioni consentite a ciò che riteniamo abbia senso fare con il nome di un prodotto. Tutto il resto (ovvero ciò che riteniamo non abbia senso fare) non è consentito.</p></li>
+<li><p>Per ottenere l'immutabilità delle istanze di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> (più avanti spiegheremo perché vogliamo che il tipo sia immutabile), il che significa che quando creiamo un'istanza, non possiamo modificarla. Se il campo <code class="docutils literal notranslate"><span class="pre">_value</span></code> fosse pubblico, chiunque potrebbe modificare lo stato dell'istanza di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> scrivendo qualcosa del tipo:</p></li>
+</ol>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">productName</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;something different&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Per proteggersi dalla creazione di un nome di prodotto con uno stato non valido. Quando creiamo il nome di un prodotto, dobbiamo passare una stringa contenente un nome tramite un metodo statico <code class="docutils literal notranslate"><span class="pre">For()</span></code> che possa eseguire la validazione (ne parleremo più avanti). Se non ci sono altri modi in cui possiamo impostare il nome, possiamo essere certi che la convalida avverrà ogni volta che qualcuno vorrà creare un <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>.</p></li>
+</ol>
+</section>
+<section id="hidden-constructor">
+<h2>Costruttore nascosto<a class="headerlink" href="#hidden-constructor" title="Link to this heading">¶</a></h2>
+<p>Notare che anche il costruttore è reso privato:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e probabilmente ci si chiederà perché. Vorrei scomporre ulteriormente la domanda in altre due:</p>
+<ol class="arabic simple">
+<li><p>Come dovremmo allora creare nuove istanze?</p></li>
+<li><p>Perché <em>private</em> e non <em>public</em>?</p></li>
+</ol>
+<p>Rispondiamo una per una.</p>
+<section id="how-should-we-create-new-instances">
+<h3>Come dovremmo creare nuove istanze?<a class="headerlink" href="#how-should-we-create-new-instances" title="Link to this heading">¶</a></h3>
+<p>La classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> contiene uno speciale metodo factory statico, chiamato <code class="docutils literal notranslate"><span class="pre">For()</span></code>. Richiama il costruttore e gestisce tutte le validazioni dei parametri di input<a class="footnote-reference brackets" href="#isnullorempty" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. Un esempio di implementazione potrebbe essere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="nf">For</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="k">value</span><span class="p">))</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//validation failed</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ArgumentException</span><span class="p">(</span>
+<span class="w">      </span><span class="s">&quot;Product names must be human readable!&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//here we call the constructor</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Esistono diversi motivi per non esporre direttamente un costruttore ma utilizzare invece un metodo factory statico. Di seguito ne descrivo brevemente alcuni.</p>
+<section id="explaining-intention">
+<h4>Spiegare l'intenzione<a class="headerlink" href="#explaining-intention" title="Link to this heading">¶</a></h4>
+<p>Proprio come le factory, i metodi delle factory statici aiutano a spiegare l'intenzione, perché, a differenza dei costruttori, possono avere nomi, mentre i costruttori hanno il vincolo di prendere il nome dalla loro classe<a class="footnote-reference brackets" href="#constructorsdynamic" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. Si può dedurre che quanto segue:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">ProductName</span><span class="p">.</span><span class="n">For</span><span class="p">(</span><span class="s">&quot;super laptop X112&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>non è più leggibile di:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">new</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="s">&quot;super laptop X112&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>ma si noti che nel nostro esempio abbiamo un unico e semplice metodo factory. Il vantaggio sarebbe più visibile quando avessimo bisogno di supportare un ulteriore modo di creare un nome di prodotto. Supponiamo che nell'esempio sopra del &quot;super laptop X112&quot;, il &quot;super laptop&quot; sia un modello e &quot;X112&quot; sia una configurazione specifica (poiché gli stessi modelli di laptop sono spesso venduti in diverse configurazioni, con più o meno RAM, diversi sistemi operativi, ecc.) e troviamo comodo passare queste due informazioni come argomenti separati in alcuni punti (ad esempio perché potremmo ottenerle da fonti diverse) e lasciare che <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> le metta assieme. Se utilizzassimo un costruttore per questo, scriveremmo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">// assume model is &quot;super laptop&quot;</span>
+<span class="c1">// and configuration is &quot;X112&quot;</span>
+<span class="k">new</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>D'altra parte, possiamo creare un metodo factory e dire:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">ProductName</span><span class="p">.</span><span class="n">CombinedOf</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>che si legge più fluentemente. Oppure, se vogliamo essere super espliciti:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">ProductName</span><span class="p">.</span><span class="n">FromModelAndConfig</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>che non è il mio modo preferito di scrivere codice, perché non mi piace ripetere le stesse informazioni nel nome del metodo e nei nomi degli argomenti. Volevo dimostrare che possiamo farlo volendo.</p>
+<p>Ho incontrato molti sviluppatori che trovano poco familiare l'uso dei metodi factory, ma la buona notizia è che i metodi factory per gli <em>oggetti valore</em> stanno diventando sempre più diffusi. Giusto per dare due esempi, il tipo <code class="docutils literal notranslate"><span class="pre">TimeSpan</span></code> in C# li usa (ad esempio possiamo scrivere <code class="docutils literal notranslate"><span class="pre">TimeSpan.FromSeconds(12)</span></code> e il tipo <code class="docutils literal notranslate"><span class="pre">Period</span></code> in Java (ad esempio <code class="docutils literal notranslate"><span class="pre">Period.ofNanos(2222)</span></code>).</p>
+</section>
+<section id="ensuring-consistent-initialization-of-objects">
+<h4>Garantire l'inizializzazione coerente degli oggetti<a class="headerlink" href="#ensuring-consistent-initialization-of-objects" title="Link to this heading">¶</a></h4>
+<p>Nel caso in cui abbiamo diversi modi di inizializzare un oggetto che condividono tutti una parte comune (ovvero qualunque modo scegliamo, parte dell'inizializzazione deve essere sempre eseguita allo stesso modo), avere diversi costruttori che delegano a uno comune sembra una buona idea. Ad esempio, possiamo avere due costruttori, uno che delega all'altro, che mantiene una logica di inizializzazione comune:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">// common initialization logic</span>
+<span class="k">public</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//another constructor that uses the common initialization</span>
+<span class="k">public</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+<span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">this</span><span class="p">(</span><span class="n">model</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span><span class="w"> </span><span class="c1">//delegation to &quot;common&quot; constructor</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Grazie a ciò, il campo <code class="docutils literal notranslate"><span class="pre">_value</span></code> viene inizializzato in un unico posto e non abbiamo duplicazioni.</p>
+<p>Il problema con questo approccio è che questo legame tra costruttori non viene obbligato - possiamo usarlo se vogliamo, altrimenti possiamo saltarlo. Ad esempio, possiamo anche utilizzare un set separato di campi in ciascun costruttore:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">public</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+<span class="w"> </span><span class="c1">//oops, no delegation to the other constructor</span>
+<span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>il che lascia spazio a errori - potremmo dimenticare di inizializzare sempre tutti i campi e consentire la creazione di oggetti con uno stato non valido.</p>
+<p>Ritengo che l'utilizzo di diversi metodi factory statici lasciando un solo costruttore è più sicuro in quanto impone a ogni creazione di oggetto di passare attraverso questo singolo costruttore. Questo costruttore può quindi garantire che tutti i campi dell'oggetto siano inizializzati correttamente. In tal caso non è possibile ignorare questo costruttore in nessuno dei metodi factory statici, ad esempio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="nf">CombinedOf</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">// no way to bypass the constructor here,</span>
+<span class="w">  </span><span class="c1">// and to avoid initializing the _value field</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="n">model</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">configuration</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ciò che ho scritto sopra potrebbe sembrare una complicazione inutile in quanto l'esempio dei nomi dei prodotti è banale e difficilmente commetteremo un errore come quello descritto sopra, tuttavia:</p>
+<ol class="arabic simple">
+<li><p>Ci sono casi più complessi in cui possiamo effettivamente dimenticare di inizializzare alcuni campi in più costruttori.</p></li>
+<li><p>È sempre meglio essere protetti dal compilatore piuttosto che non esserlo quando il prezzo per la protezione è considerevolmente basso. Per lo meno, quando succede qualcosa, avremo un posto in meno dove cercare i bug.</p></li>
+</ol>
+</section>
+<section id="better-place-for-input-validation">
+<h4>Il posto migliore per la convalida dell'input<a class="headerlink" href="#better-place-for-input-validation" title="Link to this heading">¶</a></h4>
+<p>Diamo ancora un'occhiata al metodo factory <code class="docutils literal notranslate"><span class="pre">For()</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">public</span> <span class="n">static</span> <span class="n">ProductName</span> <span class="n">For</span><span class="p">(</span><span class="n">string</span> <span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+  <span class="p">{</span>
+    <span class="o">//</span><span class="n">validation</span> <span class="n">failed</span>
+    <span class="n">throw</span> <span class="n">new</span> <span class="n">ArgumentException</span><span class="p">(</span>
+      <span class="s2">&quot;Product names must be human readable!&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+  <span class="p">{</span>
+    <span class="o">//</span><span class="n">here</span> <span class="n">we</span> <span class="n">call</span> <span class="n">the</span> <span class="n">constructor</span>
+    <span class="k">return</span> <span class="n">new</span> <span class="n">ProductName</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e notare che contiene una certa convalida dell'input, mentre il costruttore no. È una decisione saggia spostare la convalida in tale metodo e lasciare il costruttore solo per l'assegnazione dei campi? La risposta a questa domanda dipende dalla risposta a un'altra: ci sono casi in cui non vogliamo convalidare gli argomenti del costruttore? In caso negativo, la convalida dovrebbe andare nel costruttore, poiché il suo scopo è garantire che un oggetto sia inizializzato correttamente.</p>
+<p>Apparentemente, ci sono casi in cui vogliamo mantenere le convalide fuori dal costruttore. Consideriamo il caso seguente: vogliamo creare pacchetti di due nomi di prodotto come uno solo. A questo scopo, introduciamo un nuovo metodo su <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>, chiamato <code class="docutils literal notranslate"><span class="pre">BundleWith()</span></code>, che prende un altro nome di prodotto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="nf">BundleWith</span><span class="p">(</span><span class="n">ProductName</span><span class="w"> </span><span class="n">other</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;Bundle: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">_value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">other</span><span class="p">.</span><span class="n">_value</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che il metodo <code class="docutils literal notranslate"><span class="pre">BundleWith()</span></code> non contiene alcuna validazione ma chiama semplicemente il costruttore. È sicuro farlo in questo caso perché sappiamo che:</p>
+<ol class="arabic simple">
+<li><p>La stringa non sarà né nulla né vuota poiché stiamo aggiungendo i valori di entrambi i nomi di prodotto al valore costante di <code class="docutils literal notranslate"><span class="pre">&quot;Bundle:</span> <span class="pre">&quot;</span></code>. Il risultato di tale operazione di accodamento non ci darà mai una stringa vuota o un <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p></li>
+<li><p>I campi <code class="docutils literal notranslate"><span class="pre">_value</span></code> di entrambi i componenti del nome di prodotto <code class="docutils literal notranslate"><span class="pre">this</span></code> e <code class="docutils literal notranslate"><span class="pre">other</span></code> devono essere validi perché se non lo fossero, i due nomi di prodotto che contengono tali valori non potrebbero essere creati in primo luogo.</p></li>
+</ol>
+<p>Questo era un caso in cui non avevamo bisogno della convalida perché eravamo sicuri che l'input fosse valido. Potrebbe esserci un altro caso, quando è più conveniente per un metodo factory statico fornire la convalida da solo. Tale validazione può essere più dettagliata e utile poiché si trova in un metodo factory creato per un caso specifico e sa di più su cosa sia questo caso. Consideriamo ad esempio il metodo già visto per combinare il modello e la configurazione nel nome di un prodotto. Se lo guardiamo di nuovo (non contiene ancora alcuna validazione):</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="nf">CombinedOf</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ProductName</span><span class="p">.</span><span class="n">For</span><span class="p">(</span><span class="n">model</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">configuration</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Potremmo sostenere che questo metodo trarrebbe vantaggio da un insieme specializzato di convalide perché probabilmente sia il modello che la configurazione devono essere convalidati separatamente (a proposito, a volte può essere una buona idea creare <em>oggetti valore</em> anche per il modello e la configurazione - dipende dove li otteniamo e come li usiamo). Potremmo quindi arrivare al punto di lanciare un'eccezione diversa per ciascun caso, ad esempio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="nf">CombinedOf</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">configuration</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">IsValidModel</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">InvalidModelException</span><span class="p">(</span><span class="n">model</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">IsValidConfiguration</span><span class="p">(</span><span class="n">configuration</span><span class="p">))</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">InvalidConfigurationException</span><span class="p">(</span><span class="n">configuration</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ProductName</span><span class="p">.</span><span class="n">For</span><span class="p">(</span><span class="n">model</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">configuration</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Cosa succede se in alcuni casi abbiamo bisogno della convalida di default? Possiamo comunque inserirli in un metodo factory comune e invocarlo da altri metodi factory. Sembra un po' come tornare al problema costruttori multipli, ma direi che questo problema non è così serio - nella mia mente, il problema delle validazioni è più facile da individuare che mancare erroneamente un'assegnazione di campo come nel caso dei costruttori. Si potrebero avere preferenze diverse però.</p>
+<p>Da ricordare che sono state poste due domande e ho risposto solo a una di esse. Per fortuna, ora è molto più facile rispondere all'altra domanda, ovvero perché il costruttore è privato e non pubblico.</p>
+</section>
+</section>
+<section id="why-private-and-not-public">
+<h3>Perché <em>private</em> e non <em>public</em>?<a class="headerlink" href="#why-private-and-not-public" title="Link to this heading">¶</a></h3>
+<p>Le mie ragioni sono: validazione e separazione dell'uso dalla costruzione.</p>
+<section id="validation">
+<h4>Validazione<a class="headerlink" href="#validation" title="Link to this heading">¶</a></h4>
+<p>Osservando il costruttore di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> - abbiamo già discusso del fatto che non convalida il suo input. Questo va bene quando il costruttore viene utilizzato internamente all'interno di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> (come ho appena dimostrato nella sezione precedente), perché può essere chiamato solo dal codice di cui noi, come creatori della classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>, possiamo fidarci. D'altra parte, probabilmente c'è molto codice che creerà istanze di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>. Parte di questo codice non è nemmeno stato ancora scritto, la maggior parte non la conosciamo, quindi non possiamo fidarci. Per tale codice, vogliamo utilizzare solo i metodi &quot;sicuri&quot; che convalidano l'input e generano errori, non il costruttore.</p>
+</section>
+<section id="separating-use-from-construction">
+<h4>Separare l'uso dalla costruzione<a class="footnote-reference brackets" href="#essentialskills" id="id1" role="doc-noteref"><span class="fn-bracket">[</span><span class="fn-bracket">]</span></a><a class="headerlink" href="#separating-use-from-construction" title="Link to this heading">¶</a></h4>
+<p>Ho già detto che la maggior parte delle volte non vogliamo usare il polimorfismo per i valori, poiché non svolgono alcun ruolo che altri oggetti possano ricoprire. Anche se ritengo saggio riservarci un certo grado di flessibilità per poter cambiare più facilmente la nostra decisione in futuro, soprattutto quando il costo della flessibilità è molto basso.</p>
+<p>I metodi di factory statici offrono maggiore flessibilità rispetto ai costruttori. Ad esempio, quando abbiamo un metodo factory statico come questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="nf">For</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//validations skipped for brevity</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e tutto il nostro codice dipende da esso per la creazione dei nomi dei prodotti piuttosto che dal costruttore, siamo liberi di rendere astratta la classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> ad un certo punto e fare in modo che il metodo <code class="docutils literal notranslate"><span class="pre">For()</span></code> restituisca un'istanza di una sottoclasse di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>. Questa modifica avrebbe un impatto solo su questo metodo statico, poiché il costruttore è nascosto e accessibile solo dall'interno della classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>. Ancora una volta, questo è qualcosa che non consiglio di fare per default, a meno che non ci sia una ragione molto forte. Ma se esiste, la capacità di farlo è qui.</p>
+</section>
+</section>
+</section>
+<section id="string-conversion-methods">
+<h2>Metodi di conversione delle stringhe<a class="headerlink" href="#string-conversion-methods" title="Link to this heading">¶</a></h2>
+<p>La versione sovrascritta (overridden) di <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> solitamente restituisce il valore mantenuto internamente o la sua rappresentazione in stringa. È utilizzabile per interagire con API di terze parti o altro codice che non riconosce il nostro tipo <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>. Ad esempio, se vogliamo salvare il nome del prodotto all'interno del database, l'API del database non ha idea di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>, ma accetta piuttosto tipi di libreria come stringhe, numeri, ecc. In tal caso, possiamo utilizzare <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> per rendere possibile il passaggio del nome del prodotto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="c1">// let&#39;s assume that we have a variable </span>
+<span class="c1">// productName of type ProductName.</span>
+
+<span class="kt">var</span><span class="w"> </span><span class="n">dataRecord</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DataRecord</span><span class="p">();</span>
+<span class="n">dataRecord</span><span class="p">[</span><span class="s">&quot;Product Name&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">productName</span><span class="p">.</span><span class="n">ToString</span><span class="p">();</span>
+
+<span class="c1">//...</span>
+
+<span class="n">database</span><span class="p">.</span><span class="n">Save</span><span class="p">(</span><span class="n">dataRecord</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Le cose diventano più complicate quando un oggetto valore ha più campi o quando racchiude un altro tipo come <code class="docutils literal notranslate"><span class="pre">DateTime</span></code> o un <code class="docutils literal notranslate"><span class="pre">int</span></code> - potremmo dover implementare altri metodi di accesso per ottenere questi dati. <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> può quindi essere utilizzato per scopi diagnostici per consentire la stampa di dump di dati di facile utilizzo.</p>
+<p>A parte il <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> sovrascritto (overridden), il nostro tipo <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> ha un sovraccarico con la firma <code class="docutils literal notranslate"><span class="pre">ToString(Format</span> <span class="pre">format)</span></code>. Questa versione di <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> non è ereditata da nessun'altra classe, quindi è un metodo che abbiamo creato per soddisfare i nostri obiettivi. Il nome <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> viene utilizzato solo per comodità, poiché il nome è abbastanza buono per descrivere ciò che fa il metodo e sembra familiare. Il suo scopo è quello di poter formattare il nome del prodotto in modo diverso per output diversi, ad es. report e stampa su schermo. È vero, potremmo introdurre un metodo speciale per ciascuno dei casi (ad esempio <code class="docutils literal notranslate"><span class="pre">ToStringForScreen()</span></code> e <code class="docutils literal notranslate"><span class="pre">ToStringForReport()</span></code>), ma ciò potrebbe far sì che <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> sappia troppo su come viene utilizzato - dovremmo estendere il tipo con nuovi metodi ogni volta che lo si doveva stampare in modo diverso. Invece, <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> accetta un <code class="docutils literal notranslate"><span class="pre">Format</span></code> (che è un'interfaccia, tra l'altro) che ci dà un po' più di flessibilità.</p>
+<p>Quando dobbiamo stampare il nome del prodotto sullo schermo, possiamo dire:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">productName</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ScreenFormat</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>e per i report, possiamo dire:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">productName</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ReportingFormat</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>Niente ci obbliga a chiamare questo metodo <code class="docutils literal notranslate"><span class="pre">ToString()</span></code> - possiamo usare un altro nome se lo desideriamo.</p>
+</section>
+<section id="equality-members">
+<h2>Membri di uguaglianza<a class="headerlink" href="#equality-members" title="Link to this heading">¶</a></h2>
+<p>Per valori come <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>, dobbiamo implementare tutte le operazioni di uguaglianza più <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code>. Lo scopo delle operazioni di uguaglianza è quello di conferire valore semantico ai nomi dei prodotti e consentire le seguenti espressioni:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="n">ProductName</span><span class="p">.</span><span class="n">For</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">).</span><span class="n">Equals</span><span class="p">(</span><span class="n">ProductName</span><span class="p">.</span><span class="n">For</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">));</span>
+<span class="n">ProductName</span><span class="p">.</span><span class="n">For</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ProductName</span><span class="p">.</span><span class="n">For</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>per restituire <code class="docutils literal notranslate"><span class="pre">true</span></code>, poiché lo stato degli oggetti confrontati è lo stesso nonostante siano istanze separate in termini di riferimenti. In Java, ovviamente, possiamo solo sovrascrivere il metodo <code class="docutils literal notranslate"><span class="pre">equals()</span></code> - non siamo in grado di sovrascrivere gli operatori di uguaglianza poiché il loro comportamento è fissato al confronto dei riferimenti (eccetto i tipi primitivi), ma i programmatori Java sono così abituati a questo che raramente ne fanno un problema.</p>
+<p>Una cosa da notare sull'implementazione di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> è che implementa l'interfaccia <code class="docutils literal notranslate"><span class="pre">IEquatable&lt;ProductName&gt;</span></code>. In C#, eseguire l'override di questa interfaccia per avere una semantica del valore è considerata una buona pratica. L'interfaccia <code class="docutils literal notranslate"><span class="pre">IEquatable&lt;T&gt;</span></code> è ciò che ci obbliga a creare un metodo <code class="docutils literal notranslate"><span class="pre">Equals()</span></code> fortemente tipizzato:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Equals</span><span class="p">(</span><span class="n">ProductName</span><span class="w"> </span><span class="n">other</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>mentre quello ereditato da <code class="docutils literal notranslate"><span class="pre">object</span></code> accetta un <code class="docutils literal notranslate"><span class="pre">object</span></code> come parametro. L'uso e l'esistenza dell'interfaccia <code class="docutils literal notranslate"><span class="pre">IEquatable&lt;T&gt;</span></code> sono per lo più specifici di C#, quindi non entrerò nei dettagli qui, ma si può sempre <a class="reference external" href="https://msdn.microsoft.com/en-us/library/ms131187.aspx">cercarlo nella documentazione</a>.</p>
+<p>Quando sovrascriviamo (override) <code class="docutils literal notranslate"><span class="pre">Equals()</span></code>, anche il metodo <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code> deve essere sovrascritto. La regola è che tutti gli oggetti considerati uguali dovrebbero restituire lo stesso codice hash e tutti gli oggetti considerati non uguali dovrebbero restituire codici hash diversi. Il motivo è che i codici hash vengono utilizzati per identificare oggetti nelle tabelle hash o nei set hash - queste strutture dati non funzioneranno correttamente con i valori se <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code> non è implementato correttamente. Sarebbe un peccato perché i valori vengono spesso usati come chiavi in vari dizionari basati su hash.</p>
+</section>
+<section id="the-return-of-investment">
+<h2>Il ritorno dell'investimento<a class="headerlink" href="#the-return-of-investment" title="Link to this heading">¶</a></h2>
+<p>Ci sono altri aspetti dei valori che non sono visibili nell'esempio <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>, ma prima di spiegarli nel prossimo capitolo, vorrei considerare un'altra cosa.</p>
+<p>Esaminando l'anatomia di <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>, potrebbe sembrare che ci sia molto codice solo per racchiudere una singola stringa. Ne vale la pena? Dov’è il ritorno dell’investimento?</p>
+<p>Per rispondere, vorrei tornare al nostro problema originale con i nomi dei prodotti e ricordare che ho introdotto un <em>oggetto valore</em> per limitare l'impatto di alcune modifiche che potrebbero verificarsi nel codice in cui vengono utilizzati i nomi dei prodotti. Dato che è passato molto tempo, ecco le modifiche che volevamo influissero il meno possibile sul nostro codice:</p>
+<ol class="arabic simple">
+<li><p>Modificare il confronto dei nomi dei prodotti senza distinzione tra maiuscole e minuscole</p></li>
+<li><p>Modificare il confronto per prendere in considerazione non solo il nome di un prodotto ma anche la configurazione con cui un prodotto viene venduto.</p></li>
+</ol>
+<p>Andiamo a scoprire se introdurre un <em>oggetto valore</em> potrebbe ripagare in questi casi.</p>
+<section id="first-change-case-insensitivity">
+<h3>Prima modifica - indipendenza dalle maiuscole<a class="headerlink" href="#first-change-case-insensitivity" title="Link to this heading">¶</a></h3>
+<p>Questo è facile da eseguire - dobbiamo solo modificare gli operatori di uguaglianza, le operazioni <code class="docutils literal notranslate"><span class="pre">Equals()</span></code> e <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code>, in modo che trattino uguali i nomi con lo stesso contenuto in lettere con altezze diverse. Non esaminerò il codice ora perché non è troppo interessante, spero che si possa immaginare come sarebbe l'implementazione. Dovremmo modificare tutti i confronti tra stringhe per utilizzare un'opzione che ignori maiuscole e minuscole, ad es. <code class="docutils literal notranslate"><span class="pre">OrdinalIgnoreCase</span></code>. Ciò dovrebbe accadere solo all'interno della classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> poiché è l'unica che sa cosa significa che due nomi di prodotto siano uguali. Ciò significa che l'incapsulamento che abbiamo introdotto senza la classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> ha dato i suoi frutti.</p>
+</section>
+<section id="second-change-additional-identifier">
+<h3>Seconda modifica - identificatore aggiuntivo<a class="headerlink" href="#second-change-additional-identifier" title="Link to this heading">¶</a></h3>
+<p>Questa è più complessa, ma avere un <em>oggetto valore</em> sul posto lo rende comunque molto più semplice rispetto all'approccio basato sulla semplice stringa. Per apportare questa modifica, dobbiamo modificare la creazione della classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> affinché accetti un parametro aggiuntivo, chiamato <code class="docutils literal notranslate"><span class="pre">config</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">private</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">config</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">;</span>
+<span class="w">  </span><span class="n">_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che questo è un esempio che abbiamo menzionato prima. C'è una differenza, però. Mentre in precedenza presumevamo che non fosse necessario conservare valore e configurazione separatamente all'interno di un'istanza <code class="docutils literal notranslate"><span class="pre">ProductName</span></code> e concatenarli in un'unica stringa durante la creazione di un oggetto, questa volta assumiamo che avremo in seguito bisogno di questa separazione tra nome e configurazione.</p>
+<p>Dopo aver modificato il costruttore, il passo successivo è aggiungere ulteriori convalide al metodo factory:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">ProductName</span><span class="w"> </span><span class="nf">CombinedOf</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">config</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="k">value</span><span class="p">))</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ArgumentException</span><span class="p">(</span>
+<span class="w">          </span><span class="s">&quot;Product names must be human readable!&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="kt">string</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ArgumentException</span><span class="p">(</span>
+<span class="w">          </span><span class="s">&quot;Configs must be human readable!&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">ProductName</span><span class="p">(</span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Da notare che questa modifica richiede cambiamenti in tutto il codice base (perché sono necessari argomenti aggiuntivi per creare un oggetto), tuttavia, questo non è il tipo di cambiamento di cui abbiamo troppa paura. Questo perché la modifica della signature [<em>firma</em>] del metodo attiverà gli errori del compilatore. Ciascuno di questi errori dovrà essere corretto prima che la compilazione possa passare (possiamo dire che il compilatore ci crea un simpatico elenco di cose da fare e si assicura che affrontiamo ogni singolo elemento di quell'elenco). Ciò significa che non corriamo il rischio di dimenticare di trattare uno dei posti in cui è necessario apportare una modifica. Ciò riduce notevolmente il rischio di violare la legge di Shalloway.</p>
+<p>L'ultima parte di questa modifica consiste nel modificare gli operatori di uguaglianza, <code class="docutils literal notranslate"><span class="pre">Equals()</span></code> e <code class="docutils literal notranslate"><span class="pre">GetHashCode()</span></code>, per confrontare le istanze non solo per nome, ma anche per configurazione. E ancora, lascerò il codice di questi metodi come esercizio al lettore. Noterò solo brevemente non sarà richiesta alcuna modifica al di fuori della classe <code class="docutils literal notranslate"><span class="pre">ProductName</span></code>.</p>
+</section>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>Finora abbiamo parlato di <em>oggetti valore</em> utilizzando un esempio specifico di nomi di prodotti. Spero che ora si abbia un'idea di come tali oggetti possano essere utili. Il prossimo capitolo completerà la descrizione degli <em>oggetti valore</em> spiegando alcune delle loro proprietà generali.</p>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="whyuseequatable" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>https://stackoverflow.com/questions/2734914/whats-the-difference-between-iequatable-and-just-overriding-object-equals</p>
+</aside>
+<aside class="footnote brackets" id="isnullorempty" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>A proposito, il codice contiene una chiamata a <code class="docutils literal notranslate"><span class="pre">IsNullOrEmpty()</span></code>. Esistono diversi argomenti validi contro l'utilizzo di questo metodo, ad es. quello di Mark Seemann (http://blog.ploeh.dk/2014/11/18/the-isnullorwhitespace-trap/), ma in questo caso l'ho inserito per rendere il codice più breve poiché la logica di convalida in sé non è importante in questo momento.</p>
+</aside>
+<aside class="footnote brackets" id="constructorsdynamic" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Questo è vero per linguaggi come Java, C# o C++. Esistono altri linguaggi (come Ruby), con regole diverse per quanto riguarda la costruzione degli oggetti. Tuttavia, l'argomentazione originale - che la denominazione dei metodi responsabili della creazione degli oggetti è vincolata - resta valida.
+Still, the original argument - that the naming of methods responsible for object creation is constrained - holds.</p>
+</aside>
+<aside class="footnote brackets" id="essentialskills" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>A. Shalloway et al., Essential Skills For The Agile Developer.</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Anatomia del <em>oggetto valore</em></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#class-signature">Class [<em>firma</em>] della classe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hidden-data">Dati nascosti</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hidden-constructor">Costruttore nascosto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#string-conversion-methods">Metodi di conversione delle stringhe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#equality-members">Membri di uguaglianza</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-return-of-investment">Il ritorno dell'investimento</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="250_Value_Objects.html" title="capitolo precedente">Gli <em>Oggetti Valore</em></a></li>
+      <li>Next: <a href="257_Value%20objects_general_topics.html" title="capitolo successivo">Aspetti del design degli <em>oggetti valore</em></a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/255_Value_Objects_properties.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

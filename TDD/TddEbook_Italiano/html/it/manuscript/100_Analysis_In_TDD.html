@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>In che modo il TDD riguarda l&#39;analisi e cosa significa &#34;GIVEN-WHEN-THEN&#34;? &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Qual è lo scopo di uno Statement a livello di unità in TDD?" href="110_What_is_the_scope_of_a_Statement_in_TDD.html" />
+    <link rel="prev" title="Come iniziare?" href="090_How_to_start.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="how-is-tdd-about-analysis-and-what-does-given-when-then-mean">
+<h1>In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?<a class="headerlink" href="#how-is-tdd-about-analysis-and-what-does-given-when-then-mean" title="Link to this heading">¶</a></h1>
+<p>Durante il lavoro sul codice della calcolatrice, Johnny ha menzionato che il TDD riguarda, tra le altre cose, l'analisi. Questo capitolo esplora ulteriormente questo concetto. Iniziamo rispondendo alla seguente domanda:</p>
+<section id="is-there-a-commonality-between-analysis-and-tdd">
+<h2>Esiste qualcosa in comune tra analisi e il TDD?<a class="headerlink" href="#is-there-a-commonality-between-analysis-and-tdd" title="Link to this heading">¶</a></h2>
+<p>Da <a class="reference external" href="https://en.wikipedia.org/wiki/Analysis">Wikipedia</a>:</p>
+<blockquote>
+<div><p>L'analisi è il processo di suddivisione di un argomento o di una sostanza complessa in parti più piccole per ottenerne una migliore comprensione.</p>
+</div></blockquote>
+<p>Pertanto, affinché il TDD riguardi l’analisi, dovrebbe soddisfare due condizioni:</p>
+<ol class="arabic simple">
+<li><p>Dovrebbe trattarsi di un processo di suddivisione di un argomento complesso in parti più piccole</p></li>
+<li><p>Dovrebbe consentire di acquisire una migliore comprensione di parti così piccole</p></li>
+</ol>
+<p>Nella storia di Johnny, Benjamin e Jane, ho incluso una parte in cui analizzano i requisiti utilizzando esempi concreti. Johnny ha spiegato che questa è una parte di un processo chiamato &quot;Acceptance Test-Driven Development&quot;. Questo processo, seguito dai tre personaggi, soddisfaceva entrambe le condizioni menzionate affinché potesse essere considerato analitico. Ma che dire del TDD in sé?</p>
+<p>Anche se nella storia ho utilizzato parti del processo ATDD per rendere la parte di analisi più ovvia, cose simili accadono a livelli puramente tecnici. Ad esempio, quando si avvia lo sviluppo con una dichiarazione non valida a livello di applicazione (vale a dire che copre il comportamento di un'applicazione nel suo insieme. Parleremo più avanti dei livelli di granularità degli Statement. Per ora, l'unica cosa che devi sapere è che il cosiddetto &quot;unit tests level&quot; non è l'unico livello di granularità su cui scriviamo gli Statement), potremmo riscontrare una situazione in cui dobbiamo chiamare un metodo web e creare un'asserzione sul suo risultato. Questo ci fa pensare: come dovrebbe essere chiamato questo metodo? Quali sono gli scenari che supporta? Cosa mi aspetto che ne esca? Come dovrei, come utente, essere avvisato degli errori? Molte volte, questo ci porta o a una conversazione (se c'è un altro &quot;attore&quot; che deve essere coinvolto nella decisione) o a ripensare le nostre ipotesi. Lo stesso vale nello &quot;unit level&quot; - se una classe implementa una regola di dominio, potrebbero esserci alcune buone domande relative al dominio derivanti dal tentativo di scrivere uno Statement per esso. Se una classe implementa una regola tecnica, potrebbero esserci alcune domande tecniche da discutere con altri sviluppatori, ecc. In questo modo otteniamo una migliore comprensione dell'argomento che stiamo analizzando, il che fa sì che il TDD soddisfi il secondo dei due requisiti per essere un metodo di analisi.</p>
+<p>Ma per quanto riguarda il primo requisito? Che ne dite di suddividere una logica complessa in parti più piccole?</p>
+<p>Se si torna alla storia di Johnny e Benjamin, si noterà che quando parlavano con un cliente e scrivevano il codice, usavano una lista di TODO [cose da fare]. Questo elenco è stato inizialmente compilato con gli scenari escogitati, ma in seguito avrebbero aggiunto unità di lavoro più piccole. Quando faccio TDD, faccio lo stesso, essenzialmente scomponendo argomenti complessi in elementi più piccoli e inserendoli nella lista di TODO (questa è una delle pratiche che servono alla scomposizione. L'altro è il mocking, ma per ora lasciamo perdere). Grazie a questo, posso concentrarmi su una cosa alla volta, cancellando un elemento dopo l'altro dalla lista una volta terminato. Se imparo qualcosa di nuovo o incontro un nuovo problema che richiede la nostra attenzione, posso aggiungerlo alla lista dei TODO e tornarci più tardi, per ora continuo il mio lavoro sull'elemento su cui mi sto concentrando.</p>
+<p>Un esempio di elenco di cose da fare (TODO) nel bel mezzo di un'attività di implementazione potrebbe assomigliare a questo (non è da leggere, l'ho inserito qui solo per dare un'idea: non dovreste nemmeno capire di cosa trattano gli elementi della lista):</p>
+<ol class="arabic simple">
+<li><p>~~Creare un &quot;entry point&quot; [<em>punto di ingresso</em>] al modulo (astrazione di livello superiore)~~</p></li>
+<li><p>~~Implementare il flusso di lavoro principale del modulo~~</p></li>
+<li><p>~~Implementare l'interfaccia <code class="docutils literal notranslate"><span class="pre">Message</span></code>~~</p></li>
+<li><p>~~Implementare l'interfaccia <code class="docutils literal notranslate"><span class="pre">MessageFactory</span></code>~~</p></li>
+<li><p>Implementare l'interfaccia <code class="docutils literal notranslate"><span class="pre">ValidationRules</span></code></p></li>
+<li><p>~~Implementare il comportamento richiesto dal metodo Wrap nella classe <code class="docutils literal notranslate"><span class="pre">LocationMessageFactory</span></code>~~</p></li>
+<li><p>Implementare il comportamento richiesto dal metodo ValidateWith nella classe <code class="docutils literal notranslate"><span class="pre">LocationMessage</span></code> per il campo Speed</p></li>
+<li><p>Implementare il comportamento richiesto dal metodo ValidateWith nella classe <code class="docutils literal notranslate"><span class="pre">LocationMessage</span></code> per il campo Age</p></li>
+<li><p>Implementare il comportamento richiesto dal metodo ValidateWith nella classe <code class="docutils literal notranslate"><span class="pre">LocationMessage</span></code> per il campo Sender</p></li>
+</ol>
+<p>Notare che alcuni elementi sono già cancellati come completati, mentre altri rimangono in sospeso e in attesa di essere risolti. Tutti questi elementi sono ciò che l'articolo su Wikipedia chiama &quot;parti più piccole&quot; - il risultato della scomposizione di un argomento più ampio.</p>
+<p>Per me, gli argomenti forniti sono sufficienti per pensare che il TDD riguardi l'analisi. La domanda successiva è: esistono strumenti che possiamo utilizzare per aiutare e informare questa parte di analisi del TDD? La risposta è sì e sono stati già visti entrambi in questo libro, quindi ora li esamineremo più da vicino.</p>
+</section>
+<section id="gherkin">
+<h2>Gherkin<a class="headerlink" href="#gherkin" title="Link to this heading">¶</a></h2>
+<p>Affamati? Peccato, perché il Gherkin [<em>cetriolino</em>] di cui vi parlerò non è commestibile. È una notazione e un modo di pensare ai comportamenti della parte di codice specificata. Può essere applicato a diversi livelli di granularità -- qualsiasi comportamento, sia di un intero sistema che di una singola classe, può essere descritto utilizzando Gherkin.</p>
+<p>Abbiamo già usato questa notazione, semplicemente non l'abbiamo chiamata così. Gherkin è la struttura GIVEN-WHEN-THEN che si puoò vedere ovunque, anche come commenti negli esempi di codice. Questa volta gli stampiamo un nome e lo analizziamo ulteriormente.</p>
+<p>In Gherkin, la descrizione di un comportamento è costituita principalmente da tre parti:</p>
+<ol class="arabic simple">
+<li><p>Given -- un contesto</p></li>
+<li><p>When -- una causa</p></li>
+<li><p>Then -- un effetto</p></li>
+</ol>
+<p>In altre parole, l'enfasi è sulla causalità in un dato contesto. C'è anche una quarta parola chiave: <code class="docutils literal notranslate"><span class="pre">And</span></code><a class="footnote-reference brackets" href="#gherkinorandbut" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> -- possiamo usarla per aggiungere più contesto, più cause o più effetti. Tra poco si avrà la possibilità di vedere un esempio.</p>
+<p>Come ho detto, ci sono diversi livelli a cui è applicabile. Ecco un esempio di tale descrizione del comportamento dal punto di vista dell'utente finale (detto acceptance-level Statement):</p>
+<div class="highlight-gherkin notranslate"><div class="highlight"><pre><span></span><span class="k">Given </span><span class="nf">a bag of tea costs $</span><span class="s">20</span>
+<span class="k">And </span><span class="nf">there is a discount saying &quot;</span><span class="s">pay half for a second bag</span><span class="nf">&quot;</span>
+<span class="k">When </span><span class="nf">I buy two bags</span>
+<span class="k">Then </span><span class="nf">I should be charged $</span><span class="s">30</span>
+</pre></div>
+</div>
+<p>Ed eccone uno a livello di unità (notare nuovamente la riga che inizia con &quot;And&quot; che aggiunge al contesto):</p>
+<div class="highlight-gherkin notranslate"><div class="highlight"><pre><span></span><span class="k">Given </span><span class="nf">a list with </span><span class="s">2</span><span class="nf"> items</span>
+<span class="k">When </span><span class="nf">I add another item</span>
+<span class="k">And </span><span class="nf">check items count</span>
+<span class="k">Then </span><span class="nf">the count should be </span><span class="s">3</span>
+</pre></div>
+</div>
+<p>A livello di accettazione inseriamo tali descrizioni di comportamento insieme al codice come un unico insieme (se questo non dice niente, esaminare tool come <a class="reference external" href="http://specflow.org/">SpecFlow</a> o <a class="reference external" href="https://cucumber.io/">Cucumber</a> o <a class="reference external" href="http://fit.c2.com/">FIT</a> per avere alcuni esempi), a livello di unità la descrizione di solito non è scritta in modo letterale, ma piuttosto è tradotto e scritto solo sotto forma di codice sorgente. Tuttavia, la struttura di GIVEN-WHEN-THEN è utile quando si pensa ai comportamenti richiesti da uno o più oggetti, come abbiamo visto quando abbiamo parlato di iniziare dallo Statement anziché dal codice. Mi piace inserire la struttura in modo esplicito nei miei Statement -- trovo che aiuti a renderle più leggibili<a class="footnote-reference brackets" href="#sebrosegwt" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>. Quindi la maggior parte dei miei Statement a livello di unità seguono questo template:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">Should__BEHAVIOR__</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="p">...</span><span class="n">context</span><span class="p">...</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="p">...</span><span class="n">trigger</span><span class="p">...</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="p">...</span><span class="n">assertions</span><span class="w"> </span><span class="n">etc</span><span class="p">....</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A volte le sezioni WHEN e THEN non sono così facilmente separabili -- allora le unisco, come nel caso del seguente Statement che specifica che un oggetto genera un'eccezione quando viene chiesto di memorizzare null:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldThrowExceptionWhenAskedToStoreNull</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">safeList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SafeList</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN - THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Throws</span><span class="o">&lt;</span><span class="n">Exception</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">safeList</span><span class="p">.</span><span class="n">Store</span><span class="p">(</span><span class="k">null</span><span class="p">)</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Pensando in termini di queste tre parti del comportamento, possiamo arrivare a circostanze (GIVEN) diverse in cui il comportamento ha luogo, o ad altre che sono necessarie. Lo stesso vale per i trigger (WHEN) e gli effetti (THEN). Se ci viene in mente qualcosa di simile, lo aggiungiamo alla lista dei TODO per rivisitarlo in seguito.</p>
+</section>
+<section id="todo-list-again">
+<h2>La lista TODO... di nuovo!<a class="headerlink" href="#todo-list-again" title="Link to this heading">¶</a></h2>
+<p>Come ho scritto prima, una lista TODO è un repository per il nostro lavoro differito. Ciò include tutto ciò che ci viene in mente quando scriviamo o pensiamo a uno Statement, ma non fa parte dello Statement attuale che stiamo scrivendo. Da un lato, non vogliamo dimenticarlo, dall'altro non vogliamo che ci perseguiti e ci distragga dal nostro compito attuale, quindi lo scriviamo il prima possibile e continuiamo con il nostro lavoro. Quando abbiamo finito, prendiamo un altro elemento dalla lista dei TODO e iniziamo a lavorarci sopra.</p>
+<p>Immaginare di scrivere un codice logico che consenta l'accesso agli utenti quando sono dipendenti di uno zoo, ma neghi l'accesso se sono semplicemente visitatori. Poi, dopo aver iniziato a scrivere uno Statement, ci rendiamo conto che anche i dipendenti possono essere visitatori -- ad esempio, potrebbero scegliere di visitare lo zoo con le loro famiglie durante le vacanze. Tuttavia, valgono le due regole precedenti, quindi per evitare di essere distratti da questo terzo scenario, possiamo aggiungerlo rapidamente come elemento alla lista dei TODO (come &quot;TODO: cosa succede se qualcuno è un dipendente, ma viene allo zoo come visitatore?&quot;) e terminare lo Statement corrente. Una volta terminato, si ouò sempre tornare all'elenco degli elementi rinviati e scegliere l'elemento successivo su cui lavorare.</p>
+<p>Ci sono due domande importanti relative lle liste di TODO: &quot;cosa dovremmo aggiungere esattamente come elemento della lista TODO?&quot; e &quot;Come gestire in modo efficiente la lista TODO?&quot;. Ci occuperemo ora di queste due domande.</p>
+<section id="what-to-put-on-a-todo-list">
+<h3>Cosa inserire in una lista TODO?<a class="headerlink" href="#what-to-put-on-a-todo-list" title="Link to this heading">¶</a></h3>
+<p>Tutto ciò di cui abbiamo bisogno venga affrontato, ma non rientra nell'ambito dello Statement corrente. Questi elementi potrebbero essere correlati all'implementazione di metodi non implementati, all'aggiunta di intere funzionalità (tali elementi vengono solitamente ulteriormente suddivisi in sottoattività più dettagliate non appena iniziamo a implementarle), potrebbero essere promemoria per dare un'occhiata migliore a qualcosa (ad esempio &quot;investigare su qual è la politica di questo componente per la registrazione degli errori&quot;) o domande sul dominio da cui è necessario ottenere una risposta. Se tendiamo a lasciarci trasportare troppo dalla programmazione e a perdere il pranzo, possiamo anche aggiungere un promemoria (&quot;TODO: andare a pranzo!&quot;). Non ho mai riscontrato un caso in cui avessi bisogno di condividere questo elenco di cose da fare con qualcun altro, quindi tendo a trattarlo come il mio taccuino. Consiglio di fare lo stesso - la lista è personale!</p>
+</section>
+<section id="how-to-pick-items-from-a-todo-list">
+<h3>Come scegliere gli elementi da una lista TODO?<a class="headerlink" href="#how-to-pick-items-from-a-todo-list" title="Link to this heading">¶</a></h3>
+<p>Quale elemento scegliere da una lista TODO quando ne abbiamo diversi? Non ho una regola chiara, anche se tendo a prendere in considerazione i seguenti fattori:</p>
+<ol class="arabic simple">
+<li><p>Rischio -- se ciò che imparo implementando o discutendo un particolare elemento della lista può avere un grande impatto sulla progettazione o sul comportamento del sistema, tendo a scegliere per primi tali elementi. Un esempio di tale situazione è quando inizio a implementare la validazione di una richiesta che raggiunge la mia applicazione e desidero restituire errori diversi a seconda di quale parte della richiesta sia sbagliata. Poi, durante lo sviluppo, potrei scoprire che più di parti della richiesta possono essere sbagliate contemporaneamente e devo rispondere a una domanda: quale codice di errore dovrebbe essere restituito in questo caso? O forse i codici restituiti dovrebbero essere accumulati per tutte le validazioni e poi restituiti sotto forma di lista?</p></li>
+<li><p>Difficoltà -- a seconda della mia condizione mentale (quanto sono stanco, quanto rumore c'è attorno alla mia scrivania ecc.), tendo a scegliere gli elementi con difficoltà che meglio si adattano a questa condizione. Ad esempio, dopo aver finito un oggetto che richiede molta riflessione e comprensione, tendo ad affrontare alcuni oggetti piccoli e facili per sentire il vento che soffia nelle mie vele e riposarmi un po'.</p></li>
+<li><p>Completezza -- in parole povere, quando finisco di testare un caso &quot;if&quot;, di solito prendo il successivo &quot;else&quot;. Ad esempio, dopo aver terminato di implementare uno Statement che dice che qualcosa dovrebbe restituire vero per valori inferiori a 50, l'elemento successivo da prendere in considerazione è il caso &quot;maggiore o uguale a 50&quot;. Di solito, quando inizio a testare una classe, prendo gli elementi relativi a questa classe finché non li esaurisco, quindi passo ad altro.</p></li>
+</ol>
+<p>Naturalmente, una lista TODO è solo una delle fonti di tali elementi TODO. In genere, durante la ricerca di elementi da svolgere, esamino le seguenti fonti di elementi nel seguente ordine:</p>
+<ol class="arabic simple">
+<li><p>errori del compilatore,</p></li>
+<li><p>Dichiarazioni false,</p></li>
+<li><p>La mia lista TODO.</p></li>
+</ol>
+</section>
+<section id="where-to-put-a-todo-list">
+<h3>Dove mettere la lista TODO?<a class="headerlink" href="#where-to-put-a-todo-list" title="Link to this heading">¶</a></h3>
+<p>Ho riscontrato due modi per mantenere una lista di TODO. Il primo è su un foglio di carta. Lo svantaggio è che ogni volta che devo aggiungere qualcosa alla lista, devo togliere le mani dalla tastiera, prendere una penna o una matita e poi tornare a scrivere codice. Inoltre, l'unico modo in cui un elemento TODO scritto su un foglio di carta può dirmi a quale punto del mio codice è correlato è (ovviamente) tramite il suo testo. L'aspetto positivo della carta è che è di gran lunga uno dei migliori strumenti per disegnare, quindi quando è meglio archiviare la mia voce TODO come diagramma o disegno (cosa che non accade troppo spesso, ma a volte sì), utilizzo la carta e penna.</p>
+<p>La seconda alternativa consiste nell'utilizzare la funzionalità della lista TODO integrata in un IDE. La maggior parte degli IDE, come Visual Studio (e il plug-in Resharper ha una versione migliorata), Xamarin Studio, IntelliJ o IDE basati su Eclipse hanno tale funzionalità. Le regole sono semplici -- inserisco commenti speciali (p. es. <code class="docutils literal notranslate"><span class="pre">//TODO</span> <span class="pre">fare</span> <span class="pre">qualcosa</span></code>) nel codice e una vista speciale nel mio IDE li aggrega, permettendomi di passare a ciascun elemento in un secondo momento. Questo è il mio modo principale di mantenere una lista di TODO, perché:</p>
+<ol class="arabic simple">
+<li><p>Non mi obbligano a togliere le mani dalla tastiera per aggiungere un elemento alla lista.</p></li>
+<li><p>Posso inserire un elemento TODO in un determinato punto del codice in cui ha senso e poi tornarci successivamente con un clic del mouse. Questo, oltre ad altri vantaggi, permette di scrivere appunti più brevi che se dovessi farlo su carta. Per esempio, un elemento TODO che dice &quot;TODO: cosa succede se si genera un'eccezione?&quot; sembra fuori posto su un foglio di carta, ma se aggiunto come commento al mio codice nel posto giusto, è sufficiente.</p></li>
+<li><p>Molti elenchi di cose da fare aggiungono automaticamente elementi per determinate cose che accadono nel codice. Per esempio in C#, quando devo ancora implementare un metodo generato automaticamente dall'IDE, il suo corpo è solitamente costituito da una riga che genera un'eccezione <code class="docutils literal notranslate"><span class="pre">NotImplementedException</span></code>. Indovinate un po' -- le occorrenze <code class="docutils literal notranslate"><span class="pre">NotImplementedException</span></code> vengono aggiunte automaticamente alla lista TODO, quindi non devo aggiungere manualmente elementi all'elenco TODO per implementare i metodi in cui si verificano.</p></li>
+</ol>
+<p><img alt="Resharper TODO Explorer ancorato come finestra in Visual Studio 2015 IDE" src="../_images/TodoExplorer.PNG" /></p>
+<p>L'elenco TODO mantenuto nel codice sorgente presenta un piccolo inconveniente: dobbiamo ricordarci di cancellare l'elenco quando finiamo di lavorarci o potremmo finire per inviare gli elementi TODO al repository del controllo sorgente insieme al resto del codice sorgente. Tali elementi TODO rimanenti potrebbero accumularsi nel codice, riducendo di fatto la capacità di navigare tra gli elementi aggiunti solo da uno specifico sviluppatore. Esistono diverse strategie per affrontare questo problema:</p>
+<ol class="arabic simple">
+<li><p>Per i progetti nuovi, ho trovato relativamente semplice impostare un controllo di analisi statica che viene eseguito quando il codice viene creato e non consente il passaggio della compilazione automatica a meno che tutti gli elementi TODO non vengano rimossi. Questo aiuta a garantire che ogni volta che una modifica viene inviata a un sistema di controllo della versione, venga rimossa dagli elementi TODO non risolti.</p></li>
+<li><p>In alcuni altri casi, è possibile utilizzare una strategia che consiste nel rimuovere tutti gli elementi TODO da un progetto prima di iniziare a lavorarci. A volte può portare a conflitti tra le persone quando gli elementi TODO vengono utilizzati per qualcosa di diverso dall'elenco di attività di TDD e qualcuno per qualsiasi motivo desidera che rimangano nel codice più a lungo. Anche se sono dell'opinione che tali casi di abbandono degli elementi TODO per un periodo più lungo dovrebbero essere estremamente rari nella migliore delle ipotesi, altri potrebbero avere opinioni diverse.</p></li>
+<li><p>La maggior parte degli IDE moderni offrono indicatori di supporto diversi da <code class="docutils literal notranslate"><span class="pre">//TODO</span></code> per posizionare elementi in un elenco TODO, ad esempio, <code class="docutils literal notranslate"><span class="pre">//BUG</span></code>. In tal caso, posso utilizzare il marcatore <code class="docutils literal notranslate"><span class="pre">//BUG</span></code> er contrassegnare solo i miei elementi e quindi posso filtrare altri elementi in base a quel marcatore. I marcatori di bug comunemente non sono destinati a essere lasciati nel codice, quindi è molto meno rischioso che si accumulino.</p></li>
+<li><p>Come tecnica di ultima istanza, di solito posso definire marcatori personalizzati che vengono inseriti nell'elenco TODO e, ancora una volta, utilizzare i filtri per vedere solo gli elementi che sono stati definiti da me (più spesso dei <code class="docutils literal notranslate"><span class="pre">NotImplementedException</span></code>).</p></li>
+</ol>
+</section>
+<section id="tdd-process-expanded-with-a-todo-list">
+<h3>Il processo TDD è stato ampliato con una lista di TODO<a class="headerlink" href="#tdd-process-expanded-with-a-todo-list" title="Link to this heading">¶</a></h3>
+<p>In uno dei capitoli precedenti, ho presentato il processo TDD di base che conteneva tre passaggi: scrivere lo Statement falso che si desidera sia vera, modificare il codice di produzione in modo che lo Statement sia vero e poi effettuare il refactoring del codice. La lista di TODO aggiunge nuovi passaggi a questo processo che portano al seguente elenco espanso:</p>
+<ol class="arabic simple">
+<li><p>Esaminare l'elenco di TODO e sceglierne uno che ha più senso da implementare in seguito.</p></li>
+<li><p>Scrivere uno Statement falso che si vorrebbe fosse vero.</p></li>
+<li><p>Vederlo segnalato come falso per il giusto motivo.</p></li>
+<li><p>Modificare il codice di produzione per rendere vero lo Statement e assicurarsi che tutti gli Statement già veri rimangano tali.</p></li>
+<li><p>Calcellare l'elemento dalla lista di TODO.</p></li>
+<li><p>Ripetere i passaggi 1-5 finché non rimane più alcun elemento nella lista di TODO.</p></li>
+</ol>
+<p>Naturalmente, possiamo (e dovremmo) aggiungere nuovi elementi alla lista TODO man mano che facciamo progressi con quelli esistenti e all'inizio di ogni ciclo l'elenco dovrebbe essere rivalutato per scegliere l'elemento più importante da implementare successivamente, prendendo anche in considerazione quanto aggiunto nel ciclo precedente.</p>
+</section>
+<section id="potential-issues-with-todo-lists">
+<h3>Potenziali problemi con le liste TODO<a class="headerlink" href="#potential-issues-with-todo-lists" title="Link to this heading">¶</a></h3>
+<p>Ci sono anche alcuni problemi riscontrabili utilizzando le liste TODO. Ho già menzionato il più importante - ho visto spesso persone aggiungere elementi TODO per scopi diversi dal supporto del TDD, senza mai tornare a questi elementi. Alcune persone scherzano dicendo che un commento TODO lasciato nel codice significa &quot;C'è stato un tempo in cui volevo fare...&quot;. Ad ogni modo, tali elementi potrebbero inquinare la nostra lista TODO relativa a TDD con così tanta confusione che sono gli elementi risultano difficili da trovare.</p>
+<p>Un altro svantaggio è che quando si lavora con più &quot;aree di lavoro&quot;/soluzioni, l'IDE raccoglierà elementi TODO solo da una singola soluzione/&quot;area di lavoro&quot;, quindi potrebbero esserci momenti in cui sarà necessario mantenere diverse liste TODO, una per &quot;area di lavoro&quot; o soluzione. Fortunatamente, questo di solito non è un grosso problema.</p>
+</section>
+</section>
+</section>
+<hr class="footnotes docutils" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="gherkinorandbut" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Alcuni sostengono che esistano altre parole chiave, come <code class="docutils literal notranslate"><span class="pre">But</span></code> e <code class="docutils literal notranslate"><span class="pre">Or</span></code>. Tuttavia, non avremo bisogno di ricorrere ad essi, quindi ho deciso di ignorarli in questa descrizione.</p>
+</aside>
+<aside class="footnote brackets" id="sebrosegwt" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Seb Rose ha scritto un post sul blog in cui si pronuncia contro i commenti <code class="docutils literal notranslate"><span class="pre">//GIVEN</span> <span class="pre">//WHEN</span> <span class="pre">//THEN</span></code> e afferma di utilizzare solo righe vuote per separare le tre sezioni, vedere http://claysnow.co.uk/unit-tests-are-your-specification/</p>
+</aside>
+</aside>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#is-there-a-commonality-between-analysis-and-tdd">Esiste qualcosa in comune tra analisi e il TDD?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gherkin">Gherkin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#todo-list-again">La lista TODO... di nuovo!</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="140_Triangulation.html">Guidare l'implementazione dalle Specifiche</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="090_How_to_start.html" title="capitolo precedente">Come iniziare?</a></li>
+      <li>Next: <a href="110_What_is_the_scope_of_a_Statement_in_TDD.html" title="capitolo successivo">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/100_Analysis_In_TDD.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

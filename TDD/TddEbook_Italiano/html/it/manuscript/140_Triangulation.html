@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Guidare l&#39;implementazione dalle Specifiche &#8212; Documentazione TDD 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
+    <script src="../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Parte 2: Il Mondo Object-Oriented" href="150_Part2Marker.html" />
+    <link rel="prev" title="Specificare i confini e le condizioni funzionali" href="130_Boundaries.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="driving-the-implementation-from-specification">
+<h1>Guidare l'implementazione dalle Specifiche<a class="headerlink" href="#driving-the-implementation-from-specification" title="Link to this heading">¶</a></h1>
+<p>Come uno degli ultimi argomenti delle tecniche TDD fondamentali che non richiedono di approfondire il mondo della progettazione orientata agli oggetti, vorrei mostrare tre tecniche per trasformare in vero uno Statement falso. I nomi delle tecniche provengono da un libro di Kent Beck, <a class="reference external" href="https://isbnsearch.org/isbn/9780321146533">Test-Driven Development: By Example</a> e sono:</p>
+<ol class="arabic simple">
+<li><p>Digitare l'implementazione ovvia</p></li>
+<li><p>Una versione fasulla (finché si può fare)</p></li>
+<li><p>Triangolare</p></li>
+</ol>
+<p>Non ci si preoccupi se questi nomi non dicono nulla, le tecniche non sono così difficili da comprendere e cercherò di fare un esempio di ognuna di esse.</p>
+<section id="type-the-obvious-implementation">
+<h2>Digitare l'implementazione ovvia<a class="headerlink" href="#type-the-obvious-implementation" title="Link to this heading">¶</a></h2>
+<p>La prima tecnica dice semplicemente: quando si conosce l'implementazione corretta e finale per rendere vero uno Statement, la si scrive. Se l'implementazione è ovvia, questo approccio ha molto senso - dopo tutto, il numero di Statement necessari per specificare (e testare) una funzionalità dovrebbe riflettere il livello di sicurezza desiderato. Se questo livello è molto alto basterà digitare il codice corretto in risposta ad un singolo Statement. Vediamolo in azione con un banale esempio di somma di due numeri:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldAddTwoNumbersTogether</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">addition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Addition</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">addition</span><span class="p">.</span><span class="n">Of</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ci si ricorderà che in uno dei capitoli precedenti ho scritto che di solito dovremmo scrivere il codice di produzione più semplice che renda vero lo Statement. L'approccio menzionato ci incoraggerebbe a restituire semplicemente 8 dal metodo <code class="docutils literal notranslate"><span class="pre">Of()</span></code> perché sarebbe sufficiente per rendere vero lo Statement. Invece di farlo, tuttavia, potremmo decidere che la logica è così ovvia che possiamo semplicemente digitarla nella sua forma finale:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>e basta. Notare che non ho utilizzato il &quot;Constrained Non-Determinism &quot; nello Statement, perché il suo utilizzo impone in un certo senso l'utilizzo dell'approccio &quot;digita l'implementazione ovvia&quot;. Questo è anche uno dei motivi per cui molti Statement che ho scritto finora nei capitoli precedenti sono stati implementati digitando l'implementazione corretta. Giusto per illustrarlo, diamo un'occhiata a come apparirebbe la dichiarazione di cui sopra se utilizzassi il &quot;Constrained Non-Determinism&quot;:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldAddTwoNumbersTogether</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Integer</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Any</span><span class="p">.</span><span class="n">Integer</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">addition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Addition</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">addition</span><span class="p">.</span><span class="n">Of</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>L'implementazione più ovvia che renderebbe vero questo Statement è l'implementazione corretta -- non riesco a farla franca restituendo un valore costante come potrei quando non utilizzo il &quot;Constrained Non-Determinism&quot;. Questo perché questa volta semplicemente non so quale sia il risultato atteso poiché dipende strettamente dai valori di input che nemmeno conosco.</p>
+</section>
+<section id="fake-it-til-you-make-it">
+<h2>Una versione fasulla (finché si può fare)<a class="headerlink" href="#fake-it-til-you-make-it" title="Link to this heading">¶</a></h2>
+<p>La seconda tecnica mi ha fatto sorridere quando ne sono venuto a conoscenza. Non ricordo di averla mai utilizzata nel codice di produzione reale, eppure la trovo così interessante che voglio mostrarla comunque. È così semplice che non si rimpiangeranno questi pochi minuti anche solo per allargare i propri orizzonti.</p>
+<p>Supponiamo di avere già scritto uno Statement falso e di volerlo rendere vero scrivendo il codice di produzione. In questo momento, applichiamo <em>Una versione fasulla (finché si può fare)</em> in due passi:</p>
+<ol class="arabic simple">
+<li><p>Iniziamo con un passaggio di &quot;versione fasulla&quot;. In questo caso, trasformiamo in vero uno Statement falso utilizzando l'implementazione più ovvia possibile, anche se non è quella corretta (da cui il nome del passaggio: &quot;versione fasulla&quot; l'implementazione reale per &quot;imbrogliare&quot; lo Statement). Di solito, all'inizio è sufficiente restituire una costante letterale.</p></li>
+<li><p>Quindi procediamo con la fase &quot;Una versione fasulla&quot; - facciamo affidamento sul nostro senso di duplicazione tra lo Statement e la implementazione (fake) per trasformare gradualmente entrambe nelle loro forme più generali che eliminano questa duplicazione. Di solito, otteniamo questo risultato trasformando le costanti in variabili, le variabili in parametri, ecc.</p></li>
+</ol>
+<p>Un esempio potrebbe essere utile proprio adesso, quindi applichiamo <em>versione fasulla...</em> allo stesso esempio di addizione della sezione <em>Digitare l'implementazione ovvia</em>. Lo Statement è lo stesso di prima:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Fact]</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="k">void</span>
+<span class="n">ShouldAddTwoNumbersTogether</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">addition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Addition</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">addition</span><span class="p">.</span><span class="n">Of</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Per l'implementazione, però, utilizzeremo il codice più ovvio che trasformerà lo Statement a vero. Come accennato, questa implementazione più ovvia restituisce quasi sempre una costante:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"> </span><span class="c1">//we faked the real implementation</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Lo Statement ora diventa vero (verde), anche se l'implementazione è ovviamente sbagliata. Ora è il momento di eliminare le duplicazioni tra lo Statement e il codice di produzione.</p>
+<p>Innanzitutto, notiamo che il numero 8 è duplicato tra lo Statement e l'implementazione -- l'implementazione lo restituisce e lo Statement lo asserisce. Per ridurre questa duplicazione, suddividiamo l'8 nell'implementazione in un'addizione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare il trucco intelligente che ho fatto. Ho cambiato la duplicazione tra implementazione e <em>risultato atteso</em> dello Statement in duplicazione tra implementazione e i <em>valori di input</em> dello Statement. Ho cambiato il codice di produzione da utilizzare</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">return</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>esattamente perché lo Statement utilizzava questi due valori in questo modo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="kt">var</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">addition</span><span class="p">.</span><span class="n">Of</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Questo tipo di duplicazione è diverso dal precedente in quanto può essere rimosso utilizzando parametri (questo si applica non solo ai parametri di input di un metodo ma a tutto ciò a cui abbiamo accesso prima di attivare il comportamento specificato -- parametri del costruttore, campi, ecc. in contrasto con il risultato che normalmente non conosciamo finché non invochiamo il comportamento). La duplicazione del numero 3 può essere eliminata modificando il codice di produzione in modo che utilizzi il valore passato dallo Statement. Così questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Si trasforma in questo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In questo modo abbiamo eliminato la duplicazione del numero 3 - abbiamo utilizzato un parametro del metodo per trasferire il valore di 3 dallo Statement all'implementazione di <code class="docutils literal notranslate"><span class="pre">Of()</span></code>, quindi ora lo abbiamo in un unico posto. Dopo questa trasformazione, ci resta duplicato solo il numero 5, quindi trasformiamolo nello stesso modo in cui abbiamo trasformato il 3:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E questo è tutto - siamo arrivati all'implementazione corretta. Ho usato un esempio banale, dato che non voglio spendere troppo tempo su questo, ma se ne possono trovare di più avanzati nel libro di Kent Beck, volendo.</p>
+</section>
+<section id="triangulate">
+<h2>Triangolare<a class="headerlink" href="#triangulate" title="Link to this heading">¶</a></h2>
+<p>La triangolazione è considerata la tecnica più conservativa della terna descritta, perché seguirla richiede i più piccoli passaggi possibili per arrivare alla giusta soluzione. Il termine <em>Triangolazione</em> all'inizio sembra misterioso - almeno lo era per me, soprattutto perché non mi faceva venire in mente nulla che avesse a che fare con l'ingegneria del software. Il nome è stato preso dalla <a class="reference external" href="http://encyclopedia2.thefreedictionary.com/radar+triangulation">triangolazione radar</a> dove gli output di almeno due radar devono essere utilizzati per determinare la posizione di un'unità. Inoltre, nella triangolazione radar, la posizione viene misurata indirettamente, combinando i seguenti dati: distanza (non posizione!) tra due radar, misura effettuata da ciascun radar e posizione dei radar (che conosciamo, perché siamo noi a mettete lì i radar). Da questi dati possiamo ricavare un triangolo, quindi possiamo utilizzare la trigonometria per calcolare la posizione del terzo punto del triangolo, che è la posizione desiderata dell'unità (i due punti rimanenti sono le posizioni dei radar). Tale misura è di natura indiretta, poiché non misuriamo la posizione direttamente, ma la calcoliamo da altre misure di supporto.</p>
+<p>Queste due caratteristiche: la misura indiretta e l’uso di almeno due fonti di informazione sono al centro della triangolazione TDD. Ecco come può essere tradotto dai radar al codice:</p>
+<ol class="arabic simple">
+<li><p><strong>Misura indiretta</strong>: nel codice, significa che deriviamo l'implementazione interna e la progettazione di un modulo da diversi esempi noti del suo comportamento desiderato visibile esternamente, osservando cosa varia in questi esempi e modificando il codice di produzione in modo che questa variabilità sia trattata in modo generico. Ad esempio, la variabilità potrebbe portarci a cambiare una costante in una variabile, perché diversi esempi utilizzano valori di input diversi.</p></li>
+<li><p><strong>Utilizzo di almeno due fonti di informazione</strong>: nel codice, significa che iniziamo con l'implementazione più semplice possibile del comportamento e la rendiamo più generale <strong>solo</strong> quando abbiamo due o più esempi diversi di questo comportamento (ad es. che descrivono la funzionalità desiderata per diversi input). Poi è possibile aggiungere nuovi esempi e ripetere la generalizzazione. Questo processo viene ripetuto fino a raggiungere l'implementazione desiderata. Robert C. Martin ha sviluppato una massima al riguardo, affermando che <a class="reference external" href="http://blog.cleancoder.com/uncle-bob/2014/12/17/TheCyclesOfTDD.html">&quot;Man mano che i test diventano più specifici, il codice diventa più generico&quot;</a>.</p></li>
+</ol>
+<p>Di solito, quando il TDD viene presentato in esempi semplici, la triangolazione è la tecnica principale utilizzata, quindi molti principianti credono erroneamente che il TDD sia solo una questione di triangolazione.</p>
+<p>La ritengo una tecnica importante perché:</p>
+<ol class="arabic simple">
+<li><p>Molti praticanti del TDD la usano e la mostrano, quindi presumo che prima o poi la si vedrà e molto probabilmente ci saranno domande al riguardo.</p></li>
+<li><p>Ci consente di arrivare alla giusta implementazione effettuando passi molto piccoli (i più piccoli di quelli visti finora in questo libro) e lo trovo molto utile quando sono incerto su come dovrebbero essere l'implementazione e la progettazione corrette.</p></li>
+</ol>
+<section id="example-1-adding-numbers">
+<h3>Esempio 1 - addizionare numeri<a class="headerlink" href="#example-1-adding-numbers" title="Link to this heading">¶</a></h3>
+<p>Prima di mostrare un esempio più avanzato di triangolazione, vorrei tornare al nostro esempio esempio della somma di due numeri interi. Questo ci permetterà di vedere come la triangolazione differisce dalle altre due tecniche menzionate in precedenza.</p>
+<p>Per scrivere gli esempi, utilizzeremo la funzionalità di xUnit.net per gli Statement parametrizzati, ovvero le teorie - questo ci consentirà di fornire molti esempi della funzionalità desiderata senza duplicare il codice.</p>
+<p>Il primo esempio è simile al seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(0,0,0)]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldAddTwoNumbersTogether</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">addend1</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">addend2</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">expectedSum</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">addition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Addition</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">addition</span><span class="p">.</span><span class="n">Of</span><span class="p">(</span><span class="n">addend1</span><span class="p">,</span><span class="w"> </span><span class="n">addend2</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedSum</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che abbiamo parametrizzato non solo i valori di input ma anche il risultato atteso (<code class="docutils literal notranslate"><span class="pre">expectedSum</span></code>). Il primo esempio specifica che <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
+<p>L'implementazione, analogamente a <em>Una versione fasulla (finché si può fare)</em> per ora consiste nel restituire semplicemente una costante:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, contrariamente alla tecnica <em>Una versione fasulla...</em>, non proviamo a rimuovere la duplicazione tra lo Statement e il codice. Aggiungiamo invece un altro esempio della stessa regola. Cosa intendo con &quot;la stessa regola&quot;? Bene, dobbiamo considerare i nostri assi di variabilità. Nell'operazione di addizione, due cose possono variare - il primo addendo o il secondo - quindi abbiamo due assi di variabilità. Per il nostro secondo esempio, dobbiamo mantenerne uno invariato mentre cambiamo l'altro. Diciamo che decidiamo di mantenere il secondo valore di input uguale a quello dell'esempio precedente (che è 0) e di cambiare il primo valore in 1. Quindi questo singolo esempio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(0,0,0)]</span>
+</pre></div>
+</div>
+<p>Diventa un insieme di due esempi:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(0,0,0)]</span>
+<span class="na">[InlineData(1,0,1)]</span><span class="w"> </span><span class="c1">//NEW!</span>
+</pre></div>
+</div>
+<p>Ancora una volta, notrea che il secondo valore di input rimane lo stesso in entrambi gli esempi e il primo varia. Anche il risultato atteso deve essere diverso.</p>
+<p>Per quanto riguarda l'implementazione, proviamo ancora a rendere vero lo Statement utilizzando l'implementazione più stupida possibile:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Abbiamo già due esempi, quindi se vediamo uno schema ripetitivo, potremmo provare a generalizzarlo. Supponiamo però di non avere ancora un'idea su come generalizzare l'implementazione, quindi aggiungiamo un terzo esempio:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(0,0,0)]</span>
+<span class="na">[InlineData(1,0,1)]</span>
+<span class="na">[InlineData(2,0,2)]</span>
+</pre></div>
+</div>
+<p>E l'implementazione viene estesa a:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, osservando questo codice, possiamo notare un pattern - per ogni valore di input finora, restituiamo il valore del primo: per 1 restituiamo 1, per 2 restituiamo 2, per 0 restituiamo 0. Possiamo quindi generalizzare questa implementazione. Generalizziamo solo la parte relativa alla gestione del numero 2 per vedere se la direzione è giusta:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span><span class="w"> </span><span class="c1">//changed from 2 to a</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Gli esempi dovrebbero essere ancora veri a questo punto, quindi non abbiamo violato il codice esistente. È ora di cambiare la seconda istruzione <code class="docutils literal notranslate"><span class="pre">if</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span><span class="w"> </span><span class="c1">//changed from 1 to a</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Abbiamo ancora la barra verde, quindi il passo successivo sarebbe generalizzare la parte <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">0</span></code> in <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">a</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span><span class="w"> </span><span class="c1">//changed from 0 to a</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Gli esempi dovrebbero essere ancora veri. A proposito, la triangolazione non ci obbliga a fare piccoli passi come in questo caso, però volevo mostrare che lo rende possibile. La capacità di compiere piccoli passi quando necessario è qualcosa che apprezzo molto quando utilizzo il TDD. Ad ogni modo, possiamo notare che ciascuna condizione termina con lo stesso risultato, quindi non abbiamo affatto bisogno delle condizioni. Possiamo rimuoverle e lasciare solo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Pertanto, abbiamo generalizzato il primo asse di variabilità, che è il primo addendo. È ora di variare il secondo, lasciando invariato il primo addendo. Ai seguenti esempi esistenti:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(0,0,0)]</span><span class="w"> </span><span class="c1">//0+0=0</span>
+<span class="na">[InlineData(1,0,1)]</span><span class="w"> </span><span class="c1">//1+0=1</span>
+<span class="na">[InlineData(2,0,2)]</span><span class="w"> </span><span class="c1">//2+0=2</span>
+</pre></div>
+</div>
+<p>Aggiungiamo il seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[InlineData(2,1,3)]</span><span class="w"> </span><span class="c1">//2+1=3</span>
+</pre></div>
+</div>
+<p>Notare che abbiamo già utilizzato il valore 2 per il primo addendo in uno degli esempi precedenti, quindi questa volta decidiamo di congelarlo e di variare il secondo addendo, che finora è sempre stato 0. L'implementazione sarebbe qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Abbiamo già due esempi per la variazione del secondo addendo, quindi potremmo generalizzare. Diciamo, tuttavia, che non vediamo ancora il pattern. Aggiungiamo un altro esempio per un valore diverso del secondo addendo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(0,0,0)]</span><span class="w"> </span><span class="c1">//0+0=0</span>
+<span class="na">[InlineData(1,0,1)]</span><span class="w"> </span><span class="c1">//1+0=1</span>
+<span class="na">[InlineData(2,0,2)]</span><span class="w"> </span><span class="c1">//2+0=2</span>
+<span class="na">[InlineData(2,1,3)]</span><span class="w"> </span><span class="c1">//2+1=3</span>
+<span class="na">[InlineData(2,2,4)]</span><span class="w"> </span><span class="c1">//2+2=4</span>
+</pre></div>
+</div>
+<p>Quindi abbiamo aggiunto 2+2=4. Ancora una volta, l’implementazione dovrebbe essere la più banale possibile:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora possiamo vedere il pattern più chiaramente. Qualunque valore di <code class="docutils literal notranslate"><span class="pre">b</span></code> passiamo al metodo <code class="docutils literal notranslate"><span class="pre">Of()</span></code>, viene aggiunto ad <code class="docutils literal notranslate"><span class="pre">a</span></code>. Proviamo a generalizzare, questa volta utilizzando un passaggio un po' più grande:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"> </span><span class="c1">//changed from 1 to b</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="nf">if</span><span class="p">(</span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"> </span><span class="c1">//changed from 2 to b</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"> </span><span class="c1">//added &quot;+ b&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ancora una volta, questo passaggio è stato più ampio, poiché abbiamo modificato tre posizioni in un'unica modifica. Ricordare che la triangolazione ci permette di scegliere la dimensione del gradino, quindi questa volta ne ho scelto uno più grande perché mi sentivo più sicuro. Ad ogni modo, possiamo vedere che il risultato per ogni branch [<em>ramo</em>] è esattamente lo stesso: <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">+</span> <span class="pre">b</span></code>, quindi possiamo rimuovere del tutto le condizioni e ottenere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Addition</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">Of</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>ed ecco fatto - abbiamo triangolato con successo la funzione di addizione. Ora, capisco che deve essere sembrato estremamente esagerato per ricavare un'aggiunta ovvia in questo modo. Da ricordare che ho fatto questo esercizio solo per mostrare i meccanismi, non per fornire un valido argomento a sostegno dell'utilità della triangolazione.</p>
+</section>
+<section id="example-2-led-display">
+<h3>Esempio 2 - Display a LED<a class="headerlink" href="#example-2-led-display" title="Link to this heading">¶</a></h3>
+<p>Non vi biasimo se il primo esempio non è servito a convincere che la triangolazione può essere utile. Dopotutto, si trattava di calcolare la somma di due numeri interi! Il prossimo esempio sarà qualcosa di meno ovvio. Vorrei avvisare, però, che mi prenderò del tempo per descrivere il problema e mostrerò solo una parte della soluzione, quindi se ne ha già abbastanza di triangolazioni, può saltare questo esempio e tornaci sopra più tardi.</p>
+<p>Ora che abbiamo finito con il disclaimer, ecco la descrizione.</p>
+<p>Immaginiamo di dover scrivere una classe che produca un display LED a 7 segmenti ASCII art. Nella vita reale, tali display vengono utilizzati per visualizzare le cifre:</p>
+<p><img alt="Il mock di un display LED a 7-segmenti" src="../_images/7SegmentDisplay.PNG" /></p>
+<p>Un esempio di arte ASCII prevista dalla nostra classe è simile a questa:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.-.</span>
+<span class="o">|.|</span>
+<span class="o">.-.</span>
+<span class="o">|.|</span>
+<span class="o">.-.</span>
+</pre></div>
+</div>
+<p>Notare che esistono tre tipi di simboli:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.</span></code> significa spazio (non c'è alcun segmento lì) o un segmento non illuminato.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-</span></code> indica un segmento orizzontale illuminato</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">|</span></code> indica un segmento verticale illuminato</p></li>
+</ul>
+<p>La funzionalità che dobbiamo implementare dovrebbe consentire non solo di visualizzare i numeri ma di illuminare qualsiasi combinazione di segmenti a piacimento. Possiamo quindi decidere di non illuminare nessun segmento, ottenendo così il seguente output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="o">...</span>
+<span class="o">...</span>
+<span class="o">...</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Oppure per illuminare solo il segmento superiore, che porta al seguente output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.-.</span>
+<span class="o">...</span>
+<span class="o">...</span>
+<span class="o">...</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Come diciamo alla nostra classe di illuminare questo o quel segmento? Gli passiamo una stringa di nomi di segmenti. I segmenti si chiamano A, B, C, D, E, F, G e la mappatura di ciascun nome su un segmento specifico può essere visualizzata come:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span><span class="n">A</span><span class="o">.</span>
+<span class="n">F</span><span class="o">.</span><span class="n">B</span>
+<span class="o">.</span><span class="n">G</span><span class="o">.</span>
+<span class="n">E</span><span class="o">.</span><span class="n">C</span>
+<span class="o">.</span><span class="n">D</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Quindi, per ottenere l'output descritto in precedenza in cui è illuminato solo il segmento superiore, dobbiamo passare l'input costituito da <code class="docutils literal notranslate"><span class="pre">&quot;A&quot;</span></code>. Volendo illuminare tutti i segmenti, passiamo <code class="docutils literal notranslate"><span class="pre">&quot;ABCDEFG&quot;</span></code>. Se vogliamo mantenere tutti i segmenti disattivati, passiamo <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> (o un equivalente C#: <code class="docutils literal notranslate"><span class="pre">string.Empty</span></code>).</p>
+<p>L'ultima cosa che devo dire prima di iniziare è che, per il bene di questo esercizio, ci concentreremo solo sull'input valido (ad esempio presupponiamo che non otterremo input come &quot;AAAA&quot;, o &quot;abc&quot; o &quot;ZXVN&quot;). Naturalmente, nei progetti reali, dovrebbero essere specificati anche i casi di input non validi.</p>
+<p>È il momento del primo Statement. Per cominciare, specificherò il caso di input vuoto che porta a tutti i segmenti spenti:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[Theory]</span>
+<span class="na">[InlineData(&quot;&quot;, new []</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="p">})]</span>
+<span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShouldConvertInputToAsciiArtLedDisplay</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="n">expectedOutput</span>
+<span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">//GIVEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">asciiArts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">LedAsciiArts</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">//WHEN</span>
+<span class="w">  </span><span class="kt">var</span><span class="w"> </span><span class="n">asciiArtString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">asciiArts</span><span class="p">.</span><span class="n">ConvertToLedArt</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//THEN</span>
+<span class="w">  </span><span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expectedOutput</span><span class="p">,</span><span class="w"> </span><span class="n">asciiArtString</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ancora una volta, come ho descritto nell'esempio precedente, dal lato del codice di produzione, facciamo la cosa più semplice solo per rendere vero questo esempio. Nel nostro caso, questo sarebbe:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="nf">ConvertToLedArt</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>L'esempio è ora implementato. Naturalmente questa non è l'implementazione finale dell'intera logica di conversione. Questo è il motivo per cui dobbiamo scegliere il prossimo esempio da specificare. Questa scelta determinerà quale asse di cambiamento perseguiremo per primo. Ho deciso di specificare il segmento più in alto (ovvero il segmento <code class="docutils literal notranslate"><span class="pre">A</span></code>) - abbiamo già un esempio che dice quando questo segmento è spento, ora ne abbiamo bisogno di uno che dica cosa dovrebbe succedere quando lo accendo. Riutilizzerò lo stesso corpo dello Statement e aggiungerò semplicemente un altro attributo <code class="docutils literal notranslate"><span class="pre">InlineData</span></code> per eseguire l'istruzione per il nuovo set di input e output previsto:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="na">[InlineData(&quot;A&quot;, new []</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="s">&quot;.-.&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// note the &#39;-&#39; character</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="p">})]</span>
+</pre></div>
+</div>
+<p>Questa volta, sto passando <code class="docutils literal notranslate"><span class="pre">&quot;A&quot;</span></code> come input e mi aspetto di ricevere quasi lo stesso output di prima, solo che questa volta la prima riga legge &quot;<code class="docutils literal notranslate"><span class="pre">.-.</span></code>&quot; invece di &quot;<code class="docutils literal notranslate"><span class="pre">...</span></code>&quot;.</p>
+<p>Implemento questo esempio utilizzando, ancora una volta, il codice più ingenuo e più semplice da scrivere. Il risultato è:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="nf">ConvertToLedArt</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">))</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;.-.&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>L'implementazione è piuttosto stupida, ma ora che abbiamo due esempi, possiamo individuare un pattern. Si noti che, a seconda della stringa di input, possono essere restituiti due possibili risultati. Tutte le righe sono uguali tranne la prima riga, che, finora, è l'unica che dipende dal valore di <code class="docutils literal notranslate"><span class="pre">input</span></code>. Pertanto, possiamo generalizzare il codice di produzione estraendo la duplicazione in qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="nf">ConvertToLedArt</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="p">(</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;.-.&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che ho modificato il codice in modo che solo la prima riga dipenda da <code class="docutils literal notranslate"><span class="pre">input</span></code>. Ma non è finita qui. Osservando la condizione per la prima riga:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;.-.&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span>
+</pre></div>
+</div>
+<p>possiamo inoltre notare che è solo il carattere centrale che cambia a seconda di ciò che passiamo. Sia il carattere più a sinistra che quello più a destra della prima riga sono sempre <code class="docutils literal notranslate"><span class="pre">.</span></code>. Quindi, generalizziamo ulteriormente, per finire con qualcosa del genere:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="nf">ConvertToLedArt</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;.&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">((</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Ora, se guardiamo più da vicino l'espressione:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="p">((</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Possiamo notare che la sua responsabilità è determinare se il valore del segmento corrente è basato su <code class="docutils literal notranslate"><span class="pre">input</span></code>. Possiamo usare questa conoscenza per estrarla in un metodo con un nome rivelatore-dell'intento. Il corpo del metodo è:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">DetermineSegmentValue</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">turnOnToken</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">turnOnValue</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">turnOnToken</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">turnOnValue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Dopo questa estrazione, il nostro metodo <code class="docutils literal notranslate"><span class="pre">ConvertToLedArt</span></code> diventa:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="nf">ConvertToLedArt</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;.&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">DetermineSegmentValue</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E abbiamo finito di triangolare il segmento <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p>
+<section id="additional-conclusions-from-the-led-display-example">
+<h4>Ulteriori conclusioni dall'esempio del display a LED<a class="headerlink" href="#additional-conclusions-from-the-led-display-example" title="Link to this heading">¶</a></h4>
+<p>Il fatto che io abbia finito di triangolare lungo un asse di variabilità non significa che non posso eseguire la triangolazione lungo altri assi. Ad esempio, quando esaminiamo nuovamente il codice del metodo <code class="docutils literal notranslate"><span class="pre">DetermineSegmentValue()</span></code>:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">DetermineSegmentValue</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">turnOnToken</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">turnOnValue</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">input</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">turnOnToken</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">turnOnValue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Possiamo vedere chiaramente che il metodo sta rilevando un token eseguendo un confronto diretto tra stringhe: <code class="docutils literal notranslate"><span class="pre">input</span> <span class="pre">==</span> <span class="pre">turnOnToken</span></code>. Ciò fallirà, ad es. se passo <code class="docutils literal notranslate"><span class="pre">&quot;AB&quot;</span></code>, probabilmente dovremo triangolare lungo questo asse per arrivare all'implementazione corretta. Non mostrerò i passaggi qui, ma il risultato finale di questa triangolazione sarebbe qualcosa del tipo:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">DetermineSegmentValue</span><span class="p">(</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">turnOnToken</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">string</span><span class="w"> </span><span class="n">turnOnValue</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">input</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="n">turnOnToken</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">turnOnValue</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>E dopo averlo fatto, il metodo <code class="docutils literal notranslate"><span class="pre">DetermineSegmentValue</span></code> sarà qualcosa che potremo utilizzare per implementare l'illuminazione di altri segmenti, senza bisogno di scoprirlo di nuovo utilizzando la triangolazione per ogni segmento. Quindi, presupponendo che questo metodo sia nella sua forma finale, quando scriverò un esempio per il segmento B, lo renderò vero utilizzando il metodo <code class="docutils literal notranslate"><span class="pre">DetermineSegmentValue()</span></code> fin dall'inizio invece di inserire prima un <code class="docutils literal notranslate"><span class="pre">if</span></code> e poi generalizzare. L'implementazione sarà simile alla seguente:</p>
+<div class="highlight-csharp notranslate"><div class="highlight"><pre><span></span><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="p">[]</span><span class="w"> </span><span class="nf">ConvertToLedArt</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s">&quot;.&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">DetermineSegmentValue</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;..&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">DetermineSegmentValue</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;B&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="p">),</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notare che questa volta ho utilizzato l'approccio <em>Digitare l'implementazione ovvia</em> - questo perché, a causa della precedente triangolazione, questo passaggio è <em>diventato</em> ovvio.</p>
+<p>Le due lezioni che ne derivano sono:</p>
+<ol class="arabic simple">
+<li><p>Quando smetto di triangolare lungo un asse, potrei ancora aver bisogno di triangolare lungo gli altri.</p></li>
+<li><p>La triangolazione mi consente di fare passi più piccoli quando <em>necessario</em> e quando non lo faccio, utilizzo un altro approccio. Ci sono molte cose che non triangolo.</p></li>
+</ol>
+<p>Spero che, mostrando questo esempio, ho presentato un caso più convincente a favore della triangolazione. Vorrei fermarmi qui, lasciando il resto dell'esercizio al lettore.</p>
+</section>
+</section>
+</section>
+<section id="summary">
+<h2>Riepilogo<a class="headerlink" href="#summary" title="Link to this heading">¶</a></h2>
+<p>In questo lungo capitolo, ho provato a dimostrare tre tecniche per passare da uno Statement falso a uno vero:</p>
+<ol class="arabic simple">
+<li><p>Digitare l'implementazione ovvia</p></li>
+<li><p>Una versione fasulla (finché si può fare)</p></li>
+<li><p>Triangolare</p></li>
+</ol>
+<p>Spero che questa sia stata un'introduzione facile da digerire e per saperne di più, si può leggere il libro di Kent Beck, dove usa ampiamente queste tecniche in diversi piccoli esercizi.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">TDD</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuti:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Cover.html">Titolo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Premessa</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html">Premessa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="010_Dedication.html#dedications">Dediche</a></li>
+<li class="toctree-l1"><a class="reference internal" href="015_Thanks.html">Grazie!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="017_CodeExamples.html">I codici di esempio</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 1:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="020_Part1Marker.html">Parte 1: Solo le nozioni di base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="030_Motivations.html">Motivazione: il primo passo per imparare il TDD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="040_Three_Essential_Tools.html"><span class="xref myst">Gli strumenti essenziali</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="050_Its_Not_a_Test.html">Non è (solo) un test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="060_Statement_First_Programming.html">La programmazione Statement-first</a></li>
+<li class="toctree-l1"><a class="reference internal" href="070_Practicing_What_We_Already_Learned.html">Mettere in pratica ciò che abbiamo già imparato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="080_Sorting_out_the_bits.html">Facciamo un po' d'ordine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="090_How_to_start.html">Come iniziare?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="100_Analysis_In_TDD.html">In che modo il TDD riguarda l'analisi e cosa significa &quot;GIVEN-WHEN-THEN&quot;?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="110_What_is_the_scope_of_a_Statement_in_TDD.html">Qual è lo scopo di uno Statement a livello di unità in TDD?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="120_Constrained_Non_Determinism.html">Sviluppare uno stile TDD e Non-Determinismo Vincolato</a></li>
+<li class="toctree-l1"><a class="reference internal" href="130_Boundaries.html">Specificare i confini e le condizioni funzionali</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Guidare l'implementazione dalle Specifiche</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#type-the-obvious-implementation">Digitare l'implementazione ovvia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fake-it-til-you-make-it">Una versione fasulla (finché si può fare)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#triangulate">Triangolare</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Riepilogo</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 2:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="150_Part2Marker.html">Parte 2: Il Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="160_Composable_Design.html">La Componibilità degli Oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="170_TellDoNotAsk.html"><span class="xref myst">Raccontare, non chiedere</span></a></li>
+<li class="toctree-l1"><a class="reference internal" href="180_Web_of_objects_explained.html">La necessità degli oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="190_Why_do_we_need_composability.html">Perché abbiamo bisogno della componibilità?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="200_What_does_it_mean_to_compose_objects.html">Reti, messaggi e protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="210_How_are_objects_composed.html">Comporre una rete di oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="211_When_are_objects_composed.html">Quando vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="212_How_are_the_connections_made.html">Come fa un mittente ad ottenere un riferimento a un destinatario (cioè come vengono stabilite le connessioni)?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="213_Where_are_objects_composed.html">Dove vengono composti gli oggetti?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="220_Designing_for_composabiity_interfaces.html">Interfacce</a></li>
+<li class="toctree-l1"><a class="reference internal" href="230_Designing_for_composabiity_protocols.html">Protocolli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="235_Classes.html">Le Classi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="240_Refactoring_Object_Composition.html">Composizione di Oggetti come Linguaggio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="250_Value_Objects.html">Gli <em>Oggetti Valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="255_Value_Objects_properties.html">Anatomia del <em>oggetto valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="257_Value%20objects_general_topics.html">Aspetti del design degli <em>oggetti valore</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html">Oggetti di Trasferimento Dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-behavior">Disaccoppiamento mediante l'astrazione del comportamento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#decoupling-by-abstracting-data">Disaccoppiamento mediante l'astrazione dei dati</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#use-both">Usare entrambi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="259_DataTransferObjects.html#dto-as-data-centric-decoupling-mechanism">DTO come meccanismo di disaccoppiamento incentrato sui dati</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 3:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="260_Part3Marker.html">Parte 3: TDD nel Mondo Object-Oriented</a></li>
+<li class="toctree-l1"><a class="reference internal" href="270_Mock_Objects.html">Oggetti Mock come strumento di test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="280_Start_with_a_failing_test_mocks.html">Test-first  [<em>Testare prima</em>] utilizzando oggetti mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="290_NeedDrivenDevelopment.html">Il test-driving ai confini di input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="300_NeedDrivenRetrospective1.html">Il test-driving ai confini di input -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="310_Test_Driving_Factories.html">Creazione di oggetti &quot;test-driving&quot;</a></li>
+<li class="toctree-l1"><a class="reference internal" href="320_Test_Driving_Factories_retrospective.html">Creazione di oggetti &quot;test-driving&quot; -- una retrospettiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="330_Test-Driving_Command.html">Logica dell'applicazione test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="340_Test-Driving_Value_object.html"><em>Oggetti valore</em> nel test-driving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="350_Web_of_objects_boundaries.html">Raggiungere la rete dei confini degli oggetti</a></li>
+<li class="toctree-l1"><a class="reference internal" href="360_Internals.html">Cosa c'è dentro l'oggetto?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="370_Design_smells.html">Odori del design visibile nella Specifica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="End.html">QUESTO È TUTTO QUELLO CHE HO PER ORA. QUELLO CHE SEGUE È MATERIALE GREZZO, NON ORDINATO, NON ANCORA PRONTO PER ESSERE CONSUMATO COME PARTE DI QUESTO TUTORIAL</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 5:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html">Mock di oggetti come strumento di progettazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#guidance-of-test-smells">Guidaa ai test smells [<em>puzzolenti</em>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#revisiting-topics-from-chapter-1">Rivedere gli argomenti del capitolo 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#maintainable-mock-based-statements">Statement manutenibili basate su mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#refactoring-mock-code">Refactoring del codice mock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-4-application-architecture">Parte 4: Architettura dell'applicazione</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#on-stable-architectural-boundaries">Sui confini stabili/architetturali</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#ports-and-adapters">[Port] e adapter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-application">Cosa entra in applicazione?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#what-goes-into-ports">Cosa va nei [port]?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#part-5-tdd-on-application-architecture-level">Parte 5: TDD a livello di architettura applicativa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="400_Dealing_with_3rd_party.html#designing-automation-layer">Progettazione del layer di automazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parte 9:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="990_Further_reading.html"><span class="xref myst">Ulteriori Letture</span></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="130_Boundaries.html" title="capitolo precedente">Specificare i confini e le condizioni funzionali</a></li>
+      <li>Next: <a href="150_Part2Marker.html" title="capitolo successivo">Parte 2: Il Mondo Object-Oriented</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Grzegorz GaÅ‚Ä™zowski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../_sources/manuscript/140_Triangulation.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
