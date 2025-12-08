@@ -41,27 +41,27 @@ rmdir /s /q .\build
 mklink /D "build"      "..\TddEbook_Italiano"
 mklink /D "source\manuscript"     "..\..\tdd-ebook\manuscript"
 
-REM echo myst_enable_extensions = {                                                                                       >> ".\source\conf.py"
-REM echo     "colon_fence",                                                                                               >> ".\source\conf.py"
-REM echo     "substitution",                                                                                              >> ".\source\conf.py"
-REM echo }                                                                                                                >> ".\source\conf.py"
-REM echo.                                                                                                                 >> ".\source\conf.py"
-REM echo myst_substitutions = {                                                                                           >> ".\source\conf.py"
-REM echo #    "keyNote":         ">![info](../img/css-box-icon-note.png)",                                                >> ".\source\conf.py"
-REM echo # >![info](./images/info.svg) See                                                                                >> ".\source\conf.py"
-REM echo #Mi piace leggere                                                                                                >> ".\source\conf.py"
-REM echo #Questa introduzione è scritta                                                                                   >> ".\source\conf.py"
-REM echo     "keyNote":         "```{image} ../img/css-box-icon-note.png\n:alt: Note\n:align: left\n```",                 >> ".\source\conf.py"
-REM echo     "keyTip":          "```{image} ../img/css-box-icon-tip.png\n:alt: Tip\n:align: left\n```",                   >> ".\source\conf.py"
-REM echo     "keyExample":      "```{image} ../img/css-box-icon-example.png\n:alt: Example\n:align: left\n```",           >> ".\source\conf.py"
-REM echo     "keyImportant":    "```{image} ../img/alarm-exclamation-regular-48.png\n:alt: Important\n:align: left\n```", >> ".\source\conf.py"
-REM echo     "keyWarning":      "```{image} ../img/css-box-icon-warning.png\n:alt: Warning\n:align: left\n```",           >> ".\source\conf.py"
-REM echo     "keyLock":         "```{image} ../img/key_icon_little.png\n:alt: Lock\n:align: left\n:width: 30px\n```",     >> ".\source\conf.py"
-REM echo     "keyToDo":         "```{image} ../img/ToDo.png\n:alt: ToDo\n:align: left\n:width: 30px\n```",                >> ".\source\conf.py"
-REM echo #   "keyExclamation":  "![info](../img/Exclamation.png)",                                                        >> ".\source\conf.py"
-REM echo    "keyExclamation":  "```{image} ../img/Exclamation.png\n:alt: Exclamation\n:align: left\n:width: 30px\n```",   >> ".\source\conf.py"
-REM echo     "keyInfo":         "```{image} ../img/Info.png\n:alt: Info\n:align: left\n:width: 30px\n```",                >> ".\source\conf.py"
-REM echo }                   >> ".\source\conf.py"
+echo myst_enable_extensions = {                                                                                       >> ".\source\conf.py"
+echo     "colon_fence",                                                                                               >> ".\source\conf.py"
+echo     "substitution",                                                                                              >> ".\source\conf.py"
+echo }                                                                                                                >> ".\source\conf.py"
+echo.                                                                                                                 >> ".\source\conf.py"
+echo myst_substitutions = {                                                                                           >> ".\source\conf.py"
+echo #    "keyNote":         ">![info](../img/css-box-icon-note.png)",                                                >> ".\source\conf.py"
+echo # >![info](./images/info.svg) See                                                                                >> ".\source\conf.py"
+echo #Mi piace leggere                                                                                                >> ".\source\conf.py"
+echo #Questa introduzione è scritta                                                                                   >> ".\source\conf.py"
+echo     "keyNote":         "```{image} ../img/css-box-icon-note.png\n:alt: Note\n:align: left\n```",                 >> ".\source\conf.py"
+echo     "keyTip":          "```{image} ../img/css-box-icon-tip.png\n:alt: Tip\n:align: left\n```",                   >> ".\source\conf.py"
+echo     "keyExample":      "```{image} ../img/css-box-icon-example.png\n:alt: Example\n:align: left\n```",           >> ".\source\conf.py"
+echo     "keyImportant":    "```{image} ../img/alarm-exclamation-regular-48.png\n:alt: Important\n:align: left\n```", >> ".\source\conf.py"
+echo     "keyWarning":      "```{image} ../img/css-box-icon-warning.png\n:alt: Warning\n:align: left\n```",           >> ".\source\conf.py"
+echo     "keyLock":         "```{image} ../img/key_icon_little.png\n:alt: Lock\n:align: left\n:width: 30px\n```",     >> ".\source\conf.py"
+echo     "keyToDo":         "```{image} ../img/ToDo.png\n:alt: ToDo\n:align: left\n:width: 30px\n```",                >> ".\source\conf.py"
+echo #   "keyExclamation":  "![info](../img/Exclamation.png)",                                                        >> ".\source\conf.py"
+echo    "keyExclamation":  "```{image} ../img/Exclamation.png\n:alt: Exclamation\n:align: left\n:width: 30px\n```",   >> ".\source\conf.py"
+echo     "keyInfo":         "```{image} ../img/Info.png\n:alt: Info\n:align: left\n:width: 30px\n```",                >> ".\source\conf.py"
+echo }                   >> ".\source\conf.py"
 
 
 echo locale_dirs = ['locale/']                                >> ".\source\conf.py"
@@ -88,6 +88,7 @@ echo # Title                      >> ".\source\manuscript\cover.md"
 
 del /S /Q  .\source\index.rst
 copy ..\TddEbook_OmegaT\Docs\index_org.rst .\source\index.rst
+xcopy ..\TddEbook_OmegaT\Docs\img\ .\source\img\ /E /I /Y
 
 Rem -------------------------------------------
 rmdir /s /q .\source\locale\
