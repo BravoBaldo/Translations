@@ -222,7 +222,7 @@ echo.
 echo.
 
 mkdir Sphinx_LVGL && cd Sphinx_LVGL
-sphinx-quickstart --sep -p "LVGL" -a "LVGL Community" -r "2025" -l "en" --extensions "sphinx.ext.autodoc,sphinx.ext.extlinks,sphinx.ext.intersphinx,sphinx.ext.todo,sphinx.ext.viewcode,sphinx_copybutton,breathe,sphinx_sitemap,lv_example,sphinx_design,sphinxcontrib.mermaid'"
+sphinx-quickstart --sep -p "LVGL" -a "LVGL Community" -r "2026" -l "en" --extensions "sphinx.ext.autodoc,sphinx.ext.extlinks,sphinx.ext.intersphinx,sphinx.ext.todo,sphinx.ext.viewcode,sphinx_copybutton,breathe,sphinx_sitemap,lv_example,sphinx_design,sphinxcontrib.mermaid'"
 ren source source_org
 ren build build_org
 del /S /Q source_org

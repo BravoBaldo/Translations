@@ -98,9 +98,6 @@ def itemref_insert_all():
     itemref_insert('getting_started/examples.xhtml')
     itemref_insert('getting_started/whats_next.xhtml')
 
-    # examples
-    # itemref_insert('examples.xhtml')
-
     # integration
     itemref_insert('integration/index.xhtml')
 
@@ -382,6 +379,7 @@ def itemref_insert_all():
     itemref_insert('xml/integration/xml.xhtml')
     itemref_insert('xml/integration/renesas-dev-tools.xhtml')
     itemref_insert('xml/integration/arduino.xhtml')
+    itemref_insert('xml/integration/zephyr.xhtml')
 
     itemref_insert('xml/ui_elements/index.xhtml')
     itemref_insert('xml/ui_elements/components.xhtml')

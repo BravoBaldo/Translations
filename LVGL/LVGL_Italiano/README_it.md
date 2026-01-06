@@ -375,9 +375,11 @@ Per creare un link a una o più pagine API, impostare una sezione alla fine del 
 API
 ***
 .. API equals: lv_scale_t, lv_scale_create
-.. API startswith: lv_scale, lv_obj_set_style
+.. API startswith:
+    lv_scale
+    lv_obj_set_style
 ```
 
-L'elenco dei simboli (o prefissi) può essere separato da virgole o spazi e può essere inserito nelle righe di testo successive, purché siano indentate.  Una riga vuota dopo ogni elenco termina l'elenco stesso.
+L'elenco dei simboli (o prefissi) può essere separato da virgole o spazi e può essere inserito nelle righe di testo successive, purché siano indentate.  Ogni elenco termina con la successiva pseudo-direttiva ``.. API `` o con la fine del file, a seconda di quale si verifica per prima.
 
 La logica di generazione delle pagine API aggiungerà al massimo 1 link a ciascuna pagina di documentazione API contenente simboli corrispondenti.  I link sono all'intera pagina API, non ai simboli  Lo scopo è fornire al lettore i link alle pagine API applicabili.  I link diretti al codice (ad esempio la documentazione delle funzioni) vengono realizzati utilizzando le "In-Line Code Expression" documentate sopra.
