@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Effetto Fiamma &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="fire-effect">
+<h1>Effetto Fiamma<a class="headerlink" href="#fire-effect" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐⭐ Intermedio <strong>Tempo di Completamento</strong>: 30-40 minuti <strong>Prerequisiti</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../intermediate/palettes.html"><span class="doc std std-doc">Palette</span></a> - Comprensione di ColorFromPalette() e delle palette native</p></li>
+<li><p><a class="reference internal" href="../intermediate/math.html"><span class="doc std std-doc">Funzioni Matematiche</span></a> - Utilizzo di scale8(), qadd8(), qsub8() per i calcoli</p></li>
+<li><p><a class="reference internal" href="../core-concepts/led-structures.html"><span class="doc std std-doc">Array e Strutture LED</span></a> - Utilizzo di array di dati paralleli</p></li>
+<li><p><a class="reference internal" href="../basic-patterns/animations.html"><span class="doc std std-doc">Animazioni</span></a> - Concetti di base e tempi di animazione</p></li>
+</ul>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come simulare fenomeni naturali utilizzando array di calore e algoritmi di diffusione</p></li>
+<li><p>Mappatura di dati astratti (valori di calore) in output visivi (colori dei LED) tramite palette</p></li>
+<li><p>egolazione dei parametri (raffreddamento, scintille) per creare diversi comportamenti del fuoco</p></li>
+<li><p>Utilizzo di array paralleli per memorizzare i dati di stato insieme ai dati di colore dei LED</p></li>
+<li><p>Creazione di animazioni organiche e realistiche attraverso la casualità e regole ispirate alla fisica</p></li>
+</ul>
+<p>Simulazione realistica di incendi utilizzando array di calore e palette di colori.</p>
+<section id="basic-fire-effect">
+<h2>Effetto del Fuoco Base<a class="headerlink" href="#basic-fire-effect" title="Link to this heading">¶</a></h2>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define NUM_LEDS 60</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+<span class="n">byte</span><span class="w"> </span><span class="n">heat</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">fire</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Step 1: Cool down every cell a little</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">heat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qsub8</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">random8</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">((</span><span class="mi">55</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Step 2: Heat from each cell drifts &#39;up&#39; and diffuses a little</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">])</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Step 3: Randomly ignite new &#39;sparks&#39; at the bottom</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">120</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random8</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span>
+<span class="w">        </span><span class="n">heat</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qadd8</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">y</span><span class="p">],</span><span class="w"> </span><span class="n">random8</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Step 4: Map heat to LED colors</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Scale heat to 0-240 for palette index</span>
+<span class="w">        </span><span class="n">byte</span><span class="w"> </span><span class="n">colorIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="mi">240</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Use HeatColors palette</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ColorFromPalette</span><span class="p">(</span><span class="n">HeatColors_p</span><span class="p">,</span><span class="w"> </span><span class="n">colorIndex</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fire</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">15</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="customizable-fire">
+<h2>Fuoco Personalizzabile<a class="headerlink" href="#customizable-fire" title="Link to this heading">¶</a></h2>
+<p>Controllare il comportamento del fuoco con parametri regolabili:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">customFire</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">cooling</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">sparking</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// cooling: 20-100 (higher = faster cooling)</span>
+<span class="w">    </span><span class="c1">// sparking: 50-200 (higher = more sparks)</span>
+
+<span class="w">    </span><span class="c1">// Cool down</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">heat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qsub8</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">random8</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">((</span><span class="n">cooling</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Heat drift upward</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">heat</span><span class="p">[</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">])</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Ignite sparks</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">sparking</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random8</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span>
+<span class="w">        </span><span class="n">heat</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qadd8</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">y</span><span class="p">],</span><span class="w"> </span><span class="n">random8</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Map to colors</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ColorFromPalette</span><span class="p">(</span><span class="n">HeatColors_p</span><span class="p">,</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="mi">240</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="how-it-works">
+<h2>Come Funziona<a class="headerlink" href="#how-it-works" title="Link to this heading">¶</a></h2>
+<p>L’effetto fuoco utilizza un approccio di simulazione del calore:</p>
+<ol class="arabic simple">
+<li><p><strong>Raffreddamento</strong>: Ogni “cella” si raffredda casualmente nel tempo</p></li>
+<li><p><strong>Diffusione del calore</strong>: Il calore sale e si diffonde alle celle vicine</p></li>
+<li><p><strong>Sparking</strong>: Nuove scintille vengono accese casualmente nella parte inferiore</p></li>
+<li><p><strong>Mappatura dei colori</strong>: I valori di calore vengono mappati ai colori utilizzando la palette HeatColors</p></li>
+</ol>
+</section>
+<section id="parameters-explained">
+<h2>Spiegazione dei Parametri<a class="headerlink" href="#parameters-explained" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Cooling</strong> (20-100): Controlla la velocità con cui il fuoco si spegne</p>
+<ul>
+<li><p>Valori più bassi = fuoco più lento e uniforme</p></li>
+<li><p>Valori più alti = fuoco più veloce e caotico</p></li>
+</ul>
+</li>
+<li><p><strong>Sparking</strong> (50-200): Controlla il numero di nuove scintille create</p>
+<ul>
+<li><p>Valori più bassi = fiamme sparse e delicate</p></li>
+<li><p>Valori più alti = fuoco intenso e vigoroso</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="usage-tips">
+<h2>Suggerimenti per l’Uso<a class="headerlink" href="#usage-tips" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Orientare la striscia LED verticalmente con l’input dati in basso per un effetto visivo ottimale</p></li>
+<li><p>Per un effetto simile a un falò, usare i parametri di default: <code class="docutils literal notranslate"><span class="pre">customFire(55,</span> <span class="pre">120)</span></code></p></li>
+<li><p>Per un delicato effetto candela, provare: <code class="docutils literal notranslate"><span class="pre">customFire(30,</span> <span class="pre">80)</span></code></p></li>
+<li><p>Per un inferno intenso, provare: <code class="docutils literal notranslate"><span class="pre">customFire(80,</span> <span class="pre">180)</span></code></p></li>
+<li><p>Regolare <code class="docutils literal notranslate"><span class="pre">delay(15)</span></code> per controllare la velocità dell’animazione (più basso = più veloce)</p></li>
+</ul>
+</section>
+<section id="variations">
+<h2>Varianti<a class="headerlink" href="#variations" title="Link to this heading">¶</a></h2>
+<p><strong>Fuoco Blu/Verde:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Use LavaColors_p or create custom palette for different fire colors</span>
+<span class="n">leds</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ColorFromPalette</span><span class="p">(</span><span class="n">OceanColors_p</span><span class="p">,</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="mi">240</span><span class="p">));</span>
+</pre></div>
+</div>
+<p><strong>Fuoco Arcobaleno:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Map heat to hue for psychedelic fire</span>
+<span class="n">leds</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">scale8</span><span class="p">(</span><span class="n">heat</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="w"> </span><span class="mi">255</span><span class="p">),</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">heat</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/recipes/fire.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

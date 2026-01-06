@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>FastLED Codec Examples &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="fastled-codec-examples">
+<h1>FastLED Codec Examples<a class="headerlink" href="#fastled-codec-examples" title="Link to this heading">¶</a></h1>
+<p>This directory contains examples demonstrating the FastLED codec module functionality for JPEG and MPEG1 decoding.</p>
+<section id="overview">
+<h2>Panoramica<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The FastLED codec module provides video and image decoding capabilities optimized for LED display applications through individual codec headers (<code class="docutils literal notranslate"><span class="pre">fl/codec/jpeg.h</span></code> and <code class="docutils literal notranslate"><span class="pre">fl/codec/mpeg1.h</span></code>). It supports:</p>
+<ul class="simple">
+<li><p><strong>JPEG image decoding</strong> for static displays</p></li>
+<li><p><strong>MPEG1 video decoding</strong> for animated content</p></li>
+<li><p><strong>Hardware acceleration</strong> where supported (ESP32-P4, STM32H7)</p></li>
+<li><p><strong>Efficient software fallbacks</strong> for broad platform compatibility</p></li>
+<li><p><strong>Memory-optimized streaming</strong> for resource-constrained devices</p></li>
+</ul>
+</section>
+<section id="platform-support">
+<h2>Supporto Piattaforme<a class="headerlink" href="#platform-support" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Piattaforma</p></th>
+<th class="head"><p>JPEG Support</p></th>
+<th class="head"><p>MPEG1 Support</p></th>
+<th class="head"><p>Hardware Acceleration</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ESP32</p></td>
+<td><p>✓ (ROM decoder)</p></td>
+<td><p>✓ (Software)</p></td>
+<td><p>ROM TJpgDec</p></td>
+</tr>
+<tr class="row-odd"><td><p>ESP32-S3</p></td>
+<td><p>✓ (ROM + PIE)</p></td>
+<td><p>✓ (Software)</p></td>
+<td><p>ROM TJpgDec + PIE</p></td>
+</tr>
+<tr class="row-even"><td><p>ESP32-C3/C6</p></td>
+<td><p>✓ (ROM decoder)</p></td>
+<td><p>✓ (Software)</p></td>
+<td><p>ROM TJpgDec</p></td>
+</tr>
+<tr class="row-odd"><td><p>ESP32-P4</p></td>
+<td><p>✓ (Hardware)</p></td>
+<td><p>✓ (Software)</p></td>
+<td><p>Hardware JPEG codec</p></td>
+</tr>
+<tr class="row-even"><td><p>Teensy 4.x</p></td>
+<td><p>✓ (Software)</p></td>
+<td><p>✓ (Software)</p></td>
+<td><p>DSP instructions</p></td>
+</tr>
+<tr class="row-odd"><td><p>STM32H7</p></td>
+<td><p>✓ (Hardware)</p></td>
+<td><p>✓ (Software)</p></td>
+<td><p>Hardware JPEG + DMA2D</p></td>
+</tr>
+<tr class="row-even"><td><p>STM32F7</p></td>
+<td><p>✓ (Hardware)</p></td>
+<td><p>✓ (Software)</p></td>
+<td><p>Hardware JPEG</p></td>
+</tr>
+<tr class="row-odd"><td><p>Other</p></td>
+<td><p>✗</p></td>
+<td><p>✗</p></td>
+<td><p>None</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="codecjpeg-ino">
+<h3>1. CodecJpeg.ino<a class="headerlink" href="#codecjpeg-ino" title="Link to this heading">¶</a></h3>
+<p><strong>JPEG image decoding and display</strong></p>
+<ul class="simple">
+<li><p>Loads and decodes JPEG images</p></li>
+<li><p>Displays decoded frames on LED matrix</p></li>
+<li><p>Handles different pixel formats (RGB565, RGB888)</p></li>
+<li><p>Includes scaling for different matrix sizes</p></li>
+</ul>
+<p><strong>Hardware Requirements:</strong></p>
+<ul class="simple">
+<li><p>ESP32, Teensy 4.x, or STM32 microcontroller</p></li>
+<li><p>64x64 LED matrix</p></li>
+<li><p>JPEG image data (replace sample data)</p></li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul class="simple">
+<li><p>Automatic platform detection</p></li>
+<li><p>Hardware acceleration when available</p></li>
+<li><p>Frame scaling and color conversion</p></li>
+<li><p>Error handling and fallback</p></li>
+</ul>
+</section>
+<section id="codecmpeg1-ino">
+<h3>2. CodecMpeg1.ino<a class="headerlink" href="#codecmpeg1-ino" title="Link to this heading">¶</a></h3>
+<p><strong>MPEG1 video playback on LED matrix</strong></p>
+<ul class="simple">
+<li><p>Streams and decodes MPEG1 video</p></li>
+<li><p>Real-time playback with configurable FPS</p></li>
+<li><p>Frame buffering for smooth playback</p></li>
+<li><p>Loop and single-frame modes</p></li>
+</ul>
+<p><strong>Hardware Requirements:</strong></p>
+<ul class="simple">
+<li><p>ESP32, Teensy 4.x, or STM32 microcontroller</p></li>
+<li><p>32x32 LED matrix (smaller for better performance)</p></li>
+<li><p>MPEG1 video data (replace sample data)</p></li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<ul class="simple">
+<li><p>Streaming video playback</p></li>
+<li><p>Configurable frame rate</p></li>
+<li><p>Memory-efficient buffering</p></li>
+<li><p>End-of-stream handling</p></li>
+</ul>
+</section>
+</section>
+<section id="basic-usage-pattern">
+<h2>Basic Usage Pattern<a class="headerlink" href="#basic-usage-pattern" title="Link to this heading">¶</a></h2>
+<section id="jpeg-decoding">
+<h3>JPEG Decoding<a class="headerlink" href="#jpeg-decoding" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fl/codec/jpeg.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fl/bytestreammemory.h&quot;</span>
+
+<span class="c1">// Configure decoder</span>
+<span class="n">fl</span><span class="o">::</span><span class="n">JpegDecoderConfig</span><span class="w"> </span><span class="n">config</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">PixelFormat</span><span class="o">::</span><span class="n">RGB888</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">JpegDecoderConfig</span><span class="o">::</span><span class="n">Medium</span><span class="p">;</span>
+
+<span class="c1">// Create decoder</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">Jpeg</span><span class="o">::</span><span class="n">createDecoder</span><span class="p">(</span><span class="n">config</span><span class="p">);</span>
+
+<span class="c1">// Create stream from data</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">fl</span><span class="o">::</span><span class="n">ByteStreamMemory</span><span class="o">&gt;</span><span class="p">(</span><span class="n">jpegData</span><span class="p">,</span><span class="w"> </span><span class="n">dataSize</span><span class="p">);</span>
+
+<span class="c1">// Decode</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">DecodeResult</span><span class="o">::</span><span class="n">Success</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">fl</span><span class="o">::</span><span class="n">DecodedVideoFrame</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">getCurrentFrame</span><span class="p">();</span>
+<span class="w">        </span><span class="c1">// Use frame data...</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">end</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="mpeg1-video-playback">
+<h3>MPEG1 Video Playback<a class="headerlink" href="#mpeg1-video-playback" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;fl/codec/mpeg1.h&quot;</span>
+
+<span class="c1">// Configure for real-time streaming (immediate mode)</span>
+<span class="n">fl</span><span class="o">::</span><span class="n">Mpeg1Config</span><span class="w"> </span><span class="n">config</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">Mpeg1Config</span><span class="o">::</span><span class="n">Streaming</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">targetFps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span><span class="p">;</span>
+<span class="n">config</span><span class="p">.</span><span class="n">immediateMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w">  </span><span class="c1">// Default: bypasses frame buffering for minimal latency</span>
+
+<span class="c1">// For buffered mode (when you need frame buffering):</span>
+<span class="c1">// config.immediateMode = false;</span>
+<span class="c1">// config.bufferFrames = 2;</span>
+
+<span class="c1">// Create decoder</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">mpeg1</span><span class="o">::</span><span class="n">createDecoder</span><span class="p">(</span><span class="n">config</span><span class="p">);</span>
+
+<span class="c1">// Playback loop</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">hasMoreFrames</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">DecodeResult</span><span class="o">::</span><span class="n">Success</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">fl</span><span class="o">::</span><span class="n">DecodedVideoFrame</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">getCurrentFrame</span><span class="p">();</span>
+<span class="w">        </span><span class="n">displayFrame</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-modes">
+<h2>Performance Modes<a class="headerlink" href="#performance-modes" title="Link to this heading">¶</a></h2>
+<section id="immediate-mode-default-recommended-for-real-time">
+<h3>Immediate Mode (Default - Recommended for Real-Time)<a class="headerlink" href="#immediate-mode-default-recommended-for-real-time" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Enabled by default</strong>: <code class="docutils literal notranslate"><span class="pre">config.immediateMode</span> <span class="pre">=</span> <span class="pre">true</span></code></p></li>
+<li><p><strong>Benefits</strong>:</p>
+<ul>
+<li><p>Minimal latency - frames available immediately after decode</p></li>
+<li><p>Lower memory usage - no frame buffer vector allocation</p></li>
+<li><p>Simpler code path - direct frame access</p></li>
+</ul>
+</li>
+<li><p><strong>Best for</strong>: Real-time LED applications, live video streaming</p></li>
+</ul>
+</section>
+<section id="buffered-mode-legacy">
+<h3>Buffered Mode (Legacy)<a class="headerlink" href="#buffered-mode-legacy" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Enable with</strong>: <code class="docutils literal notranslate"><span class="pre">config.immediateMode</span> <span class="pre">=</span> <span class="pre">false</span></code></p></li>
+<li><p><strong>Benefits</strong>:</p>
+<ul>
+<li><p>Multiple frame lookahead capability</p></li>
+<li><p>Smoother playback for high-frame-rate content</p></li>
+</ul>
+</li>
+<li><p><strong>Drawbacks</strong>:</p>
+<ul>
+<li><p>Adds frame buffering latency</p></li>
+<li><p>Higher memory usage</p></li>
+</ul>
+</li>
+<li><p><strong>Best for</strong>: Non-real-time applications where smooth playback matters more than latency</p></li>
+</ul>
+</section>
+</section>
+<section id="memory-considerations">
+<h2>Considerazioni sulla Memoria<a class="headerlink" href="#memory-considerations" title="Link to this heading">¶</a></h2>
+<section id="frame-buffer-sizes">
+<h3>Frame Buffer Sizes<a class="headerlink" href="#frame-buffer-sizes" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>RGB565</strong>: 2 bytes per pixel</p></li>
+<li><p><strong>RGB888</strong>: 3 bytes per pixel</p></li>
+<li><p><strong>RGBA8888</strong>: 4 bytes per pixel</p></li>
+</ul>
+</section>
+<section id="example-memory-usage">
+<h3>Example Memory Usage<a class="headerlink" href="#example-memory-usage" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>64x64 RGB888 frame: 12KB</p></li>
+<li><p>32x32 RGB565 frame: 2KB</p></li>
+<li><p>MPEG1 streaming (2 buffers): 2x frame size</p></li>
+</ul>
+</section>
+<section id="optimization-tips">
+<h3>Optimization Tips<a class="headerlink" href="#optimization-tips" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Use RGB565 format for memory-constrained devices</p></li>
+<li><p>Reduce matrix resolution for video playback</p></li>
+<li><p>Limit buffer frames in streaming mode</p></li>
+<li><p>Enable hardware acceleration when available</p></li>
+</ol>
+</section>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h2>
+<p>All decoders provide comprehensive error reporting:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">fl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">error_msg</span><span class="p">;</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">decoder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">Jpeg</span><span class="o">::</span><span class="n">createDecoder</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_msg</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">decoder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Failed to create decoder: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">error_msg</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">hasError</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_msg</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Decoder error: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">error_msg</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-tips">
+<h2>Suggerimenti per le Prestazioni<a class="headerlink" href="#performance-tips" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Choose appropriate resolution</strong>: Lower resolutions decode faster</p></li>
+<li><p><strong>Use hardware acceleration</strong>: Enable <code class="docutils literal notranslate"><span class="pre">useHardwareAcceleration</span> <span class="pre">=</span> <span class="pre">true</span></code></p></li>
+<li><p><strong>Optimize pixel format</strong>: RGB565 is faster than RGB888</p></li>
+<li><p><strong>Buffer management</strong>: Use minimal buffer frames for streaming</p></li>
+<li><p><strong>Platform-specific</strong>: ESP32-S3 PIE optimizations are automatic</p></li>
+</ol>
+</section>
+<section id="troubleshooting">
+<h2>Risoluzione dei problemi<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="common-issues">
+<h3>Problemi Comuni<a class="headerlink" href="#common-issues" title="Link to this heading">¶</a></h3>
+<p><strong>“Codec not supported on this platform”</strong></p>
+<ul class="simple">
+<li><p>Check platform compatibility table</p></li>
+<li><p>Verify correct board selection in Arduino IDE</p></li>
+</ul>
+<p><strong>Memory allocation failures</strong></p>
+<ul class="simple">
+<li><p>Reduce frame resolution</p></li>
+<li><p>Use RGB565 instead of RGB888</p></li>
+<li><p>Decrease buffer frame count</p></li>
+</ul>
+<p><strong>Poor video performance</strong></p>
+<ul class="simple">
+<li><p>Lower target FPS</p></li>
+<li><p>Reduce LED matrix size</p></li>
+<li><p>Check for memory fragmentation</p></li>
+</ul>
+<p><strong>JPEG decode failures</strong></p>
+<ul class="simple">
+<li><p>Verify JPEG data integrity</p></li>
+<li><p>Check supported JPEG format (baseline only)</p></li>
+<li><p>Ensure adequate memory</p></li>
+</ul>
+</section>
+<section id="debug-output">
+<h3>Debug Output<a class="headerlink" href="#debug-output" title="Link to this heading">¶</a></h3>
+<p>Enable serial output for debugging:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+<span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Decoder status: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">isReady</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;Ready&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;Not Ready&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="building-and-installation">
+<h2>Building and Installation<a class="headerlink" href="#building-and-installation" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Install FastLED library with codec support</p></li>
+<li><p>Copy example to Arduino IDE</p></li>
+<li><p>Replace sample data with actual JPEG/MPEG1 files</p></li>
+<li><p>Adjust LED configuration for your hardware</p></li>
+<li><p>Upload and test</p></li>
+</ol>
+</section>
+<section id="further-reading">
+<h2>Further Reading<a class="headerlink" href="#further-reading" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><span class="xref myst">FastLED Codec Architecture</span></p></li>
+<li><p><a class="reference internal" href="#../../../src/platforms/"><span class="xref myst">Platform-Specific Optimizations</span></a></p></li>
+<li><p><a class="reference internal" href="#../../../src/fl/codec/common.h"><span class="xref myst">Common Types and Utilities</span></a></p></li>
+<li><p><a class="reference internal" href="#../../../tests/unit/codec/"><span class="xref myst">Testing Documentation</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cookbook/README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/examples/Codec/README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

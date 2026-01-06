@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Pattern di Base &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="basic-patterns">
+<h1>Pattern di Base<a class="headerlink" href="#basic-patterns" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐ Principiante <strong>Tempo di Completamento</strong>: 1-2 ore (per l’intera sezione) <strong>Prerequisiti</strong>: <a class="reference internal" href="../getting-started/README.html"><span class="doc std std-doc">Introduzione</span></a>, <a class="reference internal" href="../core-concepts/README.html"><span class="doc std std-doc">Concetti Fondamentali</span></a></p>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come creare colori pieni ed effetti di riempimento su strisce LED</p></li>
+<li><p>Controllo del timing e animazioni fluide utilizzando la luminosità</p></li>
+<li><p>Modelli di movimento, inclusi chase ed effetti scanner</p></li>
+<li><p>Effetti arcobaleno che utilizzano lo spazio colore HSV per un semplice ciclo di colori</p></li>
+</ul>
+<p>Questa sezione illustra i pattern LED fondamentali che costituiscono gli elementi costitutivi di effetti più complessi. Questi pattern sono perfetti per i principianti e illustrano i concetti fondamentali di FastLED.</p>
+<section id="contents">
+<h2>Contenuti<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="solid-colors.html"><span class="doc std std-doc">Colori Pieni</span></a> - Riempire strisce con colori singoli</p></li>
+<li><p><a class="reference internal" href="animations.html"><span class="doc std std-doc">Animazioni</span></a> - Semplici effetti di dissolvenza in/out</p></li>
+<li><p><a class="reference internal" href="chases.html"><span class="doc std std-doc">Chases</span></a> - Motivi di movimento ed effetti scanner</p></li>
+<li><p><a class="reference internal" href="rainbow.html"><span class="doc std std-doc">Arcobaleno</span></a> - Effetti arcobaleno e ciclo di colori</p></li>
+</ol>
+</section>
+<section id="prerequisites">
+<h2>Prerequisiti<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h2>
+<p>Prima di lavorare con questi pattern, assicurarsi di aver completato la configurazione base di FastLED:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;FastLED.h&gt;</span>
+
+<span class="cp">#define LED_PIN     5</span>
+<span class="cp">#define NUM_LEDS    60</span>
+<span class="cp">#define LED_TYPE    WS2812B</span>
+<span class="cp">#define COLOR_ORDER GRB</span>
+
+<span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">LED_TYPE</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">COLOR_ORDER</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">setBrightness</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span><span class="w">  </span><span class="c1">// 0-255</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-categories">
+<h2>Categorie di Pattern<a class="headerlink" href="#pattern-categories" title="Link to this heading">¶</a></h2>
+<section id="solid-colors">
+<h3>Colori Pieni<a class="headerlink" href="#solid-colors" title="Link to this heading">¶</a></h3>
+<p>Scoprire come riempire la striscia LED con colori pieni utilizzando le efficienti funzioni di riempimento di FastLED. Queste sono le operazioni più basilari che utilizzerai in ogni progetto.</p>
+</section>
+<section id="animations">
+<h3>Animazioni<a class="headerlink" href="#animations" title="Link to this heading">¶</a></h3>
+<p>Animazioni semplici che dimostrano la gestione di tempi e stati. L’effetto dissolvenza in entrata/uscita insegna come creare transizioni fluide utilizzando il controllo della luminosità.</p>
+</section>
+<section id="chases-and-scanners">
+<h3>Sequenze e Scanner<a class="headerlink" href="#chases-and-scanners" title="Link to this heading">¶</a></h3>
+<p>Motivi in ​​movimento che mostrano effetti di scia e tracciamento della posizione. Il classico scanner Cylon/Knight Rider è un’ottima introduzione ai loop di animazione.</p>
+</section>
+<section id="rainbow-effects">
+<h3>Effetti Arcobaleno<a class="headerlink" href="#rainbow-effects" title="Link to this heading">¶</a></h3>
+<p>Effetti colorati che utilizzano lo spazio colore HSV. Scoprire la differenza tra motivi arcobaleno statici e animati e perché HSV semplifica il ciclo dei colori.</p>
+</section>
+</section>
+<section id="learning-path">
+<h2>Percorso di Apprendimento<a class="headerlink" href="#learning-path" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Iniziare con <strong>Colori Solidi</strong> per comprendere il controllo di base dei LED</p></li>
+<li><p>Passa ad <strong>Animazioni</strong> per apprendere la gestione dei tempi e degli stati</p></li>
+<li><p>Provare <strong>Chases</strong> [Inseguimenti] per esplorare movimento e scie</p></li>
+<li><p>Sperimentare con gli effetti <strong>Arcobaleno</strong> per padroneggiare lo spazio colore HSV</p></li>
+</ol>
+<p>Ogni pattern si basa sui concetti dei precedenti, quindi seguire questo ordine è consigliato ai principianti.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/basic-patterns/README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Pattern reattivi all’audio &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="audio-reactive-patterns">
+<h1>Pattern reattivi all’audio<a class="headerlink" href="#audio-reactive-patterns" title="Link to this heading">¶</a></h1>
+<blockquote>
+<div><p><strong>⚠️ SPERIMENTALE</strong>: Questa documentazione riguarda le funzionalità audio sperimentali attualmente in fase di sviluppo. Le API di rilevamento dei “beat” FastLED sono state introdotte nell’ottobre 2025 e sono ancora in fase di evoluzione. Gli esempi di codice mostrati qui illustrano i concetti generali di reattività all’audio, ma potrebbero non riflettere l’API finale.</p>
+</div></blockquote>
+<p>[fuzzy]Creare visualizzazioni LED che rispondono all’input audio. Questa guida illustra la lettura dei segnali audio e la creazione di effetti reattivi.</p>
+<section id="basic-audio-setup">
+<h2>Configurazione Audio di Base<a class="headerlink" href="#basic-audio-setup" title="Link to this heading">¶</a></h2>
+<p>Per leggere l’audio, è necessario un ingresso analogico collegato a un microfono o a una linea audio.</p>
+<section id="hardware-requirements">
+<h3>Requisiti Hardware<a class="headerlink" href="#hardware-requirements" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Microcontrollore con ingresso analogico (la maggior parte delle schede compatibili con Arduino)</p></li>
+<li><p>Modulo microfono electret o circuito di ingresso audio</p></li>
+<li><p>Opzionale: amplificatore per microfono MAX4466 o simile per una migliore sensibilità</p></li>
+</ul>
+</section>
+<section id="reading-audio-levels">
+<h3>Lettura dei Livelli Audio<a class="headerlink" href="#reading-audio-levels" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define MIC_PIN A0</span>
+<span class="cp">#define SAMPLE_WINDOW 50  </span><span class="c1">// Sample window width in ms</span>
+
+<span class="kt">uint16_t</span><span class="w"> </span><span class="nf">readAudioLevel</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">startMillis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">peakToPeak</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">signalMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">signalMin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Collect data for sample window</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">millis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">startMillis</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SAMPLE_WINDOW</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">sample</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">analogRead</span><span class="p">(</span><span class="n">MIC_PIN</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sample</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">signalMax</span><span class="p">)</span><span class="w"> </span><span class="n">signalMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sample</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sample</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">signalMin</span><span class="p">)</span><span class="w"> </span><span class="n">signalMin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sample</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">peakToPeak</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">signalMax</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">signalMin</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">peakToPeak</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Questa funzione misura l’ampiezza picco-picco del segnale audio in un breve intervallo di tempo, fornendo una lettura del livello del volume corrente.</p>
+</section>
+</section>
+<section id="vu-meter-effect">
+<h2>Effetto VU Meter<a class="headerlink" href="#vu-meter-effect" title="Link to this heading">¶</a></h2>
+<p>Una visualizzazione classica che mostra il livello audio come una barra crescente/diminuente.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">vuMeter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">audioLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">readAudioLevel</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Map to LED count (0 to NUM_LEDS)</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">numLEDsToLight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">audioLevel</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1023</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Clear all</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Light up LEDs based on level</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">numLEDsToLight</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Color gradient: green -&gt; yellow -&gt; red</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">96</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// Green to red</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="vu-meter-variations">
+<h3>Variazioni del VU Meter<a class="headerlink" href="#vu-meter-variations" title="Link to this heading">¶</a></h3>
+<p><strong>Con Peak Hold</strong>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">vuMeterWithPeak</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">peak</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">lastPeakTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">audioLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">readAudioLevel</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">numLEDsToLight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">audioLevel</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1023</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Update peak</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numLEDsToLight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">peak</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">peak</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numLEDsToLight</span><span class="p">;</span>
+<span class="w">        </span><span class="n">lastPeakTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Peak decay</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">millis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastPeakTime</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peak</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">peak</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="n">lastPeakTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Draw VU meter</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">numLEDsToLight</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">96</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Draw peak indicator</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">peak</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">peak</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="beat-detection">
+<h2>Rilevamento del Battito<a class="headerlink" href="#beat-detection" title="Link to this heading">¶</a></h2>
+<p>Rileva i ritmi nella musica per effetti reattivi.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">BeatDetector</span><span class="w"> </span><span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">samples</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">sampleIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">lastBeatTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">detectBeat</span><span class="p">(</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">audioLevel</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Store sample</span>
+<span class="w">        </span><span class="n">samples</span><span class="p">[</span><span class="n">sampleIndex</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">audioLevel</span><span class="p">;</span>
+<span class="w">        </span><span class="n">sampleIndex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">sampleIndex</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// Calculate average</span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">        </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">average</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// Detect beat (current level significantly above average)</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">isBeat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">audioLevel</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">average</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.5</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">                      </span><span class="p">(</span><span class="n">millis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastBeatTime</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">300</span><span class="p">);</span><span class="w">  </span><span class="c1">// Minimum 300ms between beats</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isBeat</span><span class="p">)</span><span class="w"> </span><span class="n">lastBeatTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">isBeat</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">BeatDetector</span><span class="w"> </span><span class="n">beatDetector</span><span class="p">;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">beatEffect</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">audioLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">readAudioLevel</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">beatDetector</span><span class="p">.</span><span class="n">detectBeat</span><span class="p">(</span><span class="n">audioLevel</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Flash on beat</span>
+<span class="w">        </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Fade out</span>
+<span class="w">        </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="beat-synchronized-effects">
+<h3>Effetti sincronizzati al ritmo<a class="headerlink" href="#beat-synchronized-effects" title="Link to this heading">¶</a></h3>
+<p><strong>Cambio di colore a battuta</strong>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">beatColorChange</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">currentHue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">audioLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">readAudioLevel</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">beatDetector</span><span class="p">.</span><span class="n">detectBeat</span><span class="p">(</span><span class="n">audioLevel</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">currentHue</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">32</span><span class="p">;</span><span class="w">  </span><span class="c1">// Change color on beat</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Fade to current color</span>
+<span class="w">    </span><span class="n">CRGB</span><span class="w"> </span><span class="n">targetColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">currentHue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blend</span><span class="p">(</span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">targetColor</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Impulso a battuta</strong>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">beatPulse</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pulseIntensity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">audioLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">readAudioLevel</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">beatDetector</span><span class="p">.</span><span class="n">detectBeat</span><span class="p">(</span><span class="n">audioLevel</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">pulseIntensity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Draw pulsing effect</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">pulseIntensity</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Fade out</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pulseIntensity</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">pulseIntensity</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-audio-effects">
+<h2>Effetti Audio Avanzati<a class="headerlink" href="#advanced-audio-effects" title="Link to this heading">¶</a></h2>
+<section id="frequency-bands-requires-fft">
+<h3>Bande di Frequenza (richiede FFT)<a class="headerlink" href="#frequency-bands-requires-fft" title="Link to this heading">¶</a></h3>
+<p>Per una reattività audio più sofisticata, utilizzare la FFT (Trasformata di Fourier rapida) per analizzare le bande di frequenza. Richiede librerie aggiuntive come:</p>
+<ul class="simple">
+<li><p>arduinoFFT</p></li>
+<li><p>fix_fft</p></li>
+</ul>
+<p>Esempio di concetto (richiede la libreria FFT):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Pseudo-code - requires FFT library</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">frequencyBands</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Perform FFT on audio samples</span>
+<span class="w">    </span><span class="c1">// Extract bass, mid, treble</span>
+
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getBassLevel</span><span class="p">();</span><span class="w">    </span><span class="c1">// 0-255</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getMidLevel</span><span class="p">();</span><span class="w">      </span><span class="c1">// 0-255</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">treble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getTrebleLevel</span><span class="p">();</span><span class="w"> </span><span class="c1">// 0-255</span>
+
+<span class="w">    </span><span class="c1">// Map to different parts of strip</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">bassLEDs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">midLEDs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">trebleLEDs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Bass: red</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">bassLEDs</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">bassLEDs</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bass</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Mid: green</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="n">bassLEDs</span><span class="p">],</span><span class="w"> </span><span class="n">midLEDs</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="n">bassLEDs</span><span class="p">],</span><span class="w"> </span><span class="n">midLEDs</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">mid</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Treble: blue</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="n">bassLEDs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">midLEDs</span><span class="p">],</span><span class="w"> </span><span class="n">trebleLEDs</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="n">bassLEDs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">midLEDs</span><span class="p">],</span><span class="w"> </span><span class="n">trebleLEDs</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">treble</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="tips-for-audio-reactive-effects">
+<h2>Suggerimenti per effetti reattivi all’audio<a class="headerlink" href="#tips-for-audio-reactive-effects" title="Link to this heading">¶</a></h2>
+<section id="calibration">
+<h3>Calibrazione<a class="headerlink" href="#calibration" title="Link to this heading">¶</a></h3>
+<p>Regola la sensibilità in base alla sorgente audio:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// For quiet environments</span>
+<span class="kt">uint16_t</span><span class="w"> </span><span class="n">calibratedLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">audioLevel</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1023</span><span class="p">);</span>
+
+<span class="c1">// For loud environments</span>
+<span class="kt">uint16_t</span><span class="w"> </span><span class="n">calibratedLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">audioLevel</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">800</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1023</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="smoothing">
+<h3>Smoothing<a class="headerlink" href="#smoothing" title="Link to this heading">¶</a></h3>
+<p>Letture audio fluide per evitare jitter:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint16_t</span><span class="w"> </span><span class="nf">smoothAudio</span><span class="p">(</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">newValue</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">lastValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">lastValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">lastValue</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">newValue</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w">  </span><span class="c1">// Exponential smoothing</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">lastValue</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="performance">
+<h3>Prestazioni<a class="headerlink" href="#performance" title="Link to this heading">¶</a></h3>
+<p>L’elaborazione audio può richiedere molta CPU:</p>
+<ul class="simple">
+<li><p>Utilizzare finestre di campionamento più brevi per una risposta più rapida</p></li>
+<li><p>Limitare la risoluzione FFT se si utilizza l’analisi di frequenza</p></li>
+<li><p>Valutare l’utilizzo di interrupt per il campionamento audio</p></li>
+<li><p>Testare il frame rate per garantire aggiornamenti LED fluidi</p></li>
+</ul>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Risoluzione dei problemi<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<p><strong>Nessuna risposta audio</strong>:</p>
+<ul class="simple">
+<li><p>Controllare il cablaggio e l’alimentazione del microfono</p></li>
+<li><p>Verificare che il pin analogico nel codice corrisponda all’hardware</p></li>
+<li><p>Eseguire un test con Serial.println(audioLevel) per visualizzare le letture grezze</p></li>
+<li><p>Regolare le soglie di calibrazione</p></li>
+</ul>
+<p><strong>Troppo sensibile/non abbastanza sensibile</strong>:</p>
+<ul class="simple">
+<li><p>Regolare gli intervalli di map() nella calibrazione</p></li>
+<li><p>Controllare il guadagno del microfono se si utilizza un microfono amplificato</p></li>
+<li><p>Modificare la soglia di rilevamento dei battiti (attualmente 1,5x la media)</p></li>
+</ul>
+<p><strong>Movimento a scatti</strong>:</p>
+<ul class="simple">
+<li><p>Aggiungere smoothing alle letture audio</p></li>
+<li><p>Aumentare la dimensione della finestra di campionamento</p></li>
+<li><p>Utilizzare lo smoothing esponenziale o la media mobile</p></li>
+</ul>
+<p><strong>Rilevamento dei falsi battiti</strong>:</p>
+<ul class="simple">
+<li><p>Aumentare il tempo minimo tra i battiti (attualmente 300 ms)</p></li>
+<li><p>Regolare il moltiplicatore di soglia (attualmente 1,5)</p></li>
+<li><p>Aumentare la dimensione del buffer di campionamento per un calcolo migliore della media</p></li>
+</ul>
+<hr class="docutils" />
+<p><strong>Passaggi successivi</strong>:</p>
+<ul class="simple">
+<li><p>Sperimentare diversi valori di soglia per il proprio ambiente</p></li>
+<li><p>Combinare la reattività audio con altri effetti (rumore, palette)</p></li>
+<li><p>Provare più strisce LED che reagiscono a diversi bande di frequenza</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/advanced/audio.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

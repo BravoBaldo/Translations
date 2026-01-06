@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>FastLED Examples (examples/) &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="fastled-examples-examples">
+<h1>FastLED Examples (<code class="docutils literal notranslate"><span class="pre">examples/</span></code>)<a class="headerlink" href="#fastled-examples-examples" title="Link to this heading">¶</a></h1>
+<p>This document maps the example sketches, shows how to run them on different targets (Arduino/PlatformIO, Teensy, ESP32, WASM), and suggests learning paths. It mirrors the structure and tone of <code class="docutils literal notranslate"><span class="pre">src/fl/README.md</span></code> so you can quickly jump between concepts and runnable code.</p>
+<section id="table-of-contents">
+<h2>Sommario<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview-and-quick-start">Overview and Quick Start</a></p></li>
+<li><p><a class="reference internal" href="#how-to-run-examples">How to Run Examples</a></p>
+<ul>
+<li><p><a class="reference internal" href="#arduino-ide-classic-workflow">Arduino IDE (classic workflow)</a></p></li>
+<li><p><a class="reference internal" href="#platformio-boards-and-native-host">PlatformIO (boards and native host)</a></p></li>
+<li><p><a class="reference internal" href="#teensy-octows2811">Teensy/OctoWS2811</a></p></li>
+<li><p><a class="reference internal" href="#esp32--i2s-parallel-output"><span class="xref myst">ESP32 / I2S (parallel output)</span></a></p></li>
+<li><p><a class="reference internal" href="#wasm-browser-demos-json-ui">WASM (browser demos + JSON UI)</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#directory-map-by-theme">Directory Map (by theme)</a></p>
+<ul>
+<li><p><a class="reference internal" href="#basics-and-core-idioms">Basics and core idioms</a></p></li>
+<li><p><a class="reference internal" href="#color-palettes-and-hsv">Color, palettes, and HSV</a></p></li>
+<li><p><a class="reference internal" href="#classic-1d-effects">Classic 1D effects</a></p></li>
+<li><p><a class="reference internal" href="#d-matrices-mapping">2D, matrices, mapping</a></p></li>
+<li><p><a class="reference internal" href="#fx-engine-and-higher-level-utilities">FX engine and higher-level utilities</a></p></li>
+<li><p><a class="reference internal" href="#audio-and-reactive-demos">Audio and reactive demos</a></p></li>
+<li><p><a class="reference internal" href="#storage-sd-card-and-data">Storage, SD card, and data</a></p></li>
+<li><p><a class="reference internal" href="#multiple-strips-parallel-and-high-density">Multiple strips, parallel, and high-density</a></p></li>
+<li><p><a class="reference internal" href="#esp-teensy-smartmatrix-specifics">ESP/Teensy/SmartMatrix specifics</a></p></li>
+<li><p><a class="reference internal" href="#wasm-and-ui">WASM and UI</a></p></li>
+<li><p><a class="reference internal" href="#larger-projects-and-showcases">Larger projects and showcases</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#quick-usage-notes">Quick Usage Notes</a></p></li>
+<li><p><a class="reference internal" href="#choosing-an-example">Choosing an Example</a></p></li>
+<li><p><a class="reference internal" href="#troubleshooting">Troubleshooting</a></p></li>
+<li><p><a class="reference internal" href="#guidance-for-new-users">Guidance for New Users</a></p></li>
+<li><p><a class="reference internal" href="#guidance-for-c-developers">Guidance for C++ Developers</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="overview-and-quick-start">
+<h2>Overview and Quick Start<a class="headerlink" href="#overview-and-quick-start" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">examples/</span></code> directory contains runnable sketches that cover:</p>
+<ul class="simple">
+<li><p>Getting started (blinking, first LED, pin modes)</p></li>
+<li><p>Color utilities, palettes, and HSV/CRGB conversions</p></li>
+<li><p>Classic 1D effects (Cylon, Fire, Twinkles, DemoReel100)</p></li>
+<li><p>2D matrix helpers, XY mapping, and raster effects</p></li>
+<li><p>Advanced pipelines like downscale/upscale and path rendering</p></li>
+<li><p>Platform-specific demos (Teensy OctoWS2811, ESP I2S)</p></li>
+<li><p>Browser/WASM examples with JSON-driven UI controls</p></li>
+</ul>
+<p>Typical first steps:</p>
+<ul class="simple">
+<li><p>Open an example in the Arduino IDE and change <code class="docutils literal notranslate"><span class="pre">NUM_LEDS</span></code>, chipset, and <code class="docutils literal notranslate"><span class="pre">DATA_PIN</span></code> to match hardware</p></li>
+<li><p>For matrices, define width/height and choose serpentine vs. row-major mapping</p></li>
+<li><p>For WASM or host exploration, use the WASM examples or the STUB platform (see below)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="how-to-run-examples">
+<h2>How to Run Examples<a class="headerlink" href="#how-to-run-examples" title="Link to this heading">¶</a></h2>
+<section id="arduino-ide-classic-workflow">
+<h3>Arduino IDE (classic workflow)<a class="headerlink" href="#arduino-ide-classic-workflow" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Open an <code class="docutils literal notranslate"><span class="pre">.ino</span></code> file directly (e.g., <code class="docutils literal notranslate"><span class="pre">examples/Blink/Blink.ino</span></code>)</p></li>
+<li><p>Edit the configuration near the top:</p>
+<ul>
+<li><p>LED type: <code class="docutils literal notranslate"><span class="pre">FastLED.addLeds&lt;WS2812B,</span> <span class="pre">DATA_PIN,</span> <span class="pre">GRB&gt;(leds,</span> <span class="pre">NUM_LEDS)</span></code></p></li>
+<li><p>Strip length: <code class="docutils literal notranslate"><span class="pre">NUM_LEDS</span></code></p></li>
+<li><p>Brightness: <code class="docutils literal notranslate"><span class="pre">FastLED.setBrightness(…)</span></code></p></li>
+</ul>
+</li>
+<li><p>Select your board and COM/serial port, then Upload</p></li>
+</ul>
+<p>Tips:</p>
+<ul class="simple">
+<li><p>For 2D examples, set <code class="docutils literal notranslate"><span class="pre">WIDTH</span></code>/<code class="docutils literal notranslate"><span class="pre">HEIGHT</span></code> and confirm wiring (serpentine vs. linear)</p></li>
+<li><p>If the animation is mirrored or offset, adjust the mapping helper</p></li>
+</ul>
+</section>
+<section id="platformio-boards-and-native-host">
+<h3>PlatformIO (boards and native host)<a class="headerlink" href="#platformio-boards-and-native-host" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Board-based workflows: create a <code class="docutils literal notranslate"><span class="pre">platformio.ini</span></code> that targets your MCU and copy an example sketch into a project <code class="docutils literal notranslate"><span class="pre">src/</span></code> folder</p></li>
+<li><p>Host/STUB workflows: use the STUB platform for local testing where appropriate (no hardware); advanced builds hook into <code class="docutils literal notranslate"><span class="pre">src/platforms/stub/</span></code></p></li>
+</ul>
+<p>The repository includes <code class="docutils literal notranslate"><span class="pre">ci/native/</span></code> and <code class="docutils literal notranslate"><span class="pre">ci/kitchensink/</span></code> PlatformIO configs you can reference for host builds and integration tests.</p>
+</section>
+<section id="teensy-octows2811">
+<h3>Teensy/OctoWS2811<a class="headerlink" href="#teensy-octows2811" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Examples under <code class="docutils literal notranslate"><span class="pre">examples/SpecialDrivers/Teensy/OctoWS2811/*</span></code> and related Teensy demos show multi-output patterns</p></li>
+<li><p>Replace pin/channel configuration and buffer sizes to match your wiring; ensure you select the correct Teensy model in your IDE/toolchain</p></li>
+</ul>
+</section>
+<section id="esp32-special-drivers-parallel-output">
+<h3>ESP32 Special Drivers (parallel output)<a class="headerlink" href="#esp32-special-drivers-parallel-output" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>See <code class="docutils literal notranslate"><span class="pre">examples/SpecialDrivers/ESP/</span></code> for all ESP32 special drivers:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">I2S/</span></code> - I2S-based parallel output for ESP32 and ESP32-S3</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LCD_I80/</span></code> - LCD I80 peripheral for ESP32-S2/S3</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LCD_RGB/</span></code> - LCD RGB peripheral for ESP32-P4</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Parlio/</span></code> - Parallel IO driver for ESP32-P4</p></li>
+</ul>
+</li>
+<li><p>These demonstrate high-throughput hardware-accelerated output; choose a board definition matching your dev board and wiring</p></li>
+<li><p>On some environments, parallel output requires specific pin sets and PSRAM settings; consult the sketch notes</p></li>
+</ul>
+</section>
+<section id="wasm-browser-demos-json-ui">
+<h3>WASM (browser demos + JSON UI)<a class="headerlink" href="#wasm-browser-demos-json-ui" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/wasm/</span></code> and related WASM-focused examples run in the browser</p></li>
+<li><p>The JSON UI system enables sliders, buttons, and other controls (see <code class="docutils literal notranslate"><span class="pre">src/platforms/wasm</span></code> and <code class="docutils literal notranslate"><span class="pre">src/fl/ui.h</span></code>)</p></li>
+<li><p>Typical flow: build to WebAssembly, serve the app, and interact via the browser UI</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="directory-map-by-theme">
+<h2>Directory Map (by theme)<a class="headerlink" href="#directory-map-by-theme" title="Link to this heading">¶</a></h2>
+<p>This list highlights commonly used examples. It is not exhaustive—browse the folders for more.</p>
+<section id="basics-and-core-idioms">
+<h3>Basics and core idioms<a class="headerlink" href="#basics-and-core-idioms" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Blink/</span></code> — minimal starting point</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FirstLight/</span></code> — walk a single bright pixel along the strip</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PinMode/</span></code> — simple input pin usage</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RGBSetDemo/</span></code> — basic pixel addressing and assignment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RGBCalibrate/</span></code> — adjust color channel balance</p></li>
+</ul>
+</section>
+<section id="color-palettes-and-hsv">
+<h3>Color, palettes, and HSV<a class="headerlink" href="#color-palettes-and-hsv" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ColorPalette/</span></code> — palette usage and transitions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ColorTemperature/</span></code> — white point and temperature helpers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HSVTest/</span></code> — HSV types and conversions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ColorBoost/</span></code> — saturation/luminance shaping for high visual impact</p></li>
+</ul>
+</section>
+<section id="classic-1d-effects">
+<h3>Classic 1D effects<a class="headerlink" href="#classic-1d-effects" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Cylon/</span></code>, <code class="docutils literal notranslate"><span class="pre">FxCylon/</span></code> — scanning eye; FX variants use higher-level helpers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Fire2012/</span></code>, <code class="docutils literal notranslate"><span class="pre">Fire2012WithPalette/</span></code>, <code class="docutils literal notranslate"><span class="pre">FxFire2012/</span></code> — classic fire effect</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TwinkleFox/</span></code>, <code class="docutils literal notranslate"><span class="pre">FxTwinkleFox/</span></code> — twinkling star fields</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pride2015/</span></code>, <code class="docutils literal notranslate"><span class="pre">FxPride2015/</span></code> — rainbow variants</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DemoReel100/</span></code>, <code class="docutils literal notranslate"><span class="pre">FxDemoReel100/</span></code> — rotating showcase of many patterns</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Wave/</span></code> — 1D wave toolkit</p></li>
+</ul>
+</section>
+<section id="d-matrices-mapping">
+<h3>2D, matrices, mapping<a class="headerlink" href="#d-matrices-mapping" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">XYMatrix/</span></code> — matrix mapping helpers and layouts</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Wave2d/</span></code>, <code class="docutils literal notranslate"><span class="pre">FxWave2d/</span></code> — 2D wavefields</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Blur2d/</span></code> — separable blur across a matrix</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Downscale/</span></code> — render high-res, resample to panel resolution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Animartrix/</span></code> — animated matrix patterns and helpers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SmartMatrix/</span></code> — SmartMatrix integration sketch</p></li>
+</ul>
+</section>
+<section id="fx-engine-and-higher-level-utilities">
+<h3>FX engine and higher-level utilities<a class="headerlink" href="#fx-engine-and-higher-level-utilities" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FxEngine/</span></code> — scaffolding for composing layers and frames</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FxGfx2Video/</span></code> — utilities to pipe graphics into frame/video helpers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fx/</span></code> under <code class="docutils literal notranslate"><span class="pre">src/</span></code> provides the building blocks used by these examples</p></li>
+</ul>
+</section>
+<section id="audio-and-reactive-demos">
+<h3>Audio and reactive demos<a class="headerlink" href="#audio-and-reactive-demos" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Audio/</span></code> — audio input + analysis (simple and advanced variants)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AudioInput/</span></code> — I2S microphone input (ESP32 &amp; Teensy, INMP441 compatible)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ports/PJRCSpectrumAnalyzer/</span></code> — Teensy-centric spectrum analyzer</p></li>
+</ul>
+</section>
+<section id="storage-sd-card-and-data">
+<h3>Storage, SD card, and data<a class="headerlink" href="#storage-sd-card-and-data" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">FxSdCard/</span></code> — SD-backed media and assets (see <code class="docutils literal notranslate"><span class="pre">data/</span></code> subfolder)</p></li>
+</ul>
+</section>
+<section id="multiple-strips-parallel-and-high-density">
+<h3>Multiple strips, parallel, and high-density<a class="headerlink" href="#multiple-strips-parallel-and-high-density" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Multiple/</span></code> — organize multiple arrays/segments</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TeensyParallel/</span></code> — multi-output example</p></li>
+<li><p>See <code class="docutils literal notranslate"><span class="pre">SpecialDrivers/</span></code> for platform-specific high-performance drivers (ESP, Teensy, Adafruit)</p></li>
+</ul>
+</section>
+<section id="esp-teensy-smartmatrix-specifics">
+<h3>ESP/Teensy/SmartMatrix specifics<a class="headerlink" href="#esp-teensy-smartmatrix-specifics" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>See <code class="docutils literal notranslate"><span class="pre">SpecialDrivers/ESP/</span></code> for ESP32 parallel drivers (LCD, I2S, Parlio)</p></li>
+<li><p>See <code class="docutils literal notranslate"><span class="pre">SpecialDrivers/Teensy/</span></code> for Teensy parallel drivers (OctoWS2811, ObjectFLED)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SmartMatrix/</span></code> — run on SmartMatrix hardware</p></li>
+</ul>
+</section>
+<section id="wasm-and-ui">
+<h3>WASM and UI<a class="headerlink" href="#wasm-and-ui" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wasm/</span></code> — browser-targeted demo</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WasmScreenCoords/</span></code> — UI overlay and coordinate visualization</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Json/</span></code> — JSON-structured sketch example</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UITest/</span></code> — showcase of JSON UI controls and groups</p></li>
+</ul>
+</section>
+<section id="larger-projects-and-showcases">
+<h3>Larger projects and showcases<a class="headerlink" href="#larger-projects-and-showcases" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LuminescentGrand/</span></code> — complex, multi-file installation piece</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Luminova/</span></code> — larger effect set</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Chromancer/</span></code> — advanced example with assets and helpers</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="platform-specific-filtering-with-filter">
+<h2>🎯 Platform-Specific Filtering with &#64;filter<a class="headerlink" href="#platform-specific-filtering-with-filter" title="Link to this heading">¶</a></h2>
+<p>FastLED now supports flexible <code class="docutils literal notranslate"><span class="pre">&#64;filter</span></code> directives in <code class="docutils literal notranslate"><span class="pre">.ino</span></code> sketch files for conditional compilation based on platform, memory, target, and board properties. This enables you to maintain platform-specific examples without duplicating code.</p>
+<section id="supported-filter-syntax">
+<h3>Supported Filter Syntax<a class="headerlink" href="#supported-filter-syntax" title="Link to this heading">¶</a></h3>
+<p><strong>One-liner format</strong> (compact, flexible):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// @filter (memory is high) and (platform is esp32s3)</span>
+<span class="c1">// @filter (mem is high) and (plat is esp32*)</span>
+<span class="c1">// @filter (mem: high) and (plat: esp32)</span>
+<span class="c1">// @filter (mem=high) and (plat=esp32)</span>
+</pre></div>
+</div>
+<p><strong>Multi-line YAML format</strong> (explicit):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// @filter</span>
+<span class="c1">//   - require:</span>
+<span class="c1">//     - platform: esp32s3</span>
+<span class="c1">//     - memory: high</span>
+<span class="c1">//   - exclude:</span>
+<span class="c1">//     - platform: avr</span>
+<span class="c1">// @end-filter</span>
+</pre></div>
+</div>
+</section>
+<section id="filter-features">
+<h3>Filter Features<a class="headerlink" href="#filter-features" title="Link to this heading">¶</a></h3>
+<p><strong>Operators:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">is</span></code> / <code class="docutils literal notranslate"><span class="pre">is</span> <span class="pre">not</span></code> - Exact match (supports wildcards with <code class="docutils literal notranslate"><span class="pre">*</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">=</span></code> / <code class="docutils literal notranslate"><span class="pre">:</span></code> - Shorthand for <code class="docutils literal notranslate"><span class="pre">is</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">matches</span></code> - Regex/glob pattern match</p></li>
+</ul>
+<p><strong>Property shortcuts:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mem</span></code> → <code class="docutils literal notranslate"><span class="pre">memory</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plat</span></code> → <code class="docutils literal notranslate"><span class="pre">platform</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tgt</span></code> → <code class="docutils literal notranslate"><span class="pre">target</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">brd</span></code> → <code class="docutils literal notranslate"><span class="pre">board</span></code></p></li>
+</ul>
+<p><strong>Logical operators:</strong> <code class="docutils literal notranslate"><span class="pre">and</span></code>, <code class="docutils literal notranslate"><span class="pre">or</span></code></p>
+<p><strong>Examples:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// @filter (platform is esp32*)</span>
+<span class="c1">// @filter (memory is not low)</span>
+<span class="c1">// @filter (target is -D__AVR__) or (board is uno)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="quick-usage-notes">
+<h2>Quick Usage Notes<a class="headerlink" href="#quick-usage-notes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Always set the LED chipset, pin, color order, and <code class="docutils literal notranslate"><span class="pre">NUM_LEDS</span></code> to match your hardware:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">FastLED.addLeds&lt;CHIPSET,</span> <span class="pre">DATA_PIN,</span> <span class="pre">COLOR_ORDER&gt;(leds,</span> <span class="pre">NUM_LEDS);</span></code></p></li>
+<li><p>Common CHIPSETs: <code class="docutils literal notranslate"><span class="pre">WS2812B</span></code>, <code class="docutils literal notranslate"><span class="pre">SK6812</span></code>, <code class="docutils literal notranslate"><span class="pre">APA102</span></code> (APA102 also needs <code class="docutils literal notranslate"><span class="pre">CLK_PIN</span></code>)</p></li>
+</ul>
+</li>
+<li><p>Adjust brightness and power: <code class="docutils literal notranslate"><span class="pre">FastLED.setBrightness(…)</span></code> and consider power limits for dense strips</p></li>
+<li><p>For matrices, define <code class="docutils literal notranslate"><span class="pre">WIDTH</span></code>/<code class="docutils literal notranslate"><span class="pre">HEIGHT</span></code> and use serpentine or row-major helpers; verify orientation</p></li>
+<li><p>Prefer using <code class="docutils literal notranslate"><span class="pre">fl::Leds</span></code> + <code class="docutils literal notranslate"><span class="pre">XYMap</span></code> for 2D logic when the example exposes those hooks</p></li>
+<li><p>For high quality on low-res displays, render at higher resolution and <code class="docutils literal notranslate"><span class="pre">downscale</span></code></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="choosing-an-example">
+<h2>Choosing an Example<a class="headerlink" href="#choosing-an-example" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>New to FastLED: start with <code class="docutils literal notranslate"><span class="pre">Blink</span></code> → <code class="docutils literal notranslate"><span class="pre">FirstLight</span></code> → <code class="docutils literal notranslate"><span class="pre">DemoReel100</span></code></p></li>
+<li><p>Building a palette-based animation: <code class="docutils literal notranslate"><span class="pre">ColorPalette</span></code> and <code class="docutils literal notranslate"><span class="pre">ColorTemperature</span></code></p></li>
+<li><p>Making a 1D animation: <code class="docutils literal notranslate"><span class="pre">Cylon</span></code>, <code class="docutils literal notranslate"><span class="pre">Fire2012</span></code>, <code class="docutils literal notranslate"><span class="pre">TwinkleFox</span></code></p></li>
+<li><p>Driving a panel: <code class="docutils literal notranslate"><span class="pre">XYMatrix</span></code>, then try <code class="docutils literal notranslate"><span class="pre">Downscale</span></code> or <code class="docutils literal notranslate"><span class="pre">Wave2d</span></code></p></li>
+<li><p>Multi-output / high-density: <code class="docutils literal notranslate"><span class="pre">OctoWS2811Demo</span></code>, <code class="docutils literal notranslate"><span class="pre">TeensyParallel</span></code></p></li>
+<li><p>Browser demo / UI: <code class="docutils literal notranslate"><span class="pre">wasm</span></code>, <code class="docutils literal notranslate"><span class="pre">UITest</span></code>, <code class="docutils literal notranslate"><span class="pre">Json</span></code></p></li>
+<li><p>Advanced/experimental: <code class="docutils literal notranslate"><span class="pre">Corkscrew</span></code> (in <code class="docutils literal notranslate"><span class="pre">src/fl</span></code>), <code class="docutils literal notranslate"><span class="pre">Fx*</span></code> examples, and <code class="docutils literal notranslate"><span class="pre">Chromancer</span></code></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="troubleshooting">
+<h2>Risoluzione dei problemi<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Nothing lights up:</p>
+<ul>
+<li><p>Re-check <code class="docutils literal notranslate"><span class="pre">DATA_PIN</span></code>, chipset, and <code class="docutils literal notranslate"><span class="pre">COLOR_ORDER</span></code></p></li>
+<li><p>Confirm <code class="docutils literal notranslate"><span class="pre">NUM_LEDS</span></code> and power are correct; try a low brightness first</p></li>
+</ul>
+</li>
+<li><p>Colors look wrong: try <code class="docutils literal notranslate"><span class="pre">GRB</span></code> vs. <code class="docutils literal notranslate"><span class="pre">RGB</span></code> ordering; some strips invert green/red</p></li>
+<li><p>Matrix appears mirrored or wrapped: change serpentine/row-major mapping or flip <code class="docutils literal notranslate"><span class="pre">WIDTH</span></code> and <code class="docutils literal notranslate"><span class="pre">HEIGHT</span></code></p></li>
+<li><p>ESP32 I2S pinning: verify the chosen pins are valid for your board’s I2S peripheral</p></li>
+<li><p>Teensy multi-output: confirm channel count and buffer sizes match your wiring</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="guidance-for-new-users">
+<h2>Guidance for New Users<a class="headerlink" href="#guidance-for-new-users" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Include <code class="docutils literal notranslate"><span class="pre">FastLED.h</span></code>, pick your chipset, set <code class="docutils literal notranslate"><span class="pre">NUM_LEDS</span></code>, and get something simple running first</p></li>
+<li><p>For matrices, draw into width/height coordinates and let mapping/wiring helpers translate to indices</p></li>
+<li><p>Explore the palette and HSV examples for smooth color; try <code class="docutils literal notranslate"><span class="pre">fill_rainbow</span></code> and <code class="docutils literal notranslate"><span class="pre">CHSV</span></code></p></li>
+<li><p>When moving to larger builds, consider splitting configuration and effect code into separate files for clarity</p></li>
+</ul>
+</section>
+<section id="guidance-for-c-developers">
+<h2>Guidance for C++ Developers<a class="headerlink" href="#guidance-for-c-developers" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Many examples are deliberately small; for more reusable building blocks, see <code class="docutils literal notranslate"><span class="pre">src/fl/</span></code> and <code class="docutils literal notranslate"><span class="pre">src/fx/</span></code></p></li>
+<li><p>Prefer <code class="docutils literal notranslate"><span class="pre">fl::</span></code> containers, views (<code class="docutils literal notranslate"><span class="pre">fl::span</span></code>), and graphics helpers for portability and quality</p></li>
+<li><p>For UI/remote control on capable targets, use the JSON UI elements (see <code class="docutils literal notranslate"><span class="pre">src/fl/ui.h</span></code>) and WASM bridge (<code class="docutils literal notranslate"><span class="pre">src/platforms/wasm</span></code>)</p></li>
+</ul>
+<hr class="docutils" />
+<p>This README will evolve alongside the examples. Browse subfolders for sketch-specific notes and hardware details. For the core library map and deeper subsystems, see <code class="docutils literal notranslate"><span class="pre">src/README.md</span></code> and <code class="docutils literal notranslate"><span class="pre">src/fl/README.md</span></code>.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cookbook/README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../_sources/FastLED/examples/README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

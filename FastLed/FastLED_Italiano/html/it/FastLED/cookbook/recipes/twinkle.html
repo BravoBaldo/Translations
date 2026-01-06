@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Effetti Scintillìo/Luccichìo &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="twinkle-sparkle-effects">
+<h1>Effetti Scintillìo/Luccichìo<a class="headerlink" href="#twinkle-sparkle-effects" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐⭐ Intermedio <strong>Tempo di Completamento</strong>: 25-35 minuti <strong>Prerequisiti</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../basic-patterns/animations.html"><span class="doc std std-doc">Animazioni</span></a> - fadeToBlackBy() e concetti di temporizzazione</p></li>
+<li><p><a class="reference internal" href="../core-concepts/color-theory.html"><span class="doc std std-doc">Teoria del Colore</span></a> - Spazio colore HSV per colori casuali</p></li>
+<li><p><a class="reference internal" href="../intermediate/math.html"><span class="doc std std-doc">Funzioni Matematiche</span></a> - Funzioni random8() e random16()</p></li>
+<li><p><a class="reference internal" href="../intermediate/blending.html"><span class="doc std std-doc">Fusione</span></a> - Variazione della luminosità e tecniche di dissolvenza</p></li>
+</ul>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come creare animazioni basate sulla probabilità utilizzando i controlli di soglia random8()</p></li>
+<li><p>Selezione sicura di posizioni LED casuali con random16(NUM_LEDS)</p></li>
+<li><p>Regolazione delle velocità di dissolvenza e delle soglie di probabilità per controllare la densità e la persistenza dello scintillìo</p></li>
+<li><p>Creazione di varianti (campo stellare, luci da festa, lucciole) regolando i parametri</p></li>
+<li><p>Utilizzando la variazione di luminosità e la temporizzazione per aggiungere profondità e dimensione agli effetti di luccichìo</p></li>
+</ul>
+<p>Stelle scintillanti casuali ed effetti di luccichìo.</p>
+<section id="simple-twinkle">
+<h2>Scintillìo Semplice<a class="headerlink" href="#simple-twinkle" title="Link to this heading">¶</a></h2>
+<p>Effetto scintillante di base con colori casuali:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">twinkle</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Fade all LEDs slightly</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Add new twinkles</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// 50/255 chance per frame</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">random8</span><span class="p">(),</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// Random color</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="colored-twinkle">
+<h2>Scintillìo Colorato<a class="headerlink" href="#colored-twinkle" title="Link to this heading">¶</a></h2>
+<p>Effetto luccichìo con un colore specifico:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">coloredTwinkle</span><span class="p">(</span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Add multiple twinkles per frame</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">            </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">;</span>
+<span class="w">            </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">].</span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">random8</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">150</span><span class="p">));</span><span class="w">  </span><span class="c1">// Vary brightness</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="sparkle-instant-flash">
+<h2>Sparkle (Flash Istantaneo)<a class="headerlink" href="#sparkle-instant-flash" title="Link to this heading">¶</a></h2>
+<p>Luccichii rapidi e lampeggianti su sfondo scuro:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">sparkle</span><span class="p">(</span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">delayMs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Turn off all LEDs</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Flash random LEDs</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="n">delayMs</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="white-twinkle-christmas-lights">
+<h2>White Twinkle (Luci di Natale)<a class="headerlink" href="#white-twinkle-christmas-lights" title="Link to this heading">¶</a></h2>
+<p>Sfondo bianco caldo con brillanti scintillii bianchi:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">whiteTwinkle</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Background: warm white</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">147</span><span class="p">,</span><span class="w"> </span><span class="mi">41</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="mi">200</span><span class="p">);</span><span class="w">  </span><span class="c1">// Dim background</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Random bright twinkles</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">            </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="how-it-works">
+<h2>Come Funziona<a class="headerlink" href="#how-it-works" title="Link to this heading">¶</a></h2>
+<p>L’effetto luccichìo crea l’effetto di una notte stellata:</p>
+<ol class="arabic simple">
+<li><p><strong>Fading</strong>: Abbassamento graduale di tutti i LED per creare scie</p></li>
+<li><p><strong>Selezione casuale</strong>: Scelta casuale di LED da accendere</p></li>
+<li><p><strong>Variazione di luminosità</strong>: Utilizzo di diversi livelli di luminosità per creare profondità</p></li>
+<li><p><strong>Variazione di colore</strong>: Colori casuali o specifici opzionali</p></li>
+</ol>
+</section>
+<section id="parameters-explained">
+<h2>Spiegazione dei Parametri<a class="headerlink" href="#parameters-explained" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Velocità di dissolvenza</strong> (in fadeToBlackBy): Velocità con cui i LED si attenuano</p>
+<ul>
+<li><p>Valori più bassi (10-20) = scie lunghe e fluide</p></li>
+<li><p>Valori più alti (50+) = scintillii rapidi e vivaci</p></li>
+</ul>
+</li>
+<li><p><strong>Probability</strong> (in random8() check): Frequenza con cui compaiono nuovi scintillii</p>
+<ul>
+<li><p>Valori più bassi (20-50) = scintillii sparsi e occasionali</p></li>
+<li><p>Valori più alti (100-200) = frequenti, scintillii densi</p></li>
+</ul>
+</li>
+<li><p><strong>Count</strong>: Numero di scintillii simultanei</p>
+<ul>
+<li><p>1-3 per un effetto delicato</p></li>
+<li><p>5-10 per un campo di stelle intenso</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="usage-tips">
+<h2>Suggerimenti per l’Uso<a class="headerlink" href="#usage-tips" title="Link to this heading">¶</a></h2>
+<p><strong>Per un effetto campo di stelle:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Per luci da festa:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">leds</span><span class="p">[</span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">random8</span><span class="p">(),</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Per lucciole:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">);</span><span class="w">  </span><span class="c1">// Very slow fade</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w">  </span><span class="c1">// Yellowish</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="variations">
+<h2>Varianti<a class="headerlink" href="#variations" title="Link to this heading">¶</a></h2>
+<p><strong>Scintillìo Basato sulla Palette:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">paletteTwinkle</span><span class="p">(</span><span class="n">CRGBPalette16</span><span class="w"> </span><span class="n">palette</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">40</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ColorFromPalette</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span><span class="w"> </span><span class="n">random8</span><span class="p">(),</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">LINEARBLEND</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Arcobaleno Scintillante:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">rainbowTwinkle</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">random8</span><span class="p">(),</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/recipes/twinkle.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

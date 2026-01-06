@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Guida di Riferimento FastLED &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="fastled-reference-guide">
+<h1>Guida di Riferimento FastLED<a class="headerlink" href="#fastled-reference-guide" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐ Tutti i Livelli <strong>Tempo di Ricerca delle Informazioni</strong>: 2-5 minuti (a seconda di cosa si sta cercando) <strong>Prerequisiti</strong>: Nessuno (il materiale di riferimento è autonomo e può essere utilizzato in qualsiasi momento del percorso di apprendimento)</p>
+<p><strong>Cosa si Troverà</strong>:</p>
+<ul class="simple">
+<li><p>Riferimento completo alle funzioni API con sintassi e parametri per tutte le funzioni FastLED</p></li>
+<li><p>Raccomandazioni e limitazioni dei pin specifiche per piattaforma per Arduino, ESP32, Teensy, STM32 e altro</p></li>
+<li><p>Elenco dei chipset LED supportati con esempi di configurazione per WS2812B, APA102, SK6812 e altri</p></li>
+<li><p>Brevi frammenti di codice per operazioni comuni (configurazione, colori, operazioni array)</p></li>
+<li><p>Risorse esterne e link alla community per ulteriore supporto per FastLED</p></li>
+</ul>
+<p>Questa sezione fornisce materiale di riferimento rapido per lo sviluppo di FastLED.</p>
+<section id="contents">
+<h2>Contenuti<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="api.html"><span class="doc std std-doc">Riferimento Rapido AP</span></a> - Riferimento completo alle funzioni API</p></li>
+<li><p><a class="reference internal" href="pins.html"><span class="doc std std-doc">Configurazioni dei Pin</span></a> - Raccomandazioni pin specifiche per piattaforma</p></li>
+<li><p><a class="reference internal" href="led-types.html"><span class="doc std std-doc">Tipi di LED</span></a> - Chipset LED supportati e relative configurazioni</p></li>
+</ul>
+</section>
+<section id="quick-navigation">
+<h2>Navigazione Rapida<a class="headerlink" href="#quick-navigation" title="Link to this heading">¶</a></h2>
+<section id="common-operations">
+<h3>Operazioni Comuni<a class="headerlink" href="#common-operations" title="Link to this heading">¶</a></h3>
+<p><strong>Configurazione e Visualizzazione</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">LED_TYPE</span><span class="p">,</span><span class="w"> </span><span class="n">DATA_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">COLOR_ORDER</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">setBrightness</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Creazione di Colori</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">    </span><span class="c1">// RGB</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// HSV</span>
+</pre></div>
+</div>
+<p><strong>Operazioni Sugli Array</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">);</span>
+<span class="n">blur1d</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="platform-support">
+<h2>Supporto Piattaforme<a class="headerlink" href="#platform-support" title="Link to this heading">¶</a></h2>
+<p>FastLED supporta un’ampia gamma di microcontrollori:</p>
+<ul class="simple">
+<li><p>Arduino (Uno, Mega, Leonardo, ecc.)</p></li>
+<li><p>ESP32 / ESP8266</p></li>
+<li><p>Teensy (3.x, 4.x)</p></li>
+<li><p>STM32</p></li>
+<li><p>Raspberry Pi Pico (RP2040)</p></li>
+<li><p>E molti altri!</p></li>
+</ul>
+<p>Vedere <a class="reference internal" href="pins.html"><span class="doc std std-doc">Configurazioni dei Pin</span></a> per dettagli specifici sulla piattaforma.</p>
+</section>
+<section id="led-chipset-support">
+<h2>Supporto chipset LED<a class="headerlink" href="#led-chipset-support" title="Link to this heading">¶</a></h2>
+<p>FastLED supporta numerosi chipset LED, tra cui:</p>
+<ul class="simple">
+<li><p>WS2812B (NeoPixel)</p></li>
+<li><p>APA102 (DotStar)</p></li>
+<li><p>SK6812</p></li>
+<li><p>WS2813</p></li>
+<li><p>E molti altri!</p></li>
+</ul>
+<p>Consultare <a class="reference internal" href="led-types.html"><span class="doc std std-doc">Tipi di LED</span></a> per un elenco completo ed esempi di utilizzo.</p>
+</section>
+<section id="additional-resources">
+<h2>Risorse Aggiuntive<a class="headerlink" href="#additional-resources" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Documentazione FastLED</strong>: https://fastled.io</p></li>
+<li><p><strong>Repository GitHub</strong>: https://github.com/FastLED/FastLED</p></li>
+<li><p><strong>Wiki della Community</strong>: https://github.com/FastLED/FastLED/wiki</p></li>
+<li><p><strong>Guida Principale</strong>: <a class="reference internal" href="../README.html"><span class="doc std std-doc">…/COOKBOOK</span></a></p></li>
+</ul>
+</section>
+<section id="navigation">
+<h2>Navigazione<a class="headerlink" href="#navigation" title="Link to this heading">¶</a></h2>
+<p><a class="reference internal" href="../README.html"><span class="doc std std-doc">← Ritorno al Ricettario</span></a></p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/reference/README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

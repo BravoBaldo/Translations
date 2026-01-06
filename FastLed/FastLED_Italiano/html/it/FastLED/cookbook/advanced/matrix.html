@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Operazioni 2D/Matriciali &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="d-matrix-operations">
+<h1>Operazioni 2D/Matriciali<a class="headerlink" href="#d-matrix-operations" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐⭐⭐ Avanzato <strong>Tempo di Completamento</strong>: 45-60 minuti <strong>Prerequisiti</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../getting-started/README.html"><span class="doc std std-doc">Guida Introduttiva</span></a> - Controllo LED di base e configurazione FastLED</p></li>
+<li><p><a class="reference internal" href="../core-concepts/README.html"><span class="doc std std-doc">Concetti Fondamentali</span></a> - In particolare array, teoria dei colori e timing</p></li>
+<li><p><a class="reference internal" href="../basic-patterns/README.html"><span class="doc std std-doc">Pattern di Base</span></a> - Fondamenti della programmazione dei pattern</p></li>
+<li><p><a class="reference internal" href="../intermediate/README.html"><span class="doc std std-doc">Tecniche Intermedie</span></a> - Funzioni di rumore, palette e utilità matematiche</p></li>
+</ul>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come mappare le coordinate 2D (X, Y) sugli indici di array LED 1D</p></li>
+<li><p>La differenza tra layout a matrice serpentina e progressiva</p></li>
+<li><p>Come creare pattern 2D come effetti plasma, forme rimbalzanti e mappe di termiche</p></li>
+<li><p>Tecniche di ottimizzazione delle prestazioni per le animazioni di matrici</p></li>
+<li><p>Come risolvere i problemi comuni di cablaggio e posizionamento delle matrici</p></li>
+</ul>
+<hr class="docutils" />
+<p>Quando si lavora con matrici o griglie LED, è necessario mappare le coordinate 2D su un array 1D. Questa guida illustra le tecniche essenziali per la creazione di pattern su matrici LED.</p>
+<section id="xy-mapping-function">
+<h2>Funzione di Mappatura XY<a class="headerlink" href="#xy-mapping-function" title="Link to this heading">¶</a></h2>
+<p>La funzione più importante per le matrici è il mappatore XY, che converte le coordinate 2D in indici di array.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define MATRIX_WIDTH  16</span>
+<span class="cp">#define MATRIX_HEIGHT 16</span>
+<span class="cp">#define NUM_LEDS (MATRIX_WIDTH * MATRIX_HEIGHT)</span>
+
+<span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+
+<span class="c1">// Convert X,Y to array index</span>
+<span class="kt">uint16_t</span><span class="w"> </span><span class="nf">XY</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Handle out of bounds</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MATRIX_HEIGHT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Serpentine (zigzag) layout</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x01</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Odd rows run backwards</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">reverseX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">MATRIX_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">reverseX</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Even rows run forwards</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="understanding-serpentine-layout">
+<h3>Comprensione del Layout a Serpentina<a class="headerlink" href="#understanding-serpentine-layout" title="Link to this heading">¶</a></h3>
+<p>La maggior parte delle matrici LED è cablata secondo uno schema a serpentina (zigzag):</p>
+<ul class="simple">
+<li><p>Riga 0: Da sinistra a destra (0, 1, 2, …)</p></li>
+<li><p>Riga 1: Da destra a sinistra (…, 17, 16, 15)</p></li>
+<li><p>Riga 2: Da sinistra a destra (32, 33, 34, …)</p></li>
+</ul>
+<p>Questo layout riduce al minimo la complessità del cablaggio, ma richiede una gestione speciale nel codice.</p>
+</section>
+</section>
+<section id="d-patterns">
+<h2>Pattern 2D<a class="headerlink" href="#d-patterns" title="Link to this heading">¶</a></h2>
+<section id="plasma-effect">
+<h3>Effetto Plasma<a class="headerlink" href="#plasma-effect" title="Link to this heading">¶</a></h3>
+<p>Creare pattern organici e fluidi utilizzando il rumore 2D:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">plasma</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATRIX_HEIGHT</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Create 2D sine wave pattern</span>
+<span class="w">            </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qsub8</span><span class="p">(</span>
+<span class="w">                </span><span class="n">inoise8</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="n">millis</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">10</span><span class="p">),</span>
+<span class="w">                </span><span class="n">inoise8</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="n">millis</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
+<span class="w">            </span><span class="p">);</span>
+
+<span class="w">            </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XY</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+<span class="w">            </span><span class="n">leds</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">brightness</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="moving-shapes">
+<h3>Forme in Movimento<a class="headerlink" href="#moving-shapes" title="Link to this heading">¶</a></h3>
+<p>Animare oggetti nella matrice:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">bouncingBall</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">ballX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">ballY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MATRIX_HEIGHT</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">velocityX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.3</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">velocityY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.2</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Clear matrix</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Update position</span>
+<span class="w">    </span><span class="n">ballX</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">velocityX</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ballY</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">velocityY</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Bounce off walls</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ballX</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">ballX</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">velocityX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">velocityX</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ballY</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">ballY</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MATRIX_HEIGHT</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">velocityY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">velocityY</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Draw ball</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">XY</span><span class="p">((</span><span class="kt">uint8_t</span><span class="p">)</span><span class="n">ballX</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span><span class="n">ballY</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="tips-for-matrix-programming">
+<h2>Suggerimenti per la Programmazione di Matrici<a class="headerlink" href="#tips-for-matrix-programming" title="Link to this heading">¶</a></h2>
+<section id="layout-types">
+<h3>Tipi di Layout<a class="headerlink" href="#layout-types" title="Link to this heading">¶</a></h3>
+<p><strong>Serpentina (Zigzag)</strong>:</p>
+<ul class="simple">
+<li><p>Lo schema di cablaggio più comune</p></li>
+<li><p>Richiede logica condizionale nella funzione XY</p></li>
+<li><p>Risparmia i fili e semplifica il layout fisico</p></li>
+</ul>
+<p><strong>Progressiva (righe tutte nella stessa direzione)</strong>:</p>
+<ul class="simple">
+<li><p>Funzione XY più semplice: <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">(y</span> <span class="pre">*</span> <span class="pre">MATRIX_WIDTH)</span> <span class="pre">+</span> <span class="pre">x</span></code></p></li>
+<li><p>Richiede più cavi</p></li>
+<li><p>Meno comune nelle matrici commerciali</p></li>
+</ul>
+</section>
+<section id="performance-considerations">
+<h3>Considerazioni sulle Prestazioni<a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Precalcolare le costanti</strong>: memorizzare le dimensioni della matrice e i valori utilizzati di frequente</p></li>
+<li><p><strong>Utilizzare tabelle di lookup</strong>: Per mappature XY complesse, precalcolare e memorizzare gli indici</p></li>
+<li><p><strong>Ottimizzare i cicli annidati</strong>: Considerare l’elaborazione solo dei pixel modificati per effetti complessi</p></li>
+<li><p><strong>Limitare la risoluzione</strong>: Per matrici molto grandi, considerare l’aggiornamento di pixel alterni</p></li>
+</ol>
+</section>
+<section id="coordinate-systems">
+<h3>Sistemi di Coordinate<a class="headerlink" href="#coordinate-systems" title="Link to this heading">¶</a></h3>
+<p>Ricordare che le matrici LED possono avere punti di origine diversi:</p>
+<ul class="simple">
+<li><p>Origine in basso a sinistra (più comune)</p></li>
+<li><p>Origine in alto a sinistra (display)</p></li>
+<li><p>Origine centrale (alcuni effetti)</p></li>
+</ul>
+<p>Regolare la funzione XY di conseguenza.</p>
+</section>
+</section>
+<section id="common-patterns">
+<h2>Pattern Comuni<a class="headerlink" href="#common-patterns" title="Link to this heading">¶</a></h2>
+<section id="checkerboard">
+<h3>Scacchiera<a class="headerlink" href="#checkerboard" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">checkerboard</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATRIX_HEIGHT</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">;</span>
+<span class="w">            </span><span class="n">leds</span><span class="p">[</span><span class="n">XY</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="scrolling-text">
+<h3>Testo Scorrevole<a class="headerlink" href="#scrolling-text" title="Link to this heading">¶</a></h3>
+<p>Per la visualizzazione del testo sulle matrici, considerare l’utilizzo della libreria LED-Matrix in combinazione con FastLED.</p>
+</section>
+<section id="heat-map">
+<h3>Mappa Termica<a class="headerlink" href="#heat-map" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">heatMap</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATRIX_HEIGHT</span><span class="p">;</span><span class="w"> </span><span class="n">y</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Distance from center</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">dx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">dy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">MATRIX_HEIGHT</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">distance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="n">dx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dy</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dy</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="w">            </span><span class="n">leds</span><span class="p">[</span><span class="n">XY</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ColorFromPalette</span><span class="p">(</span><span class="n">HeatColors_p</span><span class="p">,</span><span class="w"> </span><span class="n">distance</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Risoluzione dei problemi<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<p><strong>Posizioni pixel errate</strong>:</p>
+<ul class="simple">
+<li><p>Verificare il modello di cablaggio della matrice (serpentina o progressiva)</p></li>
+<li><p>Verificare se l’origine è in basso a sinistra o in alto a sinistra</p></li>
+<li><p>Testare con un modello semplice come la scacchiera</p></li>
+</ul>
+<p><strong>Problemi di prestazioni</strong>:</p>
+<ul class="simple">
+<li><p>Ridurre la risoluzione della matrice</p></li>
+<li><p>Ottimizzare i loop annidati</p></li>
+<li><p>Usare EVERY_N_MILLISECONDS per limitare la frequenza di aggiornamento</p></li>
+<li><p>Considerare FastLED.setMaxRefreshRate()</p></li>
+</ul>
+<p><strong>Limitazioni di memoria</strong>:</p>
+<ul class="simple">
+<li><p>Ogni LED utilizza 3 byte (RGB)</p></li>
+<li><p>Matrice 16x16 = 768 byte</p></li>
+<li><p>Lasciare spazio per altre variabili e spazio di stack</p></li>
+</ul>
+<hr class="docutils" />
+<p><strong>Passaggi successivi</strong>:</p>
+<ul class="simple">
+<li><p>Provare a combinare modelli 2D con tavolozze di colori</p></li>
+<li><p>Sperimentare con diverse scale di rumore per effetti unici</p></li>
+<li><p>Aggiungere interattività con sensori o controlli</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/advanced/matrix.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

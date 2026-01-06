@@ -16,18 +16,23 @@
 
 ### Linux
 *  [Bash Guide for Beginners](https://tldp.org/LDP/Bash-Beginners-Guide/html/index.html)
+*  Aligned
 
 ### TinyML
 *  [TinyML Made Easy by Marcelo Rovai](https://github.com/Mjrovai/TinyML_Made_Easy_NiclaV_eBook.git)
+*  Aligned
 
 ### [LVGL](https://lvgl.io/)
 *  [LVGL](https://lvgl.io/) (Light and Versatile Graphics Library)
+*  Aligned
 
 ### [Sloeber](https://github.com/Sloeber/arduino-eclipse-plugin)
 *  [Sloeber](https://github.com/Sloeber/arduino-eclipse-plugin) the Arduino IDE for Eclipse 
+*  Aligned
 
 ### [Node-RED](https://nodered.org/docs/)
 *  [Node-RED](https://nodered.org/docs/) Docs collection about Node-RED
+*  WORK IN PROGRESS
 
 ### [Docs collection about WaveShare products](https://www.waveshare.com/)
 *  [ESP32-S3-Touch-LCD-4.3](https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3)
@@ -35,6 +40,12 @@
 
 ### [GoogleTest](https://google.github.io/googletest/)
 *  Attempt to translate and build an epub and pdf italian version.
+*  WORK IN PROGRESS
 
 ### [RustDesk](https://rustdesk.com/docs/it/) a Remote Desktop
 *  Epub [and soon PDF] version.
+
+### [FastLED](https://github.com/FastLED/FastLED.git) The Universal LED Library for Embedded and Arduino
+*  The documentation is extensive but interesting. I'll try to read and translate it.
+*  WORK IN PROGRESS
+

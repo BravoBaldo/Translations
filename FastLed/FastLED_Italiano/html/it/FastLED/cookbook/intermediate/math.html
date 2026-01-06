@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Funzioni Matematiche e di Mappatura &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="math-and-mapping-functions">
+<h1>Funzioni Matematiche e di Mappatura<a class="headerlink" href="#math-and-mapping-functions" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di difficoltà</strong>: ⭐⭐ Intermedio <strong>Tempo di Completamento</strong>: 50-60 minuti <strong>Prerequisiti</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../basic-patterns/animations.html"><span class="doc std std-doc">Animazioni</span></a> - Comprensione delle variabili statiche e dei tempi</p></li>
+<li><p><a class="reference internal" href="../core-concepts/color-theory.html"><span class="doc std std-doc">Teoria del Colore</span></a> - Modelli di colore RGB e HSV</p></li>
+<li><p><a class="reference internal" href="../core-concepts/timing.html"><span class="doc std std-doc">Tempistiche e Frame Rate</span></a> - Frame rate e controllo delle animazioni</p></li>
+</ul>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come utilizzare le funzioni matematiche intere ottimizzate di FastLED (scale8, qadd8, qsub8) per calcoli rapidi e sicuri</p></li>
+<li><p>Come creare pattern di onde fluide con sin8/cos8 ed effetti animati</p></li>
+<li><p>Come generare animazioni ritmiche utilizzando le funzioni beat8 e beatsin8</p></li>
+<li><p>Come mappare i valori tra intervalli per il controllo di luminosità, posizione e colore</p></li>
+<li><p>Come combinare più funzioni matematiche per effetti complessi e stratificati</p></li>
+</ul>
+<p>FastLED offre un ricco set di funzioni matematiche ottimizzate per le animazioni LED. Queste funzioni sono essenziali per creare pattern precisi, ritmici e matematicamente belli.</p>
+<section id="why-use-fastled-math-functions">
+<h2>Perché utilizzare le funzioni matematiche di FastLED?<a class="headerlink" href="#why-use-fastled-math-functions" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Ottimizzate</strong>: Più veloci delle funzioni matematiche standard di Arduino/C++</p></li>
+<li><p><strong>Basate su numeri interi</strong>: Evitano operazioni in virgola mobile lente</p></li>
+<li><p><strong>Saturazione</strong>: Protezione automatica da overflow</p></li>
+<li><p><strong>Coerenti</strong>: Stessi risultati su piattaforme diverse</p></li>
+</ul>
+</section>
+<section id="scaling-values">
+<h2>Valori di Scala<a class="headerlink" href="#scaling-values" title="Link to this heading">¶</a></h2>
+<section id="scale8">
+<h3>scale8()<a class="headerlink" href="#scale8" title="Link to this heading">¶</a></h3>
+<p>Scala veloce a 8 bit, essenziale per il controllo della luminosità:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Scale value by multiplier (both 0-255)</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">scaled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">);</span><span class="w">  </span><span class="c1">// value * 128 / 255</span>
+
+<span class="c1">// Example: Dim a color to 50%</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="n">color</span><span class="p">.</span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">color</span><span class="p">.</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">);</span>
+<span class="n">color</span><span class="p">.</span><span class="n">g</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">color</span><span class="p">.</span><span class="n">g</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">);</span>
+<span class="n">color</span><span class="p">.</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">color</span><span class="p">.</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Valori comuni di scale8:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">255</span></code> = 100% (nessuna modifica)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">128</span></code> = 50%</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">64</span></code> = 25%</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">32</span></code> = 12.5%</p></li>
+</ul>
+</section>
+<section id="scale16">
+<h3>scale16()<a class="headerlink" href="#scale16" title="Link to this heading">¶</a></h3>
+<p>Per valori a 16 bit quando è necessaria una maggiore precisione:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">scaled16</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale16</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mi">32768</span><span class="p">);</span><span class="w">  </span><span class="c1">// value * 32768 / 65535</span>
+</pre></div>
+</div>
+</section>
+<section id="nscale8">
+<h3>nscale8()<a class="headerlink" href="#nscale8" title="Link to this heading">¶</a></h3>
+<p>Scala sul posto (modifica l’originale):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">;</span>
+<span class="n">color</span><span class="p">.</span><span class="n">nscale8</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span><span class="w">  </span><span class="c1">// Dims to 50%</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mapping-values">
+<h2>Mappatura dei Valori<a class="headerlink" href="#mapping-values" title="Link to this heading">¶</a></h2>
+<section id="map">
+<h3>map()<a class="headerlink" href="#map" title="Link to this heading">¶</a></h3>
+<p>Mappa un valore da un intervallo a un altro:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Map analog reading (0-1023) to LED brightness (0-255)</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">analogRead</span><span class="p">(</span><span class="n">A0</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1023</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+
+<span class="c1">// Map LED position to hue range</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="scale8-video">
+<h3>scale8_video()<a class="headerlink" href="#scale8-video" title="Link to this heading">¶</a></h3>
+<p>Simile a scale8 ma conserva maggiori dettagli nei valori più scuri:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Better for dimming without losing too much color</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">videoScaled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale8_video</span><span class="p">(</span><span class="n">brightness</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="saturation-math">
+<h2>Saturazione Matematica<a class="headerlink" href="#saturation-math" title="Link to this heading">¶</a></h2>
+<p>Queste funzioni prevengono overflow/underflow:</p>
+<section id="qadd8">
+<h3>qadd8()<a class="headerlink" href="#qadd8" title="Link to this heading">¶</a></h3>
+<p>Addizione con saturazione (max 255):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qadd8</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w">  </span><span class="c1">// Results in 255, not overflow</span>
+
+<span class="c1">// Example: Brighten color safely</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qadd8</span><span class="p">(</span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span><span class="w">  </span><span class="c1">// Won&#39;t overflow past 255</span>
+</pre></div>
+</div>
+</section>
+<section id="qsub8">
+<h3>qsub8()<a class="headerlink" href="#qsub8" title="Link to this heading">¶</a></h3>
+<p>Sottrazione con saturazione (min 0):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qsub8</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w">  </span><span class="c1">// Results in 0, not underflow</span>
+
+<span class="c1">// Example: Dim color safely</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qsub8</span><span class="p">(</span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">);</span><span class="w">  </span><span class="c1">// Won&#39;t go below 0</span>
+</pre></div>
+</div>
+</section>
+<section id="qadd16-and-qsub16">
+<h3>qadd16() e qsub16()<a class="headerlink" href="#qadd16-and-qsub16" title="Link to this heading">¶</a></h3>
+<p>Versioni a 16 bit per valori maggiori:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qadd16</span><span class="p">(</span><span class="mi">60000</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">);</span><span class="w">  </span><span class="c1">// Saturates at 65535</span>
+<span class="kt">uint16_t</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qsub16</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span><span class="w">    </span><span class="c1">// Saturates at 0</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="wave-functions">
+<h2>Funzioni d’Onda<a class="headerlink" href="#wave-functions" title="Link to this heading">¶</a></h2>
+<section id="sin8">
+<h3>sin8()<a class="headerlink" href="#sin8" title="Link to this heading">¶</a></h3>
+<p>Onda sinusoidale veloce a 8 bit (ingresso 0-255, uscita 0-255):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">sineWave</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Create sine wave pattern</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin8</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Punti chiave:</strong></p>
+<ul class="simple">
+<li><p>Intervallo di input: 0-255 (0 = 0°, 255 = 360°)</p></li>
+<li><p>Intervallo di output: 0-255 (0 = -1,0, 128 = 0, 255 = +1,0)</p></li>
+<li><p>Molto più veloce di <code class="docutils literal notranslate"><span class="pre">sin()</span></code> o <code class="docutils literal notranslate"><span class="pre">sinf()</span></code></p></li>
+</ul>
+</section>
+<section id="cos8">
+<h3>cos8()<a class="headerlink" href="#cos8" title="Link to this heading">¶</a></h3>
+<p>Versione coseno (sfasamento di 90° da sin8):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">cosValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cos8</span><span class="p">(</span><span class="n">angle</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="sin16">
+<h3>sin16()<a class="headerlink" href="#sin16" title="Link to this heading">¶</a></h3>
+<p>seno a 16 bit per una maggiore precisione:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Input: 0-65535, Output: -32768 to +32767</span>
+<span class="kt">int16_t</span><span class="w"> </span><span class="n">sineValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin16</span><span class="p">(</span><span class="n">angle</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="animated-sine-wave">
+<h3>Onda Sinusoidale Animata<a class="headerlink" href="#animated-sine-wave" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">animatedSine</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">phase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin8</span><span class="p">(</span><span class="n">phase</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">10</span><span class="p">));</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">phase</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w">  </span><span class="c1">// Wave speed</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="beat-functions">
+<h2>Funzioni di Beat<a class="headerlink" href="#beat-functions" title="Link to this heading">¶</a></h2>
+<p>Crea pattern ritmici con i generatori di battiti:</p>
+<section id="beat8">
+<h3>beat8()<a class="headerlink" href="#beat8" title="Link to this heading">¶</a></h3>
+<p>Onda a dente di sega che aumenta da 0 a 255:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Returns value that increases over time based on BPM</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">beat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beat8</span><span class="p">(</span><span class="mi">60</span><span class="p">);</span><span class="w">  </span><span class="c1">// 60 beats per minute</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">beatEffect</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beat8</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span><span class="w">  </span><span class="c1">// Slow color change</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="beat16">
+<h3>beat16()<a class="headerlink" href="#beat16" title="Link to this heading">¶</a></h3>
+<p>Versione a 16 bit (0-65535):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">beat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beat16</span><span class="p">(</span><span class="mi">60</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="beatsin8">
+<h3>beatsin8()<a class="headerlink" href="#beatsin8" title="Link to this heading">¶</a></h3>
+<p>Onda sinusoidale che oscilla dolcemente:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// beatsin8(BPM, min_value, max_value)</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">);</span><span class="w">  </span><span class="c1">// Oscillates between 50-200</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">pulseEffect</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span><span class="w">  </span><span class="c1">// 12 BPM, 0-255</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">brightness</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="beatsin8-with-phase">
+<h3>beatsin8() con Fase<a class="headerlink" href="#beatsin8-with-phase" title="Link to this heading">¶</a></h3>
+<p>Creare pattern d’onda sui LED:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">sineWaveAcrossStrip</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span>
+<span class="w">            </span><span class="mi">60</span><span class="p">,</span><span class="w">              </span><span class="c1">// Beats per minute</span>
+<span class="w">            </span><span class="mi">0</span><span class="p">,</span><span class="w">               </span><span class="c1">// Minimum value</span>
+<span class="w">            </span><span class="mi">255</span><span class="p">,</span><span class="w">             </span><span class="c1">// Maximum value</span>
+<span class="w">            </span><span class="mi">0</span><span class="p">,</span><span class="w">               </span><span class="c1">// Time offset</span>
+<span class="w">            </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">255</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">)</span><span class="w">  </span><span class="c1">// Phase offset per LED</span>
+<span class="w">        </span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="beatsin16">
+<h3>beatsin16()<a class="headerlink" href="#beatsin16" title="Link to this heading">¶</a></h3>
+<p>Oscillazione di precisione a 16 bit:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin16</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span><span class="w">  </span><span class="c1">// Oscillates 0-1000</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="random-functions">
+<h2>Funzioni Random<a class="headerlink" href="#random-functions" title="Link to this heading">¶</a></h2>
+<section id="random8">
+<h3>random8()<a class="headerlink" href="#random8" title="Link to this heading">¶</a></h3>
+<p>Generazione rapida di numeri casuali:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">randomValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random8</span><span class="p">();</span><span class="w">          </span><span class="c1">// 0-255</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">randomRange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random8</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span><span class="w">    </span><span class="c1">// 10-49</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">randomMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random8</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="w">         </span><span class="c1">// 0-99</span>
+</pre></div>
+</div>
+</section>
+<section id="random16">
+<h3>random16()<a class="headerlink" href="#random16" title="Link to this heading">¶</a></h3>
+<p>Numeri casuali a 16 bit:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">random16Value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">();</span><span class="w">      </span><span class="c1">// 0-65535</span>
+<span class="kt">uint16_t</span><span class="w"> </span><span class="n">randomPos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">);</span><span class="w">  </span><span class="c1">// 0 to NUM_LEDS-1</span>
+</pre></div>
+</div>
+</section>
+<section id="random8-for-effects">
+<h3>random8() per gli Effetti<a class="headerlink" href="#random8-for-effects" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">randomTwinkle</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random8</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// 50/255 chance (~20%)</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random16</span><span class="p">(</span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">random8</span><span class="p">(),</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="practical-applications">
+<h2>Applicazioni Pratiche<a class="headerlink" href="#practical-applications" title="Link to this heading">¶</a></h2>
+<section id="breathing-effect">
+<h3>Effetto Respiro<a class="headerlink" href="#breathing-effect" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">breathe</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Smooth breathing using beatsin8</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// 12 BPM, range 30-255</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="wave-chaser">
+<h3>Inseguitore d’Onda<a class="headerlink" href="#wave-chaser" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">waveChaser</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin8</span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">offset</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="multiple-wave-interference">
+<h3>Interferenza di Onde Multiple<a class="headerlink" href="#multiple-wave-interference" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">multiWave</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Combine three waves with different speeds</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">wave1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">wave2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">12</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">wave3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">combined</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">wave1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">wave2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">wave3</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="position-mapping">
+<h3>Mappatura della Posizione<a class="headerlink" href="#position-mapping" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">positionGradient</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Map position to full hue range</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="brightness-scaling">
+<h3>Scala della Luminosità<a class="headerlink" href="#brightness-scaling" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">dimEnds</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">CRGB</span><span class="w"> </span><span class="n">baseColor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Brighter in center, dimmer at ends</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">distanceFromCenter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">abs</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">distanceFromCenter</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">baseColor</span><span class="p">;</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">nscale8</span><span class="p">(</span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="easing-functions">
+<h2>Funzioni di Facilitazione<a class="headerlink" href="#easing-functions" title="Link to this heading">¶</a></h2>
+<p>Creare accelerazione/decelerazione naturale:</p>
+<section id="quadratic-easing">
+<h3>Facilitazione Quadratica<a class="headerlink" href="#quadratic-easing" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">easeInQuad</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Accelerating from zero velocity</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">t16</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">t16</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">t16</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">uint8_t</span><span class="w"> </span><span class="nf">easeOutQuad</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Decelerating to zero velocity</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">t16</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">((</span><span class="n">t16</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">t16</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="cubic-easing">
+<h3>Facilitazione Cubica<a class="headerlink" href="#cubic-easing" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">easeInOutCubic</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Accelerate (first half)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="kt">uint16_t</span><span class="p">)</span><span class="n">t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">14</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Decelerate (second half)</span>
+<span class="w">        </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">t2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(((</span><span class="n">t2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">t2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">t2</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">14</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="using-easing">
+<h3>Utilizzo della Facilitazione<a class="headerlink" href="#using-easing" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">easedMovement</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Apply easing to position</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">easedTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">easeInOutCubic</span><span class="p">(</span><span class="n">time</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">easedTime</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="mi">-1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">time</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="bit-manipulation">
+<h2>Manipolazione dei Bit<a class="headerlink" href="#bit-manipulation" title="Link to this heading">¶</a></h2>
+<section id="bitwise-shifts-fast-division-multiplication">
+<h3>Shift bit a bit (Divisione/Moltiplicazione rapida)<a class="headerlink" href="#bitwise-shifts-fast-division-multiplication" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Division by powers of 2</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">half</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">      </span><span class="c1">// Divide by 2</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">quarter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">   </span><span class="c1">// Divide by 4</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">eighth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">    </span><span class="c1">// Divide by 8</span>
+
+<span class="c1">// Multiplication by powers of 2</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">doubled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">   </span><span class="c1">// Multiply by 2</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">quadruple</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="c1">// Multiply by 4</span>
+</pre></div>
+</div>
+</section>
+<section id="modulo-power-of-2">
+<h3>Modulo Potenza di 2<a class="headerlink" href="#modulo-power-of-2" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Fast modulo for powers of 2</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">wrapped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">;</span><span class="w">  </span><span class="c1">// Same as % 256</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">masked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x0F</span><span class="p">;</span><span class="w">   </span><span class="c1">// Same as % 16</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-math-examples">
+<h2>Esempi di Matematica Avanzata<a class="headerlink" href="#advanced-math-examples" title="Link to this heading">¶</a></h2>
+<section id="circular-motion">
+<h3>Moto Circolare<a class="headerlink" href="#circular-motion" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">circularMotion</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Calculate position using sine and cosine</span>
+<span class="w">    </span><span class="kt">int8_t</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin8</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span><span class="w">        </span><span class="c1">// -128 to 127</span>
+<span class="w">    </span><span class="kt">int8_t</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cos8</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span><span class="w">        </span><span class="c1">// -128 to 127</span>
+
+<span class="w">    </span><span class="c1">// Map to LED position</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="mi">-128</span><span class="p">,</span><span class="w"> </span><span class="mi">127</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="mi">-1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Cyan</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">angle</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="distance-based-brightness">
+<h3>Luminosità Basata sulla Distanza<a class="headerlink" href="#distance-based-brightness" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">distanceFade</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">center</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Calculate distance from center</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">distance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">abs</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">center</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Fade based on distance</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qsub8</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="harmonic-motion">
+<h3>Moto Armonico<a class="headerlink" href="#harmonic-motion" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">harmonicMotion</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Combine multiple sine waves (harmonics)</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">fundamental</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">harmonic2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">harmonic3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">16</span><span class="p">);</span>
+
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">combined</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qadd8</span><span class="p">(</span><span class="n">qadd8</span><span class="p">(</span><span class="n">fundamental</span><span class="p">,</span><span class="w"> </span><span class="n">harmonic2</span><span class="p">),</span><span class="w"> </span><span class="n">harmonic3</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">combined</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-tips">
+<h2>Suggerimenti per le Prestazioni<a class="headerlink" href="#performance-tips" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Usare matematica intera</strong>: evitare la virgola mobile quando possibile</p></li>
+<li><p><strong>Pre-calcolare</strong>: Spostare i calcoli fuori dai cicli quando possibile</p></li>
+<li><p><strong>Operazioni bit a bit</strong>: Usare gli spostamenti invece di moltiplicare/dividere per potenze di 2</p></li>
+<li><p><strong>Tabelle di lookup</strong>: Per funzioni complesse usate ripetutamente</p></li>
+</ol>
+<section id="example-optimization">
+<h3>Esempio di Ottimizzazione<a class="headerlink" href="#example-optimization" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// SLOW: Floating point in loop</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">slowVersion</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">360.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PI</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">180.0</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span><span class="n">brightness</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// FAST: Integer math with sin8</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">fastVersion</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin8</span><span class="p">(</span><span class="n">angle</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">brightness</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-patterns-reference">
+<h2>Riferimento ai Pattern Comuni<a class="headerlink" href="#common-patterns-reference" title="Link to this heading">¶</a></h2>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Pulse</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">pulse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="n">BPM</span><span class="p">,</span><span class="w"> </span><span class="n">MIN</span><span class="p">,</span><span class="w"> </span><span class="n">MAX</span><span class="p">);</span>
+
+<span class="c1">// Sawtooth</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">saw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beat8</span><span class="p">(</span><span class="n">BPM</span><span class="p">);</span>
+
+<span class="c1">// Triangle wave</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">triangle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">triwave8</span><span class="p">(</span><span class="n">angle</span><span class="p">);</span>
+
+<span class="c1">// Square wave</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">square</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">angle</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">128</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span>
+
+<span class="c1">// Smooth step</span>
+<span class="kt">uint8_t</span><span class="w"> </span><span class="n">smoothed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ease8InOutCubic</span><span class="p">(</span><span class="n">linear</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-example">
+<h2>Esempio Completo<a class="headerlink" href="#complete-example" title="Link to this heading">¶</a></h2>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;FastLED.h&gt;</span>
+
+<span class="cp">#define NUM_LEDS 60</span>
+<span class="cp">#define DATA_PIN 6</span>
+
+<span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">DATA_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">GRB</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">setBrightness</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">multiWaveEffect</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">60</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">multiWaveEffect</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Create complex pattern using multiple wave functions</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Wave 1: Slow brightness oscillation</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Wave 2: Color rotation</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beat8</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Wave 3: Position-based sine wave</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">wave</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin8</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">beat8</span><span class="p">(</span><span class="mi">30</span><span class="p">));</span>
+
+<span class="w">        </span><span class="c1">// Combine for final effect</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">finalBrightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scale8</span><span class="p">(</span><span class="n">brightness</span><span class="p">,</span><span class="w"> </span><span class="n">wave</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">finalBrightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="see-also">
+<h2>Vedere Anche<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="blending.html"><span class="doc std std-doc">Fusione e Transizioni</span></a> - Usare funzioni matematiche per controllare la fusione</p></li>
+<li><p><a class="reference internal" href="noise.html"><span class="doc std std-doc">Rumore e Rumore di Perlin</span></a> - Combinare con il rumore per effetti organici</p></li>
+<li><p><a class="reference internal" href="palettes.html"><span class="doc std std-doc">Palette di Colori</span></a> - Usare funzioni di battimento per animare le palette</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/intermediate/math.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

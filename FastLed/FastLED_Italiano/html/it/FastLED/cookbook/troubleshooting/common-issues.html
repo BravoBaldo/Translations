@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Problemi Comuni e Soluzioni &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="common-issues-and-solutions">
+<h1>Problemi Comuni e Soluzioni<a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐ Principiante <strong>Tempo di Completamento</strong>: 5-10 minuti <strong>Prerequisiti</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../getting-started/first-example.html"><span class="doc std std-doc">Introduzione: Primo Esempio</span></a> - Configurazione base di FastLED</p></li>
+<li><p><a class="reference internal" href="../getting-started/hardware.html"><span class="doc std std-doc">Introduzione: Hardware</span></a> - Nozioni di base sul cablaggio hardware</p></li>
+</ul>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come diagnosticare e risolvere i problemi più comuni dei LED (nessuna luce, colori sbagliati, sfarfallìo)</p></li>
+<li><p>Soluzioni rapide per problemi di alimentazione e cablaggio che interessano l’80% dei problemi dei LED</p></li>
+<li><p>Come identificare problemi di integrità del segnale (primo LED sbagliato, problemi di connessione dati)</p></li>
+<li><p>Quando regolare le impostazioni software (luminosità, ordine dei colori, limiti di potenza) rispetto alle soluzioni hardware</p></li>
+<li><p>Quale guida avanzata alla risoluzione dei problemi consultare quando le soluzioni rapide non risolvono il problema?</p></li>
+</ul>
+<hr class="docutils" />
+<p>Guida di riferimento rapido per i problemi FastLED più frequenti e le relative soluzioni.</p>
+<section id="leds-dont-light-up">
+<h2>I LED Non si Accendono<a class="headerlink" href="#leds-dont-light-up" title="Link to this heading">¶</a></h2>
+<p><strong>Possibili cause e soluzioni:</strong></p>
+<ul>
+<li><p><strong>Controllare i collegamenti di alimentazione (GND e 5V)</strong></p>
+<ul class="simple">
+<li><p>Verificare che sia la massa che i 5V siano saldamente collegati alla striscia LED</p></li>
+<li><p>Assicurarsi che l’alimentatore sia collegato e acceso</p></li>
+<li><p>Testare l’alimentatore con un multimetro (dovrebbe indicare ~5V)</p></li>
+</ul>
+</li>
+<li><p><strong>Verificare che il pin dati corrisponda al codice</strong></p>
+<ul class="simple">
+<li><p>Controllare attentamente che <code class="docutils literal notranslate"><span class="pre">LED_PIN</span></code> nel codice corrisponda al pin fisico</p></li>
+<li><p>La numerazione dei pin di Arduino può variare a seconda della board</p></li>
+<li><p>Provare un pin diverso per escludere un GPIO danneggiato</p></li>
+</ul>
+</li>
+<li><p><strong>Provare a ridurre la luminosità</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">FastLED</span><span class="p">.</span><span class="n">setBrightness</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span><span class="w">  </span><span class="c1">// Start with low brightness</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Alcuni alimentatori non riescono a gestire la luminosità massima</p></li>
+<li><p>Aiutare a isolare i problemi di alimentazione da quelli dei dati</p></li>
+</ul>
+</li>
+<li><p><strong>Verificare che il tipo di LED e l’ordine dei colori corrispondano alla striscia</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Make sure these match your actual hardware</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">GRB</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>WS2812B è il più comune, ma verificare il tipo di striscia</p></li>
+<li><p>Vedere <a class="reference internal" href="#wrong-colors">Problemi di Ordine dei Colori</a> di seguito</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="wrong-colors">
+<h2>Colori Errati<a class="headerlink" href="#wrong-colors" title="Link to this heading">¶</a></h2>
+<p><strong>Sintomi:</strong> I LED si accendono ma mostrano colori errati (ad esempio, il rosso appare verde)</p>
+<p><strong>Soluzione:</strong> Provare diversi valori di COLOR_ORDER</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Try each of these in order until colors are correct:</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">GRB</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span><span class="w">  </span><span class="c1">// Most common</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">RGB</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">BGR</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">BRG</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">RBG</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">GBR</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Test dell’ordine dei colori</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">testColorOrder</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// Should show RED</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// Should show GREEN</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// Should show BLUE</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Comune per WS2812B:</strong> Usare <code class="docutils literal notranslate"><span class="pre">GRB</span></code> (non RGB)</p>
+</section>
+<section id="flickering">
+<h2>Sfarfallìo<a class="headerlink" href="#flickering" title="Link to this heading">¶</a></h2>
+<p><strong>Sintomi:</strong> I LED sfarfallano, lampeggiano in modo casuale o mostrano un’illuminazione instabile dei olori</p>
+<p><strong>Soluzioni:</strong></p>
+<ol class="arabic">
+<li><p><strong>Aggiungere un condensatore all’alimentatore</strong></p>
+<ul class="simple">
+<li><p>Utilizzare un condensatore elettrolitico da 1000 µF o più grande</p></li>
+<li><p>Collegare tra 5 V e GND all’alimentatore</p></li>
+<li><p>Aiuta un’erogazione di potenza fluida</p></li>
+</ul>
+</li>
+<li><p><strong>Assicurare una solida connessione di terra</strong></p>
+<ul class="simple">
+<li><p>La massa del microcontrollore deve essere collegata alla massa della striscia LED</p></li>
+<li><p>Utilizzare un filo spesso per la connessione di terra</p></li>
+<li><p>Una messa a terra insufficiente è una causa molto comune di sfarfallìo</p></li>
+</ul>
+</li>
+<li><p><strong>Controllare la capacità di alimentazione</strong></p>
+<ul class="simple">
+<li><p>Calcolare la corrente richiesta: <code class="docutils literal notranslate"><span class="pre">NUM_LEDS</span> <span class="pre">×</span> <span class="pre">60mA</span></code></p></li>
+<li><p>Esempio: 100 LED = 6A minimo</p></li>
+<li><p>Utilizzare un alimentatore con una potenza nominale superiore del 20% rispetto al fabbisogno calcolato</p></li>
+<li><p>Alimentatori sottoalimentati causano cali di tensione e sfarfallìo</p></li>
+</ul>
+</li>
+<li><p><strong>Soluzioni software</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Limit power draw</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">setMaxPowerInVoltsAndMilliamps</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2000</span><span class="p">);</span>
+
+<span class="c1">// Reduce brightness</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">setBrightness</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="w">  </span><span class="c1">// Instead of 255</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="first-led-wrong-rest-ok">
+<h2>Primo LED Non Funzionante, il Resto OK<a class="headerlink" href="#first-led-wrong-rest-ok" title="Link to this heading">¶</a></h2>
+<p><strong>Sintomi:</strong> Il primo LED mostra un colore o un comportamento errato, ma i restanti LED funzionano correttamente</p>
+<p><strong>Causa:</strong> Problema di integrità del segnale: il primo LED è il più sensibile alla qualità del segnale dati</p>
+<p><strong>Soluzioni:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Aggiungere una resistenza da 220-470Ω sulla linea dati</strong></p>
+<ul class="simple">
+<li><p>Posizionare una resistenza tra il pin del microcontrollore e la striscia LED DATA</p></li>
+<li><p>La resistenza deve essere fisicamente vicina al microcontrollore</p></li>
+<li><p>Questa è la soluzione più efficace</p></li>
+</ul>
+</li>
+<li><p><strong>Mantenere il cavo dati corto</strong></p>
+<ul class="simple">
+<li><p>Meno di 15 cm se possibile</p></li>
+<li><p>I cavi più lunghi raccolgono più interferenze</p></li>
+</ul>
+</li>
+<li><p><strong>Utilizzare un variatore di livello per la conversione da 3,3 V a 5 V</strong></p>
+<ul class="simple">
+<li><p>Necessario per i 3,3 V dei Microcontrollori (ESP8266, alcune schede ESP32)</p></li>
+<li><p>74HCT245 o moduli di traslazione di livello dedicati funzionano bene</p></li>
+</ul>
+</li>
+<li><p><strong>Controllare la connessione del pin dati</strong></p>
+<ul class="simple">
+<li><p>Assicurarsi che il filo faccia un buon contatto</p></li>
+<li><p>Provare a risaldare la connessione</p></li>
+<li><p>Testare con un pin dati diverso</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="additional-quick-fixes">
+<h2>Ulteriori Soluzioni Rapide<a class="headerlink" href="#additional-quick-fixes" title="Link to this heading">¶</a></h2>
+<section id="leds-light-up-briefly-then-turn-off">
+<h3>I LED si accendono brevemente e poi si spengono<a class="headerlink" href="#leds-light-up-briefly-then-turn-off" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Protezione da sovraccarico dell’alimentatore in corso</p></li>
+<li><p>Soluzione: Utilizzare un alimentatore più potente o ridurre il numero/la luminosità dei LED</p></li>
+</ul>
+</section>
+<section id="only-some-leds-work">
+<h3>Funzionano solo alcuni LED<a class="headerlink" href="#only-some-leds-work" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Degrado del segnale dati lungo la striscia</p></li>
+<li><p>Soluzioni: Vedere <a class="reference internal" href="hardware.html"><span class="doc std std-doc">Problemi Hardware - La striscia funziona parzialmente</span></a></p></li>
+</ul>
+</section>
+<section id="random-colors-at-power-on">
+<h3>Colori Casuali all’Accensione<a class="headerlink" href="#random-colors-at-power-on" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Comportamento normale: I LED contengono dati casuali prima della chiamata a <code class="docutils literal notranslate"><span class="pre">FastLED.show()</span></code></p></li>
+<li><p>Soluzione: chiamare <code class="docutils literal notranslate"><span class="pre">FastLED.clear()</span></code> o <code class="docutils literal notranslate"><span class="pre">fill_solid(leds,</span> <span class="pre">NUM_LEDS,</span> <span class="pre">CRGB::Black)</span></code> nel <code class="docutils literal notranslate"><span class="pre">setup()</span></code></p></li>
+</ul>
+</section>
+<section id="colors-change-when-touching-wires">
+<h3>I colori Cambiano Quando si Toccano i Fili<a class="headerlink" href="#colors-change-when-touching-wires" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Connessione scadente o problema di messa a terra</p></li>
+<li><p>Soluzioni: Risaldare i collegamenti, assicurarsi che la messa a terra sia condivisa, aggiungere un condensatore</p></li>
+</ul>
+</section>
+</section>
+<section id="see-also">
+<h2>Vedere Anche<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="debugging.html"><span class="doc std std-doc">Suggerimenti per il Debug</span></a> - Codice e tecniche di diagnostica</p></li>
+<li><p><a class="reference internal" href="hardware.html"><span class="doc std std-doc">Problemi Hardware</span></a> - Risoluzione approfondita dei problemi hardware</p></li>
+<li><p><a class="reference internal" href="../README.html"><span class="doc std std-doc">Guida Principale</span></a> - Guida completa a FastLED</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/troubleshooting/common-issues.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

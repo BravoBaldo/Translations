@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Comprendere le Strutture Dati dei LED &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="understanding-led-data-structures">
+<h1>Comprendere le Strutture Dati dei LED<a class="headerlink" href="#understanding-led-data-structures" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐⭐ Da principiante a Intermedio <strong>Tempo di Completamento</strong>: 30-40 minuti <strong>Prerequisiti</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../getting-started/concepts.html"><span class="doc std std-doc">Concetti di Base</span></a> - Comprensione dei principi fondamentali di FastLED</p></li>
+<li><p><a class="reference internal" href="../getting-started/first-example.html"><span class="doc std std-doc">Primo Esempio</span></a> - Esperienza di programmazione LED di base</p></li>
+</ul>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come lavorare con array CRGB e accedere ai singoli LED</p></li>
+<li><p>Diversi modi per creare e manipolare i colori dei LED</p></li>
+<li><p>Come eseguire operazioni di aritmetica e fusione dei colori</p></li>
+<li><p>Considerazioni sulla memoria per array di LED su diverse piattaforme</p></li>
+<li><p>Tecniche classiche di programmazione LED come il disegno dei pixel e i pattern di scansione</p></li>
+</ul>
+<p>Come funzionano gli array di LED in FastLED.</p>
+<section id="the-crgb-array">
+<h2>L’Array CRGB<a class="headerlink" href="#the-crgb-array" title="Link to this heading">¶</a></h2>
+<p>La struttura dati fondamentale in FastLED è l’array <code class="docutils literal notranslate"><span class="pre">CRGB</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span><span class="w">  </span><span class="c1">// Array of RGB color values</span>
+</pre></div>
+</div>
+<p>Questo crea un array in cui ogni elemento rappresenta il colore di un LED.</p>
+</section>
+<section id="accessing-individual-leds">
+<h2>Accesso ai singoli LED<a class="headerlink" href="#accessing-individual-leds" title="Link to this heading">¶</a></h2>
+<p>Ogni LED ha un indice che parte da 0:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span><span class="w">           </span><span class="c1">// First LED</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">);</span><span class="w">   </span><span class="c1">// Direct RGB values</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">10</span><span class="p">].</span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="p">;</span><span class="w">              </span><span class="c1">// Access red channel directly</span>
+</pre></div>
+</div>
+</section>
+<section id="crgb-structure">
+<h2>Struttura CRGB<a class="headerlink" href="#crgb-structure" title="Link to this heading">¶</a></h2>
+<p>Un oggetto <code class="docutils literal notranslate"><span class="pre">CRGB</span></code> contiene tre canali colore:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="p">;</span>
+<span class="n">color</span><span class="p">.</span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span><span class="w">  </span><span class="c1">// Red channel (0-255)</span>
+<span class="n">color</span><span class="p">.</span><span class="n">g</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span><span class="w">  </span><span class="c1">// Green channel (0-255)</span>
+<span class="n">color</span><span class="p">.</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">;</span><span class="w">   </span><span class="c1">// Blue channel (0-255)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-colors">
+<h2>Creazione di Colori<a class="headerlink" href="#creating-colors" title="Link to this heading">¶</a></h2>
+<section id="named-colors">
+<h3>Colori con Nome<a class="headerlink" href="#named-colors" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">;</span><span class="w">  </span><span class="c1">// Off</span>
+</pre></div>
+</div>
+</section>
+<section id="direct-rgb-values">
+<h3>Valori RGB Diretti<a class="headerlink" href="#direct-rgb-values" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">      </span><span class="c1">// Red</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">      </span><span class="c1">// Green</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">      </span><span class="c1">// Blue</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">);</span><span class="w">   </span><span class="c1">// Custom color</span>
+</pre></div>
+</div>
+</section>
+<section id="hsv-colors-automatic-conversion">
+<h3>Colori HSV (Conversione Automatica)<a class="headerlink" href="#hsv-colors-automatic-conversion" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">    </span><span class="c1">// Red in HSV</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">   </span><span class="c1">// Green in HSV</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="manipulating-color-channels">
+<h2>Manipolazione dei Canali Colore<a class="headerlink" href="#manipulating-color-channels" title="Link to this heading">¶</a></h2>
+<section id="direct-access">
+<h3>Accesso Diretto<a class="headerlink" href="#direct-access" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Purple</span><span class="p">;</span>
+<span class="n">color</span><span class="p">.</span><span class="n">r</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span><span class="w">    </span><span class="c1">// Increase red</span>
+<span class="n">color</span><span class="p">.</span><span class="n">g</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">     </span><span class="c1">// Decrease green</span>
+<span class="n">color</span><span class="p">.</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">      </span><span class="c1">// Remove blue</span>
+</pre></div>
+</div>
+</section>
+<section id="array-operations">
+<h3>Operazioni sugli Array<a class="headerlink" href="#array-operations" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Set range of LEDs</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Modify existing colors</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">r</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w">  </span><span class="c1">// Add red to all LEDs</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="color-arithmetic">
+<h2>Aritmetica dei Colori<a class="headerlink" href="#color-arithmetic" title="Link to this heading">¶</a></h2>
+<p>CRGB supporta le operazioni matematiche:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">);</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">);</span>
+
+<span class="c1">// Addition</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">color2</span><span class="p">;</span><span class="w">  </span><span class="c1">// (150, 150, 50)</span>
+
+<span class="c1">// Scaling</span>
+<span class="n">color1</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">  </span><span class="c1">// Double all channels (200, 100, 50)</span>
+<span class="n">color1</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">  </span><span class="c1">// Halve all channels (50, 25, 12)</span>
+
+<span class="c1">// Modifying individual LEDs</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// Add red</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-considerations">
+<h2>Considerazioni sulla Memoria<a class="headerlink" href="#memory-considerations" title="Link to this heading">¶</a></h2>
+<p>Ogni LED utilizza 3 byte di RAM:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Number of LEDs × 3 bytes = RAM used
+
+Examples:
+- 60 LEDs = 180 bytes
+- 100 LEDs = 300 bytes
+- 500 LEDs = 1500 bytes
+</pre></div>
+</div>
+<p><strong>Arduino Uno</strong> ha solo 2 KB di RAM in totale, il che limita la gestione di circa 300-400 LED (considerando il sovraccarico del programma).</p>
+</section>
+<section id="working-with-ranges">
+<h2>Lavorare con i Range [Intervalli]<a class="headerlink" href="#working-with-ranges" title="Link to this heading">¶</a></h2>
+<section id="fill-a-subset">
+<h3>Riempire un Sottoinsieme<a class="headerlink" href="#fill-a-subset" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Fill LEDs 10-19 with green</span>
+<span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">);</span>
+
+<span class="c1">// Using pointer arithmetic</span>
+<span class="n">CRGB</span><span class="o">*</span><span class="w"> </span><span class="n">startPos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
+<span class="n">fill_solid</span><span class="p">(</span><span class="n">startPos</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">);</span><span class="w">  </span><span class="c1">// LEDs 20-34</span>
+</pre></div>
+</div>
+</section>
+<section id="copy-ranges">
+<h3>Copiare Range<a class="headerlink" href="#copy-ranges" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Copy pattern from one section to another</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">20</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w">  </span><span class="c1">// Copy LEDs 0-9 to 20-29</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practice<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<section id="use-fill-solid-for-efficiency">
+<h3>Utilizzare fill_solid per l’Efficienza<a class="headerlink" href="#use-fill-solid-for-efficiency" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// GOOD: Use FastLED function</span>
+<span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">);</span>
+
+<span class="c1">// LESS EFFICIENT: Manual loop</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="clear-all-leds">
+<h3>Cancellare tutti i LED<a class="headerlink" href="#clear-all-leds" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Option 1: fill_solid</span>
+<span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">);</span>
+
+<span class="c1">// Option 2: FastLED.clear (even faster)</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span><span class="w">  </span><span class="c1">// Sets all to black, doesn&#39;t call show()</span>
+</pre></div>
+</div>
+</section>
+<section id="check-array-bounds">
+<h3>Controllare i Limiti dell’Array<a class="headerlink" href="#check-array-bounds" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">calculatePosition</span><span class="p">();</span><span class="w">  </span><span class="c1">// Some calculation</span>
+
+<span class="c1">// Always validate before accessing</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="array-manipulation">
+<h2>Manipolazione dell’Array<a class="headerlink" href="#array-manipulation" title="Link to this heading">¶</a></h2>
+<section id="classical-led-drawing-techniques">
+<h3>Tecniche Classiche di Disegno LED<a class="headerlink" href="#classical-led-drawing-techniques" title="Link to this heading">¶</a></h3>
+<p>FastLED si basa sulle tecniche classiche di programmazione LED in cui è possibile manipolare direttamente array di pixel. Comprendere questi principi fondamentali è essenziale per creare qualsiasi effetto LED.</p>
+<section id="direct-pixel-addressing">
+<h4>Indirizzamento Diretto dei Pixel<a class="headerlink" href="#direct-pixel-addressing" title="Link to this heading">¶</a></h4>
+<p>La forma più elementare di controllo LED: impostazione dei singoli pixel:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">drawPixel</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">position</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">position</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">position</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage</span>
+<span class="n">drawPixel</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="n">drawPixel</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+<section id="drawing-lines">
+<h4>Disegno di Linee<a class="headerlink" href="#drawing-lines" title="Link to this heading">¶</a></h4>
+<p>Crea linee impostando LED consecutivi:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">drawLine</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">end</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">start</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">end</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start</span><span class="p">;</span>
+<span class="w">        </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">end</span><span class="p">;</span>
+<span class="w">        </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temp</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Draw a red line from LED 5 to LED 20</span>
+<span class="n">drawLine</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="xy-coordinate-mapping-for-matrices">
+<h4>Mappatura delle Coordinate XY per Matrici<a class="headerlink" href="#xy-coordinate-mapping-for-matrices" title="Link to this heading">¶</a></h4>
+<p>Per le matrici LED 2D, converti le coordinate X e Y in indici di matrice:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define MATRIX_WIDTH 16</span>
+<span class="cp">#define MATRIX_HEIGHT 16</span>
+
+<span class="kt">uint16_t</span><span class="w"> </span><span class="nf">XY</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MATRIX_HEIGHT</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Serpentine (zigzag) layout - most common wiring pattern</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x01</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Odd rows run backwards</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">MATRIX_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">x</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Even rows run forwards</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Draw a pixel at X=5, Y=10</span>
+<span class="n">leds</span><span class="p">[</span><span class="n">XY</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">;</span>
+
+<span class="c1">// Draw a horizontal line</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MATRIX_WIDTH</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">XY</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="blending-and-layering">
+<h4>Blending e Layering<a class="headerlink" href="#blending-and-layering" title="Link to this heading">¶</a></h4>
+<p>Combinare i colori anziché sostituirli:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Additive blending (brightens)</span>
+<span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">);</span>
+
+<span class="c1">// Averaging (mix colors)</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blend</span><span class="p">(</span><span class="n">color1</span><span class="p">,</span><span class="w"> </span><span class="n">color2</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">);</span><span class="w">  </span><span class="c1">// 50% blend</span>
+</pre></div>
+</div>
+</section>
+<section id="classical-pattern-scanning-larson-scanner">
+<h4>Pattern classico: Scansione/Scanner Larson<a class="headerlink" href="#classical-pattern-scanning-larson-scanner" title="Link to this heading">¶</a></h4>
+<p>Il classico effetto “Occhio del ciclone” o effetto “KITT”:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">larsonScanner</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Fade all LEDs</span>
+<span class="w">    </span><span class="n">fadeToBlackBy</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Draw the scanner</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Move position</span>
+<span class="w">    </span><span class="n">pos</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">direction</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">direction</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Queste tecniche classiche costituiscono la base di tutta la programmazione LED, dalle semplici strisce alle complesse installazioni 2D e 3D. Vedere <a class="reference internal" href="../advanced/matrix.html"><span class="doc std std-doc">Operazioni Matriciali/2D</span></a> per tecniche di mappatura spaziale più avanzate.</p>
+</section>
+</section>
+</section>
+<section id="next-steps">
+<h2>Passaggi successivi<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="color-theory.html"><span class="doc std std-doc">Teoria del Colore</span></a> - Scopri RGB e HSV</p></li>
+<li><p><a class="reference internal" href="../basic-patterns/README.html"><span class="doc std std-doc">Pattern di Base</span></a> - Usa le matrici per creare pattern</p></li>
+<li><p><a class="reference internal" href="../advanced/matrix.html"><span class="doc std std-doc">Operazioni Matriciali/2D</span></a> - Mappatura XY avanzata ed effetti matrice</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/core-concepts/led-structures.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

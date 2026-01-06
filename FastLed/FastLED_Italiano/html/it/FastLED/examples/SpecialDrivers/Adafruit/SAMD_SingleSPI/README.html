@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SAMD Single-SPI LED Example &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="samd-single-spi-led-example">
+<h1>SAMD Single-SPI LED Example<a class="headerlink" href="#samd-single-spi-led-example" title="Link to this heading">¶</a></h1>
+<p>This example demonstrates using FastLED with SPI-based LED chipsets on SAMD21 and SAMD51 platforms.</p>
+<section id="supported-platforms">
+<h2>Supported Platforms<a class="headerlink" href="#supported-platforms" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Piattaforma</p></th>
+<th class="head"><p>MCU</p></th>
+<th class="head"><p>Velocità</p></th>
+<th class="head"><p>RAM</p></th>
+<th class="head"><p>Flash</p></th>
+<th class="head"><p>Board Examples</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>SAMD21</strong></p></td>
+<td><p>Cortex-M0+</p></td>
+<td><p>48 MHz</p></td>
+<td><p>32 KB</p></td>
+<td><p>256 KB</p></td>
+<td><p>Arduino Zero, Adafruit Feather M0</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>SAMD51</strong></p></td>
+<td><p>Cortex-M4F</p></td>
+<td><p>120 MHz</p></td>
+<td><p>192 KB</p></td>
+<td><p>512 KB</p></td>
+<td><p>Adafruit Feather M4, Grand Central M4</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="supported-led-chipsets">
+<h2>Supported LED Chipsets<a class="headerlink" href="#supported-led-chipsets" title="Link to this heading">¶</a></h2>
+<p>This example works with SPI-based LED chipsets that require both DATA and CLOCK signals:</p>
+<ul class="simple">
+<li><p><strong>APA102</strong> (DotStar) - Most common, high refresh rate</p></li>
+<li><p><strong>SK9822</strong> - APA102 clone with improved color accuracy</p></li>
+<li><p><strong>LPD8806</strong> - Older protocol, good for long runs</p></li>
+<li><p><strong>WS2801</strong> - Common RGB strip controller</p></li>
+<li><p><strong>P9813</strong> - Used in some RGB LED modules</p></li>
+</ul>
+</section>
+<section id="hardware-connections">
+<h2>Hardware Connections<a class="headerlink" href="#hardware-connections" title="Link to this heading">¶</a></h2>
+<section id="basic-wiring">
+<h3>Basic Wiring<a class="headerlink" href="#basic-wiring" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>LED Strip          SAMD Board
+─────────          ──────────
+DATA     ────────&gt; MOSI pin (see pin table below)
+CLOCK    ────────&gt; SCK pin (see pin table below)
+GND      ────────&gt; GND
+VCC      ────────&gt; External 5V power supply (do NOT use board 5V for strips!)
+</pre></div>
+</div>
+<p><strong>⚠️ Important Power Notes:</strong></p>
+<ul class="simple">
+<li><p>Never power LED strips directly from the board’s 5V pin</p></li>
+<li><p>Use a separate 5V power supply rated for your strip’s current draw</p></li>
+<li><p>Always connect grounds together (LED strip GND to board GND)</p></li>
+<li><p>Add a 1000 µF capacitor across LED strip power connections</p></li>
+<li><p>Add a 470Ω resistor in series with DATA line (optional but recommended)</p></li>
+</ul>
+</section>
+<section id="pin-mappings-hardware-spi">
+<h3>Pin Mappings (Hardware SPI)<a class="headerlink" href="#pin-mappings-hardware-spi" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Board</p></th>
+<th class="head"><p>MOSI (DATA)</p></th>
+<th class="head"><p>SCK (CLOCK)</p></th>
+<th class="head"><p>SERCOM Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Arduino Zero</strong></p></td>
+<td><p>Pin 11 (ICSP)</p></td>
+<td><p>Pin 13 (ICSP)</p></td>
+<td><p>SERCOM1</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Adafruit Feather M0</strong></p></td>
+<td><p>Pin 23</p></td>
+<td><p>Pin 24</p></td>
+<td><p>SERCOM4</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Adafruit Feather M4</strong></p></td>
+<td><p>Pin 23</p></td>
+<td><p>Pin 24</p></td>
+<td><p>SERCOM1</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Adafruit Grand Central M4</strong></p></td>
+<td><p>Pin 51 (ICSP)</p></td>
+<td><p>Pin 52 (ICSP)</p></td>
+<td><p>SERCOM2</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> These pins are automatically configured by the example sketch based on the detected board.</p>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<section id="select-your-led-chipset">
+<h3>1. Select Your LED Chipset<a class="headerlink" href="#select-your-led-chipset" title="Link to this heading">¶</a></h3>
+<p>In the sketch, uncomment the line matching your LED chipset:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Default: APA102 (DotStar)</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">APA102</span><span class="p">,</span><span class="w"> </span><span class="n">DATA_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">BGR</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+
+<span class="c1">// Or choose another:</span>
+<span class="c1">// FastLED.addLeds&lt;SK9822, DATA_PIN, CLOCK_PIN, BGR&gt;(leds, NUM_LEDS);</span>
+<span class="c1">// FastLED.addLeds&lt;LPD8806, DATA_PIN, CLOCK_PIN, RGB&gt;(leds, NUM_LEDS);</span>
+<span class="c1">// FastLED.addLeds&lt;WS2801, DATA_PIN, CLOCK_PIN, RGB&gt;(leds, NUM_LEDS);</span>
+<span class="c1">// FastLED.addLeds&lt;P9813, DATA_PIN, CLOCK_PIN, RGB&gt;(leds, NUM_LEDS);</span>
+</pre></div>
+</div>
+</section>
+<section id="adjust-led-count">
+<h3>2. Adjust LED Count<a class="headerlink" href="#adjust-led-count" title="Link to this heading">¶</a></h3>
+<p>Set <code class="docutils literal notranslate"><span class="pre">NUM_LEDS</span></code> to match your strip:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define NUM_LEDS 30  </span><span class="c1">// Change to your actual LED count</span>
+</pre></div>
+</div>
+</section>
+<section id="adjust-color-ordering-if-needed">
+<h3>3. Adjust Color Ordering (if needed)<a class="headerlink" href="#adjust-color-ordering-if-needed" title="Link to this heading">¶</a></h3>
+<p>Some LED strips have different color orderings. Try these if colors are wrong:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RGB</span></code> - Red, Green, Blue</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BGR</span></code> - Blue, Green, Red (common for APA102/SK9822)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GRB</span></code> - Green, Red, Blue</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RBG</span></code>, <code class="docutils literal notranslate"><span class="pre">BRG</span></code>, <code class="docutils literal notranslate"><span class="pre">GBR</span></code> - Other orderings</p></li>
+</ul>
+</section>
+<section id="compile-and-upload">
+<h3>4. Compile and Upload<a class="headerlink" href="#compile-and-upload" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using PlatformIO</span>
+pio<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>adafruit_feather_m4<span class="w"> </span>-t<span class="w"> </span>upload
+
+<span class="c1"># Or using FastLED build system</span>
+uv<span class="w"> </span>run<span class="w"> </span>ci/ci-compile.py<span class="w"> </span>adafruit_feather_m4<span class="w"> </span>--examples<span class="w"> </span>SpecialDrivers/Adafruit/SAMD_SingleSPI
+</pre></div>
+</div>
+</section>
+<section id="monitor-serial-output">
+<h3>5. Monitor Serial Output<a class="headerlink" href="#monitor-serial-output" title="Link to this heading">¶</a></h3>
+<p>Open serial monitor at 115200 baud to see:</p>
+<ul class="simple">
+<li><p>Board detection</p></li>
+<li><p>Pin configuration</p></li>
+<li><p>FPS counter (updated every 2 seconds)</p></li>
+</ul>
+</section>
+</section>
+<section id="expected-performance">
+<h2>Expected Performance<a class="headerlink" href="#expected-performance" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Piattaforma</p></th>
+<th class="head"><p>Typical FPS</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>SAMD51</strong></p></td>
+<td><p>~250 FPS</p></td>
+<td><p>&#64; 30 LEDs, 120 MHz CPU</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>SAMD21</strong></p></td>
+<td><p>~150 FPS</p></td>
+<td><p>&#64; 30 LEDs, 48 MHz CPU</p></td>
+</tr>
+</tbody>
+</table>
+<p>Performance scales with LED count. More LEDs = lower FPS.</p>
+</section>
+<section id="implementation-details">
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading">¶</a></h2>
+<section id="single-spi-architecture">
+<h3>Single-SPI Architecture<a class="headerlink" href="#single-spi-architecture" title="Link to this heading">¶</a></h3>
+<p>This example uses FastLED’s standard single-SPI backend (<code class="docutils literal notranslate"><span class="pre">SAMDHardwareSPIOutput</span></code> class) which leverages the Arduino SPI library:</p>
+<ul class="simple">
+<li><p><strong>Initialization:</strong> Uses <code class="docutils literal notranslate"><span class="pre">::SPI.begin()</span></code> from Arduino core</p></li>
+<li><p><strong>Transmission:</strong> Uses <code class="docutils literal notranslate"><span class="pre">SPI.beginTransaction()</span></code> / <code class="docutils literal notranslate"><span class="pre">SPI.transfer()</span></code> / <code class="docutils literal notranslate"><span class="pre">SPI.endTransaction()</span></code></p></li>
+<li><p><strong>Portability:</strong> Works on all SAMD boards without custom pin configuration</p></li>
+<li><p><strong>Performance:</strong> Hardware SPI with polling mode (non-blocking for typical use cases)</p></li>
+</ul>
+</section>
+<section id="parallel-spi-infrastructure-advanced">
+<h3>Parallel SPI Infrastructure (Advanced)<a class="headerlink" href="#parallel-spi-infrastructure-advanced" title="Link to this heading">¶</a></h3>
+<p>FastLED includes infrastructure for <strong>Dual-SPI</strong> and <strong>Quad-SPI</strong> on SAMD platforms:</p>
+<p><strong>Files:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/platforms/arm/d21/spi_hw_2_samd21.cpp</span></code> - SAMD21 Dual-SPI driver</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/platforms/arm/d51/spi_hw_2_samd51.cpp</span></code> - SAMD51 Dual-SPI driver (SERCOM-based)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/platforms/arm/d51/spi_hw_4_samd51.cpp</span></code> - SAMD51 Quad-SPI driver (QSPI peripheral)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/platforms/arm/sam/spi_device_proxy.h</span></code> - Device proxy for bus manager integration</p></li>
+</ul>
+<p><strong>Status:</strong></p>
+<ul class="simple">
+<li><p>✅ Low-level SERCOM/QSPI drivers fully implemented</p></li>
+<li><p>✅ Bus manager integration complete</p></li>
+<li><p>✅ Single-SPI backend fully functional (this example)</p></li>
+<li><p>⚠️ Parallel SPI requires hardware testing and validation</p></li>
+<li><p>⚠️ True multi-lane operation needs hardware-specific approach</p></li>
+</ul>
+<p><strong>Recommendation:</strong> Use single-SPI mode (this example) for production applications. Parallel SPI infrastructure is experimental and requires hardware validation.</p>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Risoluzione dei problemi<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="leds-dont-light-up">
+<h3>LEDs don’t light up<a class="headerlink" href="#leds-dont-light-up" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Check power supply (needs separate 5V source, not board power)</p></li>
+<li><p>Verify ground connection between board and LED strip</p></li>
+<li><p>Check DATA and CLOCK pin connections</p></li>
+<li><p>Try adding 470Ω resistor in series with DATA line</p></li>
+<li><p>Verify LED chipset type matches your strip</p></li>
+<li><p>Check color ordering (try RGB, BGR, GRB)</p></li>
+</ol>
+</section>
+<section id="wrong-colors-displayed">
+<h3>Colori visualizzati errati<a class="headerlink" href="#wrong-colors-displayed" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Change color ordering in <code class="docutils literal notranslate"><span class="pre">addLeds()</span></code> call (RGB, BGR, GRB, etc.)</p></li>
+<li><p>Verify chipset type (APA102 vs SK9822 vs others)</p></li>
+<li><p>Check if your strip requires different voltage levels (some are 3.3V only)</p></li>
+</ol>
+</section>
+<section id="compilation-errors">
+<h3>Compilation errors<a class="headerlink" href="#compilation-errors" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Make sure you have the correct board selected</p></li>
+<li><p>Verify Adafruit SAMD board support is installed</p></li>
+<li><p>Check that FastLED is using hardware SPI pins (don’t use arbitrary GPIO)</p></li>
+<li><p>Update to latest Arduino SAMD board definitions</p></li>
+</ol>
+</section>
+<section id="slow-frame-rate">
+<h3>Slow frame rate<a class="headerlink" href="#slow-frame-rate" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Reduce <code class="docutils literal notranslate"><span class="pre">NUM_LEDS</span></code> for testing</p></li>
+<li><p>Remove or increase <code class="docutils literal notranslate"><span class="pre">delay(20)</span></code> in loop()</p></li>
+<li><p>Verify serial output isn’t slowing down loop (comment out Serial.print)</p></li>
+<li><p>Check power supply can deliver enough current</p></li>
+<li><p>For SAMD21, consider reducing brightness to reduce data transmission time</p></li>
+</ol>
+</section>
+</section>
+<section id="additional-resources">
+<h2>Risorse Aggiuntive<a class="headerlink" href="#additional-resources" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>FastLED Documentation:</strong> https://fastled.io</p></li>
+<li><p><strong>Arduino SAMD Board Support:</strong> https://www.arduino.cc/en/Guide/ArduinoZero</p></li>
+<li><p><strong>Adafruit SAMD Boards:</strong> https://learn.adafruit.com/adafruit-feather-m4-express-atsamd51</p></li>
+<li><p><strong>APA102/DotStar Guide:</strong> https://learn.adafruit.com/adafruit-dotstar-leds</p></li>
+</ul>
+</section>
+<section id="technical-notes">
+<h2>Technical Notes<a class="headerlink" href="#technical-notes" title="Link to this heading">¶</a></h2>
+<section id="sercom-peripheral">
+<h3>SERCOM Peripheral<a class="headerlink" href="#sercom-peripheral" title="Link to this heading">¶</a></h3>
+<p>SAMD platforms use SERCOM peripherals (Serial Communication) that can be configured as:</p>
+<ul class="simple">
+<li><p>SPI (Serial Peripheral Interface)</p></li>
+<li><p>I2C (Inter-Integrated Circuit)</p></li>
+<li><p>UART (Universal Asynchronous Receiver-Transmitter)</p></li>
+</ul>
+<p>Each board has a default SPI instance connected to specific pins. This example uses the board’s default hardware SPI pins for maximum compatibility.</p>
+</section>
+<section id="clock-speed">
+<h3>Clock Speed<a class="headerlink" href="#clock-speed" title="Link to this heading">¶</a></h3>
+<p>The SPI clock speed is automatically configured by FastLED based on the LED chipset:</p>
+<ul class="simple">
+<li><p><strong>APA102/SK9822:</strong> Up to 24 MHz (limited by LED chipset, not MCU)</p></li>
+<li><p><strong>LPD8806:</strong> ~2 MHz</p></li>
+<li><p><strong>WS2801:</strong> ~1 MHz</p></li>
+</ul>
+<p>SAMD platforms support:</p>
+<ul class="simple">
+<li><p><strong>SAMD51:</strong> Up to 60 MHz SPI clock (MCU_FREQ / 2)</p></li>
+<li><p><strong>SAMD21:</strong> Up to 24 MHz SPI clock (MCU_FREQ / 2)</p></li>
+</ul>
+<p>In practice, LED chipset limits are the bottleneck, not the MCU.</p>
+</section>
+<section id="future-enhancements">
+<h3>Future Enhancements<a class="headerlink" href="#future-enhancements" title="Link to this heading">¶</a></h3>
+<p>Potential improvements for SAMD parallel SPI implementation:</p>
+<ol class="arabic simple">
+<li><p><strong>DMA (Direct Memory Access):</strong> Offload SPI transmission to DMA controller for true non-blocking operation</p></li>
+<li><p><strong>Dual-SERCOM Sync:</strong> Use two SERCOM peripherals for true 2-lane parallel operation</p></li>
+<li><p><strong>QSPI Optimization:</strong> Improve QSPI driver for Quad-SPI (4-lane) on SAMD51</p></li>
+<li><p><strong>TCC + GPIO:</strong> Use Timer/Counter for Compare (TCC) with GPIO for bit-banging additional lanes on SAMD21</p></li>
+</ol>
+<p>These enhancements require hardware testing and validation before production use.</p>
+</section>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Link to this heading">¶</a></h2>
+<p>This example is part of the FastLED library and is released under the same license.</p>
+</section>
+<section id="contributing">
+<h2>Contribuire<a class="headerlink" href="#contributing" title="Link to this heading">¶</a></h2>
+<p>Found a bug or have an improvement? Please submit an issue or pull request to the FastLED repository.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cookbook/README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../../../_sources/FastLED/examples/SpecialDrivers/Adafruit/SAMD_SingleSPI/README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Teoria del Colore &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="color-theory">
+<h1>Teoria del Colore<a class="headerlink" href="#color-theory" title="Link to this heading">¶</a></h1>
+<p>Comprendere i modelli di colore RGB e HSV in FastLED.</p>
+<p><strong>Livello di Difficoltà</strong>: ⭐⭐ Da principiante a Intermedio <strong>Tempo di Completamento</strong>: 25-30 minuti (lettura e sperimentazione con esempi) <strong>Prerequisiti</strong>: <a class="reference internal" href="../getting-started/README.html"><span class="doc std std-doc">Getting Started</span></a> - Configurazione base di FastLED e primo esempio</p>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come creare colori utilizzando i valori RGB (Rosso, Verde, Blu)</p></li>
+<li><p>Come utilizzare HSV (Tonalità, Saturazione, Valore) per animazioni a colori più semplici</p></li>
+<li><p>Quando scegliere RGB o HSV per effetti diversi</p></li>
+<li><p>Come miscelare i colori e regolare la luminosità a livello di programmazione</p></li>
+<li><p>Come convertire tra modelli di colore in FastLED</p></li>
+</ul>
+<section id="rgb-color-model">
+<h2>Modello di Colore RGB<a class="headerlink" href="#rgb-color-model" title="Link to this heading">¶</a></h2>
+<p>RGB (Rosso, Verde, Blu) utilizza tre canali, ciascuno con valori compresi tra 0 e 255.</p>
+<section id="creating-rgb-colors">
+<h3>Creazione di colori RGB<a class="headerlink" href="#creating-rgb-colors" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">      </span><span class="c1">// Pure red</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">      </span><span class="c1">// Pure green</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">      </span><span class="c1">// Pure blue</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// White</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">);</span><span class="w">  </span><span class="c1">// Gray</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color6</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">    </span><span class="c1">// Orange</span>
+</pre></div>
+</div>
+</section>
+<section id="when-to-use-rgb">
+<h3>Quando utilizzare RGB<a class="headerlink" href="#when-to-use-rgb" title="Link to this heading">¶</a></h3>
+<p>RGB è ideale quando:</p>
+<ul class="simple">
+<li><p>Si conosce esattamente il colore desiderato</p></li>
+<li><p>Si lavora con colori web o valori esadecimali</p></li>
+<li><p>Si necessita di un controllo preciso su ogni canale</p></li>
+<li><p>Si fondono colori specifici</p></li>
+</ul>
+</section>
+</section>
+<section id="hsv-color-model">
+<h2>Modello di colore HSV<a class="headerlink" href="#hsv-color-model" title="Link to this heading">¶</a></h2>
+<p>HSV (Tonalità, Saturazione, Valore) rappresenta i colori in modo diverso:</p>
+<ul class="simple">
+<li><p><strong>Hue</strong> (0-255): [Tonalità] Il colore stesso (posizione sulla ruota dei colori)</p></li>
+<li><p><strong>Saturazione</strong> (0-255): Intensità del colore (0 = grigio, 255 = vivido)</p></li>
+<li><p><strong>Valore</strong> (0-255): Luminosità (0 = nero, 255 = brillante)</p></li>
+</ul>
+<section id="creating-hsv-colors">
+<h3>Creazione di Colori HSV<a class="headerlink" href="#creating-hsv-colors" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CHSV</span><span class="w"> </span><span class="n">hsv1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">      </span><span class="c1">// Red</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">hsv2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">     </span><span class="c1">// Green</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">hsv3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">    </span><span class="c1">// Blue</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">hsv4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">     </span><span class="c1">// Yellow</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">hsv5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">    </span><span class="c1">// Cyan</span>
+
+<span class="c1">// Automatic conversion to RGB</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hsv1</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="hue-values-0-255">
+<h3>Valori di tonalità (0-255)<a class="headerlink" href="#hue-values-0-255" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span>   <span class="o">=</span> <span class="n">Red</span>
+<span class="mi">32</span>  <span class="o">=</span> <span class="n">Orange</span>
+<span class="mi">64</span>  <span class="o">=</span> <span class="n">Yellow</span>
+<span class="mi">96</span>  <span class="o">=</span> <span class="n">Green</span>
+<span class="mi">128</span> <span class="o">=</span> <span class="n">Cyan</span>
+<span class="mi">160</span> <span class="o">=</span> <span class="n">Blue</span>
+<span class="mi">192</span> <span class="o">=</span> <span class="n">Purple</span>
+<span class="mi">224</span> <span class="o">=</span> <span class="n">Pink</span>
+<span class="mi">255</span> <span class="o">=</span> <span class="n">Red</span> <span class="p">(</span><span class="n">wraps</span> <span class="n">around</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="when-to-use-hsv">
+<h3>Quando utilizzare HSV<a class="headerlink" href="#when-to-use-hsv" title="Link to this heading">¶</a></h3>
+<p>HSV è ideale per:</p>
+<ul class="simple">
+<li><p><strong>Effetti arcobaleno</strong> - Incrementare semplicemente la tonalità</p></li>
+<li><p><strong>Transizioni di colore uniformi</strong> - Modificare gradualmente la tonalità</p></li>
+<li><p><strong>Controllo della luminosità</strong> - Regolare il valore senza modificare colore</p></li>
+<li><p><strong>Ciclo di colore</strong> - La tonalità si avvolge naturalmente</p></li>
+</ul>
+</section>
+</section>
+<section id="hsv-vs-rgb-comparison">
+<h2>Confronto tra HSV e RGB<a class="headerlink" href="#hsv-vs-rgb-comparison" title="Link to this heading">¶</a></h2>
+<section id="creating-a-rainbow">
+<h3>Creazione di un Arcobaleno<a class="headerlink" href="#creating-a-rainbow" title="Link to this heading">¶</a></h3>
+<p><strong>Con RGB</strong> (complesso):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Must calculate each RGB component</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">    </span><span class="c1">// Red</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Orange</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="c1">// Yellow</span>
+<span class="w">    </span><span class="c1">// ... more cases</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Con HSV</strong> (semplice):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Just increment hue</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="adjusting-brightness">
+<h3>Regolazione della Luminosità<a class="headerlink" href="#adjusting-brightness" title="Link to this heading">¶</a></h3>
+<p><strong>Con RGB</strong>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span>
+<span class="n">color</span><span class="p">.</span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">.</span><span class="n">r</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5</span><span class="p">;</span><span class="w">  </span><span class="c1">// Individually scale each</span>
+<span class="n">color</span><span class="p">.</span><span class="n">g</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">.</span><span class="n">g</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5</span><span class="p">;</span>
+<span class="n">color</span><span class="p">.</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">.</span><span class="n">b</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><strong>Con HSV</strong>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CHSV</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="n">color</span><span class="p">.</span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span><span class="w">  </span><span class="c1">// Simply change value</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="saturation-effects">
+<h2>Effetti di Saturazione<a class="headerlink" href="#saturation-effects" title="Link to this heading">¶</a></h2>
+<p>La saturazione controlla l’intensità del colore:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">  </span><span class="c1">// Red</span>
+
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// Vivid red</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">192</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// Slightly desaturated</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// Pinkish</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">   </span><span class="c1">// Very pale red</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">    </span><span class="c1">// White (no saturation)</span>
+</pre></div>
+</div>
+</section>
+<section id="converting-between-rgb-and-hsv">
+<h2>Conversione tra RGB e HSV<a class="headerlink" href="#converting-between-rgb-and-hsv" title="Link to this heading">¶</a></h2>
+<section id="hsv-to-rgb-automatic">
+<h3>Da HSV a RGB (Automatico)<a class="headerlink" href="#hsv-to-rgb-automatic" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CHSV</span><span class="w"> </span><span class="n">hsv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hsv</span><span class="p">;</span><span class="w">  </span><span class="c1">// Automatic conversion</span>
+</pre></div>
+</div>
+</section>
+<section id="rgb-to-hsv-manual">
+<h3>Da RGB a HSV (manuale)<a class="headerlink" href="#rgb-to-hsv-manual" title="Link to this heading">¶</a></h3>
+<p>FastLED non fornisce la conversione da RGB a HSV. Se necessario, utilizzare HSV fin dall’inizio o implementare un proprio convertitore.</p>
+</section>
+</section>
+<section id="practical-examples">
+<h2>Esempi Pratici<a class="headerlink" href="#practical-examples" title="Link to this heading">¶</a></h2>
+<section id="smooth-color-fade">
+<h3>Dissolvenza Uniforme del Colore<a class="headerlink" href="#smooth-color-fade" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">colorFade</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Fill all LEDs with current hue</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">));</span>
+
+<span class="w">    </span><span class="n">hue</span><span class="o">++</span><span class="p">;</span><span class="w">  </span><span class="c1">// Increment hue for smooth transition</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="temperature-to-color">
+<h3>Da Temperatura a colore<a class="headerlink" href="#temperature-to-color" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="nf">temperatureColor</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="n">temp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Map temperature (0-100°C) to hue (blue to red)</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// 160=blue, 0=red</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="desaturate-effect">
+<h3>Effetto Desaturazione<a class="headerlink" href="#desaturate-effect" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">fadeToWhite</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">saturation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span><span class="w"> </span><span class="n">saturation</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">));</span><span class="w">  </span><span class="c1">// Green</span>
+
+<span class="w">    </span><span class="n">saturation</span><span class="o">--</span><span class="p">;</span><span class="w">  </span><span class="c1">// Gradually desaturate to white</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">saturation</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">saturation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span><span class="w">  </span><span class="c1">// Reset</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="color-mixing">
+<h2>Miscelazione dei Colori<a class="headerlink" href="#color-mixing" title="Link to this heading">¶</a></h2>
+<section id="additive-rgb">
+<h3>Additivo (RGB)<a class="headerlink" href="#additive-rgb" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">   </span><span class="c1">// Dim red</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">   </span><span class="c1">// Dim green</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">color1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">color2</span><span class="p">;</span><span class="w">   </span><span class="c1">// Yellow (200, 100, 0)</span>
+</pre></div>
+</div>
+</section>
+<section id="blending">
+<h3>Miscelazione<a class="headerlink" href="#blending" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">;</span>
+
+<span class="c1">// Blend 50/50</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blend</span><span class="p">(</span><span class="n">color1</span><span class="p">,</span><span class="w"> </span><span class="n">color2</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">);</span><span class="w">  </span><span class="c1">// Purple</span>
+
+<span class="c1">// Blend 75% color2, 25% color1</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blend</span><span class="p">(</span><span class="n">color1</span><span class="p">,</span><span class="w"> </span><span class="n">color2</span><span class="p">,</span><span class="w"> </span><span class="mi">192</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="named-colors">
+<h2>Colori con Nome<a class="headerlink" href="#named-colors" title="Link to this heading">¶</a></h2>
+<p>FastLED fornisce molti colori con nome:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">White</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Yellow</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Cyan</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Magenta</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Orange</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Purple</span>
+<span class="n">CRGB</span><span class="o">::</span><span class="n">Pink</span>
+<span class="c1">// ... and many more</span>
+</pre></div>
+</div>
+</section>
+<section id="best-practices">
+<h2>Best Practice<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<section id="use-hsv-for-animation">
+<h3>Utilizzare HSV per l’Animazione<a class="headerlink" href="#use-hsv-for-animation" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// GOOD: Easy to animate</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">rainbow</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">hue</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="use-rgb-for-specific-colors">
+<h3>Utilizzare RGB per Colori Specifici<a class="headerlink" href="#use-rgb-for-specific-colors" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// GOOD: Direct control</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">);</span><span class="w">  </span><span class="c1">// Specific amber color</span>
+</pre></div>
+</div>
+</section>
+<section id="dont-mix-models-unnecessarily">
+<h3>Non Mescolare i Modelli Inutilmente<a class="headerlink" href="#dont-mix-models-unnecessarily" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// AVOID: Converting back and forth</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">hsv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">rgb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hsv</span><span class="p">;</span><span class="w">  </span><span class="c1">// Convert to RGB</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">hsv2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rgb</span><span class="p">;</span><span class="w">  </span><span class="c1">// Can&#39;t convert back easily!</span>
+
+<span class="c1">// BETTER: Stay in one model when possible</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="next-steps">
+<h2>Passaggi successivi<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="timing.html"><span class="doc std std-doc">Temporizzazione e Frame Rate</span></a> - Controllo della velocità di animazione</p></li>
+<li><p><a class="reference internal" href="../intermediate/README.html"><span class="doc std std-doc">Tecniche Intermedie</span></a> - Manipolazione avanzata del colore</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/core-concepts/color-theory.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Colori Pieni &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="solid-colors">
+<h1>Colori Pieni<a class="headerlink" href="#solid-colors" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐ Principiante <strong>Tempo di completamento</strong>: 15-20 minuti <strong>Prerequisiti</strong>: <a class="reference internal" href="../core-concepts/README.html"><span class="doc std std-doc">Concetti Fondamentali</span></a>, <a class="reference internal" href="../getting-started/first-example.html"><span class="doc std std-doc">Primo Esempio</span></a></p>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come riempire l’intera striscia LED con un singolo colore pieno</p></li>
+<li><p>La differenza tra gli spazi colore RGB e HSV e quando utilizzarli</p></li>
+<li><p>Come utilizzare le efficienti funzioni di riempimento di FastLED invece dei loop manuali</p></li>
+<li><p>Come riempire sezioni specifiche della striscia LED con colori diversi</p></li>
+<li><p>Costanti di colore denominate per un codice leggibile e manutenibile</p></li>
+</ul>
+<p>I colori pieni sono la base del controllo LED. Questo pattern mostra come riempire la striscia LED con un singolo colore utilizzando le efficienti funzioni di riempimento di FastLED.</p>
+<section id="basic-usage">
+<h2>Utilizzo di Base<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h2>
+<section id="fill-entire-strip">
+<h3>Riempire l’Intera Striscia<a class="headerlink" href="#fill-entire-strip" title="Link to this heading">¶</a></h3>
+<p>Riempire tutti i LED con un singolo colore:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Fill entire strip</span>
+<span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="fill-a-range">
+<h3>Riempire un Intervallo<a class="headerlink" href="#fill-a-range" title="Link to this heading">¶</a></h3>
+<p>Riempire una sezione specifica della striscia:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Fill range</span>
+<span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">);</span><span class="w">  </span><span class="c1">// LEDs 10-29</span>
+</pre></div>
+</div>
+<p>Questo riempie 20 LED a partire dall’indice 10, controllando efficacemente i LED dal 10 al 29.</p>
+</section>
+<section id="fill-with-hsv">
+<h3>Riempire con HSV<a class="headerlink" href="#fill-with-hsv" title="Link to this heading">¶</a></h3>
+<p>Utilizzare lo spazio colore HSV per una selezione dei colori più intuitiva:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Fill with HSV</span>
+<span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="understanding-color-spaces">
+<h2>Informazioni sugli Spazi Colore<a class="headerlink" href="#understanding-color-spaces" title="Link to this heading">¶</a></h2>
+<section id="rgb-colors">
+<h3>Colori RGB<a class="headerlink" href="#rgb-colors" title="Link to this heading">¶</a></h3>
+<p>RGB (Rosso, Verde, Blu) utilizza tre canali da 0 a 255:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">      </span><span class="c1">// Red</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">      </span><span class="c1">// Green</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">      </span><span class="c1">// Blue</span>
+<span class="n">CRGB</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">  </span><span class="c1">// White</span>
+</pre></div>
+</div>
+</section>
+<section id="hsv-colors">
+<h3>Colori HSV<a class="headerlink" href="#hsv-colors" title="Link to this heading">¶</a></h3>
+<p>HSV (Tonalità, Saturazione, Valore) è spesso più intuitivo:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CHSV</span><span class="w"> </span><span class="n">hsv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">      </span><span class="c1">// Red</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">hsv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">     </span><span class="c1">// Green</span>
+<span class="n">CHSV</span><span class="w"> </span><span class="n">hsv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">    </span><span class="c1">// Blue</span>
+
+<span class="c1">// Convert HSV to RGB (automatic)</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hsv</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><strong>Perché usare HSV?</strong></p>
+<ul class="simple">
+<li><p>Più facile creare transizioni di colore fluide (basta incrementare la tonalità)</p></li>
+<li><p>Naturale per effetti arcobaleno</p></li>
+<li><p>Controllo intuitivo della luminosità senza cambiare colore</p></li>
+</ul>
+</section>
+</section>
+<section id="named-colors">
+<h2>Colori con Nome<a class="headerlink" href="#named-colors" title="Link to this heading">¶</a></h2>
+<p>FastLED fornisce pratici colori con nome:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Yellow</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Purple</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Cyan</span><span class="p">;</span>
+<span class="n">leds</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">;</span><span class="w">  </span><span class="c1">// Off</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-example">
+<h2>Esempio Completo<a class="headerlink" href="#complete-example" title="Link to this heading">¶</a></h2>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;FastLED.h&gt;</span>
+
+<span class="cp">#define LED_PIN     5</span>
+<span class="cp">#define NUM_LEDS    60</span>
+<span class="cp">#define LED_TYPE    WS2812B</span>
+<span class="cp">#define COLOR_ORDER GRB</span>
+
+<span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">LED_TYPE</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">COLOR_ORDER</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">setBrightness</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Cycle through different solid colors</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Fill different sections</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="mi">20</span><span class="p">],</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="mi">40</span><span class="p">],</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="tips">
+<h2>Suggerimenti<a class="headerlink" href="#tips" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Usare <code class="docutils literal notranslate"><span class="pre">fill_solid()</span></code> invece di loop manuali per prestazioni migliori</p></li>
+<li><p>Lo spazio colore HSV semplifica la creazione di colori fluidi transizioni</p></li>
+<li><p>Usare <code class="docutils literal notranslate"><span class="pre">FastLED.clear()</span></code> come scorciatoia per il riempimento con il nero (off)</p></li>
+<li><p>Colori con nome come <code class="docutils literal notranslate"><span class="pre">CRGB::Red</span></code> sono più leggibili di <code class="docutils literal notranslate"><span class="pre">CRGB(255,</span> <span class="pre">0,</span> <span class="pre">0)</span></code></p></li>
+</ul>
+</section>
+<section id="next-steps">
+<h2>Passaggi successivi<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<p>Una volta acquisita familiarità con i colori pieni, passare ad <a class="reference internal" href="animations.html"><span class="doc std std-doc">Animazioni</span></a> per imparare a creare effetti dinamici.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/basic-patterns/solid-colors.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

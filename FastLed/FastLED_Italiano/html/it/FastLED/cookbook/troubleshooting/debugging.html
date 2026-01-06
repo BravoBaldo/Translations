@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Suggerimenti per il Debug &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="debugging-tips">
+<h1>Suggerimenti per il Debug<a class="headerlink" href="#debugging-tips" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐⭐ Principiante-Intermedio <strong>Tempo di Completamento</strong>: 40-50 minuti <strong>Prerequisiti</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../getting-started/first-example.html"><span class="doc std std-doc">Introduzione: Primo Esempio</span></a> - Configurazione di base di FastLED e struttura del codice</p></li>
+<li><p><a class="reference internal" href="../getting-started/hardware.html"><span class="doc std std-doc">Introduzione: Hardware</span></a> - Comprensione del cablaggio e dei componenti</p></li>
+<li><p><a class="reference internal" href="common-issues.html"><span class="doc std std-doc">Problemi Comuni</span></a> - Soluzioni rapide che risolvono l’80% dei problemi prima che sia necessario un debug sistematico</p></li>
+</ul>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come utilizzare il monitoraggio Seriale per diagnosticare lo stato del sistema LED, monitorare i frame rate e identificare i colli di bottiglia delle prestazioni</p></li>
+<li><p>Esecuzione di pattern di test completi per verificare l’hardware, controllare i canali colore e identificare i LED difettosi</p></li>
+<li><p>Monitoraggio dell’utilizzo della memoria per prevenire crash dovuti a memoria esaurita, in particolare su schede AVR con limitazioni (Uno/Mega)</p></li>
+<li><p>Debug dei problemi di colore con test sistematici, controllo delle impostazioni COLOR_ORDER e stampa dei valori RGB</p></li>
+<li><p>Utilizzo di strategie di diagnostica sistematica: test di isolamento (test dei componenti separatamente), ricerca binaria per LED difettosi, sketch di test minimi e analisi di frame rate/timing</p></li>
+</ul>
+<p>Tecniche ed esempi di codice per la diagnosi e il debug di progetti FastLED.</p>
+<section id="serial-monitoring">
+<h2>Monitoraggio Seriale<a class="headerlink" href="#serial-monitoring" title="Link to this heading">¶</a></h2>
+<p>Utilizzare l’uscita seriale per monitorare lo stato e le prestazioni del sistema LED.</p>
+<section id="basic-serial-setup">
+<h3>Configurazione di Base della Seriale<a class="headerlink" href="#basic-serial-setup" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">Serial</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w">  </span><span class="c1">// Wait for serial (Leonardo/Micro only)</span>
+
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;FastLED Starting...&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">GRB</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;LEDs initialized&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Print diagnostic info</span>
+<span class="w">    </span><span class="n">EVERY_N_SECONDS</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;FPS: &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">FastLED</span><span class="p">.</span><span class="n">getFPS</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Suggerimenti:</strong></p>
+<ul class="simple">
+<li><p>Utilizzare 115200 baud per un output più veloce</p></li>
+<li><p>Rimuovere <code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">(!Serial)</span></code> per le schede non USB (si bloccherà)</p></li>
+<li><p>Leonardo/Micro richiedono wait; Uno/Mega no</p></li>
+</ul>
+</section>
+</section>
+<section id="test-pattern-to-verify-setup">
+<h2>Pattern di Test per Verificare la Configurazione<a class="headerlink" href="#test-pattern-to-verify-setup" title="Link to this heading">¶</a></h2>
+<p>Utilizzare questo pattern di test completo per verificare l’hardware e il cablaggio:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">testPattern</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Test RED</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Test GREEN</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Test BLUE</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Test individual LEDs</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;LED &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">        </span><span class="n">delay</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Cosa testa:</strong></p>
+<ul class="simple">
+<li><p>Canali colore funzionanti correttamente</p></li>
+<li><p>Tutti i LED funzionanti</p></li>
+<li><p>Segnale dati che raggiunge tutti i LED</p></li>
+<li><p>Identifica quale LED è guasto (se c’è)</p></li>
+</ul>
+<p><strong>Utilizzo:</strong> Richiamare <code class="docutils literal notranslate"><span class="pre">testPattern()</span></code> da <code class="docutils literal notranslate"><span class="pre">setup()</span></code> o premendo un pulsante</p>
+</section>
+<section id="memory-usage-check">
+<h2>Controllo dell’Utilizzo della Memoria<a class="headerlink" href="#memory-usage-check" title="Link to this heading">¶</a></h2>
+<p>Monitorare l’utilizzo della RAM per prevenire problemi di memoria insufficiente, soprattutto sulle schede AVR.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Calculate memory usage</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ledMemory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">CRGB</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;LED array uses: &quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">ledMemory</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot; bytes&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Check available RAM (AVR only)</span>
+<span class="w">    </span><span class="cp">#ifdef __AVR__</span>
+<span class="w">    </span><span class="k">extern</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">__heap_start</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">__brkval</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">freeMemory</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">__brkval</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">freeMemory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="o">&amp;</span><span class="n">freeMemory</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="o">&amp;</span><span class="n">__heap_start</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">freeMemory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="o">&amp;</span><span class="n">freeMemory</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="n">__brkval</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;Free RAM: &quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">freeMemory</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot; bytes&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="cp">#endif</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Linee guida sulla memoria:</strong></p>
+<ul class="simple">
+<li><p>Ogni LED = 3 byte (RGB)</p></li>
+<li><p>Arduino Uno: 2 KB di RAM totale (max ~500-600 LED dopo l’overhead)</p></li>
+<li><p>Arduino Mega: 8 KB di RAM totale (max ~2000 LED dopo l’overhead)</p></li>
+<li><p>ESP32/ESP8266: molta più RAM disponibile</p></li>
+</ul>
+</section>
+<section id="debugging-color-issues">
+<h2>Debug dei problemi di colore<a class="headerlink" href="#debugging-color-issues" title="Link to this heading">¶</a></h2>
+<p>Verificare che l’ordine e i valori dei colori siano corretti:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">debugColors</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Test if colors are correct</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">    </span><span class="c1">// Should be RED</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">    </span><span class="c1">// Should be GREEN</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span><span class="w">    </span><span class="c1">// Should be BLUE</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// If colors are wrong, try different COLOR_ORDER:</span>
+<span class="w">    </span><span class="c1">// RGB, RBG, GRB, GBR, BRG, BGR</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Debug avanzato dei colori:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">printColorValues</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;LED &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;: R=&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">r</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot; G=&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">g</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot; B=&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="frame-rate-monitoring">
+<h2>Monitoraggio del Frame Rate<a class="headerlink" href="#frame-rate-monitoring" title="Link to this heading">¶</a></h2>
+<p>Monitorare le prestazioni e identificare i rallentamenti:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">updatePattern</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">EVERY_N_SECONDS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">fps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FastLED</span><span class="p">.</span><span class="n">getFPS</span><span class="p">();</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;FPS: &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">fps</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fps</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;WARNING: Low frame rate!&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Interpretazione dei risultati:</strong></p>
+<ul class="simple">
+<li><p>Oltre 60 FPS: Prestazioni eccellenti</p></li>
+<li><p>30-60 FPS: Buono per la maggior parte delle applicazioni</p></li>
+<li><p>&lt;30 FPS: Potrebbe apparire discontinuo, ottimizzare il codice</p></li>
+<li><p>&lt;10 FPS: Probabile problema di prestazioni</p></li>
+</ul>
+<p><strong>Cause comuni di FPS bassi:</strong></p>
+<ul class="simple">
+<li><p>Troppi LED per la velocità del processore</p></li>
+<li><p>Calcoli complessi in loop</p></li>
+<li><p>Istruzioni Serial.print() nel percorso attivo (rimuovere dopo il debug)</p></li>
+<li><p>Ritardi bloccanti</p></li>
+</ul>
+</section>
+<section id="check-for-data-corruption">
+<h2>Verificare la Corruzione dei Dati<a class="headerlink" href="#check-for-data-corruption" title="Link to this heading">¶</a></h2>
+<p>Verificare che l’array di dati dei LED non sia danneggiato:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">validateLEDData</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">hasError</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Check for impossible values</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">r</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">g</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">b</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;ERROR at LED &quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">            </span><span class="n">hasError</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">hasError</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;LED data OK&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Quando utilizzare:</strong></p>
+<ul class="simple">
+<li><p>Colori strani che compaiono</p></li>
+<li><p>Comportamento casuale dei LED</p></li>
+<li><p>Dopo operazioni complesse con i puntatori</p></li>
+<li><p>Sospetto buffer overrun</p></li>
+</ul>
+</section>
+<section id="comprehensive-hardware-test">
+<h2>Test Hardware Completo<a class="headerlink" href="#comprehensive-hardware-test" title="Link to this heading">¶</a></h2>
+<p>Test diagnostico completo per la verifica dell’hardware:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Comprehensive hardware test</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">hardwareTest</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;=== FastLED Hardware Test ===&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Test 1: Single LED</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Test 1: First LED RED&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Test 2: All RED</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Test 2: All LEDs RED&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">2000</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Test 3: Color test</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Test 3: Color sequence&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CRGB</span><span class="w"> </span><span class="n">colors</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Blue</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">};</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">colors</span><span class="p">[</span><span class="n">c</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">        </span><span class="n">delay</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Test 4: Individual LEDs</span>
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Test 4: Individual LED scan&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">White</span><span class="p">;</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">        </span><span class="n">delay</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Black</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;=== Test Complete ===&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Per l’Utilizzo:</strong> Chiamare <code class="docutils literal notranslate"><span class="pre">hardwareTest()</span></code> da <code class="docutils literal notranslate"><span class="pre">setup()</span></code> o creare uno sketch di test</p>
+<p><strong>Cosa testa:</strong></p>
+<ol class="arabic simple">
+<li><p>Funzionalità del primo LED (punto di guasto più comune)</p></li>
+<li><p>Tutti i LED possono visualizzare lo stesso colore</p></li>
+<li><p>Canali colore funzionanti (R, G, B e combinati)</p></li>
+<li><p>Ogni singolo LED funzionante e indirizzabile</p></li>
+</ol>
+</section>
+<section id="debugging-timing-issues">
+<h2>Debug dei Problemi di Temporizzazione<a class="headerlink" href="#debugging-timing-issues" title="Link to this heading">¶</a></h2>
+<p>Verificare la presenza di problemi di temporizzazione con animazioni:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">lastFrameTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">frameCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">frameTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastFrameTime</span><span class="p">;</span>
+<span class="w">    </span><span class="n">lastFrameTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">EVERY_N_SECONDS</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;Average frame time: &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">frameTime</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;ms&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;Frames in 5 sec: &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">frameCount</span><span class="p">);</span>
+<span class="w">        </span><span class="n">frameCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">frameCount</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="debugging-strategies">
+<h2>Strategie di Debug<a class="headerlink" href="#debugging-strategies" title="Link to this heading">¶</a></h2>
+<section id="isolation-testing">
+<h3>Test di Isolamento<a class="headerlink" href="#isolation-testing" title="Link to this heading">¶</a></h3>
+<p>Testare i componenti singolarmente:</p>
+<ol class="arabic simple">
+<li><p>Testare solo l’alimentatore (tensione, capacità di corrente)</p></li>
+<li><p>Testare solo il microcontrollore (uscita seriale, semplice lampeggìo del LED)</p></li>
+<li><p>Testare la striscia LED con un controller funzionante</p></li>
+<li><p>Combinare i componenti uno alla volta</p></li>
+</ol>
+</section>
+<section id="binary-search-for-bad-led">
+<h3>Ricerca Binaria per LED Difettosi<a class="headerlink" href="#binary-search-for-bad-led" title="Link to this heading">¶</a></h3>
+<p>Se i LED funzionano fino a un certo punto:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">findBadLED</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">testPoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">testPoint</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="o">&amp;</span><span class="n">leds</span><span class="p">[</span><span class="n">testPoint</span><span class="p">],</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">testPoint</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Green</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Adjust testPoint up or down based on which lights up</span>
+<span class="w">    </span><span class="c1">// Repeat until you find the exact failing LED</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="minimal-test-sketch">
+<h3>Sketch Minimo di Test<a class="headerlink" href="#minimal-test-sketch" title="Link to this heading">¶</a></h3>
+<p>Creare lo sketch più semplice possibile per isolare i problemi:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;FastLED.h&gt;</span>
+
+<span class="cp">#define LED_PIN 5</span>
+<span class="cp">#define NUM_LEDS 10  </span><span class="c1">// Start with just 10</span>
+
+<span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">WS2812B</span><span class="p">,</span><span class="w"> </span><span class="n">LED_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">GRB</span><span class="o">&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">);</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Empty - just show red</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="see-also">
+<h2>Vedere Anche<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="common-issues.html"><span class="doc std std-doc">Problemi Comuni</span></a> - Soluzioni rapide per problemi frequenti</p></li>
+<li><p><a class="reference internal" href="hardware.html"><span class="doc std std-doc">Problemi Hardware</span></a> - Risoluzione dei problemi specifici dell’hardware</p></li>
+<li><p><a class="reference internal" href="../README.html"><span class="doc std std-doc">Ricettario Principale</span></a> - Guida completa a FastLED</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/troubleshooting/debugging.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

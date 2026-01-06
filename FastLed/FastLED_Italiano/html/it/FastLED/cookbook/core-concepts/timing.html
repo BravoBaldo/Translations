@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Tempistiche e Frame Rate &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="timing-and-frame-rate">
+<h1>Tempistiche e Frame Rate<a class="headerlink" href="#timing-and-frame-rate" title="Link to this heading">¶</a></h1>
+<p><strong>Livello di Difficoltà</strong>: ⭐⭐ Da Principiante a Intermedio <strong>Tempo di Completamento</strong>: 35-45 minuti (lettura e sperimentazione di diversi approcci di temporizzazione) <strong>Prerequisiti</strong>:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../getting-started/concepts.html"><span class="doc std std-doc">Introduzione: Concetti di Base</span></a> - Comprensione dei fondamenti di FastLED</p></li>
+<li><p><a class="reference internal" href="../getting-started/first-example.html"><span class="doc std std-doc">Introduzione: Primo Esempio</span></a> - Esperienza pratica di programmazione</p></li>
+</ul>
+<p><strong>Si imparerà</strong>:</p>
+<ul class="simple">
+<li><p>Come controllare la velocità di animazione utilizzando diversi metodi di temporizzazione (delay, EVERY_N, millis)</p></li>
+<li><p>La differenza tra approcci di temporizzazione bloccanti e non bloccanti</p></li>
+<li><p>Come calcolare e misurare i frame rate per animazioni fluide</p></li>
+<li><p>Tecniche di temporizzazione avanzate, tra cui sincronizzazione del beat ed effetti basati sul tempo</p></li>
+<li><p>Best practice per l’ottimizzazione delle prestazioni e l’affidabilità della temporizzazione</p></li>
+</ul>
+<p>Controllare la velocità e la temporizzazione dell’animazione in FastLED.</p>
+<section id="simple-delay">
+<h2>Ritardo Semplice<a class="headerlink" href="#simple-delay" title="Link to this heading">¶</a></h2>
+<p>Il metodo di temporizzazione più semplice che utilizza <code class="docutils literal notranslate"><span class="pre">delay()</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span><span class="w">  </span><span class="c1">// ~50 FPS (20ms between frames)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Pro</strong>: Semplice, facile da capire <strong>Contro</strong>: Blocca l’esecuzione del codice: non è possibile eseguire altro codice durante il ritardo</p>
+</section>
+<section id="frame-rate-calculation">
+<h2>Calcolo del Frame Rate<a class="headerlink" href="#frame-rate-calculation" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Frame</span> <span class="n">rate</span> <span class="p">(</span><span class="n">FPS</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1000</span><span class="n">ms</span> <span class="o">/</span> <span class="n">delay_time</span>
+
+<span class="n">Examples</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">delay</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>  <span class="o">=</span> <span class="mi">50</span> <span class="n">FPS</span>
+<span class="o">-</span> <span class="n">delay</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="o">=</span> <span class="mi">100</span> <span class="n">FPS</span>
+<span class="o">-</span> <span class="n">delay</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>  <span class="o">=</span> <span class="mi">20</span> <span class="n">FPS</span>
+<span class="o">-</span> <span class="n">delay</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">=</span> <span class="mi">10</span> <span class="n">FPS</span>
+</pre></div>
+</div>
+</section>
+<section id="every-n-milliseconds-macro">
+<h2>La Macro EVERY_N_MILLISECONDS<a class="headerlink" href="#every-n-milliseconds-macro" title="Link to this heading">¶</a></h2>
+<p>Temporizzazione non bloccante tramite la macro integrata di FastLED:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// 50 FPS</span>
+<span class="w">        </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Other code can run here</span>
+<span class="w">    </span><span class="n">checkButtons</span><span class="p">();</span>
+<span class="w">    </span><span class="n">readSensors</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Pro</strong>: Non bloccante, è possibile eseguire altro codice <strong>Contro</strong>: Intervallo fisso, meno preciso della temporizzazione personalizzata</p>
+</section>
+<section id="every-n-seconds-macro">
+<h2>Macro EVERY_N_SECONDS<a class="headerlink" href="#every-n-seconds-macro" title="Link to this heading">¶</a></h2>
+<p>Per aggiornamenti più lenti:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">EVERY_N_SECONDS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;One second elapsed&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-non-blocking-timing">
+<h2>Temporizzazione Non Bloccante Personalizzata<a class="headerlink" href="#custom-non-blocking-timing" title="Link to this heading">¶</a></h2>
+<p>Controllo completo tramite <code class="docutils literal notranslate"><span class="pre">millis()</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">lastUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">updateInterval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span><span class="w">  </span><span class="c1">// 20ms = 50 FPS</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastUpdate</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">updateInterval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lastUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Other code runs every loop</span>
+<span class="w">    </span><span class="n">checkButtons</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Pro</strong>: Controllo preciso e non bloccante <strong>Contro</strong>: Più codice da gestire</p>
+</section>
+<section id="multiple-timing-intervals">
+<h2>Intervalli di Temporizzazione Multipli<a class="headerlink" href="#multiple-timing-intervals" title="Link to this heading">¶</a></h2>
+<p>Eseguire effetti diversi a velocità diverse:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">lastLEDUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="kt">uint32_t</span><span class="w"> </span><span class="n">lastSerialUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">LED_INTERVAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span><span class="w">     </span><span class="c1">// 50 FPS</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">SERIAL_INTERVAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"> </span><span class="c1">// 1 Hz</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Update LEDs at 50 FPS</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastLEDUpdate</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">LED_INTERVAL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lastLEDUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now</span><span class="p">;</span>
+<span class="w">        </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Print status at 1 Hz</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastSerialUpdate</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">SERIAL_INTERVAL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lastSerialUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Status update&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="fastled-delay">
+<h2>FastLED.delay()<a class="headerlink" href="#fastled-delay" title="Link to this heading">¶</a></h2>
+<p>FastLED offre una propria funzione di ritardo con dithering integrato:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">delay</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span><span class="w">  </span><span class="c1">// Like delay() but maintains dithering</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Usare <code class="docutils literal notranslate"><span class="pre">FastLED.delay()</span></code> invece di <code class="docutils literal notranslate"><span class="pre">delay()</span></code> per una migliore resa cromatica.</p>
+</section>
+<section id="measuring-frame-rate">
+<h2>Misurazione del Frame Rate<a class="headerlink" href="#measuring-frame-rate" title="Link to this heading">¶</a></h2>
+<p>Monitoraggio degli FPS effettivi:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+
+<span class="w">    </span><span class="n">EVERY_N_SECONDS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">fps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FastLED</span><span class="p">.</span><span class="n">getFPS</span><span class="p">();</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&quot;FPS: &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">fps</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">delay</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="variable-speed-effects">
+<h2>Effetti a Velocità Variabile<a class="headerlink" href="#variable-speed-effects" title="Link to this heading">¶</a></h2>
+<p>Rendere configurabile la velocità dell’animazione:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">animationSpeed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w">  </span><span class="c1">// Adjustable speed</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">fill_rainbow</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">hue</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">);</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+
+<span class="w">        </span><span class="n">hue</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">animationSpeed</span><span class="p">;</span><span class="w">  </span><span class="c1">// Speed controls how fast hue changes</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="time-based-animation">
+<h2>Animazione Basata sul Tempo<a class="headerlink" href="#time-based-animation" title="Link to this heading">¶</a></h2>
+<p>Usare <code class="docutils literal notranslate"><span class="pre">millis()</span></code> irettamente per effetti fluidi:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Create time-based wave</span>
+<span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin8</span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">20</span><span class="p">);</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="beat-synchronized-effects">
+<h2>Effetti sincronizzati al ritmo<a class="headerlink" href="#beat-synchronized-effects" title="Link to this heading">¶</a></h2>
+<p>Usare le funzioni di battuta di FastLED:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Sawtooth wave (0-255 repeating)</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">beat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beat8</span><span class="p">(</span><span class="mi">60</span><span class="p">);</span><span class="w">  </span><span class="c1">// 60 BPM</span>
+
+<span class="w">    </span><span class="c1">// Sine wave (0-255 oscillating)</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">sineBeat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beatsin8</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Apply to LEDs</span>
+<span class="w">    </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">beat</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">));</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="timing-challenges">
+<h2>Problemi di Temporizzazione<a class="headerlink" href="#timing-challenges" title="Link to this heading">¶</a></h2>
+<section id="millis-overflow">
+<h3>Overflow di millis()<a class="headerlink" href="#millis-overflow" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">millis()</span></code> va in overflow dopo circa 49 giorni. Gestione corretta:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// GOOD: Subtraction handles overflow correctly</span>
+<span class="kt">uint32_t</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastUpdate</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">interval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// This works even after overflow</span>
+<span class="p">}</span>
+
+<span class="c1">// BAD: Direct comparison fails after overflow</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">millis</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">lastUpdate</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">interval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Don&#39;t use this pattern</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="interrupt-interference">
+<h3>Interferenza degli Interrupt<a class="headerlink" href="#interrupt-interference" title="Link to this heading">¶</a></h3>
+<p>Alcune operazioni possono interferire con la temporizzazione dei LED:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Disable interrupts during critical LED update</span>
+<span class="w">    </span><span class="n">noInterrupts</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="n">interrupts</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Other code</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Su ESP32, il WiFi può interferire. Valutare la possibilità di disabilitare il WiFi durante <code class="docutils literal notranslate"><span class="pre">FastLED.show()</span></code>.</p>
+</section>
+</section>
+<section id="performance-optimization">
+<h2>Ottimizzazione delle Prestazioni<a class="headerlink" href="#performance-optimization" title="Link to this heading">¶</a></h2>
+<section id="limit-update-rate">
+<h3>Limita la Frequenza di Aggiornamento<a class="headerlink" href="#limit-update-rate" title="Link to this heading">¶</a></h3>
+<p>Non aggiornare più velocemente del necessario:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// WASTEFUL: 1000+ FPS (updates too fast)</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span><span class="w">  </span><span class="c1">// No delay</span>
+<span class="p">}</span>
+
+<span class="c1">// BETTER: 50 FPS is plenty</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="separate-calculation-from-display">
+<h3>Separare il Calcolo dal Display<a class="headerlink" href="#separate-calculation-from-display" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">loop</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Only call show() when needed</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Calculate every loop (faster)</span>
+<span class="w">    </span><span class="n">updateLEDs</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="practical-examples">
+<h2>Esempi Pratici<a class="headerlink" href="#practical-examples" title="Link to this heading">¶</a></h2>
+<section id="smooth-fade-in-out">
+<h3>Dissolvenza Fluida in Entrata/Uscita<a class="headerlink" href="#smooth-fade-in-out" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">fadeInOut</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">int8_t</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">brightness</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">direction</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">brightness</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">brightness</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">direction</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">setBrightness</span><span class="p">(</span><span class="n">brightness</span><span class="p">);</span>
+<span class="w">        </span><span class="n">fill_solid</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">,</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Purple</span><span class="p">);</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="speed-controlled-chase">
+<h3>Chase a Velocità Controllata<a class="headerlink" href="#speed-controlled-chase" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">chaseSpeed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span><span class="w">  </span><span class="c1">// ms between steps</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">chase</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">lastMove</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">millis</span><span class="p">();</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lastMove</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">chaseSpeed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lastMove</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">now</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CRGB</span><span class="o">::</span><span class="n">Red</span><span class="p">;</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+
+<span class="w">        </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="multi-speed-effect">
+<h3>Effetto Multi-Velocità<a class="headerlink" href="#multi-speed-effect" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">multiSpeed</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">hue2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Fast effect (every 10ms)</span>
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue1</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">        </span><span class="n">hue1</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Slow effect (every 50ms)</span>
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CHSV</span><span class="p">(</span><span class="n">hue2</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">);</span>
+<span class="w">        </span><span class="n">hue2</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Update display at fixed rate</span>
+<span class="w">    </span><span class="n">EVERY_N_MILLISECONDS</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">FastLED</span><span class="p">.</span><span class="n">show</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practice<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Utilizzare tempi non bloccanti</strong> per un codice reattivo</p></li>
+<li><p><strong>Puntare a 30-60 FPS</strong> - valori più alti di solito non sono necessari</p></li>
+<li><p><strong>Separare il calcolo dal display</strong> quando possibile</p></li>
+<li><p><strong>Usare FastLED.delay()</strong> invece di delay() per un dithering migliore</p></li>
+<li><p><strong>Monitorare gli FPS</strong> durante lo sviluppo per individuare problemi di prestazioni</p></li>
+</ol>
+</section>
+<section id="next-steps">
+<h2>Passaggi successivi<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="power.html"><span class="doc std std-doc">Considerazioni sul Consumo Energetico</span></a> - Gestione del consumo energetico</p></li>
+<li><p><a class="reference internal" href="../basic-patterns/README.html"><span class="doc std std-doc">Pattern Base</span></a> - Applicare la temporizzazione alle animazioni</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/cookbook/core-concepts/timing.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ESP8266 UART Driver Example &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="esp8266-uart-driver-example">
+<h1>ESP8266 UART Driver Example<a class="headerlink" href="#esp8266-uart-driver-example" title="Link to this heading">¶</a></h1>
+<p>This example demonstrates the <strong>opt-in UART-based WS2812 driver</strong> for ESP8266, which provides improved stability under Wi-Fi load compared to the default bit-bang driver.</p>
+<section id="overview">
+<h2>Panoramica<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The ESP8266’s single-core architecture and frequent NMI/RTOS interrupts can disrupt bit-bang timing loops, especially when Wi-Fi is active. This UART driver solves this problem by using the hardware UART1 peripheral to generate precise LED timing automatically.</p>
+</section>
+<section id="how-it-works">
+<h2>Come Funziona<a class="headerlink" href="#how-it-works" title="Link to this heading">¶</a></h2>
+<p>The driver encodes WS2812 LED data into a UART byte stream at 3.2 Mbps:</p>
+<ul class="simple">
+<li><p>Each LED bit is represented by 4 UART bits (1.25 µs total)</p></li>
+<li><p>“0” bit → <code class="docutils literal notranslate"><span class="pre">1000</span></code> (0.35 µs high, 0.8 µs low)</p></li>
+<li><p>“1” bit → <code class="docutils literal notranslate"><span class="pre">1100</span></code> (0.7 µs high, 0.6 µs low)</p></li>
+<li><p>Two LED bits are packed into each UART byte using a lookup table</p></li>
+</ul>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<section id="enable-the-uart-driver">
+<h3>Enable the UART driver<a class="headerlink" href="#enable-the-uart-driver" title="Link to this heading">¶</a></h3>
+<p><strong>Option 1: Define before including FastLED</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define FASTLED_ESP8266_UART</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;FastLED.h&gt;</span>
+
+<span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">UARTController_ESP8266</span><span class="o">&lt;</span><span class="n">GRB</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Option 2: Explicit controller type</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;FastLED.h&gt;</span>
+
+<span class="n">CRGB</span><span class="w"> </span><span class="n">leds</span><span class="p">[</span><span class="n">NUM_LEDS</span><span class="p">];</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="o">&lt;</span><span class="n">UARTController_ESP8266</span><span class="o">&lt;</span><span class="n">GRB</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advantages">
+<h2>Advantages<a class="headerlink" href="#advantages" title="Link to this heading">¶</a></h2>
+<p>✅ <strong>Hardware timing</strong> - UART peripheral shifts bits automatically
+✅ <strong>Minimal CPU overhead</strong> - Main loop remains responsive
+✅ <strong>Wi-Fi stable</strong> - No NMI interrupt timing issues
+✅ <strong>Precise timing</strong> - Maintains ±150ns WS2812 tolerance</p>
+</section>
+<section id="trade-offs">
+<h2>Trade-offs<a class="headerlink" href="#trade-offs" title="Link to this heading">¶</a></h2>
+<p>⚠️ <strong>Higher RAM usage</strong> - ~12 bytes per LED (300 LEDs = 3.6 KB buffer)
+⚠️ <strong>Single pin only</strong> - GPIO2 (UART1 TX-only on ESP8266)
+⚠️ <strong>No parallel output</strong> - Not compatible with multi-strip modes</p>
+</section>
+<section id="pin-assignment">
+<h2>Pin Assignment<a class="headerlink" href="#pin-assignment" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>GPIO2</strong> - UART1 TX (the only usable pin for this driver)</p></li>
+<li><p>This is the same as D4 on NodeMCU boards</p></li>
+</ul>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
+<p>You can optionally configure the baud rate and reset time:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">UARTController_ESP8266</span><span class="o">&lt;</span><span class="n">GRB</span><span class="o">&gt;</span><span class="w"> </span><span class="n">controller</span><span class="p">;</span>
+<span class="n">controller</span><span class="p">.</span><span class="n">setBaud</span><span class="p">(</span><span class="mi">3200000</span><span class="p">);</span><span class="w">      </span><span class="c1">// Default: 3.2 Mbps</span>
+<span class="n">controller</span><span class="p">.</span><span class="n">setResetTimeUs</span><span class="p">(</span><span class="mi">300</span><span class="p">);</span><span class="w">   </span><span class="c1">// Default: 300 µs (WS2812 requires &gt;= 50 µs)</span>
+<span class="n">FastLED</span><span class="p">.</span><span class="n">addLeds</span><span class="p">(</span><span class="o">&amp;</span><span class="n">controller</span><span class="p">,</span><span class="w"> </span><span class="n">leds</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_LEDS</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="performance">
+<h2>Prestazioni<a class="headerlink" href="#performance" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Frame rate</strong>: Up to 30-60 FPS for typical strip sizes (&lt;1000 LEDs)</p></li>
+<li><p><strong>Latency</strong>: ~11.25 ms for 300 LEDs (3600 bytes &#64; 3.2 Mbps + 300 µs latch)</p></li>
+<li><p><strong>Memory overhead</strong>: 12 bytes per LED (temporary encode buffer)</p></li>
+</ul>
+</section>
+<section id="when-to-use-this-driver">
+<h2>When to Use This Driver<a class="headerlink" href="#when-to-use-this-driver" title="Link to this heading">¶</a></h2>
+<p>Use the UART driver when:</p>
+<ul class="simple">
+<li><p>You’re experiencing LED flickering with Wi-Fi enabled</p></li>
+<li><p>Your application needs reliable Wi-Fi + LED operation</p></li>
+<li><p>You have RAM available for the encode buffer</p></li>
+<li><p>You only need a single LED strip</p></li>
+</ul>
+<p>Stick with the default bit-bang driver when:</p>
+<ul class="simple">
+<li><p>You need multiple parallel LED strips</p></li>
+<li><p>RAM is constrained</p></li>
+<li><p>Wi-Fi is not in use</p></li>
+<li><p>You need pins other than GPIO2</p></li>
+</ul>
+</section>
+<section id="credits">
+<h2>Credits<a class="headerlink" href="#credits" title="Link to this heading">¶</a></h2>
+<p>This implementation is based on the proven technique from the NeoPixelBus library, adapted to work seamlessly with FastLED’s API and features.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cookbook/README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/examples/Esp8266Uart/README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

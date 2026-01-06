@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Audio Reactive Visualizations &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="audio-reactive-visualizations">
+<h1>Audio Reactive Visualizations<a class="headerlink" href="#audio-reactive-visualizations" title="Link to this heading">¶</a></h1>
+<p>This example demonstrates various audio-reactive visualization modes using FastLED. It processes real-time audio input and creates stunning visual effects synchronized to music.</p>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
+<section id="visualization-modes">
+<h3>Visualization Modes<a class="headerlink" href="#visualization-modes" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Spectrum Bars</strong> - Classic frequency spectrum analyzer with vertical bars</p></li>
+<li><p><strong>Radial Spectrum</strong> - Circular frequency visualization radiating from center</p></li>
+<li><p><strong>Waveform</strong> - Real-time audio waveform display</p></li>
+<li><p><strong>VU Meter</strong> - Traditional volume unit meter with RMS and peak levels</p></li>
+<li><p><strong>Matrix Rain</strong> - Audio-reactive digital rain effect</p></li>
+<li><p><strong>Fire Effect</strong> - Flame simulation that responds to audio intensity</p></li>
+<li><p><strong>Plasma Wave</strong> - Animated plasma patterns modulated by audio</p></li>
+</ol>
+</section>
+<section id="audio-processing">
+<h3>Audio Processing<a class="headerlink" href="#audio-processing" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Real-time FFT Analysis</strong> - Frequency spectrum analysis</p></li>
+<li><p><strong>Beat Detection</strong> - Automatic beat detection with adjustable sensitivity</p></li>
+<li><p><strong>Auto Gain Control</strong> - Automatically adjusts to varying audio levels</p></li>
+<li><p><strong>Noise Floor Filtering</strong> - Removes background noise</p></li>
+<li><p><strong>Peak Detection</strong> - Tracks audio peaks with smoothing</p></li>
+</ul>
+</section>
+<section id="visual-controls">
+<h3>Visual Controls<a class="headerlink" href="#visual-controls" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>7 Color Palettes</strong> - Rainbow, Heat, Ocean, Forest, Party, Lava, Cloud</p></li>
+<li><p><strong>Brightness Control</strong> - Adjustable LED brightness</p></li>
+<li><p><strong>Fade Speed</strong> - Control trail/persistence effects</p></li>
+<li><p><strong>Mirror Mode</strong> - Create symmetrical displays</p></li>
+<li><p><strong>Beat Flash</strong> - Visual feedback on beat detection</p></li>
+</ul>
+</section>
+</section>
+<section id="hardware-requirements">
+<h2>Requisiti Hardware<a class="headerlink" href="#hardware-requirements" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Controller</strong>: ESP32, Teensy, or other platform with sufficient memory</p></li>
+<li><p><strong>LED Matrix</strong>: 100x100 pixels (10,000 LEDs total)</p></li>
+<li><p><strong>Memory</strong>: Requires <code class="docutils literal notranslate"><span class="pre">SKETCH_HAS_LOTS_OF_MEMORY</span></code> (not suitable for Arduino UNO)</p></li>
+<li><p><strong>Audio Input</strong>: Microphone or line-in audio source</p></li>
+</ul>
+</section>
+<section id="wiring">
+<h2>Wiring<a class="headerlink" href="#wiring" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>LED Matrix:
+- Data Pin: GPIO 3 (configurable via LED_PIN)
+- Power: 5V (ensure adequate power supply for 10,000 LEDs!)
+- Ground: Common ground with controller
+
+Audio Input:
+- Follow your platform&#39;s audio input configuration
+</pre></div>
+</div>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
+<section id="display-settings">
+<h3>Display Settings<a class="headerlink" href="#display-settings" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define WIDTH 100          </span><span class="c1">// Matrix width</span>
+<span class="cp">#define HEIGHT 100         </span><span class="c1">// Matrix height</span>
+<span class="cp">#define LED_PIN 3          </span><span class="c1">// Data pin for LEDs</span>
+<span class="cp">#define LED_TYPE WS2812B   </span><span class="c1">// LED chipset</span>
+<span class="cp">#define COLOR_ORDER GRB    </span><span class="c1">// Color order</span>
+</pre></div>
+</div>
+</section>
+<section id="audio-settings">
+<h3>Audio Settings<a class="headerlink" href="#audio-settings" title="Link to this heading">¶</a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define SAMPLE_RATE 44100  </span><span class="c1">// Audio sample rate</span>
+<span class="cp">#define FFT_SIZE 512       </span><span class="c1">// FFT size for frequency analysis</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ui-controls">
+<h2>UI Controls<a class="headerlink" href="#ui-controls" title="Link to this heading">¶</a></h2>
+<section id="master-controls">
+<h3>Master Controls<a class="headerlink" href="#master-controls" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Enable Audio</strong> - Toggle audio processing on/off</p></li>
+<li><p><strong>Visualization Mode</strong> - Select from 7 different modes</p></li>
+</ul>
+</section>
+<section id="audio-controls">
+<h3>Audio Controls<a class="headerlink" href="#audio-controls" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Audio Gain</strong> - Manual gain adjustment (0.1 - 5.0)</p></li>
+<li><p><strong>Noise Floor</strong> - Background noise threshold (0.0 - 1.0)</p></li>
+<li><p><strong>Auto Gain</strong> - Enable automatic gain control</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3>Visual Controls<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Brightness</strong> - LED brightness (0 - 255)</p></li>
+<li><p><strong>Fade Speed</strong> - Trail effect speed (0 - 255)</p></li>
+<li><p><strong>Color Palette</strong> - Choose color scheme</p></li>
+<li><p><strong>Mirror Mode</strong> - Enable symmetrical display</p></li>
+</ul>
+</section>
+<section id="beat-detection">
+<h3>Rilevamento del Battito<a class="headerlink" href="#beat-detection" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Beat Detection</strong> - Enable/disable beat detection</p></li>
+<li><p><strong>Beat Sensitivity</strong> - Adjust detection threshold (0.5 - 3.0)</p></li>
+<li><p><strong>Beat Flash</strong> - Enable visual flash on beats</p></li>
+</ul>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Upload the sketch to your controller</p></li>
+<li><p>Connect your LED matrix</p></li>
+<li><p>Provide audio input (microphone or line-in)</p></li>
+<li><p>Use the web UI to control visualizations</p></li>
+<li><p>Select different modes and adjust parameters in real-time</p></li>
+</ol>
+</section>
+<section id="performance-tips">
+<h2>Suggerimenti per le Prestazioni<a class="headerlink" href="#performance-tips" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>This example requires significant processing power</p></li>
+<li><p>Reduce matrix size if experiencing lag</p></li>
+<li><p>Disable beat detection for lower CPU usage</p></li>
+<li><p>Use simpler visualization modes on slower processors</p></li>
+</ul>
+</section>
+<section id="customization">
+<h2>Personalizzazione<a class="headerlink" href="#customization" title="Link to this heading">¶</a></h2>
+<section id="adding-new-visualizations">
+<h3>Adding New Visualizations<a class="headerlink" href="#adding-new-visualizations" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Add your mode name to the <code class="docutils literal notranslate"><span class="pre">visualMode</span></code> dropdown</p></li>
+<li><p>Create a new <code class="docutils literal notranslate"><span class="pre">drawYourMode()</span></code> function</p></li>
+<li><p>Add a case in the main switch statement</p></li>
+<li><p>Implement your visualization logic</p></li>
+</ol>
+</section>
+<section id="modifying-color-palettes">
+<h3>Modifying Color Palettes<a class="headerlink" href="#modifying-color-palettes" title="Link to this heading">¶</a></h3>
+<p>Edit the <code class="docutils literal notranslate"><span class="pre">getCurrentPalette()</span></code> function to add custom palettes:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="mi">7</span><span class="p">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">YourCustomPalette_p</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="adjusting-matrix-size">
+<h3>Adjusting Matrix Size<a class="headerlink" href="#adjusting-matrix-size" title="Link to this heading">¶</a></h3>
+<p>For different matrix sizes, modify:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#define WIDTH your_width</span>
+<span class="cp">#define HEIGHT your_height</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="memory-usage">
+<h2>Utilizzo della Memoria<a class="headerlink" href="#memory-usage" title="Link to this heading">¶</a></h2>
+<p>This example uses approximately:</p>
+<ul class="simple">
+<li><p>30KB for LED buffer (100x100 RGB)</p></li>
+<li><p>2KB for FFT data</p></li>
+<li><p>1KB for audio buffers</p></li>
+<li><p>Additional memory for effect buffers</p></li>
+</ul>
+</section>
+<section id="troubleshooting">
+<h2>Risoluzione dei problemi<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>No visualization</strong>: Check audio input and “Enable Audio” setting</p></li>
+<li><p><strong>Choppy animation</strong>: Reduce matrix size or disable some features</p></li>
+<li><p><strong>No beat detection</strong>: Increase beat sensitivity or check audio levels</p></li>
+<li><p><strong>Dim display</strong>: Increase brightness or check power supply</p></li>
+<li><p><strong>Compilation error</strong>: Ensure platform has sufficient memory</p></li>
+</ul>
+</section>
+<section id="credits">
+<h2>Credits<a class="headerlink" href="#credits" title="Link to this heading">¶</a></h2>
+<p>This example demonstrates the audio processing capabilities of FastLED, including FFT analysis, beat detection, and various visualization techniques suitable for LED art installations, music visualizers, and interactive displays.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cookbook/README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../../_sources/FastLED/examples/Audio/advanced/README.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
