@@ -430,7 +430,9 @@ def itemref_insert_all():
 
     itemref_insert('libs/image_support/index.xhtml')
     itemref_insert('libs/image_support/bmp.xhtml')
-    itemref_insert('libs/image_support/gif.xhtml')
+    # itemref_insert('libs/image_support/gif.xhtml')
+    itemref_insert('widgets/gif.xhtml')
+
     itemref_insert('libs/image_support/libjpeg_turbo.xhtml')
     itemref_insert('libs/image_support/libpng.xhtml')
     itemref_insert('libs/image_support/lodepng.xhtml')
@@ -482,7 +484,7 @@ def itemref_insert_all():
     itemref_insert('API/lv_api_map_v9_2_h.xhtml')
     itemref_insert('API/lv_api_map_v9_3_h.xhtml')
     itemref_insert('API/lv_api_map_v9_4_h.xhtml')
-    itemref_insert('API/lv_conf_internal_h.xhtml')
+    itemref_insert('API/lv_conf_h.xhtml')
     itemref_insert('API/lv_conf_kconfig_h.xhtml')
     itemref_insert('API/lv_init_h.xhtml')
     itemref_insert('API/lvgl_h.xhtml')
@@ -503,7 +505,7 @@ def itemref_insert_all():
     itemref_insert('API/themes/index.xhtml')
     itemref_insert('API/tick/index.xhtml')
     itemref_insert('API/widgets/index.xhtml')
-    itemref_insert('API/xml/index.xhtml')
+    # itemref_insert('API/xml/index.xhtml')
 
 
 def manifest_print_remaining():
