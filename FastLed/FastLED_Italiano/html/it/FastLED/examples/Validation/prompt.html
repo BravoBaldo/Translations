@@ -44,6 +44,10 @@
 </section>
 <section id="objective-test-parlio-driver-with-multiple-lanes">
 <h1>Objective: Test parlio driver with multiple lanes<a class="headerlink" href="#objective-test-parlio-driver-with-multiple-lanes" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><p>Make Parlio only USE MSB</p></li>
+<li><p>when something goes wrong, re-read the tests and then on the next test dump out the raw edge timings from the RX device to see what the signal looks like.</p></li>
+</ul>
 </section>
 <section id="first-agent-instructions">
 <h1>First agent instructions<a class="headerlink" href="#first-agent-instructions" title="Link to this heading">¶</a></h1>
@@ -55,12 +59,17 @@
 <section id="phases">
 <h1>Phases<a class="headerlink" href="#phases" title="Link to this heading">¶</a></h1>
 <ul class="simple">
-<li><p>Phase 1: Test parlio driver with 2 lanes and small leds (10 leds)</p></li>
-<li><p>Phase 2: Test parlio driver with 2 lanes and large leds (300 leds)</p></li>
-<li><p>Phase 3: Test parlio driver with 4 lanes and small leds (10 leds)</p></li>
-<li><p>Phase 4: Test parlio driver with 4 lanes and large leds (300 leds)</p></li>
-<li><p>Phase 5: Test parlio driver with 8 lanes and small leds (10 leds)</p></li>
-<li><p>Phase 6: Test parlio driver with 8 lanes and large leds (300 leds)</p></li>
+<li><p>Phase 1: Test parlio driver with 1 lanes and small leds (10 leds)</p>
+<ul>
+<li><p>1a: test with 3000 leds</p></li>
+</ul>
+</li>
+<li><p>Phase 2: Test parlio driver with 2 lanes and small leds (10 leds)</p></li>
+<li><p>Phase 3: Test parlio driver with 2 lanes and large leds (3000 leds)</p></li>
+<li><p>Phase 4: Test parlio driver with 4 lanes and small leds (10 leds)</p></li>
+<li><p>Phase 5: Test parlio driver with 4 lanes and large leds (3000 leds)</p></li>
+<li><p>Phase 6: Test parlio driver with 8 lanes and small leds (10 leds)</p></li>
+<li><p>Phase 7: Test parlio driver with 8 lanes and large leds (3000 leds)</p></li>
 </ul>
 <p>For each of these phases, i want a sub document in .agent_task/phase/1.md, etc…</p>
 <p>All the notes about phase 1 should be in the .agent_task/phase/1.md file.
@@ -131,7 +140,7 @@ CURRENT PHASE ERROR REVIEW SUMMARY: NONE</p>
 <li><p>Launch sub agents for each file that needs to be fixed.</p></li>
 <li><p>Then compile the code with this command:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">compile</span> <span class="pre">esp32c6</span> <span class="pre">Validation</span></code> and fix any errors that occur</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">validate</span></code> and fix any errors that occur</p></li>
 </ul>
 </li>
 </ul>
@@ -163,28 +172,6 @@ CURRENT PHASE ERROR REVIEW SUMMARY: NONE</p>
 <section id="first-task">
 <h1>First task:<a class="headerlink" href="#first-task" title="Link to this heading">¶</a></h1>
 <p>First iteration agent shall change validation.ino so that it is multilane == 2, SPI and RMT are disabled. No other changes are necessary. Once this is done then mark this as complete.</p>
-</section>
-<section id="important-links">
-<h1>Important Links<a class="headerlink" href="#important-links" title="Link to this heading">¶</a></h1>
-<section id="thread-linking-to-parlio-driver-on-wled-mm">
-<h2>Thread linking to PARLIO driver on WLED-MM<a class="headerlink" href="#thread-linking-to-parlio-driver-on-wled-mm" title="Link to this heading">¶</a></h2>
-<p>The link can be found from here:
-https://github.com/FastLED/FastLED/issues/2095</p>
-<p>First agent should find the link and add it to the .agent_task/PARLIO_RESEARCH.md file.</p>
-<p>Subsequent agents can give a brief summary of the WLED-MM-P4 Parallel IO driver.</p>
-</section>
-<section id="comments-on-parlios-20us-random-delay-glitch">
-<h2>Comments on Parlios 20us random delay glitch<a class="headerlink" href="#comments-on-parlios-20us-random-delay-glitch" title="Link to this heading">¶</a></h2>
-<p>Byte boundaries are super important! If we split on say the nibble, then this can trigger a corruption on any order bit. If we split on the byte boundary, the worst that can happen is that the low order byte is possibly corrupted. What does the data manual say about this? It should be investigated by one of the agents.</p>
-<p>Someone said…</p>
-<p>This is a demo of the WLED-MM-P4 Parallel IO driver in action with 16x512 pixels driven:</p>
-<p>https://www.reddit.com/r/WLED/s/q1pZg1mnwZ</p>
-<p>Which looking at the FastLED Parallel IO code should be essentially the same.</p>
-<p>&#64;zackees the benefit I found to supporting 1/2/4/8/16-bit depths is the idle period.</p>
-<p>For example - if you have 2 pins it’s better to use 2-bit widths because it’s ~5460 RGB LEDs per transmit no matter what your bit width is - so at 1/2/4-bit widths you’re almost guaranteed to never have a glitch because of a DMA delay between transmits (assuming like 1024 LEDs max per pin). Transmits are also faster if you match bit-width to pin counts.</p>
-<p>My demo has 512x16 so it’s 2 buffers being sent and there’s a small gap visible on my logic analyzer. As long as that’s below about 20us (even tho the spec sheets say 50us) it doesn’t glitch - but above that I’ve had to work hard to keep things from making the pause longer.</p>
-<p>I also break my buffers so it’s after the LSB of the triplet (or quad). In case that pause is misnterpreted as a 1 vs 0, it’s not going to cause a visual disruption. At worst 0,0,0 becomes 0,0,1.</p>
-</section>
 </section>
 
 
@@ -246,7 +233,7 @@ https://github.com/FastLED/FastLED/issues/2095</p>
       &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |
-      <a href="../../../_sources/FastLED/examples/Validation/ai_prompt.md.txt"
+      <a href="../../../_sources/FastLED/examples/Validation/prompt.md.txt"
           rel="nofollow">Page source</a>
     </div>
 

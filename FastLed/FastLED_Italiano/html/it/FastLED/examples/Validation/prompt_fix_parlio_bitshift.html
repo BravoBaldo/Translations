@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+
+<html lang="it" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>AGENT LOOP INSTRUCTIONS &#8212; Documentazione FastLED 2025 </title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=ad698211"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/translations.js?v=45930005"></script>
+    <link rel="index" title="Indice" href="../../../genindex.html" />
+    <link rel="search" title="Cerca" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p>This is an ai prompt to fix the 1-bit shift buffer alignment issue in the PARLIO driver.</p>
+<section id="agent-loop-instructions">
+<h1>AGENT LOOP INSTRUCTIONS<a class="headerlink" href="#agent-loop-instructions" title="Link to this heading">¶</a></h1>
+<p>**Two sections of instructions: read only and writable</p>
+<ul class="simple">
+<li><p>All agents are NOT to change what’s between <BEGIN-READ-ONLY> and </BEGIN-READ-ONLY></p></li>
+<li><p>Agents are allowed to change what’s between <BEGIN-WRITEABLE> and </BEGIN-WRITEABLE></p></li>
+</ul>
+<p>First section of this document will be read only, the next section will be writable for agents to change.</p>
+<BEGIN-READ-ONLY>
+</section>
+<section id="objective-fix-1-bit-shift-error-caused-by-buffer-boundary-misalignment">
+<h1>Objective: Fix 1-bit shift error caused by buffer boundary misalignment<a class="headerlink" href="#objective-fix-1-bit-shift-error-caused-by-buffer-boundary-misalignment" title="Link to this heading">¶</a></h1>
+</section>
+<section id="critical-constraint">
+<h1>Critical Constraint<a class="headerlink" href="#critical-constraint" title="Link to this heading">¶</a></h1>
+<p><strong>AGENTS ARE NOT ALLOWED TO MODIFY <code class="docutils literal notranslate"><span class="pre">trans_queue_depth</span></code> IN ANY WAY</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">trans_queue_depth</span> <span class="pre">=</span> <span class="pre">3</span></code> setting is MANDATORY and MUST NOT be changed. This value:</p>
+<ul class="simple">
+<li><p>Matches the 3 ring buffer count</p></li>
+<li><p>Allows all 3 buffers to be pre-queued without queue full errors</p></li>
+<li><p>Was established in LOOP.md as the correct configuration</p></li>
+</ul>
+<p><strong>ONLY BUFFER SIZE ALIGNMENT IS ALLOWED</strong></p>
+<p>Agents may ONLY modify buffer size calculations to ensure proper byte alignment.</p>
+</section>
+<section id="problem-statement">
+<h1>Problem Statement<a class="headerlink" href="#problem-statement" title="Link to this heading">¶</a></h1>
+<p><strong>Current Issue</strong>: 1-bit shift corruption in transmitted LED data</p>
+<p><strong>Root Cause Analysis</strong> (from commit 4fd8a0c08):</p>
+<ul class="simple">
+<li><p>Buffer splits occur on non-byte boundaries</p></li>
+<li><p>PARLIO hardware interprets inter-buffer gaps as bit-level shifts</p></li>
+<li><p>Per WLED-MM developer: “I also break my buffers so it’s after the LSB of the triplet (or quad)”</p></li>
+<li><p>Byte boundaries are critical - nibble splits trigger corruption on any order bit</p></li>
+</ul>
+<p><strong>Evidence</strong>:</p>
+<ul class="simple">
+<li><p>Multi-run validation shows consistent bit shift errors</p></li>
+<li><p>Pattern: RGB(240,15,170) transmitted as corrupted values</p></li>
+<li><p>Shift happens at buffer boundaries, not uniformly across transmission</p></li>
+</ul>
+<p><strong>Correct Approach</strong>:</p>
+<ul class="simple">
+<li><p>Buffer sizes MUST align to LED byte boundaries (multiples of 3 bytes for RGB)</p></li>
+<li><p>Split ONLY after complete LED triplets (R,G,B) - never mid-LED</p></li>
+<li><p>Minimize risk: If 20µs gap is misinterpreted, worst case is LSB corruption (0,0,0 → 0,0,1)</p></li>
+</ul>
+</section>
+<section id="instructions-for-progress">
+<h1>Instructions for progress<a class="headerlink" href="#instructions-for-progress" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><p>we are on a branch, so it’s okay to commit changes to this branch on every transition to the next phase</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">src</span> <span class="pre">examples</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&quot;phase</span> <span class="pre">X:</span> <span class="pre">buffer</span> <span class="pre">alignment</span> <span class="pre">fix&quot;</span></code></p></li>
+</ul>
+</section>
+<section id="detecting-bad-progress">
+<h1>Detecting bad progress<a class="headerlink" href="#detecting-bad-progress" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><p>The test to transmit 1000 leds no longer completes at all.</p>
+<ul>
+<li><p>If test completes but with LED bit shift errors, that’s actually ok (we’re fixing those). It’s the test not completing at all that’s the problem.</p></li>
+<li><p>when this happens and the test won’t even complete, such as watchdog error, or the test seems to halt, do a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">reset</span> <span class="pre">--hard</span> <span class="pre">HEAD~1</span></code>. And back up one to the last working commit. Then try again to ensure the last iteration works.</p></li>
+<li><p>When to NOT <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">reset</span> <span class="pre">--hard</span> <span class="pre">HEAD~1</span></code>: commit <code class="docutils literal notranslate"><span class="pre">4fd8a0c08b7eb2bccfeabf89ca9c90b50ab634c6</span></code> is the reset commit point, do not go beyond this. If you absolutely need to then write ./RESOLUTION.md and then halt.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="first-agent-instructions">
+<h1>First agent instructions<a class="headerlink" href="#first-agent-instructions" title="Link to this heading">¶</a></h1>
+<p><strong>Phase 1 Start - Analyze Buffer Size Calculation</strong>:</p>
+<ol class="arabic simple">
+<li><p>Read <code class="docutils literal notranslate"><span class="pre">src/platforms/esp/32/drivers/parlio/channel_engine_parlio.cpp</span></code> lines 1100-1130:</p>
+<ul class="simple">
+<li><p>Understand current buffer size calculation</p></li>
+<li><p>Identify where byte alignment happens (or doesn’t happen)</p></li>
+<li><p>Document in <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/1.md</span></code></p></li>
+</ul>
+</li>
+<li><p>Read <code class="docutils literal notranslate"><span class="pre">src/platforms/esp/32/drivers/parlio/channel_engine_parlio.cpp</span></code> lines 603-639:</p>
+<ul class="simple">
+<li><p>Study <code class="docutils literal notranslate"><span class="pre">populateNextDMABuffer()</span></code> byte splitting logic</p></li>
+<li><p>Line 605: <code class="docutils literal notranslate"><span class="pre">bytes_per_buffer</span> <span class="pre">=</span> <span class="pre">(mState.mIsrContext-&gt;mTotalBytes</span> <span class="pre">+</span> <span class="pre">PARLIO_RING_BUFFER_COUNT</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">PARLIO_RING_BUFFER_COUNT</span></code></p></li>
+<li><p>Document how buffers are split (is it LED-aligned?)</p></li>
+</ul>
+</li>
+<li><p>Calculate alignment for 1000 LEDs test case:</p>
+<ul class="simple">
+<li><p>Total bytes: 1000 LEDs × 3 bytes/LED = 3000 bytes</p></li>
+<li><p>Current split: 3000 ÷ 3 = 1000 bytes per buffer</p></li>
+<li><p>LED alignment check: 1000 bytes ÷ 3 bytes/LED = 333.33 LEDs ⚠️ <strong>NOT ALIGNED</strong></p></li>
+<li><p>Buffer 0 ends mid-LED: After byte 999 (LED 332, byte 2 of 3) ❌</p></li>
+</ul>
+</li>
+<li><p>Document findings in <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/1.md</span></code></p></li>
+</ol>
+</section>
+<section id="phases">
+<h1>Phases<a class="headerlink" href="#phases" title="Link to this heading">¶</a></h1>
+<section id="phase-1-analyze-buffer-alignment-issue">
+<h2>Phase 1: Analyze Buffer Alignment Issue<a class="headerlink" href="#phase-1-analyze-buffer-alignment-issue" title="Link to this heading">¶</a></h2>
+<p><strong>Objective</strong>: Understand where non-byte-aligned splits occur</p>
+<p><strong>Method</strong>: Code analysis + calculation</p>
+<ul class="simple">
+<li><p>Study buffer size calculation (lines 1100-1130)</p></li>
+<li><p>Study buffer population logic (lines 603-639)</p></li>
+<li><p>Calculate byte alignment for 1000 LED test case</p></li>
+<li><p>Identify exact line where alignment breaks</p></li>
+</ul>
+<p><strong>Deliverable</strong>: <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/1.md</span></code> with:</p>
+<ul class="simple">
+<li><p>Buffer size calculation formula</p></li>
+<li><p>Example: 1000 LEDs → buffer split analysis</p></li>
+<li><p>Root cause: Line X causes non-aligned split</p></li>
+</ul>
+<p><strong>Success</strong>: Clear understanding of alignment problem → Move to Phase 2</p>
+</section>
+<hr class="docutils" />
+<section id="phase-2-design-led-aligned-buffer-split">
+<h2>Phase 2: Design LED-Aligned Buffer Split<a class="headerlink" href="#phase-2-design-led-aligned-buffer-split" title="Link to this heading">¶</a></h2>
+<p><strong>Objective</strong>: Modify buffer split to align on LED boundaries</p>
+<p><strong>Method</strong>: Algorithm design</p>
+<ul class="simple">
+<li><p>Design formula to round buffer sizes to multiples of 3 bytes</p></li>
+<li><p>Example: 1000 bytes → round down to 999 bytes (333 LEDs)</p></li>
+<li><p>Ensure total bytes still covered (handle remainder in last buffer)</p></li>
+</ul>
+<p><strong>Constraints</strong>:</p>
+<ul class="simple">
+<li><p><strong>DO NOT modify <code class="docutils literal notranslate"><span class="pre">trans_queue_depth</span> <span class="pre">=</span> <span class="pre">3</span></code></strong> (forbidden)</p></li>
+<li><p><strong>ONLY modify buffer size calculations</strong></p></li>
+<li><p>Must handle edge cases (strip sizes not divisible by 3×RING_BUFFER_COUNT)</p></li>
+</ul>
+<p><strong>Deliverable</strong>: <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/2.md</span></code> with:</p>
+<ul class="simple">
+<li><p>Proposed buffer alignment algorithm</p></li>
+<li><p>Test cases: 1000 LEDs, 300 LEDs, 10 LEDs</p></li>
+<li><p>Verification: All splits occur on LED boundaries</p></li>
+</ul>
+<p><strong>Success</strong>: Algorithm verified on paper → Move to Phase 3</p>
+</section>
+<hr class="docutils" />
+<section id="phase-3-implement-buffer-alignment-fix">
+<h2>Phase 3: Implement Buffer Alignment Fix<a class="headerlink" href="#phase-3-implement-buffer-alignment-fix" title="Link to this heading">¶</a></h2>
+<p><strong>Objective</strong>: Apply LED-aligned buffer split in code</p>
+<p><strong>Method</strong>: Code modification</p>
+<ul class="simple">
+<li><p>Modify <code class="docutils literal notranslate"><span class="pre">populateNextDMABuffer()</span></code> line 605-606 (or nearby)</p></li>
+<li><p>Add rounding logic: <code class="docutils literal notranslate"><span class="pre">bytes_per_buffer</span> <span class="pre">=</span> <span class="pre">round_down_to_multiple_of_3(bytes_per_buffer)</span></code></p></li>
+<li><p>Test compilation: <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">compile</span> <span class="pre">esp32c6</span> <span class="pre">Validation</span></code></p></li>
+</ul>
+<p><strong>Implementation Example</strong> (pseudocode):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Ensure buffer splits on LED boundaries (3 bytes per RGB LED)</span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">bytes_per_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">total_bytes</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">RING_BUFFER_COUNT</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">RING_BUFFER_COUNT</span><span class="p">;</span>
+<span class="n">bytes_per_buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">bytes_per_buffer</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">  </span><span class="c1">// Round down to multiple of 3</span>
+</pre></div>
+</div>
+<p><strong>Deliverable</strong>: <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/3.md</span></code> with:</p>
+<ul class="simple">
+<li><p>Exact code changes (file, line numbers)</p></li>
+<li><p>Compilation result</p></li>
+<li><p>Before/after buffer split example</p></li>
+</ul>
+<p><strong>Success</strong>: Code compiles cleanly → Move to Phase 4</p>
+</section>
+<hr class="docutils" />
+<section id="phase-4-validate-with-1000-led-test">
+<h2>Phase 4: Validate with 1000 LED Test<a class="headerlink" href="#phase-4-validate-with-1000-led-test" title="Link to this heading">¶</a></h2>
+<p><strong>Objective</strong>: Verify fix eliminates bit shift errors</p>
+<p><strong>Method</strong>: Run multi-run validation test</p>
+<ul class="simple">
+<li><p>Keep <code class="docutils literal notranslate"><span class="pre">LONG_STRIP_SIZE</span> <span class="pre">1000</span></code></p></li>
+<li><p>Run: <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">debug</span> <span class="pre">Validation</span> <span class="pre">--timeout</span> <span class="pre">180</span> <span class="pre">--no-fail-on</span></code></p></li>
+<li><p>Analyze multi-run results (10 runs)</p></li>
+</ul>
+<p><strong>Expected Behavior</strong>:</p>
+<ul class="simple">
+<li><p>All 10 runs PASS (no bit shift errors)</p></li>
+<li><p>LED data transmitted correctly: RGB(240,15,170) → RGB(240,15,170)</p></li>
+<li><p>No corruption at buffer boundaries</p></li>
+</ul>
+<p><strong>Deliverable</strong>: <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/4.md</span></code> with:</p>
+<ul class="simple">
+<li><p>Test output (pass/fail per run)</p></li>
+<li><p>Error analysis (if any remain)</p></li>
+<li><p>Confirmation: Buffer splits align to LED boundaries</p></li>
+</ul>
+<p><strong>Success</strong>: All 10 runs pass with 1000 LEDs → Move to Phase 5</p>
+</section>
+<hr class="docutils" />
+<section id="phase-5-stress-test-with-3000-leds">
+<h2>Phase 5: Stress Test with 3000 LEDs<a class="headerlink" href="#phase-5-stress-test-with-3000-leds" title="Link to this heading">¶</a></h2>
+<p><strong>Objective</strong>: Validate fix works with larger strip requiring true streaming</p>
+<p><strong>Method</strong>: Increase strip size beyond ring buffer capacity</p>
+<ul class="simple">
+<li><p>Modify <code class="docutils literal notranslate"><span class="pre">examples/Validation/ValidationConfig.h</span></code>: Set <code class="docutils literal notranslate"><span class="pre">LONG_STRIP_SIZE</span> <span class="pre">3000</span></code></p></li>
+<li><p>Run: <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">debug</span> <span class="pre">Validation</span> <span class="pre">--timeout</span> <span class="pre">180</span> <span class="pre">--no-fail-on</span></code></p></li>
+</ul>
+<p><strong>Expected Behavior</strong>:</p>
+<ul class="simple">
+<li><p>3000 LEDs = 9000 bytes (exceeds 3-buffer capacity)</p></li>
+<li><p>ISR streaming kicks in (mPreQueuedBuffers=false path)</p></li>
+<li><p>All buffers align to LED boundaries</p></li>
+<li><p>All 10 runs PASS</p></li>
+</ul>
+<p><strong>Deliverable</strong>: <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/5.md</span></code> with:</p>
+<ul class="simple">
+<li><p>Test results for 3000 LEDs</p></li>
+<li><p>ISR callback count (verify streaming occurred)</p></li>
+<li><p>Confirmation: No bit shift errors with streaming</p></li>
+</ul>
+<p><strong>Success</strong>: All runs pass with 3000 LEDs → Move to Phase 6</p>
+</section>
+<hr class="docutils" />
+<section id="phase-6-multi-lane-validation-optional">
+<h2>Phase 6: Multi-Lane Validation (Optional)<a class="headerlink" href="#phase-6-multi-lane-validation-optional" title="Link to this heading">¶</a></h2>
+<p><strong>Objective</strong>: Ensure fix works across multiple lanes</p>
+<p><strong>Method</strong>: Progressive multi-lane testing</p>
+<ul class="simple">
+<li><p>Phase 6a: 2 lanes, 1000 LEDs</p></li>
+<li><p>Phase 6b: 4 lanes, 1000 LEDs</p></li>
+<li><p>Phase 6c: 8 lanes, 300 LEDs (hardware limit)</p></li>
+</ul>
+<p><strong>Deliverable</strong>: <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/6.md</span></code> with:</p>
+<ul class="simple">
+<li><p>Results for each lane configuration</p></li>
+<li><p>Validation: Lane 0 data always correct</p></li>
+</ul>
+<p><strong>Success</strong>: All configurations pass → COMPLETE</p>
+<p>For each of these phases, i want a sub document in .agent_task/phase/1.md, etc…</p>
+<p>All the notes about phase 1 should be in the .agent_task/phase/1.md file.
+All the notes about phase 2 should be in the .agent_task/phase/2.md file.
+etc…</p>
+<p>Keep the summary at .agent_task/ITER*.md terse by offloading the summary to the .agent_task/phase/*.md files.</p>
+<p>When phase has completed, please update the .agent_task/LOOP2.md with your findings.
+The .agent_task/LOOP2.md will declare what phase we are currently in at all times. Try to keep .agent_task/LOOP2.md as terse as possible. This is a long running task!!!</p>
+<p>Once a phase is ready for completion, the agent will mark it in .agent_task/LOOP2.md as REVIEW REQUESTED FOR MOVING FROM PHASE X TO PHASE Y.</p>
+<p>At the start of the agent loop, the current agent will check the .agent_task/LOOP2.md for any REVIEW REQUESTED FOR MOVING FROM PHASE X TO PHASE Y. If the agent sees this then they become special, it’s a TRANSITION REVIEW AGENT, see next section for instructions on this agent.</p>
+<p>If the subsequent agent is successful fixes the issue then it will mark the current phase as the one under development still and allow the transiton back to the next phase to happen naturally (see above).</p>
+<section id="transition-review-agent-instructions">
+<h3>TRANSITION REVIEW AGENT INSTRUCTIONS<a class="headerlink" href="#transition-review-agent-instructions" title="Link to this heading">¶</a></h3>
+<p><strong>Triggered on</strong></p>
+<p>“TRANSITION REQUESTED: YES”</p>
+<p><strong>Summary</strong>:</p>
+<p>The only job of this agent will be to evaluate the requested transition. It will make a ruling on whether the transition is allowed or not.</p>
+<ul class="simple">
+<li><p>If allowed: Update the current phase to the requested phase and then halt.</p></li>
+<li><p>If not allowed: Update the current phase to phase X, add in the note on the current phase a transition was requested but rejected because of the following reasons:</p>
+<ul>
+<li><p>Cheating: Did the agent declare something was incompatable with the driver and then just disable it?</p></li>
+<li><p>Subversion: Something was changed without proper justification and it needs validation.</p></li>
+<li><p>Buffer Size Violation: Agent modified buffer capacity instead of alignment logic</p></li>
+<li><p>trans_queue_depth Violation: Agent modified trans_queue_depth (FORBIDDEN)</p></li>
+<li><p>Other: Any other reason that the agent thinks is valid.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>On ERROR/FAILURE</strong>:</p>
+<p>CURRENT PHASE ERROR: CHEATING (and or subversion and/or other)
+CURRENT PHASE ERROR REVIEW SUMMARY:
+<INSERT SUMMARY HERE></p>
+<p><strong>On Success</strong>:</p>
+<p>PHASE: section will be updated to the new phase.
+CURRENT PHASE ERROR: NONE
+CURRENT PHASE ERROR REVIEW SUMMARY: NONE</p>
+<p>Please put your success review message in the .agent_task/phase/X_review.md file.</p>
+</section>
+<section id="transition-fixit-agent-instructions">
+<h3>TRANSITION FIXIT AGENT INSTRUCTIONS<a class="headerlink" href="#transition-fixit-agent-instructions" title="Link to this heading">¶</a></h3>
+<p><strong>Not Triggered on</strong></p>
+<p>CURRENT PHASE ERROR: NONE</p>
+<p><strong>Triggered on</strong></p>
+<p>CURRENT PHASE ERROR: (ANYTHING BUT NONE)</p>
+<p><strong>Sub agent prompt summary</strong>:</p>
+<p>You are an agent that is responsible to clear the errror state on a transition attempt.</p>
+<p>Look in the CURRENT PHASE ERROR REVIEW SUMMARY: section and identify the error.</p>
+<p>You will do the following:</p>
+<ul class="simple">
+<li><p>identify the current phase, call it X</p></li>
+<li><p>you will update .agent_task/PHASE/X.md where X is the current phase</p>
+<ul>
+<li><p>find misinformation identified in the error summary your job is to fix it</p>
+<ul>
+<li><p>using parallel sub agents to aggressively purge that misinformation/error status from all md files:</p>
+<ul>
+<li><p>.agent_task/ITER*.md files</p></li>
+<li><p>.agent_task/PHASE/X.md file</p></li>
+<li><p>.agent_task/LOOP2.md file</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Then after this purging has been done, check to see if the current transition refview summary requests that there is a fix that needs to be made in code:</p>
+<ul class="simple">
+<li><p>Launch sub agents for each file that needs to be fixed.</p></li>
+<li><p>Then compile the code with this command:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">compile</span> <span class="pre">esp32c6</span> <span class="pre">Validation</span></code> and fix any errors that occur</p></li>
+</ul>
+</li>
+</ul>
+<p>After the compile state is clean, clear the error by setting:</p>
+<p>CURRENT PHASE ERROR: NONE
+CURRENT PHASE ERROR REVIEW SUMMARY: NONE</p>
+<p>Then halt.</p>
+<p>Run</p>
+<p>bash debug Validation –expect “TX Pin: 0” –expect “RX Pin: 1” –expect “DRIVER_ENABLED: PARLIO” –timeout 180 –no-fail-on
+</BEGIN-READ-ONLY></p>
+<hr class="docutils" />
+<BEGIN-WRITEABLE>
+</section>
+</section>
+</section>
+<section id="current-phase-status">
+<h1>CURRENT PHASE STATUS<a class="headerlink" href="#current-phase-status" title="Link to this heading">¶</a></h1>
+<p>PHASE: 0
+TRANSITION REQUESTED: NO
+TRANSITION TO PHASE: N/A
+CURRENT PHASE ERROR: NONE
+CURRENT PHASE ERROR REVIEW SUMMARY: NONE</p>
+</section>
+<section id="background-the-1-bit-shift-buffer-alignment-problem">
+<h1>Background: The 1-Bit Shift Buffer Alignment Problem<a class="headerlink" href="#background-the-1-bit-shift-buffer-alignment-problem" title="Link to this heading">¶</a></h1>
+<p><strong>From LOOP.md Analysis</strong>:</p>
+<ul class="simple">
+<li><p>LOOP.md successfully validated 1000 LEDs with pre-queue strategy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trans_queue_depth</span> <span class="pre">=</span> <span class="pre">3</span></code> established as correct configuration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mPreQueuedBuffers</span></code> fix prevents gaps when all data fits in ring buffer</p></li>
+</ul>
+<p><strong>New Problem Discovered</strong> (commit 4fd8a0c08):</p>
+<ul class="simple">
+<li><p>Multi-run validation shows consistent 1-bit shift errors</p></li>
+<li><p>Pattern data corrupted at buffer boundaries</p></li>
+<li><p>Example: RGB(240,15,170) → corrupted values</p></li>
+</ul>
+<p><strong>Root Cause</strong> (from WLED-MM developer insight):</p>
+<blockquote>
+<div><p>“I also break my buffers so it’s after the LSB of the triplet (or quad). In case that pause is
+misinterpreted as a 1 vs 0, it’s not going to cause a visual disruption. At worst 0,0,0 becomes 0,0,1.”</p>
+</div></blockquote>
+<p><strong>Translation</strong>:</p>
+<ul class="simple">
+<li><p>PARLIO hardware interprets inter-buffer gaps as potential bit-level shifts</p></li>
+<li><p>Buffer splits MUST occur on LED boundaries (after complete RGB triplet)</p></li>
+<li><p>Current code: Splits on arbitrary byte boundaries (e.g., mid-LED)</p></li>
+</ul>
+<p><strong>Calculation for 1000 LEDs</strong>:</p>
+<ul class="simple">
+<li><p>Total bytes: 1000 LEDs × 3 bytes = 3000 bytes</p></li>
+<li><p>Current split: 3000 ÷ 3 buffers = 1000 bytes/buffer</p></li>
+<li><p>LED alignment: 1000 ÷ 3 = 333.33 LEDs ⚠️ <strong>MISALIGNED</strong></p></li>
+<li><p>Buffer 0 ends: Byte 999 (middle of LED 333) ❌</p></li>
+<li><p>Buffer 1 starts: Byte 1000 (middle of LED 333) ❌</p></li>
+</ul>
+<p><strong>Required Fix</strong>:</p>
+<ul class="simple">
+<li><p>Round buffer sizes to multiples of 3 bytes (LED boundaries)</p></li>
+<li><p>Example: 1000 bytes → 999 bytes (333 LEDs, aligned)</p></li>
+<li><p>Last buffer absorbs remainder</p></li>
+</ul>
+</section>
+<section id="important-research-links">
+<h1>Important Research Links<a class="headerlink" href="#important-research-links" title="Link to this heading">¶</a></h1>
+<section id="wled-mm-parlio-driver-discussion">
+<h2>WLED-MM PARLIO Driver Discussion<a class="headerlink" href="#wled-mm-parlio-driver-discussion" title="Link to this heading">¶</a></h2>
+<p>From: https://github.com/FastLED/FastLED/issues/2095</p>
+<p>Key insights from WLED-MM developer:</p>
+<ul class="simple">
+<li><p>Supports 1/2/4/8/16-bit depths with ~5460 RGB LEDs per transmit</p></li>
+<li><p>Buffer breaks placed after LSB of RGB triplet to minimize visual corruption</p></li>
+<li><p>20µs gap tolerance (below 50µs spec) prevents glitches</p></li>
+<li><p>If gap misinterpreted, worst case: LSB corruption (0,0,0 → 0,0,1)</p></li>
+</ul>
+</section>
+<section id="reddit-demo">
+<h2>Reddit Demo<a class="headerlink" href="#reddit-demo" title="Link to this heading">¶</a></h2>
+<p>https://www.reddit.com/r/WLED/s/q1pZg1mnwZ</p>
+<p>16×512 pixel demo showing PARLIO in action with proper buffer alignment.</p>
+</section>
+</section>
+<section id="critical-constraints-for-agents">
+<h1>Critical Constraints for Agents<a class="headerlink" href="#critical-constraints-for-agents" title="Link to this heading">¶</a></h1>
+<p><strong>FORBIDDEN MODIFICATIONS</strong>:</p>
+<ol class="arabic simple">
+<li><p>❌ <strong>DO NOT modify <code class="docutils literal notranslate"><span class="pre">trans_queue_depth</span></code></strong> (must stay at 3)</p></li>
+<li><p>❌ <strong>DO NOT change ring buffer count</strong> (must stay at 3)</p></li>
+<li><p>❌ <strong>DO NOT change buffer capacity</strong> (18KB per buffer is correct)</p></li>
+</ol>
+<p><strong>ALLOWED MODIFICATIONS</strong>:</p>
+<ol class="arabic simple">
+<li><p>✅ <strong>Modify buffer split logic</strong> (line ~605 in populateNextDMABuffer)</p></li>
+<li><p>✅ <strong>Add LED boundary alignment</strong> (round to multiples of 3 bytes)</p></li>
+<li><p>✅ <strong>Adjust byte_count calculation</strong> (ensure LED-aligned chunks)</p></li>
+</ol>
+<p><strong>Key Code Locations</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/platforms/esp/32/drivers/parlio/channel_engine_parlio.cpp:605</span></code> - Buffer split calculation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/platforms/esp/32/drivers/parlio/channel_engine_parlio.cpp:1218</span></code> - Ring buffer capacity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">examples/Validation/ValidationConfig.h:25</span></code> - Test strip size</p></li>
+</ul>
+</section>
+<section id="first-task">
+<h1>First Task<a class="headerlink" href="#first-task" title="Link to this heading">¶</a></h1>
+<p>First iteration agent shall:</p>
+<ol class="arabic simple">
+<li><p><strong>Analyze current buffer split logic</strong> (lines 603-639 in channel_engine_parlio.cpp)</p></li>
+<li><p><strong>Calculate alignment</strong> for 1000 LED test case (show the math)</p></li>
+<li><p><strong>Document findings</strong> in <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/1.md</span></code></p></li>
+<li><p><strong>Propose fix</strong> in <code class="docutils literal notranslate"><span class="pre">.agent_task/phase/2.md</span></code> (design phase, no code yet)</p></li>
+</ol>
+<p><strong>DO NOT MODIFY CODE YET</strong> - Phase 1 is analysis only.</p>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">FastLED</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigazione</h3>
+<p class="caption" role="heading"><span class="caption-text">Contenuto:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cookbook/README.html">Ricettario FastLED</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Ricerca veloce</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Vai" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2026, FastLED Community.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../../_sources/FastLED/examples/Validation/prompt_fix_parlio_bitshift.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

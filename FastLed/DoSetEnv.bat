@@ -7,11 +7,6 @@ Rem Patch Repository
 Rem Init sphinx-quickstart
 Rem Patch Sphinx
 
-pip install --upgrade myst-parser
-REM pip install Linkify
-REM pip install linkify-it-py
-REM https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
-
 rmdir /S /Q %RepoName% > NUL
 rmdir /S /Q %RepoName%_Sphinx  > NUL
 
@@ -25,6 +20,11 @@ IF NOT EXIST ".\%RepoName%_org\" (
 )
 
 
+pip install --upgrade myst-parser
+REM pip install Linkify
+REM pip install linkify-it-py
+REM https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
+
 mkdir %RepoName%_Sphinx && cd %RepoName%_Sphinx
 sphinx-quickstart --sep -p "%RepoName%" -a "%RepoName% Community" -r "2025" -l "en" --extensions "myst_parser"
 rmdir /s /Q build
@@ -33,11 +33,13 @@ mklink /D "build"      "..\%RepoName%_Italiano"
 copy /Y ..\FastLED_OmegaT\docs\index.rst .\source\index.rst
 
 IF EXIST ".\NotExists\" (
+	mklink /D ".\source\FastLED"                     "..\..\FastLED"
 	REM All ".\source\FastLED"....: 23291 Segments, 20361 remaining
 	REM   Too much, so I'll proceed step by step
+
 	REM ".\source\FastLED\cookbook"...: 2568 Segments, 0 remaining
-	REM + examples ...................: 3696 Segments, 1080 remaining
-	mklink /D ".\source\FastLED"                     "..\..\FastLED"
+	REM + examples ...................: 3995 Segments, 1356 remaining
+	REM + src ........................:
 )
 
 mkdir ".\source\FastLED"

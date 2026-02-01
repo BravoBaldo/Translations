@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>FastLED Codec Module Design Document &#8212; Documentazione FastLED 2025 </title>
+    <title>Documento di Progettazione del Modulo Codec FastLED &#8212; Documentazione FastLED 2025 </title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=12dfc556" />
     <script src="../_static/documentation_options.js?v=ad698211"></script>
@@ -32,183 +32,183 @@
           <div class="body" role="main">
             
   <section class="tex2jax_ignore mathjax_ignore" id="fastled-codec-module-design-document">
-<h1>FastLED Codec Module Design Document<a class="headerlink" href="#fastled-codec-module-design-document" title="Link to this heading">¶</a></h1>
+<h1>Documento di Progettazione del Modulo Codec FastLED<a class="headerlink" href="#fastled-codec-module-design-document" title="Link to this heading">¶</a></h1>
 <section id="fl-codec-h-mpeg1-and-jpeg-decoder-implementation">
-<h2>fl/codec.h - MPEG1 and JPEG Decoder Implementation<a class="headerlink" href="#fl-codec-h-mpeg1-and-jpeg-decoder-implementation" title="Link to this heading">¶</a></h2>
+<h2>fl/codec.h - Implementazione del Decoder MPEG1 e JPEG<a class="headerlink" href="#fl-codec-h-mpeg1-and-jpeg-decoder-implementation" title="Link to this heading">¶</a></h2>
 <section id="executive-summary">
-<h3>Executive Summary<a class="headerlink" href="#executive-summary" title="Link to this heading">¶</a></h3>
-<p>This document outlines the design and implementation strategy for adding MPEG1 and JPEG decoder capabilities to FastLED through a new <code class="docutils literal notranslate"><span class="pre">fl/codec.h</span></code> header. The implementation will provide efficient video and image decoding for LED display applications, leveraging hardware acceleration where available while maintaining software fallback options for broad platform compatibility.</p>
+<h3>Riepilogo<a class="headerlink" href="#executive-summary" title="Link to this heading">¶</a></h3>
+<p>Questo documento descrive la strategia di progettazione e implementazione per aggiungere funzionalità di decodifica MPEG1 e JPEG a FastLED tramite un nuovo header <code class="docutils literal notranslate"><span class="pre">fl/codec.h</span></code>. L’implementazione fornirà una decodifica efficiente di video e immagini per applicazioni di display a LED, sfruttando l’accelerazione hardware ove disponibile, pur mantenendo opzioni di fallback software per un’ampia compatibilità con la piattaforma.</p>
 </section>
 <section id="table-of-contents">
-<h3>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h3>
+<h3>Sommario<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p><a class="reference internal" href="#overview">Overview</a></p></li>
-<li><p><a class="reference internal" href="#platform-hardware-acceleration-analysis">Platform Hardware Acceleration Analysis</a></p></li>
-<li><p><a class="reference internal" href="#architecture-design">Architecture Design</a></p></li>
-<li><p><a class="reference internal" href="#api-design">API Design</a></p></li>
-<li><p><a class="reference internal" href="#implementation-strategy">Implementation Strategy</a></p></li>
-<li><p><a class="reference internal" href="#memory-management">Memory Management</a></p></li>
-<li><p><a class="reference internal" href="#performance-considerations">Performance Considerations</a></p></li>
-<li><p><a class="reference internal" href="#platform-specific-optimizations">Platform-Specific Optimizations</a></p></li>
-<li><p><a class="reference internal" href="#testing-strategy">Testing Strategy</a></p></li>
+<li><p><a class="reference internal" href="#overview">Panoramica</a></p></li>
+<li><p><a class="reference internal" href="#platform-hardware-acceleration-analysis">Analisi dell’Accelerazione Hardware della Piattaforma</a></p></li>
+<li><p><a class="reference internal" href="#architecture-design">Progettazione dell’Architettura</a></p></li>
+<li><p><a class="reference internal" href="#api-design">Progettazione API</a></p></li>
+<li><p><a class="reference internal" href="#implementation-strategy">Strategia di implementazione</a></p></li>
+<li><p><a class="reference internal" href="#memory-management">Gestione della Memoria</a></p></li>
+<li><p><a class="reference internal" href="#performance-considerations">Considerazioni sulle prestazioni</a></p></li>
+<li><p><a class="reference internal" href="#platform-specific-optimizations">Ottimizzazioni Specifiche della Piattaforma</a></p></li>
+<li><p><a class="reference internal" href="#testing-strategy">Strategia di Test</a></p></li>
 </ol>
 </section>
 </section>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">fl/codec.h</span></code> module will provide unified codec functionality for FastLED, enabling:</p>
+<h2>Panoramica<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>Il modulo <code class="docutils literal notranslate"><span class="pre">fl/codec.h</span></code> fornirà funzionalità codec unificate per FastLED, consentendo:</p>
 <ul class="simple">
-<li><p>JPEG image decoding for static displays</p></li>
-<li><p>MPEG1 video decoding for animated content</p></li>
-<li><p>Hardware-accelerated decoding where supported</p></li>
-<li><p>Efficient software fallback implementations</p></li>
-<li><p>Stream-based processing for memory-constrained devices</p></li>
-<li><p>Integration with existing FastLED color and display systems</p></li>
+<li><p>Decodifica di immagini JPEG per display statici</p></li>
+<li><p>Decodifica video MPEG1 per contenuti animati</p></li>
+<li><p>Decodifica con accelerazione hardware ove supportata</p></li>
+<li><p>Implementazioni software efficienti di fallback</p></li>
+<li><p>Elaborazione basata su stream per dispositivi con limiti di memoria</p></li>
+<li><p>Integrazione con i sistemi di visualizzazione e colore FastLED esistenti</p></li>
 </ul>
 </section>
 <section id="platform-hardware-acceleration-analysis">
-<h2>Platform Hardware Acceleration Analysis<a class="headerlink" href="#platform-hardware-acceleration-analysis" title="Link to this heading">¶</a></h2>
+<h2>Analisi dell’Accelerazione Hardware della Piattaforma<a class="headerlink" href="#platform-hardware-acceleration-analysis" title="Link to this heading">¶</a></h2>
 <section id="esp32-family">
-<h3>ESP32 Family<a class="headerlink" href="#esp32-family" title="Link to this heading">¶</a></h3>
+<h3>Famiglia ESP32<a class="headerlink" href="#esp32-family" title="Link to this heading">¶</a></h3>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Platform</p></th>
-<th class="head"><p>JPEG Hardware</p></th>
-<th class="head"><p>MPEG1 Hardware</p></th>
-<th class="head"><p>Notes</p></th>
+<tr class="row-odd"><th class="head"><p>Piattaforma</p></th>
+<th class="head"><p>Hardware JPEG</p></th>
+<th class="head"><p>Hardware MPEG1</p></th>
+<th class="head"><p>Note</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>ESP32</p></td>
 <td><p>ROM TJpgDec</p></td>
-<td><p>None</p></td>
-<td><p>~5KB flash savings with ROM decoder</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Risparmio di ~5 KB di memoria flash con decoder ROM</p></td>
 </tr>
 <tr class="row-odd"><td><p>ESP32-S3</p></td>
 <td><p>ROM TJpgDec + PIE/SIMD</p></td>
-<td><p>None</p></td>
-<td><p>~52ms for 320x180 JPEG &#64; 240MHz*</p></td>
+<td><p>Nessuna</p></td>
+<td><p>~52 ms per JPEG 320x180 a 240 MHz*</p></td>
 </tr>
 <tr class="row-even"><td><p>ESP32-C3</p></td>
 <td><p>ROM TJpgDec</p></td>
-<td><p>None</p></td>
-<td><p>RISC-V architecture</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Architettura RISC-V</p></td>
 </tr>
 <tr class="row-odd"><td><p>ESP32-C5</p></td>
 <td><p>ROM TJpgDec</p></td>
-<td><p>None</p></td>
-<td><p>RISC-V architecture</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Architettura RISC-V</p></td>
 </tr>
 <tr class="row-even"><td><p>ESP32-C6</p></td>
 <td><p>ROM TJpgDec</p></td>
-<td><p>None</p></td>
-<td><p>RISC-V with vector extensions</p></td>
+<td><p>Nessuna</p></td>
+<td><p>RISC-V con estensioni vettoriali</p></td>
 </tr>
 <tr class="row-odd"><td><p>ESP32-C61</p></td>
 <td><p>ROM TJpgDec</p></td>
-<td><p>None</p></td>
-<td><p>RISC-V architecture</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Architettura RISC-V</p></td>
 </tr>
 <tr class="row-even"><td><p>ESP32-P4</p></td>
-<td><p>Full JPEG Codec + PIE</p></td>
-<td><p>None</p></td>
-<td><p>Up to 571 fps decoder, 142 fps encoder</p></td>
+<td><p>Codec JPEG completo + PIE</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Decoder fino a 571 fps, encoder a 142 fps</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Key Findings:</strong></p>
+<p><strong>Risultati Principali:</strong></p>
 <ul class="simple">
-<li><p>Most ESP32 variants have TJpgDec decoder in ROM (saves ~5KB flash)</p></li>
-<li><p>ROM decoder fixed configuration: RGB888 output, 512-byte buffer, basic optimization</p></li>
-<li><p>ESP32-S3 has PIE (Processor Instruction Extensions) with limited SIMD for YCbCr→RGB conversion</p></li>
-<li><p>ESP32-P4 has dedicated hardware JPEG codec with DMA support</p></li>
-<li><p>No hardware MPEG1 support across any ESP32 variant</p></li>
-<li><p>*Performance figures based on ESP-IDF benchmarks and testing</p></li>
+<li><p>La maggior parte delle varianti di ESP32 ha un decoder TJpgDec in ROM (risparmio di ~5 KB di memoria flash)</p></li>
+<li><p>Configurazione fissa del decoder ROM: uscita RGB888, buffer da 512 byte, ottimizzazione di base</p></li>
+<li><p>ESP32-S3 ha PIE (Processor Instruction Extensions) con SIMD limitato per Conversione YCbCr→RGB</p></li>
+<li><p>ESP32-P4 ha un codec JPEG hardware dedicato con supporto DMA</p></li>
+<li><p>Nessun supporto MPEG1 hardware in nessuna variante di ESP32</p></li>
+<li><p>*Dati prestazionali basati su benchmark e test ESP-IDF</p></li>
 </ul>
 </section>
 <section id="teensy-4-x-arm-cortex-m7">
 <h3>Teensy 4.x (ARM Cortex-M7)<a class="headerlink" href="#teensy-4-x-arm-cortex-m7" title="Link to this heading">¶</a></h3>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Feature</p></th>
-<th class="head"><p>Support</p></th>
-<th class="head"><p>Details</p></th>
+<tr class="row-odd"><th class="head"><p>Caratteristiche</p></th>
+<th class="head"><p>Supporto</p></th>
+<th class="head"><p>Dettagli</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>JPEG Hardware</p></td>
-<td><p>None</p></td>
-<td><p>Software only</p></td>
+<tr class="row-even"><td><p>Hardware JPEG</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Solo software</p></td>
 </tr>
-<tr class="row-odd"><td><p>MPEG1 Hardware</p></td>
-<td><p>None</p></td>
-<td><p>Software only</p></td>
+<tr class="row-odd"><td><p>Hardware MPEG1</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Solo software</p></td>
 </tr>
-<tr class="row-even"><td><p>DSP Instructions</p></td>
-<td><p>Yes</p></td>
-<td><p>Accelerates signal processing</p></td>
+<tr class="row-even"><td><p>Istruzioni DSP</p></td>
+<td><p>Sì</p></td>
+<td><p>Accelera l’elaborazione del segnale</p></td>
 </tr>
 <tr class="row-odd"><td><p>FPU</p></td>
-<td><p>64-bit double</p></td>
-<td><p>Full hardware float/double support</p></td>
+<td><p>Double a 64-bit</p></td>
+<td><p>Supporto hardware completo per float/double</p></td>
 </tr>
-<tr class="row-even"><td><p>Clock Speed</p></td>
+<tr class="row-even"><td><p>Velocità del Clock</p></td>
 <td><p>600MHz</p></td>
 <td><p>Dual-issue superscalar</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Key Findings:</strong></p>
+<p><strong>Risultati Principali:</strong></p>
 <ul class="simple">
-<li><p>No dedicated video/image codec hardware</p></li>
-<li><p>DSP instructions can accelerate DCT/IDCT operations</p></li>
-<li><p>High clock speed enables reasonable software decoding</p></li>
-<li><p>Branch prediction improves loop performance</p></li>
+<li><p>Nessun codec hardware video/immagine dedicato</p></li>
+<li><p>Le istruzioni DSP possono accelerare le operazioni DCT/IDCT</p></li>
+<li><p>L’elevata velocità di clock consente una decodifica software ragionevole</p></li>
+<li><p>Il “branch prediction” migliora le prestazioni dei loop</p></li>
 </ul>
 </section>
 <section id="stm32-family">
-<h3>STM32 Family<a class="headerlink" href="#stm32-family" title="Link to this heading">¶</a></h3>
+<h3>Famiglia STM32<a class="headerlink" href="#stm32-family" title="Link to this heading">¶</a></h3>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Platform</p></th>
-<th class="head"><p>JPEG Hardware</p></th>
-<th class="head"><p>MPEG1 Hardware</p></th>
-<th class="head"><p>Notes</p></th>
+<tr class="row-odd"><th class="head"><p>Piattaforma</p></th>
+<th class="head"><p>Hardware JPEG</p></th>
+<th class="head"><p>Hardware MPEG1</p></th>
+<th class="head"><p>Note</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>STM32F4</p></td>
-<td><p>None</p></td>
-<td><p>None</p></td>
-<td><p>Software only via LibJPEG</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Nessuna</p></td>
+<td><p>Solo software tramite LibJPEG</p></td>
 </tr>
 <tr class="row-odd"><td><p>STM32F7</p></td>
-<td><p>Hardware JPEG</p></td>
-<td><p>None</p></td>
-<td><p>~4ms for 640x480 encode*</p></td>
+<td><p>JPEG hardware</p></td>
+<td><p>Nessuna</p></td>
+<td><p>~4 ms per codifica 640x480*</p></td>
 </tr>
 <tr class="row-even"><td><p>STM32H7</p></td>
-<td><p>Hardware JPEG + DMA2D</p></td>
-<td><p>None</p></td>
-<td><p>100fps &#64; 640x480 with YCbCr→RGB acceleration</p></td>
+<td><p>JPEG Hardware + DMA2D</p></td>
+<td><p>Nessuna</p></td>
+<td><p>100 fps a 640x480 con accelerazione YCbCr→RGB</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Key Findings:</strong></p>
+<p><strong>Risultati Principali:</strong></p>
 <ul class="simple">
-<li><p>STM32H7 offers best codec performance with hardware JPEG + DMA2D</p></li>
-<li><p>*Performance figures are estimates based on manufacturer specifications</p></li>
-<li><p>STM32F7 has hardware JPEG but software color conversion</p></li>
-<li><p>No MPEG1 hardware support on any STM32</p></li>
-<li><p>MJPEG video possible through JPEG hardware</p></li>
+<li><p>STM32H7 offre le migliori prestazioni del codec con JPEG hardware + DMA2D</p></li>
+<li><p>*I dati sulle prestazioni sono stime basate sulle specificje del produttore</p></li>
+<li><p>STM32F7 supporta il formato JPEG hardware, ma la conversione del colore è software</p></li>
+<li><p>Nessun supporto hardware MPEG1 su nessun STM32</p></li>
+<li><p>Video MJPEG possibile tramite hardware JPEG</p></li>
 </ul>
 </section>
 </section>
 <section id="architecture-design">
-<h2>Architecture Design<a class="headerlink" href="#architecture-design" title="Link to this heading">¶</a></h2>
-<p>Based on FastLED’s audio_input cross-platform plugin pattern, the codec system will use:</p>
+<h2>Progettazione dell’Architettura<a class="headerlink" href="#architecture-design" title="Link to this heading">¶</a></h2>
+<p>Basato sul pattern multipiattaforma audio_input di FastLED, il sistema di codec utilizzerà:</p>
 <section id="core-plugin-architecture">
-<h3>Core Plugin Architecture<a class="headerlink" href="#core-plugin-architecture" title="Link to this heading">¶</a></h3>
+<h3>Architettura “Core Plugin”<a class="headerlink" href="#core-plugin-architecture" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">fl</span><span class="w"> </span><span class="p">{</span>
 <span class="k">namespace</span><span class="w"> </span><span class="nn">codec</span><span class="w"> </span><span class="p">{</span>
 
@@ -282,8 +282,8 @@
 </div>
 </section>
 <section id="platform-specific-implementation-strategy">
-<h3>Platform-Specific Implementation Strategy<a class="headerlink" href="#platform-specific-implementation-strategy" title="Link to this heading">¶</a></h3>
-<p>Following the audio_input pattern, codec implementations will be organized as:</p>
+<h3>Strategia di Implementazione Specifica per Piattaforma<a class="headerlink" href="#platform-specific-implementation-strategy" title="Link to this heading">¶</a></h3>
+<p>Seguendo il pattern audio_input, le implementazioni del codec saranno organizzate come segue:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// In fl/codec.cpp - main dispatcher</span>
 <span class="cp">#if FASTLED_USES_ESP32_CODEC</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;platforms/esp/32/codec/codec_impl.hpp&quot;</span>
@@ -311,7 +311,7 @@
 </div>
 </section>
 <section id="esp32-specific-implementation-structure">
-<h3>ESP32-Specific Implementation Structure<a class="headerlink" href="#esp32-specific-implementation-structure" title="Link to this heading">¶</a></h3>
+<h3>Struttura di Implementazione Specifica per ESP32<a class="headerlink" href="#esp32-specific-implementation-structure" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// platforms/esp/32/codec/codec_impl.hpp</span>
 <span class="k">namespace</span><span class="w"> </span><span class="nn">fl</span><span class="w"> </span><span class="p">{</span>
 
@@ -340,21 +340,21 @@
 </div>
 </section>
 <section id="decoder-selection-strategy">
-<h3>Decoder Selection Strategy<a class="headerlink" href="#decoder-selection-strategy" title="Link to this heading">¶</a></h3>
+<h3>Strategia di Selezione del Decoder<a class="headerlink" href="#decoder-selection-strategy" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p><strong>Compile-time platform detection</strong> using preprocessor flags</p></li>
-<li><p><strong>Runtime capability checking</strong> within platform implementations</p></li>
-<li><p><strong>Weak symbol linking</strong> for graceful platform fallbacks</p></li>
-<li><p><strong>Factory pattern</strong> with error reporting for unsupported configurations</p></li>
-<li><p><strong>Automatic hardware acceleration</strong> when available, software fallback otherwise</p></li>
+<li><p><strong>Rilevamento della piattaforma in fase di compilazione</strong> tramite flag del preprocessore</p></li>
+<li><p><strong>Controllo delle capacità a runtime</strong> all’interno delle implementazioni della piattaforma</p></li>
+<li><p><strong>Weak symbol linking</strong> per fallback di piattaforma efficienti</p></li>
+<li><p><strong>Factory pattern</strong> con segnalazione degli errori per configurazioni non supportate</p></li>
+<li><p><strong>Accelerazione hardware automatica</strong> quando disponibile, fallback software altrimenti</p></li>
 </ol>
 </section>
 </section>
 <section id="api-design">
-<h2>API Design<a class="headerlink" href="#api-design" title="Link to this heading">¶</a></h2>
-<p>Following the audio_input pattern, the codec API provides clean factory methods and configuration objects:</p>
+<h2>Progettazione API<a class="headerlink" href="#api-design" title="Link to this heading">¶</a></h2>
+<p>Seguendo il pattern audio_input, l’API del codec fornisce metodi factory e oggetti di configurazione puliti:</p>
 <section id="basic-usage">
-<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h3>
+<h3>Utilizzo di Base<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Simple JPEG decoding with automatic platform selection</span>
 <span class="n">fl</span><span class="o">::</span><span class="n">codec</span><span class="o">::</span><span class="n">JpegConfig</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="n">fl</span><span class="o">::</span><span class="n">codec</span><span class="o">::</span><span class="n">JpegConfig</span><span class="o">::</span><span class="n">Medium</span><span class="p">,</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">codec</span><span class="o">::</span><span class="n">JpegConfig</span><span class="o">::</span><span class="n">RGB888</span><span class="p">);</span>
 <span class="n">fl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">error_msg</span><span class="p">;</span>
@@ -392,7 +392,7 @@
 </div>
 </section>
 <section id="platform-specific-optimizations">
-<h3>Platform-Specific Optimizations<a class="headerlink" href="#platform-specific-optimizations" title="Link to this heading">¶</a></h3>
+<h3>Ottimizzazioni Specifiche della Piattaforma<a class="headerlink" href="#platform-specific-optimizations" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Check platform capabilities before configuration</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fl</span><span class="o">::</span><span class="n">codec</span><span class="o">::</span><span class="n">Codec</span><span class="o">::</span><span class="n">isJpegSupported</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">fl</span><span class="o">::</span><span class="n">codec</span><span class="o">::</span><span class="n">JpegConfig</span><span class="w"> </span><span class="n">config</span><span class="p">;</span>
@@ -424,7 +424,7 @@
 </div>
 </section>
 <section id="memory-constrained-usage">
-<h3>Memory-Constrained Usage<a class="headerlink" href="#memory-constrained-usage" title="Link to this heading">¶</a></h3>
+<h3>Utilizzo con Vincoli di Memoria<a class="headerlink" href="#memory-constrained-usage" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Streaming mode for memory-constrained devices</span>
 <span class="n">fl</span><span class="o">::</span><span class="n">codec</span><span class="o">::</span><span class="n">JpegConfig</span><span class="w"> </span><span class="n">lowMemConfig</span><span class="p">;</span>
 <span class="n">lowMemConfig</span><span class="p">.</span><span class="n">quality</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fl</span><span class="o">::</span><span class="n">codec</span><span class="o">::</span><span class="n">JpegConfig</span><span class="o">::</span><span class="n">Low</span><span class="p">;</span>
@@ -447,51 +447,51 @@
 </section>
 </section>
 <section id="implementation-strategy">
-<h2>Implementation Strategy<a class="headerlink" href="#implementation-strategy" title="Link to this heading">¶</a></h2>
+<h2>Strategia di Implementazione<a class="headerlink" href="#implementation-strategy" title="Link to this heading">¶</a></h2>
 <section id="phase-1-jpeg-decoder">
-<h3>Phase 1: JPEG Decoder<a class="headerlink" href="#phase-1-jpeg-decoder" title="Link to this heading">¶</a></h3>
+<h3>Fase 1: Decoder JPEG<a class="headerlink" href="#phase-1-jpeg-decoder" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p>Integrate esp_jpeg component for ESP32 variants (uses ROM TJpgDec when available)</p></li>
-<li><p>Add ESP32-P4 hardware JPEG codec support via IDF JPEG driver</p></li>
-<li><p>Implement ESP32-S3 PIE optimizations for color conversion</p></li>
-<li><p>Implement STM32H7 hardware acceleration</p></li>
-<li><p>Create unified API with automatic platform detection</p></li>
+<li><p>Integrare il componente esp_jpeg per le varianti ESP32 (utilizza la ROM TJpgDec quando disponibile)</p></li>
+<li><p>Aggiungere il supporto per il codec JPEG hardware ESP32-P4 tramite il driver JPEG IDF</p></li>
+<li><p>Implementare le ottimizzazioni PIE ESP32-S3 per la conversione del colore</p></li>
+<li><p>Implementare l’accelerazione hardware STM32H7</p></li>
+<li><p>Creare un’API unificata con rilevamento automatico della piattaforma</p></li>
 </ol>
 </section>
 <section id="phase-2-mpeg1-decoder">
-<h3>Phase 2: MPEG1 Decoder<a class="headerlink" href="#phase-2-mpeg1-decoder" title="Link to this heading">¶</a></h3>
+<h3>Fase 2: Decoder MPEG1<a class="headerlink" href="#phase-2-mpeg1-decoder" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p>Port pl_mpeg library (single-file, patent-free)</p></li>
-<li><p>Optimize for microcontroller constraints</p></li>
-<li><p>Add frame buffering strategies</p></li>
-<li><p>Implement audio stripping for video-only playback</p></li>
+<li><p>Porting della libreria pl_mpeg (file singolo, senza brevetti)</p></li>
+<li><p>Ottimizzare per i vincoli del microcontrollore</p></li>
+<li><p>Aggiungere strategie di frame buffering</p></li>
+<li><p>Implementare lo stripping audio per la riproduzione solo video</p></li>
 </ol>
 </section>
 <section id="phase-3-optimization">
-<h3>Phase 3: Optimization<a class="headerlink" href="#phase-3-optimization" title="Link to this heading">¶</a></h3>
+<h3>Fase 3: Ottimizzazione<a class="headerlink" href="#phase-3-optimization" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p>Add SIMD optimizations for ESP32-S3</p></li>
-<li><p>Implement DSP acceleration for Teensy 4.x</p></li>
-<li><p>Add DMA2D support for STM32H7</p></li>
-<li><p>Profile and optimize hot paths</p></li>
+<li><p>Aggiungere ottimizzazioni SIMD per ESP32-S3</p></li>
+<li><p>Implementare l’accelerazione DSP per Teensy 4.x</p></li>
+<li><p>Aggiungere il supporto DMA2D per STM32H7</p></li>
+<li><p>Profilare e ottimizzare i path “hot”</p></li>
 </ol>
 </section>
 </section>
 <section id="memory-management">
-<h2>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h2>
+<h2>Gestione della Memoria<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h2>
 <section id="constraints-by-platform">
-<h3>Constraints by Platform<a class="headerlink" href="#constraints-by-platform" title="Link to this heading">¶</a></h3>
+<h3>Vincoli per Piattaforma<a class="headerlink" href="#constraints-by-platform" title="Link to this heading">¶</a></h3>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Platform</p></th>
-<th class="head"><p>Typical RAM</p></th>
-<th class="head"><p>Recommended Strategy</p></th>
+<tr class="row-odd"><th class="head"><p>Piattaforma</p></th>
+<th class="head"><p>RAM tipica</p></th>
+<th class="head"><p>Strategia Consigliata</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>AVR</p></td>
 <td><p>2-8KB</p></td>
-<td><p>Not supported</p></td>
+<td><p>Non supportato</p></td>
 </tr>
 <tr class="row-odd"><td><p>ESP32</p></td>
 <td><p>320KB+</p></td>
@@ -499,25 +499,25 @@
 </tr>
 <tr class="row-even"><td><p>ESP32-C3</p></td>
 <td><p>400KB</p></td>
-<td><p>Streaming with small buffer</p></td>
+<td><p>Streaming con buffer ridotto</p></td>
 </tr>
 <tr class="row-odd"><td><p>Teensy 4.x</p></td>
 <td><p>1MB</p></td>
-<td><p>Multiple frame buffers</p></td>
+<td><p>Frame buffer multipli</p></td>
 </tr>
 <tr class="row-even"><td><p>STM32F4</p></td>
 <td><p>128KB</p></td>
-<td><p>Block-based streaming</p></td>
+<td><p>Streaming basato su blocchi</p></td>
 </tr>
 <tr class="row-odd"><td><p>STM32H7</p></td>
 <td><p>1MB</p></td>
-<td><p>Hardware DMA transfers</p></td>
+<td><p>Trasferimenti DMA hardware</p></td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="memory-strategies">
-<h3>Memory Strategies<a class="headerlink" href="#memory-strategies" title="Link to this heading">¶</a></h3>
+<h3>Strategie di Memoria<a class="headerlink" href="#memory-strategies" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Minimal memory mode - decode directly to LED buffer</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">DirectDecoder</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">BLOCK_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">;</span><span class="w"> </span><span class="c1">// 8x8 pixels</span>
@@ -542,34 +542,34 @@
 </section>
 </section>
 <section id="performance-considerations">
-<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h2>
+<h2>Considerazioni sulle Prestazioni<a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h2>
 <section id="target-performance-metrics">
-<h3>Target Performance Metrics<a class="headerlink" href="#target-performance-metrics" title="Link to this heading">¶</a></h3>
+<h3>Metriche delle prestazioni target<a class="headerlink" href="#target-performance-metrics" title="Link to this heading">¶</a></h3>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Use Case</p></th>
-<th class="head"><p>Resolution</p></th>
-<th class="head"><p>Target FPS</p></th>
-<th class="head"><p>Platform</p></th>
+<tr class="row-odd"><th class="head"><p>Caso d’uso</p></th>
+<th class="head"><p>Risoluzione</p></th>
+<th class="head"><p>FPS Target</p></th>
+<th class="head"><p>Piattaforma</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>LED Matrix Display</p></td>
+<tr class="row-even"><td><p>Display a Matrice LED</p></td>
 <td><p>64x64</p></td>
 <td><p>30</p></td>
 <td><p>ESP32-S3</p></td>
 </tr>
-<tr class="row-odd"><td><p>LED Strip Animation</p></td>
-<td><p>300 pixels</p></td>
+<tr class="row-odd"><td><p>Animazione a Strisce LED</p></td>
+<td><p>300 pixel</p></td>
 <td><p>60</p></td>
 <td><p>Teensy 4.x</p></td>
 </tr>
-<tr class="row-even"><td><p>Video Wall</p></td>
+<tr class="row-even"><td><p>Videowall</p></td>
 <td><p>128x128</p></td>
 <td><p>25</p></td>
 <td><p>STM32H7</p></td>
 </tr>
-<tr class="row-odd"><td><p>Low-res Video</p></td>
+<tr class="row-odd"><td><p>Video a bassa risoluzione</p></td>
 <td><p>160x120</p></td>
 <td><p>15</p></td>
 <td><p>ESP32-C3</p></td>
@@ -578,20 +578,20 @@
 </table>
 </section>
 <section id="optimization-techniques">
-<h3>Optimization Techniques<a class="headerlink" href="#optimization-techniques" title="Link to this heading">¶</a></h3>
+<h3>Tecniche di Ottimizzazione<a class="headerlink" href="#optimization-techniques" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p><strong>Block-based processing</strong> - Minimize memory usage</p></li>
-<li><p><strong>Skip unnecessary color conversions</strong> - Direct YCbCr�RGB565 when possible</p></li>
-<li><p><strong>Parallel decoding</strong> - Utilize dual cores on ESP32</p></li>
-<li><p><strong>DMA transfers</strong> - Overlap computation with data movement</p></li>
-<li><p><strong>Quality/speed tradeoffs</strong> - Configurable IDCT precision</p></li>
+<li><p><strong>Elaborazione basata su blocchi</strong> - Ridurre al minimo l’utilizzo di memoria</p></li>
+<li><p><strong>Evitare conversioni di colore non necessarie</strong> - YCbCr-RGB565 diretto quando possibile</p></li>
+<li><p><strong>Decodifica parallela</strong> - Utilizzare dual core su ESP32</p></li>
+<li><p><strong>Trasferimenti DMA</strong> - Sovrapposizione di calcolo con lo spostamento dei dati</p></li>
+<li><p><strong>Compromessi qualità/velocità</strong> - Precisione IDCT configurabile</p></li>
 </ol>
 </section>
 </section>
 <section id="id1">
-<h2>Platform-Specific Optimizations<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<h2>Ottimizzazioni Specifiche della Piattaforma<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <section id="esp32-s3-pie-simd-optimizations">
-<h3>ESP32-S3 PIE/SIMD Optimizations<a class="headerlink" href="#esp32-s3-pie-simd-optimizations" title="Link to this heading">¶</a></h3>
+<h3>Ottimizzazioni ESP32-S3 PIE/SIMD<a class="headerlink" href="#esp32-s3-pie-simd-optimizations" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef CONFIG_IDF_TARGET_ESP32S3</span>
 <span class="c1">// ESP32-S3 PIE instructions for YCbCr→RGB conversion</span>
 <span class="c1">// Note: Requires 16-byte memory alignment</span>
@@ -607,7 +607,7 @@
 </div>
 </section>
 <section id="stm32h7-hardware-jpeg">
-<h3>STM32H7 Hardware JPEG<a class="headerlink" href="#stm32h7-hardware-jpeg" title="Link to this heading">¶</a></h3>
+<h3>JPEG hardware STM32H7<a class="headerlink" href="#stm32h7-hardware-jpeg" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef STM32H7</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">STM32H7JpegDecoder</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">JpegDecoder</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">JPEG_HandleTypeDef</span><span class="w"> </span><span class="n">hjpeg</span><span class="p">;</span>
@@ -625,7 +625,7 @@
 </div>
 </section>
 <section id="teensy-4-x-dsp-acceleration">
-<h3>Teensy 4.x DSP Acceleration<a class="headerlink" href="#teensy-4-x-dsp-acceleration" title="Link to this heading">¶</a></h3>
+<h3>Accelerazione DSP Teensy 4.x<a class="headerlink" href="#teensy-4-x-dsp-acceleration" title="Link to this heading">¶</a></h3>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#if defined(TEENSY40) || defined(TEENSY41)</span>
 <span class="c1">// Utilize ARM DSP instructions</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">dct_accelerated</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -638,268 +638,268 @@
 </section>
 </section>
 <section id="additional-considerations">
-<h2>Additional Considerations<a class="headerlink" href="#additional-considerations" title="Link to this heading">¶</a></h2>
+<h2>Considerazioni Aggiuntive<a class="headerlink" href="#additional-considerations" title="Link to this heading">¶</a></h2>
 <section id="endianness-handling">
-<h3>Endianness Handling<a class="headerlink" href="#endianness-handling" title="Link to this heading">¶</a></h3>
+<h3>Gestione dell’Endianness<a class="headerlink" href="#endianness-handling" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Implement byte-swapping macros for cross-platform compatibility</p></li>
-<li><p>Test on both little-endian (x86, ARM) and big-endian platforms</p></li>
-<li><p>Ensure proper bitstream reading regardless of architecture</p></li>
+<li><p>Implementare macro di “byte-swapping” compatibilità multipiattaforma</p></li>
+<li><p>Test su piattaforme little-endian (x86, ARM) e big-endian</p></li>
+<li><p>Garantire la corretta lettura del bitstream indipendentemente dall’architettura</p></li>
 </ul>
 </section>
 <section id="interrupt-safety">
-<h3>Interrupt Safety<a class="headerlink" href="#interrupt-safety" title="Link to this heading">¶</a></h3>
+<h3>Sicurezza negli Interrupt<a class="headerlink" href="#interrupt-safety" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Decoder operations must be interrupt-safe for real-time LED updates</p></li>
-<li><p>Consider using critical sections for frame buffer swaps</p></li>
-<li><p>Implement non-blocking decode modes for time-critical applications</p></li>
-<li><p>Support for cooperative multitasking on single-core devices</p></li>
+<li><p>Le operazioni di decodifica devono essere “interrupt-safe” per gli aggiornamenti LED in tempo reale</p></li>
+<li><p>Valutare l’utilizzo di sezioni critiche per gli scambi di frame buffer</p></li>
+<li><p>Implementare modalità di decodifica non bloccanti per applicazioni time-critical</p></li>
+<li><p>Supporto per il multitasking cooperativo su dispositivi single-core</p></li>
 </ul>
 </section>
 <section id="error-recovery">
-<h3>Error Recovery<a class="headerlink" href="#error-recovery" title="Link to this heading">¶</a></h3>
+<h3>Recupero da Errori<a class="headerlink" href="#error-recovery" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Graceful degradation on corrupt data</p></li>
-<li><p>Resynchronization strategies for damaged streams</p></li>
-<li><p>Configurable error tolerance levels</p></li>
-<li><p>Fallback to last known good frame on decode failures</p></li>
+<li><p>Degradazione graduale su dati corrotti</p></li>
+<li><p>Strategie di risincronizzazione per flussi danneggiati</p></li>
+<li><p>Livelli di tolleranza agli errori configurabili</p></li>
+<li><p>Ripristino all’ultimo frame valido noto in caso di errori di decodifica</p></li>
 </ul>
 </section>
 </section>
 <section id="testing-strategy">
-<h2>Testing Strategy<a class="headerlink" href="#testing-strategy" title="Link to this heading">¶</a></h2>
+<h2>Strategia di Test<a class="headerlink" href="#testing-strategy" title="Link to this heading">¶</a></h2>
 <section id="unit-tests">
-<h3>Unit Tests<a class="headerlink" href="#unit-tests" title="Link to this heading">¶</a></h3>
+<h3>Unit Test<a class="headerlink" href="#unit-tests" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Decode known test images/videos</p></li>
-<li><p>Verify pixel accuracy</p></li>
-<li><p>Test error handling</p></li>
-<li><p>Memory leak detection</p></li>
-<li><p>Performance benchmarks</p></li>
+<li><p>Decodifica di immagini/video di test note</p></li>
+<li><p>Verifica della precisione dei pixel</p></li>
+<li><p>Gestione degli errori di test</p></li>
+<li><p>Rilevamento dei “memory leak”</p></li>
+<li><p>Benchmark delle prestazioni</p></li>
 </ul>
 </section>
 <section id="platform-coverage">
-<h3>Platform Coverage<a class="headerlink" href="#platform-coverage" title="Link to this heading">¶</a></h3>
+<h3>Copertura della Piattaforma<a class="headerlink" href="#platform-coverage" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Compile-time tests for each platform</p></li>
-<li><p>Hardware acceleration verification</p></li>
-<li><p>Fallback mechanism testing</p></li>
-<li><p>Memory constraint testing</p></li>
+<li><p>Test in fase di compilazione per ciascuna piattaforma</p></li>
+<li><p>Verifica dell’accelerazione hardware</p></li>
+<li><p>Test del meccanismo di fallback</p></li>
+<li><p>Test dei vincoli di memoria</p></li>
 </ul>
 </section>
 <section id="integration-tests">
-<h3>Integration Tests<a class="headerlink" href="#integration-tests" title="Link to this heading">¶</a></h3>
+<h3>Test di Integrazione<a class="headerlink" href="#integration-tests" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>FastLED display output</p></li>
-<li><p>Color space conversions</p></li>
-<li><p>Stream handling from various sources</p></li>
-<li><p>Real-time playback performance</p></li>
+<li><p>Output display FastLED</p></li>
+<li><p>Conversioni dello spazio colore</p></li>
+<li><p>Gestione dello streaming da varie sorgenti</p></li>
+<li><p>Prestazioni di riproduzione in tempo reale</p></li>
 </ul>
 </section>
 </section>
 <section id="implementation-timeline">
-<h2>Implementation Timeline<a class="headerlink" href="#implementation-timeline" title="Link to this heading">¶</a></h2>
+<h2>Cronologia di Implementazione<a class="headerlink" href="#implementation-timeline" title="Link to this heading">¶</a></h2>
 <section id="milestone-1-week-1-2-completed">
-<h3>✅ Milestone 1 (Week 1-2) - COMPLETED<a class="headerlink" href="#milestone-1-week-1-2-completed" title="Link to this heading">¶</a></h3>
+<h3>✅ Milestone 1 (Settimana 1-2) - COMPLETATO<a class="headerlink" href="#milestone-1-week-1-2-completed" title="Link to this heading">¶</a></h3>
 <ul class="contains-task-list simple">
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Basic JPEG decoder structure - <strong>DONE</strong>: Core API and base classes implemented</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> ESP32 ROM decoder integration - <strong>PENDING</strong>: Factory returns null, needs platform-specific implementation</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Simple test suite - <strong>DONE</strong>: Basic test structure in place</p></li>
+<li class="task-list-item"><p>Struttura base del decoder JPEG - <strong>FATTO</strong>: Implementazione dell’API principale e delle classi base</p></li>
+<li class="task-list-item"><p>Integrazione del decoder ROM ESP32 - <strong>IN SOSPESO</strong>: Il valore di fabbrica restituisce null, necessita di implementazione specifica per la piattaforma</p></li>
+<li class="task-list-item"><p>Test suite semplice - <strong>FATTO</strong>: Struttura di test di base implementata</p></li>
 </ul>
 </section>
 <section id="milestone-2-week-3-4-partially-completed">
-<h3>✅ Milestone 2 (Week 3-4) - PARTIALLY COMPLETED<a class="headerlink" href="#milestone-2-week-3-4-partially-completed" title="Link to this heading">¶</a></h3>
+<h3>✅ Milestone 2 (Settimana 3-4) - PARZIALMENTE COMPLETATO<a class="headerlink" href="#milestone-2-week-3-4-partially-completed" title="Link to this heading">¶</a></h3>
 <ul class="contains-task-list simple">
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> MPEG1 decoder port - <strong>DONE</strong>: SoftwareMpeg1Decoder class implemented with basic structure</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Memory optimization - <strong>IN PROGRESS</strong>: Frame buffering and config options implemented</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Platform detection - <strong>DONE</strong>: Factory pattern with platform-specific creation</p></li>
+<li class="task-list-item"><p>Porting del decoder MPEG1 - <strong>FATTO</strong>: Classe SoftwareMpeg1Decoder implementata con struttura di base</p></li>
+<li class="task-list-item"><p>Ottimizzazione della memoria - <strong>IN PROGRESS</strong>: Implementazione del frame buffering e delle opzioni di configurazione</p></li>
+<li class="task-list-item"><p>Rilevamento piattaforma - <strong>COMPIUTA</strong>: Factory pattern con creazione specifica per piattaforma</p></li>
 </ul>
 </section>
 <section id="milestone-3-week-5-6-in-progress">
-<h3>🔄 Milestone 3 (Week 5-6) - IN PROGRESS<a class="headerlink" href="#milestone-3-week-5-6-in-progress" title="Link to this heading">¶</a></h3>
+<h3>🔄 Milestone 3 (Settimana 5-6) - IN PROGRESS<a class="headerlink" href="#milestone-3-week-5-6-in-progress" title="Link to this heading">¶</a></h3>
 <ul class="contains-task-list simple">
-<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Hardware acceleration (STM32H7) - <strong>PENDING</strong>: Platform-specific implementations needed</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> SIMD optimizations (ESP32-S3) - <strong>PENDING</strong>: Need to implement PIE optimizations</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Performance benchmarking - <strong>PENDING</strong>: Need benchmark suite</p></li>
+<li class="task-list-item"><p>Accelerazione hardware (STM32H7) - <strong>IN ATTESA</strong>: Necessarie implementazioni specifiche per la piattaforma</p></li>
+<li class="task-list-item"><p>Ottimizzazioni SIMD (ESP32-S3) - <strong>IN ATTESA</strong>: Necessarie implementazioni per le ottimizzazioni PIE</p></li>
+<li class="task-list-item"><p>Benchmarking delle prestazioni - <strong>IN ATTESA</strong>: Necessaria suite di benchmark</p></li>
 </ul>
 </section>
 <section id="milestone-4-week-7-8-in-progress">
-<h3>🔄 Milestone 4 (Week 7-8) - IN PROGRESS<a class="headerlink" href="#milestone-4-week-7-8-in-progress" title="Link to this heading">¶</a></h3>
+<h3>🔄 Milestone 4 (Settimana 7-8) - IN CORSO<a class="headerlink" href="#milestone-4-week-7-8-in-progress" title="Link to this heading">¶</a></h3>
 <ul class="contains-task-list simple">
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> API finalization - <strong>MOSTLY DONE</strong>: Core API structure complete, factory patterns implemented</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Documentation - <strong>DONE</strong>: Examples with README.md created</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Example applications - <strong>DONE</strong>: CodecJpeg.ino and CodecMpeg1.ino examples created</p></li>
+<li class="task-list-item"><p>Finalizzazione API - <strong>QUASI COMPLETATA</strong>: Struttura API Core completata, pattern factory implementati</p></li>
+<li class="task-list-item"><p>Documentazione - <strong>COMPLETA</strong>: Creati esempi con README.md</p></li>
+<li class="task-list-item"><p>Applicazioni di esempio - <strong>COMPLETATE</strong>: Creati esempi di CodecJpeg.ino e CodecMpeg1.ino</p></li>
 </ul>
 </section>
 </section>
 <section id="current-implementation-status-as-of-commit-2423d3f">
-<h2>📊 Current Implementation Status (as of commit 2423d3f)<a class="headerlink" href="#current-implementation-status-as-of-commit-2423d3f" title="Link to this heading">¶</a></h2>
+<h2>📊 Stato di implementazione attuale (al commit 2423d3f)<a class="headerlink" href="#current-implementation-status-as-of-commit-2423d3f" title="Link to this heading">¶</a></h2>
 <section id="completed-components">
-<h3>✅ Completed Components<a class="headerlink" href="#completed-components" title="Link to this heading">¶</a></h3>
+<h3>✅ Componenti Completati<a class="headerlink" href="#completed-components" title="Link to this heading">¶</a></h3>
 <section id="core-architecture">
-<h4>Core Architecture<a class="headerlink" href="#core-architecture" title="Link to this heading">¶</a></h4>
+<h4>Architettura Core<a class="headerlink" href="#core-architecture" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>fl/codec/core.h</strong>: Complete base interface with IDecoder, Frame, PixelFormat enums</p></li>
-<li><p><strong>fl/codec.h</strong>: Main API with Codec factory class and NullDecoder fallback</p></li>
-<li><p><strong>fl/codec.cpp</strong>: Factory implementation delegating to individual codec namespaces</p></li>
+<li><p><strong>fl/codec/core.h</strong>: Interfaccia base completa con enumerazioni IDecoder, Frame, PixelFormat</p></li>
+<li><p><strong>fl/codec.h</strong>: API principale con classe factory Codec e fallback NullDecoder</p></li>
+<li><p><strong>fl/codec.cpp</strong>: Implementazione factory delegata a singoli namespace di codec</p></li>
 </ul>
 </section>
 <section id="jpeg-support">
-<h4>JPEG Support<a class="headerlink" href="#jpeg-support" title="Link to this heading">¶</a></h4>
+<h4>Supporto JPEG<a class="headerlink" href="#jpeg-support" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>fl/codec/jpeg.h</strong>: JpegConfig struct and JpegDecoderBase class defined</p></li>
-<li><p><strong>fl/codec/jpeg.cpp</strong>: Factory structure in place (returns null - implementation pending)</p></li>
+<li><p><strong>fl/codec/jpeg.h</strong>: Struct JpegConfig e classe JpegDecoderBase definite</p></li>
+<li><p><strong>fl/codec/jpeg.cpp</strong>: Struttura factory in atto (restituisce null - implementazione in sospeso)</p></li>
 </ul>
 </section>
 <section id="mpeg1-support">
-<h4>MPEG1 Support<a class="headerlink" href="#mpeg1-support" title="Link to this heading">¶</a></h4>
+<h4>Supporto MPEG1<a class="headerlink" href="#mpeg1-support" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>fl/codec/mpeg1.h</strong>: Complete Mpeg1Config and SoftwareMpeg1Decoder class</p></li>
-<li><p><strong>fl/codec/mpeg1.cpp</strong>: Partial implementation with decoder data structures</p></li>
+<li><p><strong>fl/codec/mpeg1.h</strong>: Mpeg1Config completo e classe SoftwareMpeg1Decoder</p></li>
+<li><p><strong>fl/codec/mpeg1.cpp</strong>: Implementazione parziale con strutture dati decoder</p></li>
 </ul>
 </section>
 <section id="testing-infrastructure">
-<h4>Testing Infrastructure<a class="headerlink" href="#testing-infrastructure" title="Link to this heading">¶</a></h4>
+<h4>Infrastruttura di Test<a class="headerlink" href="#testing-infrastructure" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>tests/test_codec.cpp</strong>: Main test runner including codec unit tests</p></li>
-<li><p><strong>tests/unit/codec/test_codec_basic.cpp</strong>: Basic codec tests</p></li>
-<li><p><strong>tests/unit/codec/test_mpeg1_decoder.cpp</strong>: MPEG1-specific tests</p></li>
+<li><p><strong>tests/test_codec.cpp</strong>: Test runner principale, inclusa l’unità codec test</p></li>
+<li><p><strong>tests/unit/codec/test_codec_basic.cpp</strong>: Test codec di base</p></li>
+<li><p><strong>tests/unit/codec/test_mpeg1_decoder.cpp</strong>: Test specifici per MPEG1</p></li>
 </ul>
 </section>
 <section id="examples">
-<h4>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h4>
+<h4>Esempi<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>examples/codec/CodecJpeg.ino</strong>: JPEG decoding example (4.3KB)</p></li>
-<li><p><strong>examples/codec/CodecMpeg1.ino</strong>: MPEG1 video playback example (6.3KB)</p></li>
-<li><p><strong>examples/codec/README.md</strong>: Documentation for codec examples (5.8KB)</p></li>
+<li><p><strong>examples/codec/CodecJpeg.ino</strong>: Esempio di decodifica JPEG (4,3 KB)</p></li>
+<li><p><strong>examples/codec/CodecMpeg1.ino</strong>: Esempio di riproduzione video MPEG1 (6,3 KB)</p></li>
+<li><p><strong>examples/codec/README.md</strong>: Documentazione per gli esempi di codec (5,8 KB)</p></li>
 </ul>
 </section>
 </section>
 <section id="pending-implementation">
-<h3>🚧 Pending Implementation<a class="headerlink" href="#pending-implementation" title="Link to this heading">¶</a></h3>
+<h3>🚧 Implementazione in Attesa<a class="headerlink" href="#pending-implementation" title="Link to this heading">¶</a></h3>
 <section id="jpeg-decoder-implementation">
-<h4>JPEG Decoder Implementation<a class="headerlink" href="#jpeg-decoder-implementation" title="Link to this heading">¶</a></h4>
+<h4>Implementazione del Decoder JPEG<a class="headerlink" href="#jpeg-decoder-implementation" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>Platform-specific decoders</strong>: ESP32 ROM TJpgDec, ESP32-P4 hardware, STM32H7 acceleration</p></li>
-<li><p><strong>Software fallback</strong>: For platforms without hardware acceleration</p></li>
-<li><p><strong>Color space conversion</strong>: YCbCr to RGB with SIMD optimizations where available</p></li>
-<li><p><strong>Error handling</strong>: Robust error detection and recovery</p></li>
+<li><p><strong>Decoder specifici per piattaforma</strong>: ROM ESP32 TJpgDec, hardware ESP32-P4, accelerazione STM32H7</p></li>
+<li><p><strong>Software fallback</strong>: Per piattaforme senza accelerazione hardware</p></li>
+<li><p><strong>Conversione dello spazio colore</strong>: Da YCbCr a RGB con ottimizzazioni SIMD ove disponibili</p></li>
+<li><p><strong>Gestione degli errori</strong>: Rilevamento e ripristino degli errori affidabile</p></li>
 </ul>
 </section>
 <section id="mpeg1-decoder-implementation">
-<h4>MPEG1 Decoder Implementation<a class="headerlink" href="#mpeg1-decoder-implementation" title="Link to this heading">¶</a></h4>
+<h4>Implementazione del Decoder MPEG1<a class="headerlink" href="#mpeg1-decoder-implementation" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>Bitstream parsing</strong>: MPEG1 video stream parsing and header extraction</p></li>
-<li><p><strong>DCT/IDCT operations</strong>: Discrete Cosine Transform implementation</p></li>
-<li><p><strong>Motion compensation</strong>: P-frame prediction and interpolation</p></li>
-<li><p><strong>Frame buffering</strong>: Efficient double/triple buffering for smooth playback</p></li>
+<li><p><strong>Bitstream parsing</strong>: Analisi dello stream video MPEG1 ed estrazione dell’header</p></li>
+<li><p><strong>Operazioni DCT/IDCT</strong>: impòementazione della Discrete Cosine Transform</p></li>
+<li><p><strong>Compensazione del movimento</strong>: Previsione e interpolazione dei P-frame</p></li>
+<li><p><strong>Frame buffering</strong>: Doppio/Triplo buffering efficiente per una riproduzione fluida</p></li>
 </ul>
 </section>
 <section id="id2">
-<h4>Platform-Specific Optimizations<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
+<h4>Ottimizzazioni Specifiche della Piattaforma<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>ESP32-S3 PIE/SIMD</strong>: Color conversion acceleration using processor instruction extensions</p></li>
-<li><p><strong>STM32H7 DMA2D</strong>: Hardware-accelerated color format conversion</p></li>
-<li><p><strong>Teensy 4.x DSP</strong>: ARM DSP instructions for DCT operations</p></li>
+<li><p><strong>ESP32-S3 PIE/SIMD</strong>: Accelerazione della conversione del colore tramite estensioni delle istruzioni del processore</p></li>
+<li><p><strong>STM32H7 DMA2D</strong>: Conversione del formato colore con accelerazione hardware</p></li>
+<li><p><strong>Teensy 4.x DSP</strong>: Istruzioni DSP ARM per operazioni DCT</p></li>
 </ul>
 </section>
 <section id="performance-testing">
-<h4>Performance &amp; Testing<a class="headerlink" href="#performance-testing" title="Link to this heading">¶</a></h4>
+<h4>Prestazioni e Test<a class="headerlink" href="#performance-testing" title="Link to this heading">¶</a></h4>
 <ul class="simple">
-<li><p><strong>Benchmark suite</strong>: Performance testing across different platforms and resolutions</p></li>
-<li><p><strong>Memory profiling</strong>: Optimization for memory-constrained devices</p></li>
-<li><p><strong>Real-world testing</strong>: Integration with actual LED displays and performance validation</p></li>
+<li><p><strong>Suite di benchmark</strong>: Test delle prestazioni su diverse piattaforme e risoluzioni</p></li>
+<li><p><strong>Profilazione della memoria</strong>: Ottimizzazione per dispositivi con limiti di memoria</p></li>
+<li><p><strong>Test reali</strong>: Integrazione con display LED reali e convalida delle prestazioni</p></li>
 </ul>
 </section>
 </section>
 <section id="next-priority-tasks">
-<h3>🎯 Next Priority Tasks<a class="headerlink" href="#next-priority-tasks" title="Link to this heading">¶</a></h3>
+<h3>🎯 Prossime Attività Prioritarie<a class="headerlink" href="#next-priority-tasks" title="Link to this heading">¶</a></h3>
 <ol class="arabic simple">
-<li><p><strong>Complete JPEG decoder implementation</strong> - Focus on ESP32 ROM TJpgDec integration first</p></li>
-<li><p><strong>Finish MPEG1 bitstream parsing</strong> - Complete the decoder data structure implementation</p></li>
-<li><p><strong>Add platform detection logic</strong> - Implement compile-time platform selection</p></li>
-<li><p><strong>Create comprehensive test suite</strong> - Add tests for various image/video formats</p></li>
-<li><p><strong>Implement error handling</strong> - Robust error detection and graceful degradation</p></li>
+<li><p><strong>Completare l’implementazione del decoder JPEG</strong> - Concentrarsi prima sull’integrazione TJpgDec della ROM ESP32</p></li>
+<li><p><strong>Completare l’analisi del bitstream MPEG1</strong> - Completare l’implementazione della struttura dati del decoder</p></li>
+<li><p><strong>Aggiungere la logica di rilevamento della piattaforma</strong> - Implementare la selezione della piattaforma durante la compilazione</p></li>
+<li><p><strong>Creare una suite di test completa</strong> - Aggiungere test per vari formati immagini/video</p></li>
+<li><p><strong>Implementare la gestione degli errori</strong> - Rilevamento degli errori affidabile e degradazione graduale</p></li>
 </ol>
 </section>
 </section>
 <section id="conclusion">
-<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">¶</a></h2>
-<p><strong>Current Status</strong>: The <code class="docutils literal notranslate"><span class="pre">fl/codec.h</span></code> module foundation has been successfully implemented with a solid architecture that follows FastLED design patterns. The core API structure is complete, and the framework for both JPEG and MPEG1 decoding is in place.</p>
-<p><strong>Progress Summary</strong>:</p>
+<h2>Conclusione<a class="headerlink" href="#conclusion" title="Link to this heading">¶</a></h2>
+<p><strong>Stato attuale</strong>: Le fondamenta del modulo <code class="docutils literal notranslate"><span class="pre">fl/codec.h</span></code> sono state implementate con successo con una solida architettura che segue i design pattern FastLED. La struttura API principale è completa e il framework per la decodifica JPEG e MPEG1 è pronto.</p>
+<p><strong>Riepilogo dei Progressi</strong>:</p>
 <ul class="simple">
-<li><p>✅ <strong>Architecture Complete</strong>: Factory pattern, base interfaces, and configuration structs implemented</p></li>
-<li><p>✅ <strong>API Design Finalized</strong>: Clean, intuitive interface consistent with FastLED audio_input patterns</p></li>
-<li><p>✅ <strong>Testing Framework</strong>: Unit test structure established with codec-specific test suites</p></li>
-<li><p>✅ <strong>Examples Ready</strong>: Working Arduino sketches demonstrating usage patterns</p></li>
-<li><p>🔄 <strong>Implementation In Progress</strong>: Platform-specific decoders and actual decoding logic pending</p></li>
+<li><p>✅ <strong>Architettura Completata</strong>: Implementati il ​​factory pattern, le interfacce di base e le strutture di configurazione</p></li>
+<li><p>✅ <strong>Progettazione API Finalizzata</strong>: Interfaccia pulita e intuitiva, coerente con i pattern audio_input FastLED</p></li>
+<li><p>✅ <strong>Framework di Test</strong>: Struttura di test unitari definita con suite di test specifiche per codec-specific test suites</p></li>
+<li><p>✅ <strong>Esempi Pronti</strong>: Sketch Arduino funzionanti che dimostrano i pattern di utilizzo</p></li>
+<li><p>🔄 <strong>Implementazione in Corso</strong>: Decoder specifici per piattaforma e logica di decodifica effettiva in attesa</p></li>
 </ul>
-<p><strong>Key Achievements</strong>:</p>
+<p><strong>Risultati Principali</strong>:</p>
 <ul class="simple">
-<li><p>Minimal memory footprint design with configurable buffering strategies</p></li>
-<li><p>Cross-platform factory pattern with automatic platform detection</p></li>
-<li><p>Clean separation between codec-specific implementations</p></li>
-<li><p>Comprehensive error handling and graceful degradation</p></li>
-<li><p>Example applications demonstrating real-world usage</p></li>
+<li><p>Progettazione con ingombro di memoria minimo con strategie di buffering configurabili</p></li>
+<li><p>Pattern factory multipiattaforma con rilevamento automatico della piattaforma</p></li>
+<li><p>Separazione netta tra implementazioni specifiche del codec</p></li>
+<li><p>Gestione completa degli errori e degradazione graduale</p></li>
+<li><p>Esempi di applicazioni che dimostrano l’utilizzo nel mondo reale</p></li>
 </ul>
-<p><strong>Next Phase Focus</strong>: Complete the actual decoder implementations, starting with ESP32 JPEG support and software MPEG1 decoding, followed by platform-specific hardware acceleration optimizations.</p>
+<p><strong>Focus della fase successiva</strong>: Completare le implementazioni effettive del decoder, a partire dal supporto JPEG ESP32 e dalla decodifica software MPEG1, seguite da ottimizzazioni dell’accelerazione hardware specifiche della piattaforma.</p>
 </section>
 <section id="references">
-<h2>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
+<h2>Riferimenti<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
-<li><p><a class="reference external" href="https://github.com/phoboslab/pl_mpeg">pl_mpeg - Single file MPEG1 decoder</a></p></li>
-<li><p><a class="reference external" href="https://www.atomic14.com/2023/09/30/a-faster-esp32-jpeg-decoder">ESP32 JPEG Decoder Performance Analysis</a></p></li>
-<li><p><a class="reference external" href="https://docs.espressif.com/projects/esp-idf/en/stable/esp32p4/api-reference/peripherals/jpeg.html">ESP-IDF JPEG Codec (ESP32-P4)</a></p></li>
-<li><p><a class="reference external" href="https://components.espressif.com/components/espressif/esp_jpeg">Espressif esp_jpeg Component</a></p></li>
-<li><p><a class="reference external" href="https://bitbanksoftware.blogspot.com/2024/01/surprise-esp32-s3-has-few-simd.html">ESP32-S3 PIE/SIMD Instructions</a></p></li>
-<li><p><a class="reference external" href="https://www.st.com/resource/en/application_note/an4996">STM32H7 Hardware JPEG Codec Application Note</a></p></li>
-<li><p><a class="reference external" href="https://github.com/serge-rgb/TinyJPEG">TinyJPEG - Minimal JPEG decoder</a></p></li>
-<li><p><a class="reference internal" href="#src/fl/bytestream.h"><span class="xref myst">FastLED ByteStream Architecture</span></a></p></li>
+<li><p><a class="reference external" href="https://github.com/phoboslab/pl_mpeg">pl_mpeg - Decoder MPEG1 a file singolo</a></p></li>
+<li><p><a class="reference external" href="https://www.atomic14.com/2023/09/30/a-faster-esp32-jpeg-decoder">Analisi delle Prestazioni del Decoder JPEG ESP32</a></p></li>
+<li><p><a class="reference external" href="https://docs.espressif.com/projects/esp-idf/en/stable/esp32p4/api-reference/peripherals/jpeg.html">Codec JPEG ESP-IDF (ESP32-P4)</a></p></li>
+<li><p><a class="reference external" href="https://components.espressif.com/components/espressif/esp_jpeg">omponente Espressif esp_jpeg</a></p></li>
+<li><p><a class="reference external" href="https://bitbanksoftware.blogspot.com/2024/01/surprise-esp32-s3-has-few-simd.html">Istruzioni ESP32-S3 PIE/SIMD</a></p></li>
+<li><p><a class="reference external" href="https://www.st.com/resource/en/application_note/an4996">Nota applicativa del codec JPEG hardware STM32H7</a></p></li>
+<li><p><a class="reference external" href="https://github.com/serge-rgb/TinyJPEG">TinyJPEG - Decoder JPEG minimale</a></p></li>
+<li><p><a class="reference internal" href="#src/fl/bytestream.h"><span class="xref myst">Architettura FastLED ByteStream</span></a></p></li>
 </ol>
 </section>
 <section id="appendix-a-memory-requirements">
-<h2>Appendix A: Memory Requirements<a class="headerlink" href="#appendix-a-memory-requirements" title="Link to this heading">¶</a></h2>
+<h2>Appendice A: Requisiti di memoria<a class="headerlink" href="#appendix-a-memory-requirements" title="Link to this heading">¶</a></h2>
 <section id="jpeg-decoder-memory-breakdown">
-<h3>JPEG Decoder Memory Breakdown<a class="headerlink" href="#jpeg-decoder-memory-breakdown" title="Link to this heading">¶</a></h3>
+<h3>Analisi della Memoria del Decoder JPEG<a class="headerlink" href="#jpeg-decoder-memory-breakdown" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Huffman tables: 2KB</p></li>
-<li><p>Quantization tables: 512B</p></li>
-<li><p>MCU buffer: 384B (8x8x6 for YCbCr 4:2:0)</p></li>
-<li><p>Working buffer: 2KB</p></li>
-<li><p><strong>Total minimum: ~5KB</strong></p></li>
+<li><p>Tabelle di Huffman: 2 KB</p></li>
+<li><p>Tabelle di quantizzazione: 512 B</p></li>
+<li><p>Buffer MCU: 384 B (8x8x6 per YCbCr 4:2:0)</p></li>
+<li><p>Buffer di lavoro: 2 KB</p></li>
+<li><p><strong>Totale minimo: ~5 KB</strong></p></li>
 </ul>
 </section>
 <section id="mpeg1-decoder-memory-breakdown">
-<h3>MPEG1 Decoder Memory Breakdown<a class="headerlink" href="#mpeg1-decoder-memory-breakdown" title="Link to this heading">¶</a></h3>
+<h3>Analisi della memoria del decoder MPEG1<a class="headerlink" href="#mpeg1-decoder-memory-breakdown" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Frame buffer: Width � Height � 3 (RGB)</p></li>
-<li><p>Motion vectors: (Width/16) � (Height/16) � 4</p></li>
-<li><p>Reference frame: Same as frame buffer</p></li>
-<li><p>Bitstream buffer: 4KB</p></li>
-<li><p><strong>Total minimum: ~32KB for 160x120</strong></p></li>
+<li><p>Frame buffer: Larghezza × Altezza × 3 (RGB)</p></li>
+<li><p>Vettori di movimento: (Larghezza/16) × (Altezza/16) × 4</p></li>
+<li><p>Frame di riferimento: Uguale al buffer di frame</p></li>
+<li><p>Buffer di bitstream: 4 KB</p></li>
+<li><p><strong>Totale minimo: ~32 KB per 160x120</strong></p></li>
 </ul>
 </section>
 </section>
 <section id="appendix-b-supported-formats">
-<h2>Appendix B: Supported Formats<a class="headerlink" href="#appendix-b-supported-formats" title="Link to this heading">¶</a></h2>
+<h2>Appendice B: Formati supportati<a class="headerlink" href="#appendix-b-supported-formats" title="Link to this heading">¶</a></h2>
 <section id="jpeg">
 <h3>JPEG<a class="headerlink" href="#jpeg" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Baseline JPEG (ISO/IEC 10918-1)</p></li>
-<li><p>8-bit precision</p></li>
+<li><p>JPEG di base (ISO/IEC 10918-1)</p></li>
+<li><p>Precisione a 8 bit</p></li>
 <li><p>YCbCr 4:4:4, 4:2:2, 4:2:0</p></li>
-<li><p>Progressive mode (optional)</p></li>
-<li><p>Maximum resolution: Platform dependent</p></li>
+<li><p>Modalità progressiva (opzionale)</p></li>
+<li><p>Risoluzione massima: In base alla piattaforma</p></li>
 </ul>
 </section>
 <section id="mpeg1">
 <h3>MPEG1<a class="headerlink" href="#mpeg1" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>MPEG1 Video (ISO/IEC 11172-2)</p></li>
-<li><p>I, P frames (B frames optional)</p></li>
-<li><p>4:2:0 chroma subsampling</p></li>
-<li><p>Maximum bitrate: 1.5 Mbps</p></li>
-<li><p>Audio stripped (video only)</p></li>
+<li><p>Frame I, P (Frame B opzionali)</p></li>
+<li><p>Crominanza 4:2:0 Sottocampionamento</p></li>
+<li><p>Bitrate massimo: 1,5 Mbps</p></li>
+<li><p>Audio rimosso (solo video)</p></li>
 </ul>
 </section>
 </section>
