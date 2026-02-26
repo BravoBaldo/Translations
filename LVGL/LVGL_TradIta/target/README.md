@@ -338,6 +338,16 @@ Utilizzare i seguenti "Interpreted Text Roles" nel testo per includere codice C 
     :cpp:struct:`lv_image_dsc_t`
     :cpp:union:`lv_style_value_t`
 
+**Nota:**  La documentazione di Doxygen per le macro con parametri funziona perfettamente, ma Sphinx non sa ancora come analizzare i parametri di una macro che potrebbe apparire così:
+```rst
+:c:macro:`LV_FREETYPE_FONT_STYLE_WEIGHT(x)`
+```
+
+Ecco come farlo funzionare, guardare direttamente nel documento e anche creare un link alla documentazione di Doxygen, se disponibile:
+```rst
+:c:macro:`LV_FREETYPE_FONT_STYLE_WEIGHT`\ (x)
+```
+
 #### Espressioni Più Complesse
 
 Utilizzare lo "Interpreted Text Role" `:cpp:expr:` per espressioni più complesse, ad esempio quando si visualizzano gli argomenti passati a una funzione.
