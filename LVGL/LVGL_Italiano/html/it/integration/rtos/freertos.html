@@ -669,6 +669,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../xml/tools/figma.html">Integrazione con Figma</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../xml/best_practices.html">Best Practice per LVGL Pro</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../auxiliary-modules/index.html">Moduli Ausiliari</a><input aria-label="Toggle navigation of Moduli Ausiliari" class="toctree-checkbox" id="toctree-checkbox-44" name="toctree-checkbox-44" role="switch" type="checkbox"/><label for="toctree-checkbox-44"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -1123,13 +1124,13 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../API/drivers/wayland/index.html">wayland</a><input aria-label="Toggle navigation of wayland" class="toctree-checkbox" id="toctree-checkbox-115" name="toctree-checkbox-115" role="switch" type="checkbox"/><label for="toctree-checkbox-115"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wayland_h.html">lv_wayland.h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wayland_backend_private_h.html">lv_wayland_backend_private.h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wayland_keyboard_h.html">lv_wayland_keyboard.h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wayland_pointer_h.html">lv_wayland_pointer.h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wayland_pointer_axis_h.html">lv_wayland_pointer_axis.h</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wayland_private_h.html">lv_wayland_private.h</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wl_backend_private_h.html">lv_wl_backend_private.h</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wl_keyboard_h.html">lv_wl_keyboard.h</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wl_pointer_h.html">lv_wl_pointer.h</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wl_pointer_axis_h.html">lv_wl_pointer_axis.h</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wl_touch_h.html">lv_wl_touch.h</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wl_window_h.html">lv_wl_window.h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wayland_touch_h.html">lv_wayland_touch.h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../API/drivers/wayland/lv_wayland_window_h.html">lv_wayland_window.h</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../API/drivers/windows/index.html">windows</a><input aria-label="Toggle navigation of windows" class="toctree-checkbox" id="toctree-checkbox-116" name="toctree-checkbox-116" role="switch" type="checkbox"/><label for="toctree-checkbox-116"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
@@ -1223,6 +1224,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../API/libs/gltf/gltf_data/lv_gltf_data_internal_h.html">lv_gltf_data_internal.h</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../API/libs/gltf/gltf_data/lv_gltf_data_internal_hpp.html">lv_gltf_data_internal.hpp</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../API/libs/gltf/gltf_data/lv_gltf_model_h.html">lv_gltf_model.h</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../API/libs/gltf/gltf_data/lv_gltf_model_loader_h.html">lv_gltf_model_loader.h</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../API/libs/gltf/gltf_data/lv_gltf_model_node_h.html">lv_gltf_model_node.h</a></li>
 </ul>
 </li>
@@ -1681,6 +1683,58 @@
 <span class="cp">#define traceTASK_SWITCHED_OUT()  lv_freertos_task_switch_out();</span>
 </pre></div>
 </div>
+<p>In alternativa, in ambienti multi-core (come ESP32 SMP), questa implementazione predefinita potrebbe essere insufficiente o imprecisa. In questo caso, è possibile impostare <code class="docutils literal notranslate"><span class="pre">LV_OS_IDLE_PERCENT_CUSTOM</span></code> a <code class="docutils literal notranslate"><span class="pre">1</span></code> in <code class="docutils literal notranslate"><span class="pre">lv_conf.h</span></code> per disabilitare l'implementazione predefinita. Successivamente, è possibile fornire un'implementazione personalizzata di <span class="cpp-expr sig sig-inline cpp"><a class="reference internal" href="../../API/osal/lv_os_private_h.html#_CPPv422lv_os_get_idle_percentv" title="lv_os_get_idle_percent"><span class="n">lv_os_get_idle_percent</span></a></span> adattata al proprio ambiente (ad esempio, utilizzando <code class="docutils literal notranslate"><span class="pre">uxTaskGetSystemState()</span></code>) senza modificare i file sorgente LVGL.</p>
+</section>
+<section id="example-custom-implementation-for-esp32-smp">
+<h2>Esempio: Implementazione personalizzata per ESP32 SMP<a class="headerlink" href="#example-custom-implementation-for-esp32-smp" title="Link to this heading">¶</a></h2>
+<p>Per ambienti multi-core come ESP32 (che utilizza SMP dual-core), l'implementazione predefinita potrebbe non tenere traccia di tutte le attività inattive. Di seguito è riportato un esempio di implementazione personalizzata che utilizza <code class="docutils literal notranslate"><span class="pre">uxTaskGetSystemState()</span></code>. Ciò richiede che <code class="docutils literal notranslate"><span class="pre">configGENERATE_RUN_TIME_STATS</span></code> e <code class="docutils literal notranslate"><span class="pre">configUSE_TRACE_FACILITY</span></code> siano abilitati nel file <code class="docutils literal notranslate"><span class="pre">FreeRTOSConfig.h</span></code> (o tramite menuconfig per ESP-IDF).</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;FreeRTOS.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;task.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span>
+
+<span class="kt">uint32_t</span><span class="w"> </span><span class="nf">lv_os_get_idle_percent</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">last_idle_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">last_total_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">ulTotalRunTime</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">ulIdleTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">TaskStatus_t</span><span class="w"> </span><span class="o">*</span><span class="n">pxTaskStatusArray</span><span class="p">;</span>
+<span class="w">    </span><span class="n">UBaseType_t</span><span class="w"> </span><span class="n">uxArraySize</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">uxArraySize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uxTaskGetNumberOfTasks</span><span class="p">();</span>
+<span class="w">    </span><span class="n">pxTaskStatusArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pvPortMalloc</span><span class="p">(</span><span class="n">uxArraySize</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">TaskStatus_t</span><span class="p">));</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pxTaskStatusArray</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">uxArraySize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uxTaskGetSystemState</span><span class="p">(</span><span class="n">pxTaskStatusArray</span><span class="p">,</span><span class="w"> </span><span class="n">uxArraySize</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ulTotalRunTime</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">uxArraySize</span><span class="p">;</span><span class="w"> </span><span class="n">x</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="cm">/* ESP32 has IDLE0 and IDLE1 tasks */</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="n">pxTaskStatusArray</span><span class="p">[</span><span class="n">x</span><span class="p">].</span><span class="n">pcTaskName</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;IDLE0&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span>
+<span class="w">            </span><span class="n">strcmp</span><span class="p">(</span><span class="n">pxTaskStatusArray</span><span class="p">[</span><span class="n">x</span><span class="p">].</span><span class="n">pcTaskName</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;IDLE1&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">ulIdleTime</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">pxTaskStatusArray</span><span class="p">[</span><span class="n">x</span><span class="p">].</span><span class="n">ulRunTimeCounter</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">vPortFree</span><span class="p">(</span><span class="n">pxTaskStatusArray</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">idle_diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ulIdleTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_idle_time</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">total_diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ulTotalRunTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_total_time</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">last_idle_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ulIdleTime</span><span class="p">;</span>
+<span class="w">    </span><span class="n">last_total_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ulTotalRunTime</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">total_diff</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Combined idle percentage across both cores (0-200 on dual-core) */</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">idle_pct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">idle_diff</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total_diff</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* For Sysmon, we usually want average load across all cores (0-100) */</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">idle_pct</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="cm">/* Adjust divisor based on your CPU core count */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -1718,7 +1772,7 @@
             Made with 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 26 feb 2026</div>
+              Last updated on 21 mar 2026</div>
           </div>
           <div class="right-details">
             
@@ -1742,6 +1796,7 @@
 <li><a class="reference internal" href="#">FreeRTOS</a><ul>
 <li><a class="reference internal" href="#usage">Utilizzo</a></li>
 <li><a class="reference internal" href="#cpu-usage-measurement">Misurazione dell'Utilizzo della CPU</a></li>
+<li><a class="reference internal" href="#example-custom-implementation-for-esp32-smp">Esempio: Implementazione personalizzata per ESP32 SMP</a></li>
 </ul>
 </li>
 </ul>

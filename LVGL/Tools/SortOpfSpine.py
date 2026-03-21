@@ -413,6 +413,8 @@ def itemref_insert_all():
     itemref_insert('xml/tools/online_share.xhtml')
     itemref_insert('xml/tools/figma.xhtml')
 
+    itemref_insert('xml/best_practices.xhtml')
+
     # auxiliary-modules
     itemref_insert('auxiliary-modules/index.xhtml')
     itemref_insert('auxiliary-modules/file_explorer.xhtml')
@@ -815,13 +817,13 @@ def itemref_insert_all():
 
     itemref_insert('API/drivers/wayland/index.xhtml')
     itemref_insert('API/drivers/wayland/lv_wayland_h.xhtml')
+    itemref_insert('API/drivers/wayland/lv_wayland_backend_private_h.xhtml')
+    itemref_insert('API/drivers/wayland/lv_wayland_keyboard_h.xhtml')
+    itemref_insert('API/drivers/wayland/lv_wayland_pointer_h.xhtml')
+    itemref_insert('API/drivers/wayland/lv_wayland_pointer_axis_h.xhtml')
     itemref_insert('API/drivers/wayland/lv_wayland_private_h.xhtml')
-    itemref_insert('API/drivers/wayland/lv_wl_backend_private_h.xhtml')
-    itemref_insert('API/drivers/wayland/lv_wl_keyboard_h.xhtml')
-    itemref_insert('API/drivers/wayland/lv_wl_pointer_h.xhtml')
-    itemref_insert('API/drivers/wayland/lv_wl_pointer_axis_h.xhtml')
-    itemref_insert('API/drivers/wayland/lv_wl_touch_h.xhtml')
-    itemref_insert('API/drivers/wayland/lv_wl_window_h.xhtml')
+    itemref_insert('API/drivers/wayland/lv_wayland_touch_h.xhtml')
+    itemref_insert('API/drivers/wayland/lv_wayland_window_h.xhtml')
 
     itemref_insert('API/drivers/windows/index.xhtml')
     itemref_insert('API/drivers/windows/lv_windows_context_h.xhtml')

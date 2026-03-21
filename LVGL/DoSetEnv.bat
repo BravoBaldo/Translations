@@ -8,6 +8,15 @@ rmdir /S /Q Sphinx_LVGL  > NUL
 Rem del /S /Q LVGL_Italiano  > NUL
 rmdir /S /Q LVGL_Italiano & mkdir LVGL_Italiano  > NUL
 
+
+
+Rem ****************************************
+Rem Update all packages
+Rem ****************************************
+REM pip install pip-review
+REM pip-review --auto
+
+
 Rem ****************************************
 Rem Sphinx and sphinx-intl are required
 Rem ****************************************
