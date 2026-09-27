@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5 Creazione di un Filesystem Root di Sola Lettura &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="6 Firma dello Stato Condiviso" href="sstate-signing.html" />
+    <link rel="prev" title="4 Verifica delle Vulnerabilità" href="vulnerabilities.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Sicurezza</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduzione</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-process-security.html">2 Sicurezza del Processo di Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="securing-images.html">3 Come Rendere le Immagini più Sicure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vulnerabilities.html">4 Verifica delle Vulnerabilità</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5 Creazione di un Filesystem Root di Sola Lettura</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-the-root-filesystem">5.1 Creazione del Filesystem Root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#post-installation-scripts-and-read-only-root-filesystem">5.2 Script di Post-Installazione e Filesystem Root di Sola Lettura</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#areas-with-write-access">5.3 Aree con Accesso in Scrittura</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sstate-signing.html">6 Firma dello Stato Condiviso</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sicurezza di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">5 </span>Creazione di un Filesystem Root di Sola Lettura</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/security-manual/read-only-rootfs.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="creating-a-read-only-root-filesystem">
+<h1><span class="section-number">5 </span>Creazione di un Filesystem Root di Sola Lettura<a class="headerlink" href="#creating-a-read-only-root-filesystem" title="Link to this heading"></a></h1>
+<p>Supponiamo che, per motivi di sicurezza, sia necessario disabilitare i permessi di scrittura del filesystem root del dispositivo di target (ovvero, sia necessario un filesystem root di sola lettura). Oppure, si potrebbe eseguire il sistema operativo del dispositivo da un'unità di archiviazione di sola lettura. In entrambi i casi, è possibile personalizzare l'immagine per ottenere tale comportamento.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Il supporto di un filesystem root di sola lettura richiede che il sistema e le applicazioni non tentino di scrivere sul filesystem root. È necessario configurare tutte le parti del sistema di target in modo che scrivano altrove o che interrompano l'operazione in modo controllato qualora tentassero di scrivere sul filesystem root.</p>
+</div>
+<section id="creating-the-root-filesystem">
+<h2><span class="section-number">5.1 </span>Creazione del Filesystem Root<a class="headerlink" href="#creating-the-root-filesystem" title="Link to this heading"></a></h2>
+<p>Per creare il filesystem root di sola lettura, è sufficiente aggiungere la funzionalità &quot;read-only-rootfs&quot; all'immagine, solitamente in uno dei due modi seguenti. Il primo metodo consiste nell'aggiungere la funzionalità &quot;read-only-rootfs&quot; al file di configurazione dell'immagine tramite la variabile <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_FEATURES</span> <span class="o">+=</span> <span class="s2">"read-only-rootfs"</span>
+</pre></div>
+</div>
+<p>In alternativa, è possibile aggiungere la stessa funzionalità dal <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a> della propria distribuzione utilizzando la variabile <a class="reference internal" href="../ref-manual/variables.html#term-EXTRA_IMAGE_FEATURES"><span class="xref std std-term">EXTRA_IMAGE_FEATURES</span></a> associata, come segue:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">EXTRA_IMAGE_FEATURES</span> <span class="o">=</span> <span class="s2">"read-only-rootfs"</span>
+</pre></div>
+</div>
+<p>Per ulteriori informazioni sull'utilizzo di queste variabili, consultare la sezione &quot;<a class="reference internal" href="../dev-manual/customizing-images.html#customizing-images-using-custom-image-features-and-extra-image-features"><span class="std std-ref">Customizing Images Using Custom IMAGE_FEATURES and EXTRA_IMAGE_FEATURES</span></a>&quot;. Per informazioni sulle variabili, consultare i documenti <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a> e <a class="reference internal" href="../ref-manual/variables.html#term-EXTRA_IMAGE_FEATURES"><span class="xref std std-term">EXTRA_IMAGE_FEATURES</span></a>.</p>
+</section>
+<section id="post-installation-scripts-and-read-only-root-filesystem">
+<h2><span class="section-number">5.2 </span>Script di Post-Installazione e Filesystem Root di Sola Lettura<a class="headerlink" href="#post-installation-scripts-and-read-only-root-filesystem" title="Link to this heading"></a></h2>
+<p>È fondamentale assicurarsi che tutti gli script di post-installazione (<code class="docutils literal notranslate"><span class="pre">pkg_postinst</span></code>) per i pacchetti installati nell'immagine possano essere eseguiti al momento della creazione del filesystem root durante la compilazione sul sistema host. Questi script non possono essere eseguiti al primo avvio del dispositivo target. Con la funzionalità &quot;read-only-rootfs&quot; abilitata, il sistema di build si assicura che tutti gli script di post-installazione vengano eseguiti correttamente al momento della creazione del filesystem. Se uno qualsiasi di questi script deve ancora essere eseguito dopo la creazione del filesystem root, la compilazione fallisce immediatamente. Questi controlli in fase di build garantiscono che sia la compilazione a fallire, anziché il dispositivo target a fallire in un secondo momento durante il suo boot iniziale.</p>
+<p>La maggior parte degli script di post-installazione comuni generati dal sistema di build per Yocto Project di default sono progettati per essere eseguiti durante la creazione del filesystem root (ad esempio, gli script di post-installazione per la cache dei font). Tuttavia, se si creano e si aggiungono script personalizzati, è necessario assicurarsi che possano essere eseguiti durante la creazione del filesystem.</p>
+<p>Ecco alcuni problemi comuni che impediscono l'esecuzione degli script di post-installazione durante la creazione del filesystem root:</p>
+<ul class="simple">
+<li><p><em>Mancato utilizzo di $D davanti ai path assoluti:</em> Il sistema di build definisce <code class="docutils literal notranslate"><span class="pre">$</span></code><a class="reference internal" href="../ref-manual/variables.html#term-D"><span class="xref std std-term">D</span></a> quando viene creato il filesystem root. Inoltre, <code class="docutils literal notranslate"><span class="pre">$D</span></code> è vuoto quando lo script viene eseguito sul dispositivo target. Ciò implica due scopi per <code class="docutils literal notranslate"><span class="pre">$D</span></code>: garantire che i path siano validi sia nell'ambiente host che in quello target e verificare quale ambiente viene utilizzato per intraprendere le azioni appropriate.</p></li>
+<li><p><em>Tentativo di eseguire processi specifici o dipendenti dall'architettura target:</em> È possibile ovviare a questi tentativi utilizzando strumenti nativi, che vengono eseguiti sul sistema host, per svolgere le stesse attività [task], oppure eseguendo i processi in QEMU, che dispone della funzione <code class="docutils literal notranslate"><span class="pre">qemu_run_binary</span></code>. Per ulteriori informazioni, consultare la classe <a class="reference internal" href="../ref-manual/classes.html#ref-classes-qemu"><span class="std std-ref">qemu</span></a>.</p></li>
+</ul>
+</section>
+<section id="areas-with-write-access">
+<h2><span class="section-number">5.3 </span>Aree con Accesso in Scrittura<a class="headerlink" href="#areas-with-write-access" title="Link to this heading"></a></h2>
+<p>Con la funzionalità &quot;read-only-rootfs&quot; abilitata, qualsiasi tentativo da parte del sistema target di scrivere sul filesystem di root in fase di esecuzione fallisce. Di conseguenza, è necessario assicurarsi che i processi e le applicazioni che tentano questo tipo di scritture lo facciano su directory con accesso in scrittura (ad esempio <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> o <code class="docutils literal notranslate"><span class="pre">/var/run</span></code>).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

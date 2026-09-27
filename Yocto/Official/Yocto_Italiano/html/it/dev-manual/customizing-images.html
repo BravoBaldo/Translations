@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 Customizing Images &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="5 Scrivere una Nuova Ricetta" href="new-recipe.html" />
+    <link rel="prev" title="3 Comprendere e Creare i Layer" href="layers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale dei Task di Sviluppo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Il Manuale di Sviluppo dei Task di Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html">2 Setting Up to Use the Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="layers.html">3 Comprendere e Creare i Layer</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4 Customizing Images</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-images-using-local-conf">4.1 Customizing Images Using <code class="docutils literal notranslate"><span class="pre">local.conf</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-images-using-custom-image-features-and-extra-image-features">4.2 Customizing Images Using Custom <code class="docutils literal notranslate"><span class="pre">IMAGE_FEATURES</span></code> and <code class="docutils literal notranslate"><span class="pre">EXTRA_IMAGE_FEATURES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-images-using-custom-bb-files">4.3 Customizing Images Using Custom .bb Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-images-using-custom-package-groups">4.4 Customizing Images Using Custom Package Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customizing-an-image-hostname">4.5 Customizing an Image Hostname</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="new-recipe.html">5 Scrivere una Nuova Ricetta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-machine.html">6 Adding a New Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrading-recipes.html">7 Upgrading Recipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temporary-source-code.html">8 Finding Temporary Source Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-fragments.html">9 Creating New Configuration Fragments In Your Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="poky-manual-setup.html">10 Setting Up the Poky Reference Distro Manually</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quilt.html">11 Using Quilt in Your Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development-shell.html">12 Using a Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-development-shell.html">13 Using a Python Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html">14 Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiconfig.html">15 Building Images for Multiple Targets With Multiconfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="speeding-up-build.html">16 Speeding Up a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiting-resources.html">17 Limiting the Host Resources Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html">18 Working With Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prebuilt-libraries.html">19 Working with Pre-Built Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devtool.html">20 Using the <code class="docutils literal notranslate"><span class="pre">devtool</span></code> command-line tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="x32-psabi.html">21 Using x32 psABI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gobject-introspection.html">22 Enabling GObject Introspection Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-toolchain.html">23 Optionally Using an External Toolchain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wic.html">24 Creating Partitioned Images Using Wic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bmaptool.html">25 Flashing Images Using <cite>bmaptool</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-distribution.html">26 Creating Your Own Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-template-configuration-directory.html">27 Creating a Custom Template Configuration Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disk-space.html">28 Conserving Disk Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">29 Working with Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="efficiently-fetching-sources.html">30 Efficiently Fetching Source Files During a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="init-manager.html">31 Selecting an Initialization Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device-manager.html">32 Selecting a Device Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-scm.html">33 Using an External SCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-quality.html">34 Maintaining Build Output Quality with <code class="docutils literal notranslate"><span class="pre">buildhistory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">35 Debugging Tools and Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="licenses.html">36 Working With Licenses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbom.html">37 Creating a Software Bill of Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error-reporting-tool.html">38 Using the Error Reporting Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wayland.html">39 Using Wayland and Weston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qemu.html">40 Using the Quick EMUlator (QEMU)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bblock.html">41 Locking and Unlocking Recipes Using <code class="docutils literal notranslate"><span class="pre">bblock</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sstate-mirrors-setup.html">42 Setting up a Shared State Cache Mirror</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashequivserver.html">43 Setting up a Hash Equivalence Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sviluppo dei Task di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">4 </span>Customizing Images</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dev-manual/customizing-images.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="customizing-images">
+<h1><span class="section-number">4 </span>Customizing Images<a class="headerlink" href="#customizing-images" title="Link to this heading"></a></h1>
+<p>You can customize images to satisfy particular requirements. This
+section describes several methods and provides guidelines for each.</p>
+<section id="customizing-images-using-local-conf">
+<h2><span class="section-number">4.1 </span>Customizing Images Using <code class="docutils literal notranslate"><span class="pre">local.conf</span></code><a class="headerlink" href="#customizing-images-using-local-conf" title="Link to this heading"></a></h2>
+<p>Probably the easiest way to customize an image is to add a package by
+way of the <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> configuration file. Because it is limited to
+local use, this method generally only allows you to add packages and is
+not as flexible as creating your own customized image. When you add
+packages using local variables this way, you need to realize that these
+variable changes are in effect for every build and consequently affect
+all images, which might not be what you require.</p>
+<p>To add a package to your image using the local configuration file, use
+the <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_INSTALL"><span class="xref std std-term">IMAGE_INSTALL</span></a> variable with the <code class="docutils literal notranslate"><span class="pre">:append</span></code> operator:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_INSTALL</span><span class="p">:</span><span class="n">append</span> <span class="o">=</span> <span class="s2">" strace"</span>
+</pre></div>
+</div>
+<p>Use of the syntax is important; specifically, the leading space
+after the opening quote and before the package name, which is
+<code class="docutils literal notranslate"><span class="pre">strace</span></code> in this example. This space is required since the <code class="docutils literal notranslate"><span class="pre">:append</span></code>
+operator does not add the space.</p>
+<p>Furthermore, you must use <code class="docutils literal notranslate"><span class="pre">:append</span></code> instead of the <code class="docutils literal notranslate"><span class="pre">+=</span></code> operator if
+you want to avoid ordering issues. The reason for this is because doing
+so unconditionally appends to the variable and avoids ordering problems
+due to the variable being set in image recipes and <code class="docutils literal notranslate"><span class="pre">.bbclass</span></code> files
+with operators like <code class="docutils literal notranslate"><span class="pre">?=</span></code>. Using <code class="docutils literal notranslate"><span class="pre">:append</span></code> ensures the operation
+takes effect.</p>
+<p>As shown in its simplest use, <code class="docutils literal notranslate"><span class="pre">IMAGE_INSTALL:append</span></code> affects all
+images. It is possible to extend the syntax so that the variable applies
+to a specific image only. Here is an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_INSTALL</span><span class="p">:</span><span class="n">append</span><span class="p">:</span><span class="n">pn</span><span class="o">-</span><span class="n">core</span><span class="o">-</span><span class="n">image</span><span class="o">-</span><span class="n">minimal</span> <span class="o">=</span> <span class="s2">" strace"</span>
+</pre></div>
+</div>
+<p>This example adds <code class="docutils literal notranslate"><span class="pre">strace</span></code> to the <code class="docutils literal notranslate"><span class="pre">core-image-minimal</span></code> image only.</p>
+<p>You can add packages using a similar approach through the
+<a class="reference internal" href="../ref-manual/variables.html#term-CORE_IMAGE_EXTRA_INSTALL"><span class="xref std std-term">CORE_IMAGE_EXTRA_INSTALL</span></a> variable. If you use this variable, only
+<code class="docutils literal notranslate"><span class="pre">core-image-*</span></code> images are affected.</p>
+</section>
+<section id="customizing-images-using-custom-image-features-and-extra-image-features">
+<h2><span class="section-number">4.2 </span>Customizing Images Using Custom <code class="docutils literal notranslate"><span class="pre">IMAGE_FEATURES</span></code> and <code class="docutils literal notranslate"><span class="pre">EXTRA_IMAGE_FEATURES</span></code><a class="headerlink" href="#customizing-images-using-custom-image-features-and-extra-image-features" title="Link to this heading"></a></h2>
+<p>Another method for customizing your image is to enable or disable
+high-level image features by using the
+<a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a> and
+<a class="reference internal" href="../ref-manual/variables.html#term-EXTRA_IMAGE_FEATURES"><span class="xref std std-term">EXTRA_IMAGE_FEATURES</span></a>
+variables. Although the functions for both variables are nearly
+equivalent, best practices dictate using <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a> from within
+a recipe and using <a class="reference internal" href="../ref-manual/variables.html#term-EXTRA_IMAGE_FEATURES"><span class="xref std std-term">EXTRA_IMAGE_FEATURES</span></a> from within your
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> for temporary changes (which is found in the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build
+Directory</span></a>) and a distro <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a> for permanent changes.</p>
+<p>To understand how these features work, the best reference is
+<a class="reference internal" href="../ref-manual/classes.html#ref-classes-image"><span class="std std-ref">meta/classes-recipe/image.bbclass</span></a>.
+This class lists out the available
+<a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a> of which most map to package groups while some, such
+as <code class="docutils literal notranslate"><span class="pre">read-only-rootfs</span></code>, resolve as general configuration settings.</p>
+<p>In summary, the file looks at the contents of the <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a>
+variable and then maps or configures the feature accordingly. Based on
+this information, the build system automatically adds the appropriate
+packages or configurations to the
+<a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_INSTALL"><span class="xref std std-term">IMAGE_INSTALL</span></a> variable.
+Effectively, you are enabling extra features by extending the class or
+creating a custom class for use with specialized image <code class="docutils literal notranslate"><span class="pre">.bb</span></code> files.</p>
+<p>Use the <a class="reference internal" href="../ref-manual/variables.html#term-EXTRA_IMAGE_FEATURES"><span class="xref std std-term">EXTRA_IMAGE_FEATURES</span></a> variable from within your local
+configuration file. Using a separate area from which to enable features
+with this variable helps you avoid overwriting the features in the image
+recipe that are enabled with <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a>. The value of
+<a class="reference internal" href="../ref-manual/variables.html#term-EXTRA_IMAGE_FEATURES"><span class="xref std std-term">EXTRA_IMAGE_FEATURES</span></a> is added to <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a> within
+<code class="docutils literal notranslate"><span class="pre">meta/conf/bitbake.conf</span></code>.</p>
+<p>To illustrate how you can use these variables to modify your image, consider an
+example that selects the SSH server. The Yocto Project ships with two SSH
+servers you can use with your images: Dropbear and OpenSSH. Dropbear is a
+minimal SSH server appropriate for resource-constrained environments, while
+OpenSSH is a well-known standard SSH server implementation. By default, the
+<code class="docutils literal notranslate"><span class="pre">core-image-sato</span></code> image is configured to use Dropbear. The
+<code class="docutils literal notranslate"><span class="pre">core-image-full-cmdline</span></code> image includes OpenSSH. The <code class="docutils literal notranslate"><span class="pre">core-image-minimal</span></code>
+image does not contain an SSH server.</p>
+<p>You can customize your image and change these defaults. Edit the
+<a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a> variable in your recipe or use the
+<a class="reference internal" href="../ref-manual/variables.html#term-EXTRA_IMAGE_FEATURES"><span class="xref std std-term">EXTRA_IMAGE_FEATURES</span></a> in your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file (or distro
+<a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>) so that it configures the image you are working with
+to include <code class="docutils literal notranslate"><span class="pre">ssh-server-dropbear</span></code> or <code class="docutils literal notranslate"><span class="pre">ssh-server-openssh</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>See the &quot;<a class="reference internal" href="../ref-manual/features.html#image-features"><span class="std std-ref">Image Features</span></a>&quot; section in the Yocto
+Project Reference Manual for a complete list of image features that ship
+with the Yocto Project.</p>
+</div>
+</section>
+<section id="customizing-images-using-custom-bb-files">
+<h2><span class="section-number">4.3 </span>Customizing Images Using Custom .bb Files<a class="headerlink" href="#customizing-images-using-custom-bb-files" title="Link to this heading"></a></h2>
+<p>You can also customize an image by creating a custom recipe that defines
+additional software as part of the image. The following example shows
+the form for the two lines you need:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_INSTALL</span> <span class="o">=</span> <span class="s2">"packagegroup-core-x11-base package1 package2"</span>
+<span class="n">inherit</span> <span class="n">core</span><span class="o">-</span><span class="n">image</span>
+</pre></div>
+</div>
+<p>Defining the software using a custom recipe gives you total control over
+the contents of the image. It is important to use the correct names of
+packages in the <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_INSTALL"><span class="xref std std-term">IMAGE_INSTALL</span></a> variable. You must use the
+OpenEmbedded notation and not the Debian notation for the names (e.g.
+<code class="docutils literal notranslate"><span class="pre">glibc-dev</span></code> instead of <code class="docutils literal notranslate"><span class="pre">libc6-dev</span></code>).</p>
+<p>The other method for creating a custom image is to base it on an
+existing image. For example, if you want to create an image based on
+<code class="docutils literal notranslate"><span class="pre">core-image-sato</span></code> but add the additional package <code class="docutils literal notranslate"><span class="pre">strace</span></code> to the
+image, copy the <code class="docutils literal notranslate"><span class="pre">meta/recipes-sato/images/core-image-sato.bb</span></code> to a new
+<code class="docutils literal notranslate"><span class="pre">.bb</span></code> and add the following line to the end of the copy:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_INSTALL</span> <span class="o">+=</span> <span class="s2">"strace"</span>
+</pre></div>
+</div>
+</section>
+<section id="customizing-images-using-custom-package-groups">
+<h2><span class="section-number">4.4 </span>Customizing Images Using Custom Package Groups<a class="headerlink" href="#customizing-images-using-custom-package-groups" title="Link to this heading"></a></h2>
+<p>For complex custom images, the best approach for customizing an image is
+to create a custom package group recipe that is used to build the image
+or images. A good example of a package group recipe is
+<code class="docutils literal notranslate"><span class="pre">meta/recipes-core/packagegroups/packagegroup-base.bb</span></code>.</p>
+<p>If you examine that recipe, you see that the <a class="reference internal" href="../ref-manual/variables.html#term-PACKAGES"><span class="xref std std-term">PACKAGES</span></a> variable lists
+the package group packages to produce. The <code class="docutils literal notranslate"><span class="pre">inherit</span> <span class="pre">packagegroup</span></code>
+statement sets appropriate default values and automatically adds
+<code class="docutils literal notranslate"><span class="pre">-dev</span></code>, <code class="docutils literal notranslate"><span class="pre">-dbg</span></code>, and <code class="docutils literal notranslate"><span class="pre">-ptest</span></code> complementary packages for each
+package specified in the <a class="reference internal" href="../ref-manual/variables.html#term-PACKAGES"><span class="xref std std-term">PACKAGES</span></a> statement.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">inherit</span> <span class="pre">packagegroup</span></code> line should be located near the top of the
+recipe, certainly before the <a class="reference internal" href="../ref-manual/variables.html#term-PACKAGES"><span class="xref std std-term">PACKAGES</span></a> statement.</p>
+</div>
+<p>For each package you specify in <a class="reference internal" href="../ref-manual/variables.html#term-PACKAGES"><span class="xref std std-term">PACKAGES</span></a>, you can use <a class="reference internal" href="../ref-manual/variables.html#term-RDEPENDS"><span class="xref std std-term">RDEPENDS</span></a>
+and <a class="reference internal" href="../ref-manual/variables.html#term-RRECOMMENDS"><span class="xref std std-term">RRECOMMENDS</span></a> entries to provide a list of packages the parent
+task package should contain. You can see examples of these further down
+in the <code class="docutils literal notranslate"><span class="pre">packagegroup-base.bb</span></code> recipe.</p>
+<p>Here is a short, fabricated example showing the same basic pieces for a
+hypothetical packagegroup defined in <code class="docutils literal notranslate"><span class="pre">packagegroup-custom.bb</span></code>, where
+the variable <a class="reference internal" href="../ref-manual/variables.html#term-PN"><span class="xref std std-term">PN</span></a> is the standard way to abbreviate the reference to
+the full packagegroup name <code class="docutils literal notranslate"><span class="pre">packagegroup-custom</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>DESCRIPTION = "My Custom Package Groups"
+
+inherit packagegroup
+
+PACKAGES = "\
+    ${PN}-apps \
+    ${PN}-tools \
+    "
+
+RDEPENDS:${PN}-apps = "\
+    dropbear \
+    portmap \
+    psplash"
+
+RDEPENDS:${PN}-tools = "\
+    oprofile \
+    oprofileui-server \
+    lttng-tools"
+
+RRECOMMENDS:${PN}-tools = "\
+    kernel-module-oprofile"
+</pre></div>
+</div>
+<p>In the previous example, two package group packages are created with
+their dependencies and their recommended package dependencies listed:
+<code class="docutils literal notranslate"><span class="pre">packagegroup-custom-apps</span></code>, and <code class="docutils literal notranslate"><span class="pre">packagegroup-custom-tools</span></code>. To
+build an image using these package group packages, you need to add
+<code class="docutils literal notranslate"><span class="pre">packagegroup-custom-apps</span></code> and/or <code class="docutils literal notranslate"><span class="pre">packagegroup-custom-tools</span></code> to
+<a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_INSTALL"><span class="xref std std-term">IMAGE_INSTALL</span></a>. For other forms of image dependencies see the other
+areas of this section.</p>
+</section>
+<section id="customizing-an-image-hostname">
+<h2><span class="section-number">4.5 </span>Customizing an Image Hostname<a class="headerlink" href="#customizing-an-image-hostname" title="Link to this heading"></a></h2>
+<p>By default, the configured hostname (i.e. <code class="docutils literal notranslate"><span class="pre">/etc/hostname</span></code>) in an image
+is the same as the machine name. For example, if
+<a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> equals &quot;qemux86&quot;, the
+configured hostname written to <code class="docutils literal notranslate"><span class="pre">/etc/hostname</span></code> is &quot;qemux86&quot;.</p>
+<p>You can customize this name by altering the value of the &quot;hostname&quot;
+variable in the <code class="docutils literal notranslate"><span class="pre">base-files</span></code> recipe using either an append file or a
+configuration file. Use the following in an append file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hostname</span> <span class="o">=</span> <span class="s2">"myhostname"</span>
+</pre></div>
+</div>
+<p>Use the following in a configuration file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hostname</span><span class="p">:</span><span class="n">pn</span><span class="o">-</span><span class="n">base</span><span class="o">-</span><span class="n">files</span> <span class="o">=</span> <span class="s2">"myhostname"</span>
+</pre></div>
+</div>
+<p>Changing the default value of the variable &quot;hostname&quot; can be useful in
+certain situations. For example, suppose you need to do extensive
+testing on an image and you would like to easily identify the image
+under test from existing images with typical default hostnames. In this
+situation, you could change the default hostname to &quot;testme&quot;, which
+results in all the images using the name &quot;testme&quot;. Once testing is
+complete and you do not need to rebuild the image for test any longer,
+you can easily reset the default hostname.</p>
+<p>Another point of interest is that if you unset the variable, the image
+will have no default hostname in the filesystem. Here is an example that
+unsets the variable in a configuration file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hostname</span><span class="p">:</span><span class="n">pn</span><span class="o">-</span><span class="n">base</span><span class="o">-</span><span class="n">files</span> <span class="o">=</span> <span class="s2">""</span>
+</pre></div>
+</div>
+<p>Having no default hostname in the filesystem is suitable for
+environments that use dynamic hostnames such as virtual machines.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

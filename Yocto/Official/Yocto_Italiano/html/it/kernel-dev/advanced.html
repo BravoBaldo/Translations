@@ -1,0 +1,1093 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 Working with Advanced Metadata (yocto-kernel-cache) &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="4 Advanced Kernel Concepts" href="concepts-appx.html" />
+    <link rel="prev" title="2 Common Tasks" href="common.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Sviluppo del Kernel Linux</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduzione</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">2 Common Tasks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3 Working with Advanced Metadata (<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">3.1 Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-kernel-metadata-in-a-recipe">3.2 Using Kernel Metadata in a Recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kernel-metadata-syntax">3.3 Kernel Metadata Syntax</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configuration">3.3.1 Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patches">3.3.2 Patches</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#features">3.3.3 Caratteristiche</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kernel-types">3.3.4 Kernel Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bsp-descriptions">3.3.5 BSP Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kernel-metadata-location">3.4 Kernel Metadata Location</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#recipe-space-metadata">3.4.1 Recipe-Space Metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#metadata-outside-the-recipe-space">3.4.2 Metadata Outside the Recipe-Space</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#patch-application-for-bsp-descriptions">3.4.3 Patch Application for BSP Descriptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#organizing-your-source">3.5 Organizing Your Source</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#encapsulating-patches">3.5.1 Encapsulating Patches</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#machine-branches">3.5.2 Machine Branches</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#feature-branches">3.5.3 Feature Branches</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scc-description-file-reference">3.6 SCC Description File Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="concepts-appx.html">4 Advanced Kernel Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maint-appx.html">5 Kernel Maintenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html">6 Kernel Development FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sviluppo del Kernel Linux di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">3 </span>Working with Advanced Metadata (<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code>)</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/kernel-dev/advanced.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="working-with-advanced-metadata-yocto-kernel-cache">
+<h1><span class="section-number">3 </span>Working with Advanced Metadata (<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code>)<a class="headerlink" href="#working-with-advanced-metadata-yocto-kernel-cache" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2><span class="section-number">3.1 </span>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>In addition to supporting configuration fragments and patches, the Yocto
+Project kernel tools also support rich
+<a class="reference internal" href="../ref-manual/terms.html#term-Metadata"><span class="xref std std-term">Metadata</span></a> that you can use to define
+complex policies and Board Support Package (BSP) support. The purpose of
+the Metadata and the tools that manage it is to help you manage the
+complexity of the configuration and sources used to support multiple
+BSPs and Linux kernel types.</p>
+<p>Kernel Metadata exists in many places. One area in the
+<a class="reference internal" href="../overview-manual/development-environment.html#yocto-project-source-repositories"><span class="std std-ref">I Repository del Codice Sorgente di Yocto Project</span></a>
+is the <code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> Git repository. You can find this repository
+grouped under the &quot;Yocto Linux Kernel&quot; heading in the
+<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org">Yocto Project Source Repositories</a>.</p>
+<p>Kernel development tools (&quot;kern-tools&quot;) are also available in the Yocto Project
+Source Repositories under the &quot;Yocto Linux Kernel&quot; heading in the
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-tools</span></code> Git repository. The recipe that builds these
+tools is <code class="docutils literal notranslate"><span class="pre">recipes-kernel/kern-tools/kern-tools-native_git.bb</span></code> in
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>.</p>
+</section>
+<section id="using-kernel-metadata-in-a-recipe">
+<h2><span class="section-number">3.2 </span>Using Kernel Metadata in a Recipe<a class="headerlink" href="#using-kernel-metadata-in-a-recipe" title="Link to this heading"></a></h2>
+<p>As mentioned in the introduction, the Yocto Project contains kernel
+Metadata, which is located in the <code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> Git repository.
+This Metadata defines Board Support Packages (BSPs) that correspond to
+definitions in linux-yocto recipes for corresponding BSPs. A BSP
+consists of an aggregation of kernel policy and enabled
+hardware-specific features. The BSP can be influenced from within the
+linux-yocto recipe.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>A Linux kernel recipe that contains kernel Metadata (e.g. inherits
+from the <code class="docutils literal notranslate"><span class="pre">linux-yocto.inc</span></code> file) is said to be a &quot;linux-yocto style&quot; recipe.</p>
+</div>
+<p>Every linux-yocto style recipe must define the
+<a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> variable. This
+variable is typically set to the same value as the <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> variable,
+which is used by <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>.
+However, in some cases, the variable might instead refer to the
+underlying platform of the <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a>.</p>
+<p>Multiple BSPs can reuse the same <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> name if they are built
+using the same BSP description. Multiple Corei7-based BSPs could share
+the same &quot;intel-corei7-64&quot; value for <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a>. It is important to
+realize that <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> is just for kernel mapping, while <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a>
+is the machine type within a BSP Layer. Even with this distinction,
+however, these two variables can hold the same value. See the
+&quot;<a class="reference internal" href="#bsp-descriptions"><span class="std std-ref">BSP Descriptions</span></a>&quot; section for more information.</p>
+<p>Every linux-yocto style recipe must also indicate the Linux kernel
+source repository branch used to build the Linux kernel. The
+<a class="reference internal" href="../ref-manual/variables.html#term-KBRANCH"><span class="xref std std-term">KBRANCH</span></a> variable must be set
+to indicate the branch.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You can use the <a class="reference internal" href="../ref-manual/variables.html#term-KBRANCH"><span class="xref std std-term">KBRANCH</span></a> value to define an alternate branch typically
+with a machine override as shown here from the <code class="docutils literal notranslate"><span class="pre">meta-yocto-bsp</span></code> layer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">KBRANCH</span><span class="p">:</span><span class="n">beaglebone</span><span class="o">-</span><span class="n">yocto</span> <span class="o">=</span> <span class="s2">"standard/beaglebone"</span>
+</pre></div>
+</div>
+</div>
+<p>The linux-yocto style recipes can optionally define the following
+variables:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_FEATURES"><span class="xref std std-term">KERNEL_FEATURES</span></a></p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a></p></li>
+</ul>
+</div></blockquote>
+<p><a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a>
+defines the kernel type to be used in assembling the configuration. If
+you do not specify a <a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a>, it defaults to &quot;standard&quot;.
+Together with <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a>, <a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a> defines the search
+arguments used by the kernel tools to find the appropriate description
+within the kernel Metadata with which to build out the sources and
+configuration. The linux-yocto recipes define &quot;standard&quot;, &quot;tiny&quot;, and
+&quot;preempt-rt&quot; kernel types. See the &quot;<a class="reference internal" href="#kernel-types"><span class="std std-ref">Kernel Types</span></a>&quot;
+section for more information on kernel types.</p>
+<p>During the build, the kern-tools search for the BSP description file
+that most closely matches the <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> and <a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a>
+variables passed in from the recipe. The tools use the first BSP
+description they find that matches both variables. If the tools cannot find
+a match, they issue a warning.</p>
+<p>The tools first search for the <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> and then for the
+<a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a>. If the tools cannot find a partial match, they
+will use the sources from the <a class="reference internal" href="../ref-manual/variables.html#term-KBRANCH"><span class="xref std std-term">KBRANCH</span></a> and any configuration
+specified in the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>.</p>
+<p>You can use the
+<a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_FEATURES"><span class="xref std std-term">KERNEL_FEATURES</span></a>
+variable to include features (configuration fragments, patches, or both)
+that are not already included by the <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> and
+<a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a> variable combination. For example, to include a
+feature specified as &quot;features/netfilter/netfilter.scc&quot;, specify:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">KERNEL_FEATURES</span> <span class="o">+=</span> <span class="s2">"features/netfilter/netfilter.scc"</span>
+</pre></div>
+</div>
+<p>To include a
+feature called &quot;cfg/sound.scc&quot; just for the <code class="docutils literal notranslate"><span class="pre">qemux86</span></code> machine,
+specify:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">KERNEL_FEATURES</span><span class="p">:</span><span class="n">append</span><span class="p">:</span><span class="n">qemux86</span> <span class="o">=</span> <span class="s2">" cfg/sound.scc"</span>
+</pre></div>
+</div>
+<p>The value of
+the entries in <a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_FEATURES"><span class="xref std std-term">KERNEL_FEATURES</span></a> are dependent on their location
+within the kernel Metadata itself. The examples here are taken from the
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> repository. Each branch of this repository
+contains &quot;features&quot; and &quot;cfg&quot; subdirectories at the top-level. For more
+information, see the &quot;<a class="reference internal" href="#kernel-metadata-syntax"><span class="std std-ref">Kernel Metadata Syntax</span></a>&quot;
+section.</p>
+</section>
+<section id="kernel-metadata-syntax">
+<h2><span class="section-number">3.3 </span>Kernel Metadata Syntax<a class="headerlink" href="#kernel-metadata-syntax" title="Link to this heading"></a></h2>
+<p>The kernel Metadata consists of three primary types of files: <code class="docutils literal notranslate"><span class="pre">scc</span></code>
+<a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> description files, configuration fragments, and patches. The
+<code class="docutils literal notranslate"><span class="pre">scc</span></code> files define variables and include or otherwise reference any of
+the three file types. The description files are used to aggregate all
+types of kernel Metadata into what ultimately describes the sources and
+the configuration required to build a Linux kernel tailored to a
+specific machine.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">scc</span></code> description files are used to define two fundamental types
+of kernel Metadata:</p>
+<ul class="simple">
+<li><p>Caratteristiche</p></li>
+<li><p>Board Support Packages (BSPs)</p></li>
+</ul>
+<p>Features aggregate sources in the form of patches and configuration
+fragments into a modular reusable unit. You can use features to
+implement conceptually separate kernel Metadata descriptions such as
+pure configuration fragments, simple patches, complex features, and
+kernel types. <a class="reference internal" href="#kernel-types"><span class="std std-ref">Kernel Types</span></a> define general kernel
+features and policy to be reused in the BSPs.</p>
+<p>BSPs define hardware-specific features and aggregate them with kernel
+types to form the final description of what will be assembled and built.</p>
+<p>While the kernel Metadata syntax does not enforce any logical separation
+of configuration fragments, patches, features or kernel types, best
+practices dictate a logical separation of these types of Metadata. The
+following Metadata file hierarchy is recommended:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">base</span><span class="o">/</span>
+   <span class="n">bsp</span><span class="o">/</span>
+   <span class="n">cfg</span><span class="o">/</span>
+   <span class="n">features</span><span class="o">/</span>
+   <span class="n">ktypes</span><span class="o">/</span>
+   <span class="n">patches</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">bsp</span></code> directory contains the <a class="reference internal" href="#bsp-descriptions"><span class="std std-ref">BSP Descriptions</span></a>.
+The remaining directories all contain &quot;features&quot;. Separating <code class="docutils literal notranslate"><span class="pre">bsp</span></code> from the
+rest of the structure aids conceptualizing intended usage.</p>
+<p>Use these guidelines to help place your <code class="docutils literal notranslate"><span class="pre">scc</span></code> description files within
+the structure:</p>
+<ul class="simple">
+<li><p>If your file contains only configuration fragments, place the file in
+the <code class="docutils literal notranslate"><span class="pre">cfg</span></code> directory.</p></li>
+<li><p>If your file contains only source-code fixes, place the file in the
+<code class="docutils literal notranslate"><span class="pre">patches</span></code> directory.</p></li>
+<li><p>If your file encapsulates a major feature, often combining sources
+and configurations, place the file in <code class="docutils literal notranslate"><span class="pre">features</span></code> directory.</p></li>
+<li><p>If your file aggregates non-hardware configuration and patches in
+order to define a base kernel policy or major kernel type to be
+reused across multiple BSPs, place the file in <code class="docutils literal notranslate"><span class="pre">ktypes</span></code> directory.</p></li>
+</ul>
+<p>These distinctions can easily become blurred --- especially as out-of-tree
+features slowly merge upstream over time. Also, remember that how the
+description files are placed is a purely logical organization and has no
+impact on the functionality of the kernel Metadata. There is no impact
+because all of <code class="docutils literal notranslate"><span class="pre">cfg</span></code>, <code class="docutils literal notranslate"><span class="pre">features</span></code>, <code class="docutils literal notranslate"><span class="pre">patches</span></code>, and <code class="docutils literal notranslate"><span class="pre">ktypes</span></code>,
+contain &quot;features&quot; as far as the kernel tools are concerned.</p>
+<p>Paths used in kernel Metadata files are relative to base, which is
+either
+<a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a> if
+you are creating Metadata in
+<a class="reference internal" href="#recipe-space-metadata"><span class="std std-ref">recipe-space</span></a>,
+or the top level of
+<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/yocto-kernel-cache/tree/">yocto-kernel-cache</a>
+if you are creating
+<a class="reference internal" href="#metadata-outside-the-recipe-space"><span class="std std-ref">Metadata Outside the Recipe-Space</span></a>.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><code class="docutils literal notranslate"><span class="pre">scc</span></code> stands for Series Configuration Control, but the naming has
+less significance in the current implementation of the tooling than
+it had in the past. Consider <code class="docutils literal notranslate"><span class="pre">scc</span></code> files to be description files.</p>
+</aside>
+</aside>
+<section id="configuration">
+<h3><span class="section-number">3.3.1 </span>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h3>
+<p>The simplest unit of kernel Metadata is the configuration-only feature.
+This feature consists of one or more Linux kernel configuration
+parameters in a configuration fragment file (<code class="docutils literal notranslate"><span class="pre">.cfg</span></code>) and a <code class="docutils literal notranslate"><span class="pre">.scc</span></code>
+file that describes the fragment.</p>
+<p>As an example, consider the Symmetric Multi-Processing (SMP) fragment
+used with the <code class="docutils literal notranslate"><span class="pre">linux-yocto-4.12</span></code> kernel as defined outside of the
+recipe space (i.e. <code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code>). This Metadata consists of
+two files: <code class="docutils literal notranslate"><span class="pre">smp.scc</span></code> and <code class="docutils literal notranslate"><span class="pre">smp.cfg</span></code>. You can find these files in the
+<code class="docutils literal notranslate"><span class="pre">cfg</span></code> directory of the <code class="docutils literal notranslate"><span class="pre">yocto-4.12</span></code> branch in the
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> Git repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span><span class="o">/</span><span class="n">smp</span><span class="o">.</span><span class="n">scc</span><span class="p">:</span>
+   <span class="n">define</span> <span class="n">KFEATURE_DESCRIPTION</span> <span class="s2">"Enable SMP for 32 bit builds"</span>
+   <span class="n">define</span> <span class="n">KFEATURE_COMPATIBILITY</span> <span class="nb">all</span>
+
+   <span class="n">kconf</span> <span class="n">hardware</span> <span class="n">smp</span><span class="o">.</span><span class="n">cfg</span>
+
+<span class="n">cfg</span><span class="o">/</span><span class="n">smp</span><span class="o">.</span><span class="n">cfg</span><span class="p">:</span>
+   <span class="n">CONFIG_SMP</span><span class="o">=</span><span class="n">y</span>
+   <span class="n">CONFIG_SCHED_SMT</span><span class="o">=</span><span class="n">y</span>
+   <span class="c1"># Increase default NR_CPUS from 8 to 64 so that platform with</span>
+   <span class="c1"># more than 8 processors can be all activated at boot time</span>
+   <span class="n">CONFIG_NR_CPUS</span><span class="o">=</span><span class="mi">64</span>
+   <span class="c1"># The following is needed when setting NR_CPUS to something</span>
+   <span class="c1"># greater than 8 on x86 architectures, it should be automatically</span>
+   <span class="c1"># disregarded by Kconfig when using a different arch</span>
+   <span class="n">CONFIG_X86_BIGSMP</span><span class="o">=</span><span class="n">y</span>
+</pre></div>
+</div>
+<p>You can find general information on configuration
+fragment files in the &quot;<a class="reference internal" href="common.html#creating-configuration-fragments"><span class="std std-ref">Creating Configuration Fragments</span></a>&quot; section.</p>
+<p>Within the <code class="docutils literal notranslate"><span class="pre">smp.scc</span></code> file, the
+<a class="reference internal" href="../ref-manual/variables.html#term-KFEATURE_DESCRIPTION"><span class="xref std std-term">KFEATURE_DESCRIPTION</span></a>
+statement provides a short description of the fragment. Higher level
+kernel tools use this description.</p>
+<p>Also within the <code class="docutils literal notranslate"><span class="pre">smp.scc</span></code> file, the <code class="docutils literal notranslate"><span class="pre">kconf</span></code> command includes the
+actual configuration fragment in an <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file, and the &quot;hardware&quot;
+keyword identifies the fragment as being hardware enabling, as opposed
+to general policy, which would use the &quot;non-hardware&quot; keyword. The
+distinction is made for the benefit of the configuration validation
+tools, which warn you if a hardware fragment overrides a policy set by a
+non-hardware fragment.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The description file can include multiple <code class="docutils literal notranslate"><span class="pre">kconf</span></code> statements, one per
+fragment.</p>
+</div>
+<p>As described in the
+&quot;<a class="reference internal" href="common.html#validating-configuration"><span class="std std-ref">Validating Configuration</span></a>&quot; section, you can
+use the following BitBake command to audit your configuration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c kernel_configcheck -f
+</pre></div>
+</div>
+</section>
+<section id="patches">
+<h3><span class="section-number">3.3.2 </span>Patches<a class="headerlink" href="#patches" title="Link to this heading"></a></h3>
+<p>Patch descriptions are very similar to configuration fragment
+descriptions, which are described in the previous section. However,
+instead of a <code class="docutils literal notranslate"><span class="pre">.cfg</span></code> file, these descriptions work with source patches
+(i.e. <code class="docutils literal notranslate"><span class="pre">.patch</span></code> files).</p>
+<p>A typical patch includes a description file and the patch itself. As an
+example, consider the build patches used with the <code class="docutils literal notranslate"><span class="pre">linux-yocto-4.12</span></code>
+kernel as defined outside of the recipe space (i.e.
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code>). This Metadata consists of several files:
+<code class="docutils literal notranslate"><span class="pre">build.scc</span></code> and a set of <code class="docutils literal notranslate"><span class="pre">*.patch</span></code> files. You can find these files
+in the <code class="docutils literal notranslate"><span class="pre">patches/build</span></code> directory of the <code class="docutils literal notranslate"><span class="pre">yocto-4.12</span></code> branch in the
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> Git repository.</p>
+<p>The following listings show the <code class="docutils literal notranslate"><span class="pre">build.scc</span></code> file and part of the
+<code class="docutils literal notranslate"><span class="pre">modpost-mask-trivial-warnings.patch</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">patches</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">build</span><span class="o">.</span><span class="n">scc</span><span class="p">:</span>
+   <span class="n">patch</span> <span class="n">arm</span><span class="o">-</span><span class="n">serialize</span><span class="o">-</span><span class="n">build</span><span class="o">-</span><span class="n">targets</span><span class="o">.</span><span class="n">patch</span>
+   <span class="n">patch</span> <span class="n">powerpc</span><span class="o">-</span><span class="n">serialize</span><span class="o">-</span><span class="n">image</span><span class="o">-</span><span class="n">targets</span><span class="o">.</span><span class="n">patch</span>
+   <span class="n">patch</span> <span class="n">kbuild</span><span class="o">-</span><span class="n">exclude</span><span class="o">-</span><span class="n">meta</span><span class="o">-</span><span class="n">directory</span><span class="o">-</span><span class="n">from</span><span class="o">-</span><span class="n">distclean</span><span class="o">-</span><span class="n">processi</span><span class="o">.</span><span class="n">patch</span>
+
+   <span class="c1"># applied by kgit</span>
+   <span class="c1"># patch kbuild-add-meta-files-to-the-ignore-li.patch</span>
+
+   <span class="n">patch</span> <span class="n">modpost</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">trivial</span><span class="o">-</span><span class="n">warnings</span><span class="o">.</span><span class="n">patch</span>
+   <span class="n">patch</span> <span class="n">menuconfig</span><span class="o">-</span><span class="n">check</span><span class="o">-</span><span class="n">lxdiaglog</span><span class="o">.</span><span class="n">sh</span><span class="o">-</span><span class="n">Allow</span><span class="o">-</span><span class="n">specification</span><span class="o">-</span><span class="n">of</span><span class="o">.</span><span class="n">patch</span>
+
+<span class="n">patches</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">modpost</span><span class="o">-</span><span class="n">mask</span><span class="o">-</span><span class="n">trivial</span><span class="o">-</span><span class="n">warnings</span><span class="o">.</span><span class="n">patch</span><span class="p">:</span>
+   <span class="n">From</span> <span class="n">bd48931bc142bdd104668f3a062a1f22600aae61</span> <span class="n">Mon</span> <span class="n">Sep</span> <span class="mi">17</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2001</span>
+   <span class="n">From</span><span class="p">:</span> <span class="n">Paul</span> <span class="n">Gortmaker</span> <span class="o">&lt;</span><span class="n">paul</span><span class="o">.</span><span class="n">gortmaker</span><span class="nd">@windriver</span><span class="o">.</span><span class="n">com</span><span class="o">&gt;</span>
+   <span class="n">Date</span><span class="p">:</span> <span class="n">Sun</span><span class="p">,</span> <span class="mi">25</span> <span class="n">Jan</span> <span class="mi">2009</span> <span class="mi">17</span><span class="p">:</span><span class="mi">58</span><span class="p">:</span><span class="mi">09</span> <span class="o">-</span><span class="mi">0500</span>
+   <span class="n">Subject</span><span class="p">:</span> <span class="p">[</span><span class="n">PATCH</span><span class="p">]</span> <span class="n">modpost</span><span class="p">:</span> <span class="n">mask</span> <span class="n">trivial</span> <span class="n">warnings</span>
+
+   <span class="n">Newer</span> <span class="n">HOSTCC</span> <span class="n">will</span> <span class="n">complain</span> <span class="n">about</span> <span class="n">various</span> <span class="n">stdio</span> <span class="n">fcns</span> <span class="n">because</span>
+                     <span class="o">.</span>
+                     <span class="o">.</span>
+                     <span class="o">.</span>
+             <span class="n">char</span> <span class="o">*</span><span class="n">dump_write</span> <span class="o">=</span> <span class="n">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">files_source</span> <span class="o">=</span> <span class="n">NULL</span><span class="p">;</span>
+             <span class="nb">int</span> <span class="n">opt</span><span class="p">;</span>
+   <span class="o">--</span>
+   <span class="mf">2.10.1</span>
+
+   <span class="n">generated</span> <span class="n">by</span> <span class="n">cgit</span> <span class="n">v0</span><span class="mf">.10.2</span> <span class="n">at</span> <span class="mi">2017</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">28</span> <span class="mi">15</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span><span class="mi">23</span> <span class="p">(</span><span class="n">GMT</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The description file can
+include multiple patch statements where each statement handles a single
+patch. In the example <code class="docutils literal notranslate"><span class="pre">build.scc</span></code> file, there are five patch statements
+for the five patches in the directory.</p>
+<p>You can create a typical <code class="docutils literal notranslate"><span class="pre">.patch</span></code> file using <code class="docutils literal notranslate"><span class="pre">diff</span> <span class="pre">-Nurp</span></code> or
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">format-patch</span></code> commands. For information on how to create patches,
+see the &quot;<a class="reference internal" href="common.html#using-devtool-to-patch-the-kernel"><span class="std std-ref">Using devtool to Patch the Kernel</span></a>&quot;
+and &quot;<a class="reference internal" href="common.html#using-traditional-kernel-development-to-patch-the-kernel"><span class="std std-ref">Using Traditional Kernel Development to Patch the Kernel</span></a>&quot;
+sections.</p>
+</section>
+<section id="features">
+<h3><span class="section-number">3.3.3 </span>Caratteristiche<a class="headerlink" href="#features" title="Link to this heading"></a></h3>
+<p>Features are complex kernel Metadata types that consist of configuration
+fragments, patches, and possibly other feature description files. As an
+example, consider the following generic listing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">features</span><span class="o">/</span><span class="n">myfeature</span><span class="o">.</span><span class="n">scc</span>
+   <span class="n">define</span> <span class="n">KFEATURE_DESCRIPTION</span> <span class="s2">"Enable myfeature"</span>
+
+   <span class="n">patch</span> <span class="mi">0001</span><span class="o">-</span><span class="n">myfeature</span><span class="o">-</span><span class="n">core</span><span class="o">.</span><span class="n">patch</span>
+   <span class="n">patch</span> <span class="mi">0002</span><span class="o">-</span><span class="n">myfeature</span><span class="o">-</span><span class="n">interface</span><span class="o">.</span><span class="n">patch</span>
+
+   <span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">myfeature_dependency</span><span class="o">.</span><span class="n">scc</span>
+   <span class="n">kconf</span> <span class="n">non</span><span class="o">-</span><span class="n">hardware</span> <span class="n">myfeature</span><span class="o">.</span><span class="n">cfg</span>
+</pre></div>
+</div>
+<p>This example shows how the <code class="docutils literal notranslate"><span class="pre">patch</span></code> and <code class="docutils literal notranslate"><span class="pre">kconf</span></code> commands are used as well
+as how an additional feature description file is included with the
+<code class="docutils literal notranslate"><span class="pre">include</span></code> command.</p>
+<p>Typically, features are less granular than configuration fragments and
+are more likely than configuration fragments and patches to be the types
+of things you want to specify in the <a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_FEATURES"><span class="xref std std-term">KERNEL_FEATURES</span></a> variable of the
+Linux kernel recipe. See the
+&quot;<a class="reference internal" href="#using-kernel-metadata-in-a-recipe"><span class="std std-ref">Using Kernel Metadata in a Recipe</span></a>&quot; section earlier
+in the manual.</p>
+</section>
+<section id="kernel-types">
+<h3><span class="section-number">3.3.4 </span>Kernel Types<a class="headerlink" href="#kernel-types" title="Link to this heading"></a></h3>
+<p>A kernel type defines a high-level kernel policy by aggregating non-hardware
+configuration fragments with patches you want to use when building a Linux
+kernel of a specific type (e.g. a real-time kernel). Syntactically, kernel
+types are no different than features as described in the
+&quot;<a class="reference internal" href="#features"><span class="std std-ref">Caratteristiche</span></a>&quot; section. The <a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a>
+variable in the kernel recipe selects the kernel type. For example, in the
+<code class="docutils literal notranslate"><span class="pre">linux-yocto_4.12.bb</span></code> kernel recipe found in <code class="docutils literal notranslate"><span class="pre">meta/recipes-kernel/linux</span></code>, a
+<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-metadata.html#require-directive" title="(in Bitbake Version: Current Development)"><span class="xref std std-ref">require</span></a>
+directive includes the <code class="docutils literal notranslate"><span class="pre">meta/recipes-kernel/linux/linux-yocto.inc</span></code> file,
+which has the following statement that defines the default kernel type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>LINUX_KERNEL_TYPE ??= "standard"
+</pre></div>
+</div>
+<p>Another example would be the real-time kernel (i.e.
+<code class="docutils literal notranslate"><span class="pre">linux-yocto-rt_4.12.bb</span></code>). This kernel recipe directly sets the kernel
+type as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">LINUX_KERNEL_TYPE</span> <span class="o">=</span> <span class="s2">"preempt-rt"</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You can find kernel recipes in the <code class="docutils literal notranslate"><span class="pre">meta/recipes-kernel/linux</span></code> directory
+of the <a class="reference internal" href="../overview-manual/development-environment.html#yocto-project-source-repositories"><span class="std std-ref">I Repository del Codice Sorgente di Yocto Project</span></a>. See the
+&quot;<a class="reference internal" href="#using-kernel-metadata-in-a-recipe"><span class="std std-ref">Using Kernel Metadata in a Recipe</span></a>&quot;
+section for more information.</p>
+</div>
+<p>Three kernel types (&quot;standard&quot;, &quot;tiny&quot;, and &quot;preempt-rt&quot;) are supported
+for Linux Yocto kernels:</p>
+<ul class="simple">
+<li><p>&quot;standard&quot;: Includes the generic Linux kernel policy of the Yocto
+Project linux-yocto kernel recipes. This policy includes, among other
+things, which file systems, networking options, core kernel features,
+and debugging and tracing options are supported.</p></li>
+<li><p>&quot;preempt-rt&quot;: Applies the <code class="docutils literal notranslate"><span class="pre">PREEMPT_RT</span></code> patches and the
+configuration options required to build a real-time Linux kernel.
+This kernel type inherits from the &quot;standard&quot; kernel type.</p></li>
+<li><p>&quot;tiny&quot;: Defines a bare minimum configuration meant to serve as a base
+for very small Linux kernels. The &quot;tiny&quot; kernel type is independent
+from the &quot;standard&quot; configuration. Although the &quot;tiny&quot; kernel type
+does not currently include any source changes, it might in the
+future.</p></li>
+</ul>
+<p>For any given kernel type, the Metadata is defined by the <code class="docutils literal notranslate"><span class="pre">.scc</span></code> (e.g.
+<code class="docutils literal notranslate"><span class="pre">standard.scc</span></code>). Here is a partial listing for the <code class="docutils literal notranslate"><span class="pre">standard.scc</span></code>
+file, which is found in the <code class="docutils literal notranslate"><span class="pre">ktypes/standard</span></code> directory of the
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> Git repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Include this kernel type fragment to get the standard features and</span>
+<span class="c1"># configuration values.</span>
+
+<span class="c1"># Note: if only the features are desired, but not the configuration</span>
+<span class="c1">#       then this should be included as:</span>
+<span class="c1">#             include ktypes/standard/standard.scc nocfg</span>
+<span class="c1">#       if no chained configuration is desired, include it as:</span>
+<span class="c1">#             include ktypes/standard/standard.scc nocfg inherit</span>
+
+
+
+<span class="n">include</span> <span class="n">ktypes</span><span class="o">/</span><span class="n">base</span><span class="o">/</span><span class="n">base</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">branch</span> <span class="n">standard</span>
+
+<span class="n">kconf</span> <span class="n">non</span><span class="o">-</span><span class="n">hardware</span> <span class="n">standard</span><span class="o">.</span><span class="n">cfg</span>
+
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">kgdb</span><span class="o">/</span><span class="n">kgdb</span><span class="o">.</span><span class="n">scc</span>
+           <span class="o">.</span>
+           <span class="o">.</span>
+           <span class="o">.</span>
+
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">net</span><span class="o">/</span><span class="n">ip6_nf</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">net</span><span class="o">/</span><span class="n">bridge</span><span class="o">.</span><span class="n">scc</span>
+
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">systemd</span><span class="o">.</span><span class="n">scc</span>
+
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">rfkill</span><span class="o">/</span><span class="n">rfkill</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>As with any <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file, a kernel type definition can aggregate other
+<code class="docutils literal notranslate"><span class="pre">.scc</span></code> files with <code class="docutils literal notranslate"><span class="pre">include</span></code> commands. These definitions can also
+directly pull in configuration fragments and patches with the <code class="docutils literal notranslate"><span class="pre">kconf</span></code>
+and <code class="docutils literal notranslate"><span class="pre">patch</span></code> commands, respectively.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>It is not strictly necessary to create a kernel type <code class="docutils literal notranslate"><span class="pre">.scc</span></code>
+file. The Board Support Package (BSP) file can implicitly define the
+kernel type using a <code class="docutils literal notranslate"><span class="pre">define</span></code> <a class="reference internal" href="../ref-manual/variables.html#term-KTYPE"><span class="xref std std-term">KTYPE</span></a> <code class="docutils literal notranslate"><span class="pre">myktype</span></code> line. See the
+&quot;<a class="reference internal" href="#bsp-descriptions"><span class="std std-ref">BSP Descriptions</span></a>&quot; section for more
+information.</p>
+</div>
+</section>
+<section id="bsp-descriptions">
+<h3><span class="section-number">3.3.5 </span>BSP Descriptions<a class="headerlink" href="#bsp-descriptions" title="Link to this heading"></a></h3>
+<p>BSP descriptions (i.e. <code class="docutils literal notranslate"><span class="pre">*.scc</span></code> files) combine kernel types with
+hardware-specific features. The hardware-specific Metadata is typically
+defined independently in the BSP layer, and then aggregated with each
+supported kernel type.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For BSPs supported by the Yocto Project, the BSP description files
+are located in the <code class="docutils literal notranslate"><span class="pre">bsp</span></code> directory of the <code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code>
+repository organized under the &quot;Yocto Linux Kernel&quot; heading in the
+<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org">Yocto Project Source Repositories</a>.</p>
+</div>
+<p>This section overviews the BSP description structure, the aggregation
+concepts, and presents a detailed example using a BSP supported by the
+Yocto Project (i.e. BeagleBone Board). For complete information on BSP
+layer file hierarchy, see the <a class="reference internal" href="../bsp-manual/index.html"><span class="doc">Manuale del Board Support Package (BSP) di Yocto Project</span></a>.</p>
+<section id="description-overview">
+<h4><span class="section-number">3.3.5.1 </span>Description Overview<a class="headerlink" href="#description-overview" title="Link to this heading"></a></h4>
+<p>For simplicity, consider the following root BSP layer description files
+for the BeagleBone board. These files employ both a structure and naming
+convention for consistency. The naming convention for the file is as
+follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bsp_root_name</span><span class="o">-</span><span class="n">kernel_type</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>Here are some example root layer
+BSP filenames for the BeagleBone Board BSP, which is supported by the
+Yocto Project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">beaglebone</span><span class="o">-</span><span class="n">standard</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">beaglebone</span><span class="o">-</span><span class="n">preempt</span><span class="o">-</span><span class="n">rt</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>Each file uses the root name (i.e &quot;beaglebone&quot;) BSP name followed by the
+kernel type.</p>
+<p>Examine the <code class="docutils literal notranslate"><span class="pre">beaglebone-standard.scc</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">define</span> <span class="n">KMACHINE</span> <span class="n">beaglebone</span>
+<span class="n">define</span> <span class="n">KTYPE</span> <span class="n">standard</span>
+<span class="n">define</span> <span class="n">KARCH</span> <span class="n">arm</span>
+
+<span class="n">include</span> <span class="n">ktypes</span><span class="o">/</span><span class="n">standard</span><span class="o">/</span><span class="n">standard</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">branch</span> <span class="n">beaglebone</span>
+
+<span class="n">include</span> <span class="n">beaglebone</span><span class="o">.</span><span class="n">scc</span>
+
+<span class="c1"># default policy for standard kernels</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">latencytop</span><span class="o">/</span><span class="n">latencytop</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">profiling</span><span class="o">/</span><span class="n">profiling</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>Every top-level BSP description file
+should define the <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a>,
+<a class="reference internal" href="../ref-manual/variables.html#term-KTYPE"><span class="xref std std-term">KTYPE</span></a>, and
+<a class="reference internal" href="../ref-manual/variables.html#term-KARCH"><span class="xref std std-term">KARCH</span></a> variables. These
+variables allow the OpenEmbedded build system to identify the
+description as meeting the criteria set by the recipe being built. This
+example supports the &quot;beaglebone&quot; machine for the &quot;standard&quot; kernel and
+the &quot;arm&quot; architecture.</p>
+<p>Be aware that there is no hard link between the <a class="reference internal" href="../ref-manual/variables.html#term-KTYPE"><span class="xref std std-term">KTYPE</span></a> variable and a kernel
+type description file. Thus, if you do not have the
+kernel type defined in your kernel Metadata as it is here, you only need
+to ensure that the
+<a class="reference internal" href="../ref-manual/variables.html#term-LINUX_KERNEL_TYPE"><span class="xref std std-term">LINUX_KERNEL_TYPE</span></a>
+variable in the kernel recipe and the <a class="reference internal" href="../ref-manual/variables.html#term-KTYPE"><span class="xref std std-term">KTYPE</span></a> variable in the BSP
+description file match.</p>
+<p>To separate your kernel policy from your hardware configuration, you
+include a kernel type (<code class="docutils literal notranslate"><span class="pre">ktype</span></code>), such as &quot;standard&quot;. In the previous
+example, this is done using the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">include</span> <span class="n">ktypes</span><span class="o">/</span><span class="n">standard</span><span class="o">/</span><span class="n">standard</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>This file aggregates all the configuration
+fragments, patches, and features that make up your standard kernel
+policy. See the &quot;<a class="reference internal" href="#kernel-types"><span class="std std-ref">Kernel Types</span></a>&quot; section for more
+information.</p>
+<p>To aggregate common configurations and features specific to the kernel
+for <cite>mybsp</cite>, use the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">include</span> <span class="n">mybsp</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>You can see that in the BeagleBone example with the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">include</span> <span class="n">beaglebone</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>For information on how to break a complete <code class="docutils literal notranslate"><span class="pre">.config</span></code> file into the various
+configuration fragments, see the &quot;<a class="reference internal" href="common.html#creating-configuration-fragments"><span class="std std-ref">Creating Configuration Fragments</span></a>&quot; section.</p>
+<p>Finally, if you have any configurations specific to the hardware that
+are not in a <code class="docutils literal notranslate"><span class="pre">*.scc</span></code> file, you can include them as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">kconf</span> <span class="n">hardware</span> <span class="n">mybsp</span><span class="o">-</span><span class="n">extra</span><span class="o">.</span><span class="n">cfg</span>
+</pre></div>
+</div>
+<p>The BeagleBone example does not include these
+types of configurations. However, the Malta 32-bit board does
+(&quot;mti-malta32&quot;). Here is the <code class="docutils literal notranslate"><span class="pre">mti-malta32-le-standard.scc</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">define</span> <span class="n">KMACHINE</span> <span class="n">mti</span><span class="o">-</span><span class="n">malta32</span><span class="o">-</span><span class="n">le</span>
+<span class="n">define</span> <span class="n">KMACHINE</span> <span class="n">qemumipsel</span>
+<span class="n">define</span> <span class="n">KTYPE</span> <span class="n">standard</span>
+<span class="n">define</span> <span class="n">KARCH</span> <span class="n">mips</span>
+
+<span class="n">include</span> <span class="n">ktypes</span><span class="o">/</span><span class="n">standard</span><span class="o">/</span><span class="n">standard</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">branch</span> <span class="n">mti</span><span class="o">-</span><span class="n">malta32</span>
+
+<span class="n">include</span> <span class="n">mti</span><span class="o">-</span><span class="n">malta32</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">kconf</span> <span class="n">hardware</span> <span class="n">mti</span><span class="o">-</span><span class="n">malta32</span><span class="o">-</span><span class="n">le</span><span class="o">.</span><span class="n">cfg</span>
+</pre></div>
+</div>
+</section>
+<section id="example">
+<h4><span class="section-number">3.3.5.2 </span>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h4>
+<p>Many real-world examples are more complex. Like any other <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file,
+BSP descriptions can aggregate features. Consider the Minnow BSP
+definition given the <code class="docutils literal notranslate"><span class="pre">linux-yocto-4.4</span></code> branch of the
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> (i.e. <code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache/bsp/minnow/minnow.scc</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">x86</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">eg20t</span><span class="o">/</span><span class="n">eg20t</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">dmaengine</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">power</span><span class="o">/</span><span class="n">intel</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">efi</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">usb</span><span class="o">/</span><span class="n">ehci</span><span class="o">-</span><span class="n">hcd</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">usb</span><span class="o">/</span><span class="n">ohci</span><span class="o">-</span><span class="n">hcd</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">usb</span><span class="o">/</span><span class="n">usb</span><span class="o">-</span><span class="n">gadgets</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">usb</span><span class="o">/</span><span class="n">touchscreen</span><span class="o">-</span><span class="n">composite</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">timer</span><span class="o">/</span><span class="n">hpet</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">leds</span><span class="o">/</span><span class="n">leds</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">spi</span><span class="o">/</span><span class="n">spidev</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">i2c</span><span class="o">/</span><span class="n">i2cdev</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">mei</span><span class="o">/</span><span class="n">mei</span><span class="o">-</span><span class="n">txe</span><span class="o">.</span><span class="n">scc</span>
+
+<span class="c1"># Earlyprintk and port debug requires 8250</span>
+<span class="n">kconf</span> <span class="n">hardware</span> <span class="n">cfg</span><span class="o">/</span><span class="mf">8250.</span><span class="n">cfg</span>
+
+<span class="n">kconf</span> <span class="n">hardware</span> <span class="n">minnow</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">kconf</span> <span class="n">hardware</span> <span class="n">minnow</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">cfg</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Although the Minnow Board BSP is unused, the Metadata remains and is
+being used here just as an example.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">minnow.scc</span></code> description file includes a hardware configuration
+fragment (<code class="docutils literal notranslate"><span class="pre">minnow.cfg</span></code>) specific to the Minnow BSP as well as several
+more general configuration fragments and features enabling hardware
+found on the machine. This <code class="docutils literal notranslate"><span class="pre">minnow.scc</span></code> description file is then
+included in each of the three &quot;minnow&quot; description files for the
+supported kernel types (i.e. &quot;standard&quot;, &quot;preempt-rt&quot;, and &quot;tiny&quot;).
+Consider the &quot;minnow&quot; description for the &quot;standard&quot; kernel type (i.e.
+<code class="docutils literal notranslate"><span class="pre">minnow-standard.scc</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">define</span> <span class="n">KMACHINE</span> <span class="n">minnow</span>
+<span class="n">define</span> <span class="n">KTYPE</span> <span class="n">standard</span>
+<span class="n">define</span> <span class="n">KARCH</span> <span class="n">i386</span>
+
+<span class="n">include</span> <span class="n">ktypes</span><span class="o">/</span><span class="n">standard</span>
+
+<span class="n">include</span> <span class="n">minnow</span><span class="o">.</span><span class="n">scc</span>
+
+<span class="c1"># Extra minnow configs above the minimal defined in minnow.scc</span>
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">efi</span><span class="o">-</span><span class="n">ext</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">media</span><span class="o">/</span><span class="n">media</span><span class="o">-</span><span class="nb">all</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">sound</span><span class="o">/</span><span class="n">snd_hda_intel</span><span class="o">.</span><span class="n">scc</span>
+
+<span class="c1"># The following should really be in standard.scc</span>
+<span class="c1"># USB live-image support</span>
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">usb</span><span class="o">-</span><span class="n">mass</span><span class="o">-</span><span class="n">storage</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">cfg</span><span class="o">/</span><span class="n">boot</span><span class="o">-</span><span class="n">live</span><span class="o">.</span><span class="n">scc</span>
+
+<span class="c1"># Basic profiling</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">latencytop</span><span class="o">/</span><span class="n">latencytop</span><span class="o">.</span><span class="n">scc</span>
+<span class="n">include</span> <span class="n">features</span><span class="o">/</span><span class="n">profiling</span><span class="o">/</span><span class="n">profiling</span><span class="o">.</span><span class="n">scc</span>
+
+<span class="c1"># Requested drivers that don't have an existing scc</span>
+<span class="n">kconf</span> <span class="n">hardware</span> <span class="n">minnow</span><span class="o">-</span><span class="n">drivers</span><span class="o">-</span><span class="n">extra</span><span class="o">.</span><span class="n">cfg</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">include</span></code> command midway through the file includes the <code class="docutils literal notranslate"><span class="pre">minnow.scc</span></code> description
+that defines all enabled hardware for the BSP that is common to all
+kernel types. Using this command significantly reduces duplication.</p>
+<p>Now consider the &quot;minnow&quot; description for the &quot;tiny&quot; kernel type (i.e.
+<code class="docutils literal notranslate"><span class="pre">minnow-tiny.scc</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">define</span> <span class="n">KMACHINE</span> <span class="n">minnow</span>
+<span class="n">define</span> <span class="n">KTYPE</span> <span class="n">tiny</span>
+<span class="n">define</span> <span class="n">KARCH</span> <span class="n">i386</span>
+
+<span class="n">include</span> <span class="n">ktypes</span><span class="o">/</span><span class="n">tiny</span>
+
+<span class="n">include</span> <span class="n">minnow</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>As you might expect,
+the &quot;tiny&quot; description includes quite a bit less. In fact, it includes
+only the minimal policy defined by the &quot;tiny&quot; kernel type and the
+hardware-specific configuration required for booting the machine along
+with the most basic functionality of the system as defined in the base
+&quot;minnow&quot; description file.</p>
+<p>Notice again the three critical variables:
+<a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a>,
+<a class="reference internal" href="../ref-manual/variables.html#term-KTYPE"><span class="xref std std-term">KTYPE</span></a>, and
+<a class="reference internal" href="../ref-manual/variables.html#term-KARCH"><span class="xref std std-term">KARCH</span></a>. Of these variables, only
+<a class="reference internal" href="../ref-manual/variables.html#term-KTYPE"><span class="xref std std-term">KTYPE</span></a> has changed to specify the &quot;tiny&quot; kernel type.</p>
+</section>
+</section>
+</section>
+<section id="kernel-metadata-location">
+<h2><span class="section-number">3.4 </span>Kernel Metadata Location<a class="headerlink" href="#kernel-metadata-location" title="Link to this heading"></a></h2>
+<p>Kernel Metadata always exists outside of the kernel tree either defined
+in a kernel recipe (recipe-space) or outside of the recipe. Where you
+choose to define the Metadata depends on what you want to do and how you
+intend to work. Regardless of where you define the kernel Metadata, the
+syntax used applies equally.</p>
+<p>If you are unfamiliar with the Linux kernel and only wish to apply a
+configuration and possibly a couple of patches provided to you by
+others, the recipe-space method is recommended. This method is also a
+good approach if you are working with Linux kernel sources you do not
+control or if you just do not want to maintain a Linux kernel Git
+repository on your own. For partial information on how you can define
+kernel Metadata in the recipe-space, see the
+&quot;<a class="reference internal" href="common.html#modifying-an-existing-recipe"><span class="std std-ref">Modifying an Existing Recipe</span></a>&quot; section.</p>
+<p>Conversely, if you are actively developing a kernel and are already
+maintaining a Linux kernel Git repository of your own, you might find it
+more convenient to work with kernel Metadata kept outside the
+recipe-space. Working with Metadata in this area can make iterative
+development of the Linux kernel more efficient outside of the BitBake
+environment.</p>
+<section id="recipe-space-metadata">
+<h3><span class="section-number">3.4.1 </span>Recipe-Space Metadata<a class="headerlink" href="#recipe-space-metadata" title="Link to this heading"></a></h3>
+<p>When stored in recipe-space, the kernel Metadata files reside in a
+directory hierarchy below <a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a>. For
+a linux-yocto recipe or for a Linux kernel recipe derived by copying
+<a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/tree/meta-skeleton/recipes-kernel/linux/linux-yocto-custom.bb">meta-skeleton/recipes-kernel/linux/linux-yocto-custom.bb</a>
+into your layer and modifying it, <a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a> is typically set to
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="../ref-manual/variables.html#term-THISDIR"><span class="xref std std-term">THISDIR</span></a><code class="docutils literal notranslate"><span class="pre">}/${</span></code><a class="reference internal" href="../ref-manual/variables.html#term-PN"><span class="xref std std-term">PN</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>.
+See the &quot;<a class="reference internal" href="common.html#modifying-an-existing-recipe"><span class="std std-ref">Modifying an Existing Recipe</span></a>&quot;
+section for more information.</p>
+<p>Here is an example that shows a trivial tree of kernel Metadata stored
+in recipe-space within a BSP layer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>meta-my_bsp_layer/
+`-- recipes-kernel
+    `-- linux
+        `-- linux-yocto
+            |-- bsp-standard.scc
+            |-- bsp.cfg
+            `-- standard.cfg
+</pre></div>
+</div>
+<p>When the Metadata is stored in recipe-space, you must take steps to
+ensure BitBake has the necessary information to decide what files to
+fetch and when they need to be fetched again. It is only necessary to
+specify the <code class="docutils literal notranslate"><span class="pre">.scc</span></code> files on the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>. BitBake parses them
+and fetches any files referenced in the <code class="docutils literal notranslate"><span class="pre">.scc</span></code> files by the
+<code class="docutils literal notranslate"><span class="pre">include</span></code>, <code class="docutils literal notranslate"><span class="pre">patch</span></code>, or <code class="docutils literal notranslate"><span class="pre">kconf</span></code> commands. Because of this, it is
+necessary to bump the recipe <a class="reference internal" href="../ref-manual/variables.html#term-PR"><span class="xref std std-term">PR</span></a>
+value when changing the content of files not explicitly listed in the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>.</p>
+<p>If the BSP description is in recipe space, you cannot simply list the
+<code class="docutils literal notranslate"><span class="pre">*.scc</span></code> in the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement. You need to use the following
+form from your kernel append file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span><span class="p">:</span><span class="n">append</span><span class="p">:</span><span class="n">myplatform</span> <span class="o">=</span> <span class="s2">" </span><span class="se">\</span>
+<span class="s2">    file://myplatform;type=kmeta;destsuffix=myplatform </span><span class="se">\</span>
+<span class="s2">    "</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">type=kmeta</span></code> attribute is significant: it adds the directory to the
+kernel Metadata that the tools search to <em>discover</em> the BSP description
+matching <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> and <code class="docutils literal notranslate"><span class="pre">LINUX_KERNEL_TYPE</span></code>. A <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file listed
+directly on <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> (for example <code class="docutils literal notranslate"><span class="pre">file://myplatform.scc</span></code>) is instead
+treated as a configuration fragment and is processed in both the configuration
+and the patch phases. Any <code class="docutils literal notranslate"><span class="pre">patch</span></code> directives that such a fragment references,
+or that are reached through files it <code class="docutils literal notranslate"><span class="pre">include</span></code>s (such as an <code class="docutils literal notranslate"><span class="pre">arch/</span></code> or
+<code class="docutils literal notranslate"><span class="pre">bsp/</span></code> description), are then applied to the kernel source and will fail if
+those patches are already present in the branch. See the
+&quot;<a class="reference internal" href="#patch-application-for-bsp-descriptions"><span class="std std-ref">Patch Application for BSP Descriptions</span></a>&quot; section for
+the reasoning behind this.</p>
+</section>
+<section id="metadata-outside-the-recipe-space">
+<h3><span class="section-number">3.4.2 </span>Metadata Outside the Recipe-Space<a class="headerlink" href="#metadata-outside-the-recipe-space" title="Link to this heading"></a></h3>
+<p>When stored outside of the recipe-space, the kernel Metadata files
+reside in a separate repository. The OpenEmbedded build system adds the
+Metadata to the build as a &quot;type=kmeta&quot; repository through the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> variable. As an
+example, consider the following <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement from the
+<code class="docutils literal notranslate"><span class="pre">linux-yocto_5.15.bb</span></code> kernel recipe:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">=</span> <span class="s2">"https://git.yoctoproject.org/linux-yocto.git;name=machine;branch=$</span><span class="si">{KBRANCH}</span><span class="s2">;protocol=https </span><span class="se">\</span>
+<span class="s2">           https://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=yocto-5.15;destsuffix=$</span><span class="si">{KMETA}</span><span class="s2">;protocol=https"</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">${KMETA}</span></code>, in this context, is simply used to name the directory into
+which the Git fetcher places the Metadata. This behavior is no different
+than any multi-repository <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement used in a recipe (e.g.
+see the previous section).</p>
+<p>You can keep kernel Metadata in a &quot;kernel-cache&quot;, which is a directory
+containing configuration fragments. As with any Metadata kept outside
+the recipe-space, you simply need to use the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement with
+the &quot;type=kmeta&quot; attribute. Doing so makes the kernel Metadata available
+during the configuration phase.</p>
+<p>If you modify the Metadata, you must not forget to update the <a class="reference internal" href="../ref-manual/variables.html#term-SRCREV"><span class="xref std std-term">SRCREV</span></a>
+statements in the kernel's recipe. In particular, you need to update the
+<code class="docutils literal notranslate"><span class="pre">SRCREV_meta</span></code> variable to match the commit in the <code class="docutils literal notranslate"><span class="pre">KMETA</span></code> branch you
+wish to use. Changing the data in these branches and not updating the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRCREV"><span class="xref std std-term">SRCREV</span></a> statements to match will cause the build to fetch an older
+commit.</p>
+</section>
+<section id="patch-application-for-bsp-descriptions">
+<h3><span class="section-number">3.4.3 </span>Patch Application for BSP Descriptions<a class="headerlink" href="#patch-application-for-bsp-descriptions" title="Link to this heading"></a></h3>
+<p>During the build, the kernel tools search the kernel Metadata for the BSP
+description that most closely matches the <a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> and
+<code class="docutils literal notranslate"><span class="pre">LINUX_KERNEL_TYPE</span></code> values passed in from the recipe, and use the first
+description they find that matches both. This is referred to as the
+<em>discovered</em> BSP description.</p>
+<p>For a discovered BSP description, the tools deliberately do <strong>not</strong> apply the
+<code class="docutils literal notranslate"><span class="pre">patch</span></code> directives reachable from it, either directly or through any files it
+<code class="docutils literal notranslate"><span class="pre">include</span></code>s. The kernel source branch you are building (<a class="reference internal" href="../ref-manual/variables.html#term-KBRANCH"><span class="xref std std-term">KBRANCH</span></a>) is
+assumed to already contain those commits as part of its history, so re-applying
+them would fail. Configuration fragments (<code class="docutils literal notranslate"><span class="pre">kconf</span></code> directives) are always
+applied. In other words, a discovered BSP contributes <em>configuration</em>, not
+<em>patches</em>.</p>
+<p>This is why a recipe-space BSP description must be delivered as a
+<code class="docutils literal notranslate"><span class="pre">type=kmeta</span></code> directory rather than as an individual <code class="docutils literal notranslate"><span class="pre">file://*.scc</span></code> entry on
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> (see the
+&quot;<a class="reference internal" href="#recipe-space-metadata"><span class="std std-ref">Recipe-Space Metadata</span></a>&quot; section). To have your
+description discovered, place it in a <code class="docutils literal notranslate"><span class="pre">type=kmeta</span></code> directory and set
+<a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> so the tools locate it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>KMACHINE:myplatform ?= "myplatform"
+
+SRC_URI:append:myplatform = " \
+    file://myplatform;type=kmeta;destsuffix=myplatform \
+    "
+</pre></div>
+</div>
+<p>Here, the <code class="docutils literal notranslate"><span class="pre">myplatform</span></code> directory contains the BSP description (for example
+<code class="docutils literal notranslate"><span class="pre">myplatform-standard.scc</span></code>, beginning with <code class="docutils literal notranslate"><span class="pre">define</span> <span class="pre">KMACHINE</span> <span class="pre">myplatform</span></code> and
+<code class="docutils literal notranslate"><span class="pre">define</span> <span class="pre">KTYPE</span> <span class="pre">standard</span></code>). Because the description is discovered rather than
+supplied as a fragment, its <code class="docutils literal notranslate"><span class="pre">patch</span></code> directives, and those of everything it
+<code class="docutils literal notranslate"><span class="pre">include</span></code>s, are inhibited, while its configuration is still applied.</p>
+<p>If your BSP genuinely lives outside the kernel source history (the branch you
+build does <strong>not</strong> already contain the BSP commits, and the patches <em>must</em> be
+applied), the BSP description can opt back in to patch application by adding the
+following directive to the description itself:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">define</span> <span class="n">KMETA_EXTERNAL_BSP</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>With that directive present, the discovered BSP description is also injected
+into the patch phase and its <code class="docutils literal notranslate"><span class="pre">patch</span></code> directives are applied.</p>
+</section>
+</section>
+<section id="organizing-your-source">
+<h2><span class="section-number">3.5 </span>Organizing Your Source<a class="headerlink" href="#organizing-your-source" title="Link to this heading"></a></h2>
+<p>Many recipes based on the <code class="docutils literal notranslate"><span class="pre">linux-yocto-custom.bb</span></code> recipe use Linux
+kernel sources that have only a single branch. This type of
+repository structure is fine for linear development supporting a single
+machine and architecture. However, if you work with multiple boards and
+architectures, a kernel source repository with multiple branches is more
+efficient. For example, suppose you need a series of patches for one
+board to boot. Sometimes, these patches are works-in-progress or
+fundamentally wrong, yet they are still necessary for specific boards.
+In these situations, you most likely do not want to include these
+patches in every kernel you build (i.e. have the patches as part of the
+default branch). It is situations like these that give rise to
+multiple branches used within a Linux kernel sources Git repository.</p>
+<p>Here are repository organization strategies maximizing source reuse,
+removing redundancy, and logically ordering your changes. This section
+presents strategies for the following cases:</p>
+<ul class="simple">
+<li><p>Encapsulating patches in a feature description and only including the
+patches in the BSP descriptions of the applicable boards.</p></li>
+<li><p>Creating a machine branch in your kernel source repository and
+applying the patches on that branch only.</p></li>
+<li><p>Creating a feature branch in your kernel source repository and
+merging that branch into your BSP when needed.</p></li>
+</ul>
+<p>The approach you take is entirely up to you and depends on what works
+best for your development model.</p>
+<section id="encapsulating-patches">
+<h3><span class="section-number">3.5.1 </span>Encapsulating Patches<a class="headerlink" href="#encapsulating-patches" title="Link to this heading"></a></h3>
+<p>If you are reusing patches from an external tree and are not working on
+the patches, you might find the encapsulated feature to be appropriate.
+Given this scenario, you do not need to create any branches in the
+source repository. Rather, you just take the static patches you need and
+encapsulate them within a feature description. Once you have the feature
+description, you simply include that into the BSP description as
+described in the &quot;<a class="reference internal" href="#bsp-descriptions"><span class="std std-ref">BSP Descriptions</span></a>&quot; section.</p>
+<p>You can find information on how to create patches and BSP descriptions
+in the &quot;<a class="reference internal" href="#patches"><span class="std std-ref">Patches</span></a>&quot; and
+&quot;<a class="reference internal" href="#bsp-descriptions"><span class="std std-ref">BSP Descriptions</span></a>&quot; sections.</p>
+</section>
+<section id="machine-branches">
+<h3><span class="section-number">3.5.2 </span>Machine Branches<a class="headerlink" href="#machine-branches" title="Link to this heading"></a></h3>
+<p>When you have multiple machines and architectures to support, or you are
+actively working on board support, it is more efficient to create
+branches in the repository based on individual machines. Having machine
+branches allows common source to remain in the development branch with any
+features specific to a machine stored in the appropriate machine branch.
+This organization method frees you from continually reintegrating your
+patches into a feature.</p>
+<p>Once you have a new branch, you can set up your kernel Metadata to use
+the branch a couple different ways. In the recipe, you can specify the
+new branch as the <a class="reference internal" href="../ref-manual/variables.html#term-KBRANCH"><span class="xref std std-term">KBRANCH</span></a> to use for the board as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">KBRANCH</span> <span class="o">=</span> <span class="s2">"mynewbranch"</span>
+</pre></div>
+</div>
+<p>Another method is to use the <code class="docutils literal notranslate"><span class="pre">branch</span></code> command in the BSP
+description:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mybsp</span><span class="o">.</span><span class="n">scc</span><span class="p">:</span>
+   <span class="n">define</span> <span class="n">KMACHINE</span> <span class="n">mybsp</span>
+   <span class="n">define</span> <span class="n">KTYPE</span> <span class="n">standard</span>
+   <span class="n">define</span> <span class="n">KARCH</span> <span class="n">i386</span>
+   <span class="n">include</span> <span class="n">standard</span><span class="o">.</span><span class="n">scc</span>
+
+   <span class="n">branch</span> <span class="n">mynewbranch</span>
+
+   <span class="n">include</span> <span class="n">mybsp</span><span class="o">-</span><span class="n">hw</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>If you find yourself with numerous branches, you might consider using a
+hierarchical branching system similar to what the Yocto Linux Kernel Git
+repositories use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">common</span><span class="o">/</span><span class="n">kernel_type</span><span class="o">/</span><span class="n">machine</span>
+</pre></div>
+</div>
+<p>If you had two kernel types, &quot;standard&quot; and &quot;small&quot; for instance, three
+machines, and common as <code class="docutils literal notranslate"><span class="pre">mydir</span></code>, the branches in your Git repository
+might look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mydir</span><span class="o">/</span><span class="n">base</span>
+<span class="n">mydir</span><span class="o">/</span><span class="n">standard</span><span class="o">/</span><span class="n">base</span>
+<span class="n">mydir</span><span class="o">/</span><span class="n">standard</span><span class="o">/</span><span class="n">machine_a</span>
+<span class="n">mydir</span><span class="o">/</span><span class="n">standard</span><span class="o">/</span><span class="n">machine_b</span>
+<span class="n">mydir</span><span class="o">/</span><span class="n">standard</span><span class="o">/</span><span class="n">machine_c</span>
+<span class="n">mydir</span><span class="o">/</span><span class="n">small</span><span class="o">/</span><span class="n">base</span>
+<span class="n">mydir</span><span class="o">/</span><span class="n">small</span><span class="o">/</span><span class="n">machine_a</span>
+</pre></div>
+</div>
+<p>This organization can help clarify the branch relationships. In this
+case, <code class="docutils literal notranslate"><span class="pre">mydir/standard/machine_a</span></code> includes everything in <code class="docutils literal notranslate"><span class="pre">mydir/base</span></code>
+and <code class="docutils literal notranslate"><span class="pre">mydir/standard/base</span></code>. The &quot;standard&quot; and &quot;small&quot; branches add
+sources specific to those kernel types that for whatever reason are not
+appropriate for the other branches.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The &quot;base&quot; branches are an artifact of the way Git manages its data
+internally on the filesystem: Git will not allow you to use
+<code class="docutils literal notranslate"><span class="pre">mydir/standard</span></code> and <code class="docutils literal notranslate"><span class="pre">mydir/standard/machine_a</span></code> because it would have to
+create a file and a directory named &quot;standard&quot;.</p>
+</div>
+</section>
+<section id="feature-branches">
+<h3><span class="section-number">3.5.3 </span>Feature Branches<a class="headerlink" href="#feature-branches" title="Link to this heading"></a></h3>
+<p>When you are actively developing new features, it can be more efficient
+to work with that feature as a branch, rather than as a set of patches
+that have to be regularly updated. The Yocto Project Linux kernel tools
+provide for this with the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span></code> command.</p>
+<p>To merge a feature branch into a BSP, insert the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span></code> command
+after any <code class="docutils literal notranslate"><span class="pre">branch</span></code> commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mybsp</span><span class="o">.</span><span class="n">scc</span><span class="p">:</span>
+   <span class="n">define</span> <span class="n">KMACHINE</span> <span class="n">mybsp</span>
+   <span class="n">define</span> <span class="n">KTYPE</span> <span class="n">standard</span>
+   <span class="n">define</span> <span class="n">KARCH</span> <span class="n">i386</span>
+   <span class="n">include</span> <span class="n">standard</span><span class="o">.</span><span class="n">scc</span>
+
+   <span class="n">branch</span> <span class="n">mynewbranch</span>
+   <span class="n">git</span> <span class="n">merge</span> <span class="n">myfeature</span>
+
+   <span class="n">include</span> <span class="n">mybsp</span><span class="o">-</span><span class="n">hw</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="scc-description-file-reference">
+<h2><span class="section-number">3.6 </span>SCC Description File Reference<a class="headerlink" href="#scc-description-file-reference" title="Link to this heading"></a></h2>
+<p>This section provides a brief reference for the commands you can use
+within an SCC description file (<code class="docutils literal notranslate"><span class="pre">.scc</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">branch</span> <span class="pre">[ref]</span></code>: Creates a new branch relative to the current branch
+(typically <code class="docutils literal notranslate"><span class="pre">${KTYPE}</span></code>) using the currently checked-out branch, or
+&quot;ref&quot; if specified.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">define</span></code>: Defines variables, such as
+<a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a>,
+<a class="reference internal" href="../ref-manual/variables.html#term-KTYPE"><span class="xref std std-term">KTYPE</span></a>,
+<a class="reference internal" href="../ref-manual/variables.html#term-KARCH"><span class="xref std std-term">KARCH</span></a>, and
+<a class="reference internal" href="../ref-manual/variables.html#term-KFEATURE_DESCRIPTION"><span class="xref std std-term">KFEATURE_DESCRIPTION</span></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include</span> <span class="pre">SCC_FILE</span></code>: Includes an SCC file in the current file. The
+file is parsed as if you had inserted it inline.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kconf</span> <span class="pre">[hardware|non-hardware]</span> <span class="pre">CFG_FILE</span></code>: Queues a configuration
+fragment for merging into the final Linux <code class="docutils literal notranslate"><span class="pre">.config</span></code> file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span> <span class="pre">GIT_BRANCH</span></code>: Merges the feature branch into the current
+branch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">patch</span> <span class="pre">PATCH_FILE</span></code>: Applies the patch to the current Git branch.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,684 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1 Requisiti di Sistema &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="2 Architetture e Funzionalità Supportate da Yocto Project" href="yocto-project-supported-features.html" />
+    <link rel="prev" title="Yocto Project Reference Manual" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Riferimento</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1 Requisiti di Sistema</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#minimum-free-disk-space">1.1 Spazio Libero Minimo su Disco</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#minimum-system-ram">1.2 RAM Minima di Sistema</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#supported-linux-distributions">1.3 Distribuzioni Linux Supportate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#required-packages-for-the-build-host">1.4 Pacchetti Richiesti per l'Host di Build</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ubuntu-and-debian">1.4.1 Ubuntu e Debian</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fedora-packages">1.4.2 Pacchetti Fedora</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#opensuse-leap-packages">1.4.3 Pacchetti openSUSE Leap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#almalinux-packages">1.4.4 Pacchetti AlmaLinux</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#centos-stream-packages">1.4.5 Pacchetti CentOS Stream</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rockylinux-packages">1.4.6 Pacchetti RockyLinux</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#required-git-tar-python-make-and-gcc-versions">1.5 Versioni richieste di Git, tar, Python, make e gcc</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#installing-a-pre-built-buildtools-tarball-with-install-buildtools-script">1.5.1 Installazione di un tarball <code class="docutils literal notranslate"><span class="pre">buildtools</span></code> Pre-Built con lo script <code class="docutils literal notranslate"><span class="pre">install-buildtools</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#downloading-a-pre-built-buildtools-tarball">1.5.2 Download di un Archivio Tarball Precompilato di <code class="docutils literal notranslate"><span class="pre">buildtools</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#building-your-own-buildtools-tarball">1.5.3 Building del Proprio Archivio tar di <code class="docutils literal notranslate"><span class="pre">buildtools</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="yocto-project-supported-features.html">2 Architetture e Funzionalità Supportate da Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terms.html">3 Terminologia di Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release-process.html">4 Rilasci di Yocto Project e Iter dei Rilasci Stabili</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">5 Source Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html">6 Classi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tasks.html">7 I Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragments.html">8 Using Configuration Fragments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devtool-reference.html">9 <code class="docutils literal notranslate"><span class="pre">devtool</span></code> Quick Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kickstart.html">10 OpenEmbedded Kickstart (<code class="docutils literal notranslate"><span class="pre">.wks</span></code>) Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qa-checks.html">11 QA Error and Warning Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="images.html">12 Immagini</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">13 Caratteristiche</a></li>
+<li class="toctree-l2"><a class="reference internal" href="variables.html">14 Glossario delle Variabili</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varlocality.html">15 Variable Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html">16 FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resources.html">17 Contributions and Additional Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Yocto Project Reference Manual</a> &raquo;</li>
+    
+    <li><span class="section-number">1 </span>Requisiti di Sistema</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ref-manual/system-requirements.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="system-requirements">
+<h1><span class="section-number">1 </span>Requisiti di Sistema<a class="headerlink" href="#system-requirements" title="Link to this heading"></a></h1>
+<p>Benvenuti nel Manuale di Riferimento di Yocto Project. Questo manuale fornisce informazioni di riferimento per la versione corrente di Yocto Project ed è più efficace se si hanno familiarità con i concetti di base del progetto. Il manuale non deve essere letto come punto di partenza per Yocto Project, né dall'inizio alla fine. Piuttosto, va utilizzato per trovare definizioni di variabili, descrizioni di classi e così via, a seconda delle necessità durante l'utilizzo di Yocto Project.</p>
+<p>Per informazioni introduttive su Yocto Project, consultate il <a class="extlink-yocto_home reference external" href="https://www.yoctoproject.org">Sito Web di Yocto Project</a> e il capitolo &quot;<a class="reference internal" href="../overview-manual/development-environment.html#the-yocto-project-development-environment"><span class="std std-ref">L'Ambiente di Sviluppo di Yocto Project</span></a>&quot; nel Manuale Introduttivo e Concetti di Yocto Project.</p>
+<p>Per utilizzare Yocto Project per creare rapidamente un'immagine senza dover comprendere i concetti, consultate il documento <a class="reference internal" href="../brief-yoctoprojectqs/index.html"><span class="doc">Build Rapida di un'Immagine con lo Yocto Project</span></a>. Le istruzioni pratiche sono disponibili nel file <a class="reference internal" href="../dev-manual/index.html"><span class="doc">Manuale di Sviluppo dei Task di Yocto Project</span></a>. Una panoramica di Yocto Project e informazioni concettuali sono disponibili nel file <a class="reference internal" href="../overview-manual/index.html"><span class="doc">Manuale Introduttivo e Concetti di Yocto Project</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Per ulteriori informazioni sulla documentazione di Yocto Project, consultare la sezione <a class="reference internal" href="resources.html#links-and-related-documentation"><span class="std std-ref">Links and Related Documentation</span></a>.</p>
+</div>
+<section id="minimum-free-disk-space">
+<h2><span class="section-number">1.1 </span>Spazio Libero Minimo su Disco<a class="headerlink" href="#minimum-free-disk-space" title="Link to this heading"></a></h2>
+<p>Per creare un'immagine come <code class="docutils literal notranslate"><span class="pre">core-image-sato</span></code> per la macchina <code class="docutils literal notranslate"><span class="pre">qemux86-64</span></code>, è necessario un sistema con almeno 140 GB di spazio libero su disco. Tuttavia, sarà necessario molto più spazio su disco per creare immagini più complesse, per eseguire più build e per memorizzare nella cache gli artefatti di build, migliorando l'efficienza del processo.</p>
+<p>Se lo spazio su disco è insufficiente, consultare la sezione &quot;<a class="reference internal" href="../dev-manual/disk-space.html"><span class="doc">Conserving Disk Space</span></a>&quot; del Manuale dei Task di Sviluppo.</p>
+</section>
+<section id="minimum-system-ram">
+<span id="system-requirements-minimum-ram"></span><h2><span class="section-number">1.2 </span>RAM Minima di Sistema<a class="headerlink" href="#minimum-system-ram" title="Link to this heading"></a></h2>
+<p>Sarà possibile creare un'immagine come <code class="docutils literal notranslate"><span class="pre">core-image-sato</span></code> per la macchina <code class="docutils literal notranslate"><span class="pre">qemux86-64</span></code> con soli 32 GB di RAM su un vecchio sistema con 4 core CPU, ma le build saranno molto più veloci su un sistema con la massima quantità di RAM e il maggior numero possibile di core CPU.</p>
+</section>
+<section id="supported-linux-distributions">
+<span id="system-requirements-supported-distros"></span><h2><span class="section-number">1.3 </span>Distribuzioni Linux Supportate<a class="headerlink" href="#supported-linux-distributions" title="Link to this heading"></a></h2>
+<p>Attualmente, la versione 6.1 (&quot;Blacksail&quot;) di Yocto Project è supportata dalle seguenti distribuzioni:</p>
+<ul class="simple">
+<li><p>AlmaLinux 8</p></li>
+<li><p>AlmaLinux 9</p></li>
+<li><p>AlmaLinux 10</p></li>
+<li><p>CentOS Stream 9</p></li>
+<li><p>CentOS Stream 10</p></li>
+<li><p>Debian 11</p></li>
+<li><p>Debian 12</p></li>
+<li><p>Debian 13</p></li>
+<li><p>Fedora 42</p></li>
+<li><p>Fedora 43</p></li>
+<li><p>Fedora 44</p></li>
+<li><p>openSUSE Leap 15.6</p></li>
+<li><p>openSUSE Leap 16.0</p></li>
+<li><p>Rocky Linux 8</p></li>
+<li><p>Rocky Linux 9</p></li>
+<li><p>Rocky Linux 10</p></li>
+<li><p>Ubuntu 22.04 (LTS)</p></li>
+<li><p>Ubuntu 24.04 (LTS)</p></li>
+<li><p>Ubuntu 25.04</p></li>
+<li><p>Ubuntu 25.10</p></li>
+<li><p>Ubuntu 26.04 (LTS)</p></li>
+</ul>
+<p>Le seguenti versioni di distribuzione sono ancora testate, anche se le organizzazioni che le pubblicano non rendono più disponibili gli aggiornamenti pubblicamente:</p>
+<ul class="simple">
+<li><p>Fedora 42</p></li>
+<li><p>openSUSE Leap 15.5</p></li>
+<li><p>Ubuntu 25.04</p></li>
+<li><p>Ubuntu 25.10</p></li>
+</ul>
+<p>Si noti che Yocto Project non ha accesso agli aggiornamenti privati ​​che alcune di queste versioni potrebbero avere. Pertanto, i nostri test hanno un valore limitato se si ha accesso a tali aggiornamenti. Inoltre, potrebbe essere necessario utilizzare <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> sulle versioni precedenti per ottenere strumenti sufficientemente aggiornati, come Python.</p>
+<p>Infine, ecco le versioni di distribuzione che in precedenza venivano testate sulle revisioni precedenti di &quot;Blacksail&quot;, ma che ora non lo sono più:</p>
+<p><em>Questo elenco è attualmente vuoto</em></p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<ul>
+<li><p>Sebbene il team di Yocto Project si impegni a garantire la piena compatibilità di tutte le release con ogni distribuzione Linux ufficialmente supportata, è possibile che si verifichino problemi specifici di una determinata distribuzione.</p></li>
+<li><p>Le release di Yocto Project vengono testate sulle distribuzioni Linux stabili elencate sopra. Yocto Project dovrebbe funzionare anche su altre distribuzioni, ma non vengono eseguite validazioni su di esse.</p></li>
+<li><p>In particolare, Yocto Project non supporta e al momento non prevede di supportare distribuzioni &quot;rolling release&quot; o di sviluppo, data la loro natura in continua evoluzione. Accogliamo con favore patch e segnalazioni di bug, ma si tenga presente che la nostra priorità è rappresentata dalle piattaforme supportate elencate sopra.</p></li>
+<li><p>Se la propria distribuzione Linux non è presente nell'elenco, consigliamo di scaricare i tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> o <a class="reference internal" href="terms.html#term-buildtools-extended"><span class="xref std std-term">buildtools-extended</span></a> contenenti gli strumenti host richiesti dalla release di Yocto Project, in genere eseguendo <code class="docutils literal notranslate"><span class="pre">scripts/install-buildtools</span></code> come spiegato nella sezione &quot;<a class="reference internal" href="#system-requirements-buildtools"><span class="std std-ref">Versioni richieste di Git, tar, Python, make e gcc</span></a>&quot;.</p></li>
+<li><p>È possibile utilizzare Windows Subsystem for Linux v2 per configurare un host di build con Windows 10 o versioni successive, oppure Windows Server 2019 o versioni successive, ma la convalida non viene eseguita sugli host di build che utilizzano WSL 2.</p>
+<p>Per ulteriori informazioni, consultare la sezione <a class="reference internal" href="../dev-manual/start.html#setting-up-to-use-windows-subsystem-for-linux-wsl-2"><span class="std std-ref">Setting Up to Use Windows Subsystem For Linux (WSL 2)</span></a> nel Manuale di Sviluppo dei Task di Yocto Project.</p>
+</li>
+<li><p>In caso di problemi, si prega di visitare <a class="extlink-yocto_bugs reference external" href="https://bugzilla.yoctoproject.org">Yocto Project Bugzilla</a> e segnalare un bug. Siamo interessati a conoscere la vostra esperienza. Per informazioni su come segnalare un bug, consultare la pagina wiki di Yocto Project <a class="extlink-yocto_wiki reference external" href="https://wiki.yoctoproject.org/wiki/Bugzilla_Configuration_and_Bug_Tracking">Bugzilla wiki page</a> e la sezione &quot;<a class="reference internal" href="../contributor-guide/report-defect.html"><span class="doc">Segnalazione di un Difetto in Yocto Project e in OpenEmbedded</span></a>&quot; nella Guida per i Collaboratori di Yocto Project e di OpenEmbedded.</p></li>
+</ul>
+</div>
+</section>
+<section id="required-packages-for-the-build-host">
+<h2><span class="section-number">1.4 </span>Pacchetti Richiesti per l'Host di Build<a class="headerlink" href="#required-packages-for-the-build-host" title="Link to this heading"></a></h2>
+<p>L'elenco dei pacchetti necessari sul sistema di sviluppo host può essere lungo quando si considerano tutti gli scenari di compilazione con Yocto Project. Questa sezione descrive i pacchetti richiesti in base alla distribuzione Linux e alla funzione.</p>
+<section id="ubuntu-and-debian">
+<span id="ubuntu-packages"></span><h3><span class="section-number">1.4.1 </span>Ubuntu e Debian<a class="headerlink" href="#ubuntu-and-debian" title="Link to this heading"></a></h3>
+<p>Ecco i pacchetti necessari per creare un'immagine su un sistema senza interfaccia grafica con una distribuzione Linux Ubuntu o Debian supportata:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>build-essential<span class="w"> </span>chrpath<span class="w"> </span>cpio<span class="w"> </span>debianutils<span class="w"> </span>diffstat<span class="w"> </span>file<span class="w"> </span>gawk<span class="w"> </span>gcc<span class="w"> </span>git<span class="w"> </span>iputils-ping<span class="w"> </span>libacl1<span class="w"> </span>libcrypt-dev<span class="w"> </span>locales<span class="w"> </span>python3<span class="w"> </span>python3-git<span class="w"> </span>python3-jinja2<span class="w"> </span>python3-pexpect<span class="w"> </span>python3-pip<span class="w"> </span>python3-subunit<span class="w"> </span>socat<span class="w"> </span>texinfo<span class="w"> </span>unzip<span class="w"> </span>wget<span class="w"> </span>xz-utils<span class="w"> </span>zstd
+</pre></div>
+</div>
+<p>È inoltre necessario assicurarsi che sia abilitata la localizzazione <code class="docutils literal notranslate"><span class="pre">en_US.UTF-8</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ locale --all-locales | grep en_US.utf8
+</pre></div>
+</div>
+<p>In caso contrario, è possibile riconfigurare il pacchetto <code class="docutils literal notranslate"><span class="pre">locales</span></code> per aggiungerla (richiede una shell interattiva):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo dpkg-reconfigure locales
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<ul>
+<li><p>Se non si utilizza una shell interattiva, <code class="docutils literal notranslate"><span class="pre">dpkg-reconfigure</span></code> non funzionerà come previsto. Per aggiungere la localizzazione, è necessario modificare il file <code class="docutils literal notranslate"><span class="pre">/etc/locale.gen</span></code> per aggiungere/decommentare la localizzazione <code class="docutils literal notranslate"><span class="pre">en_US.UTF-8</span></code>. Un modo semplice per farlo come root è il seguente:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo "en_US.UTF-8 UTF-8" &gt;&gt; /etc/locale.gen
+$ locale-gen
+</pre></div>
+</div>
+</li>
+<li><p>Se il sistema di build ha installato il pacchetto <code class="docutils literal notranslate"><span class="pre">oss4-dev</span></code>, si potrebbero riscontrare errori di compilazione di QEMU a causa dell'installazione, da parte del pacchetto, di una propria versione personalizzata di <code class="docutils literal notranslate"><span class="pre">/usr/include/linux/soundcard.h</span></code> sul sistema Debian. Se ci si imbatte in questa situazione, provare una di queste soluzioni:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo apt build-dep qemu
+$ sudo apt remove oss4-dev
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Inoltre, su distribuzioni diverse da Debian 11 e Ubuntu 22.04 (altrimenti vedere la nota seguente), installare il seguente pacchetto:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>python3-websockets
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Su Debian 11 e Ubuntu 22.04, la versione minima di <code class="docutils literal notranslate"><span class="pre">python3-websockets</span></code> non è soddisfatta dalla distribuzione host. Questo pacchetto viene utilizzato per scaricare gli artefatti <a class="reference internal" href="../overview-manual/concepts.html#shared-state"><span class="std std-ref">shared state</span></a> precompilati dai server di Yocto Project (vedere <a class="reference internal" href="fragments.html#ref-fragments-core-yocto-sstate-mirror-cdn"><span class="std std-ref">core/yocto/sstate-mirror-cdn</span></a> per maggiori informazioni).</p>
+<p>Per utilizzare questa funzionalità, si può ottenere la versione corretta di <code class="docutils literal notranslate"><span class="pre">python3-websockets</span></code> in uno dei seguenti modi:</p>
+<ul>
+<li><p>Utilizzando un tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> seguendo la sezione <a class="reference internal" href="#system-requirements-buildtools"><span class="std std-ref">Versioni richieste di Git, tar, Python, make e gcc</span></a> qui di seguito.</p></li>
+<li><p>Installazione di <code class="docutils literal notranslate"><span class="pre">python3-websockets</span></code> tramite <a class="reference external" href="https://pip.pypa.io/en/stable/">Pip</a> in un ambiente virtuale, ad esempio:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>--clear<span class="w"> </span>./yocto-docs-venv
+<span class="gp">$ </span>.<span class="w"> </span>./yocto-docs-venv/bin/activate
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>websockets
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Ecco i pacchetti necessari per creare i manuali di documentazione del Progetto:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>git<span class="w"> </span>librsvg2-bin<span class="w"> </span>locales<span class="w"> </span>make<span class="w"> </span>python3-pip<span class="w"> </span>python3-venv
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>--clear<span class="w"> </span>./yocto-docs-venv
+.<span class="w"> </span>./yocto-docs-venv/bin/activate
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx_rtd_theme<span class="w"> </span>pyyaml<span class="w"> </span>sphinx-copybutton<span class="w"> </span><span class="s1">'sphinxcontrib-svg2pdfconverter&gt;=2.0.0'</span>
+</pre></div>
+</div>
+<p>Oltre ai pacchetti precedenti, ecco quelli necessari per creare la documentazione in formato PDF:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>fonts-freefont-otf<span class="w"> </span>latexmk<span class="w"> </span>tex-gyre<span class="w"> </span>texlive-fonts-extra<span class="w"> </span>texlive-fonts-recommended<span class="w"> </span>texlive-lang-all<span class="w"> </span>texlive-latex-extra<span class="w"> </span>texlive-latex-recommended<span class="w"> </span>texlive-xetex
+</pre></div>
+</div>
+</section>
+<section id="fedora-packages">
+<h3><span class="section-number">1.4.2 </span>Pacchetti Fedora<a class="headerlink" href="#fedora-packages" title="Link to this heading"></a></h3>
+<p>Ecco i pacchetti necessari per creare un'immagine su un sistema senza interfaccia grafica con una distribuzione Fedora Linux supportata:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>bzip2<span class="w"> </span>chrpath<span class="w"> </span>cpio<span class="w"> </span>cpp<span class="w"> </span>diffstat<span class="w"> </span>diffutils<span class="w"> </span>file<span class="w"> </span>findutils<span class="w"> </span>gawk<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>git<span class="w"> </span>glibc-devel<span class="w"> </span>glibc-langpack-en<span class="w"> </span>gzip<span class="w"> </span>hostname<span class="w"> </span>libacl<span class="w"> </span>make<span class="w"> </span>patch<span class="w"> </span>perl<span class="w"> </span>perl-Data-Dumper<span class="w"> </span>perl-File-Compare<span class="w"> </span>perl-File-Copy<span class="w"> </span>perl-FindBin<span class="w"> </span>perl-Text-ParseWords<span class="w"> </span>perl-Thread-Queue<span class="w"> </span>perl-bignum<span class="w"> </span>perl-locale<span class="w"> </span>python<span class="w"> </span>python3<span class="w"> </span>python3-GitPython<span class="w"> </span>python3-jinja2<span class="w"> </span>python3-pexpect<span class="w"> </span>python3-pip<span class="w"> </span>python3-websockets<span class="w"> </span>rpcgen<span class="w"> </span>socat<span class="w"> </span>tar<span class="w"> </span>texinfo<span class="w"> </span>unzip<span class="w"> </span>wget<span class="w"> </span>which<span class="w"> </span>xz<span class="w"> </span>zstd<span class="w"> </span><span class="k">$(</span><span class="o">[</span><span class="w"> </span><span class="k">$(</span>rpm<span class="w"> </span>-E<span class="w"> </span>%fedora<span class="k">)</span><span class="w"> </span>-ge<span class="w"> </span><span class="m">42</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"util-linux-script"</span><span class="k">)</span>
+</pre></div>
+</div>
+<p>Ecco i pacchetti necessari per creare i manuali di documentazione del Progetto:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>git<span class="w"> </span>glibc-locale-source<span class="w"> </span>librsvg2-tools<span class="w"> </span>make<span class="w"> </span>python3-pip<span class="w"> </span>which
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>--clear<span class="w"> </span>./yocto-docs-venv
+.<span class="w"> </span>./yocto-docs-venv/bin/activate
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx_rtd_theme<span class="w"> </span>pyyaml<span class="w"> </span>sphinx-copybutton<span class="w"> </span><span class="s1">'sphinxcontrib-svg2pdfconverter&gt;=2.0.0'</span>
+</pre></div>
+</div>
+<p>Oltre ai pacchetti precedenti, ecco quelli necessari per creare la documentazione in formato PDF:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span><span class="s1">'texlive-collection-lang*'</span><span class="w"> </span>latexmk<span class="w"> </span>texlive-collection-fontsextra<span class="w"> </span>texlive-collection-fontsrecommended<span class="w"> </span>texlive-collection-latex<span class="w"> </span>texlive-collection-latexextra<span class="w"> </span>texlive-collection-latexrecommended<span class="w"> </span>texlive-collection-xetex<span class="w"> </span>texlive-fncychap<span class="w"> </span>texlive-gnu-freefont<span class="w"> </span>texlive-tex-gyre<span class="w"> </span>texlive-xetex
+</pre></div>
+</div>
+</section>
+<section id="opensuse-leap-packages">
+<h3><span class="section-number">1.4.3 </span>Pacchetti openSUSE Leap<a class="headerlink" href="#opensuse-leap-packages" title="Link to this heading"></a></h3>
+<section id="opensuse-leap-15-6-packages">
+<h4><span class="section-number">1.4.3.1 </span>Pacchetti openSUSE Leap 15.6<a class="headerlink" href="#opensuse-leap-15-6-packages" title="Link to this heading"></a></h4>
+<p>Ecco i pacchetti necessari per creare un'immagine su un sistema senza interfaccia grafica con una distribuzione openSUSE Leap 15.6 supportata:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>zypper<span class="w"> </span>install<span class="w"> </span>bzip2<span class="w"> </span>chrpath<span class="w"> </span>diffstat<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>git<span class="w"> </span>gzip<span class="w"> </span>hostname<span class="w"> </span>libacl1<span class="w"> </span>make<span class="w"> </span>makeinfo<span class="w"> </span>patch<span class="w"> </span>python<span class="w"> </span>python-curses<span class="w"> </span>python-xml<span class="w"> </span>python3<span class="w"> </span>python3-Jinja2<span class="w"> </span>python3-curses<span class="w"> </span>python3-pexpect<span class="w"> </span>python3-pip<span class="w"> </span>rpcgen<span class="w"> </span>socat<span class="w"> </span>tar<span class="w"> </span>wget<span class="w"> </span>which<span class="w"> </span>xz<span class="w"> </span>zstd
+sudo<span class="w"> </span>pip3<span class="w"> </span>install<span class="w"> </span>GitPython
+</pre></div>
+</div>
+<p>Inoltre, openSUSE Leap 15.6 richiede l'installazione e la configurazione di un tarball di <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a>, poiché questa distribuzione fornisce una versione di Python troppo vecchia per <a class="reference internal" href="terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>. Per ulteriori informazioni, consultare la sezione <a class="reference internal" href="#system-requirements-buildtools"><span class="std std-ref">Versioni richieste di Git, tar, Python, make e gcc</span></a> riportata di seguito.</p>
+<p>Ecco i pacchetti necessari per creare i manuali di documentazione del Progetto:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>zypper<span class="w"> </span>install<span class="w"> </span>git<span class="w"> </span>glibc-i18ndata<span class="w"> </span>make<span class="w"> </span>python3-pip<span class="w"> </span>rsvg-convert<span class="w"> </span>which
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>--clear<span class="w"> </span>./yocto-docs-venv
+.<span class="w"> </span>./yocto-docs-venv/bin/activate
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx_rtd_theme<span class="w"> </span>pyyaml<span class="w"> </span>sphinx-copybutton<span class="w"> </span><span class="s1">'sphinxcontrib-svg2pdfconverter&gt;=2.0.0'</span>
+</pre></div>
+</div>
+<p>Oltre ai pacchetti precedenti, ecco quelli necessari per creare la documentazione in formato PDF:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>zypper<span class="w"> </span>install<span class="w"> </span><span class="s1">'texlive-collection-lang*'</span><span class="w"> </span>texlive-collection-fontsextra<span class="w"> </span>texlive-collection-fontsrecommended<span class="w"> </span>texlive-collection-latex<span class="w"> </span>texlive-collection-latexextra<span class="w"> </span>texlive-collection-latexrecommended<span class="w"> </span>texlive-collection-xetex<span class="w"> </span>texlive-fncychap<span class="w"> </span>texlive-gnu-freefont<span class="w"> </span>texlive-latexmk<span class="w"> </span>texlive-tex-gyre<span class="w"> </span>texlive-xetex
+</pre></div>
+</div>
+</section>
+<section id="opensuse-leap-16-0-packages">
+<h4><span class="section-number">1.4.3.2 </span>Pacchetti openSUSE Leap 16.0<a class="headerlink" href="#opensuse-leap-16-0-packages" title="Link to this heading"></a></h4>
+<p>Ecco i pacchetti necessari per creare un'immagine su un sistema senza interfaccia grafica con una distribuzione openSUSE Leap 16.0 supportata:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>zypper<span class="w"> </span>install<span class="w"> </span>bzip2<span class="w"> </span>chrpath<span class="w"> </span>diffstat<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>git<span class="w"> </span>gzip<span class="w"> </span>hostname<span class="w"> </span>libacl1<span class="w"> </span>make<span class="w"> </span>makeinfo<span class="w"> </span>patch<span class="w"> </span>python3<span class="w"> </span>python3-GitPython<span class="w"> </span>python3-Jinja2<span class="w"> </span>python3-curses<span class="w"> </span>python3-pexpect<span class="w"> </span>python3-pip<span class="w"> </span>python3-websockets<span class="w"> </span>python3-xml<span class="w"> </span>rpcgen<span class="w"> </span>socat<span class="w"> </span>tar<span class="w"> </span>wget<span class="w"> </span>which<span class="w"> </span>xz<span class="w"> </span>zstd
+</pre></div>
+</div>
+<p>Ecco i pacchetti necessari per creare i manuali di documentazione del Progetto:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>zypper<span class="w"> </span>install<span class="w"> </span>git<span class="w"> </span>glibc-i18ndata<span class="w"> </span>make<span class="w"> </span>python3-pip<span class="w"> </span>rsvg-convert<span class="w"> </span>which
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>--clear<span class="w"> </span>./yocto-docs-venv
+.<span class="w"> </span>./yocto-docs-venv/bin/activate
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx_rtd_theme<span class="w"> </span>pyyaml<span class="w"> </span>sphinx-copybutton<span class="w"> </span><span class="s1">'sphinxcontrib-svg2pdfconverter&gt;=2.0.0'</span>
+</pre></div>
+</div>
+<p>Oltre ai pacchetti precedenti, ecco quelli necessari per creare la documentazione in formato PDF:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>zypper<span class="w"> </span>install<span class="w"> </span><span class="s1">'texlive-collection-lang*'</span><span class="w"> </span>texlive-collection-fontsextra<span class="w"> </span>texlive-collection-fontsrecommended<span class="w"> </span>texlive-collection-latex<span class="w"> </span>texlive-collection-latexextra<span class="w"> </span>texlive-collection-latexrecommended<span class="w"> </span>texlive-collection-xetex<span class="w"> </span>texlive-fncychap<span class="w"> </span>texlive-gnu-freefont<span class="w"> </span>texlive-latexmk<span class="w"> </span>texlive-tex-gyre<span class="w"> </span>texlive-xetex
+</pre></div>
+</div>
+</section>
+</section>
+<section id="almalinux-packages">
+<h3><span class="section-number">1.4.4 </span>Pacchetti AlmaLinux<a class="headerlink" href="#almalinux-packages" title="Link to this heading"></a></h3>
+<p>Ecco i pacchetti necessari per creare un'immagine su un sistema senza interfaccia grafica con una distribuzione AlmaLinux supportata:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>epel-release
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>dnf-plugins-core
+sudo<span class="w"> </span>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>crb<span class="w"> </span><span class="o">||</span><span class="w"> </span>sudo<span class="w"> </span>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>powertools
+sudo<span class="w"> </span>dnf<span class="w"> </span>makecache
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>bzip2<span class="w"> </span>chrpath<span class="w"> </span>cpio<span class="w"> </span>cpp<span class="w"> </span>diffstat<span class="w"> </span>diffutils<span class="w"> </span>gawk<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>git<span class="w"> </span>glibc-devel<span class="w"> </span>glibc-langpack-en<span class="w"> </span>gzip<span class="w"> </span>libacl<span class="w"> </span>make<span class="w"> </span>patch<span class="w"> </span>perl<span class="w"> </span>perl-Data-Dumper<span class="w"> </span>perl-Text-ParseWords<span class="w"> </span>perl-Thread-Queue<span class="w"> </span>python3<span class="w"> </span>python3-GitPython<span class="w"> </span>python3-jinja2<span class="w"> </span>python3-pexpect<span class="w"> </span>python3-pip<span class="w"> </span>rpcgen<span class="w"> </span>socat<span class="w"> </span>tar<span class="w"> </span>texinfo<span class="w"> </span>unzip<span class="w"> </span>wget<span class="w"> </span>which<span class="w"> </span>xz<span class="w"> </span>zstd
+</pre></div>
+</div>
+<p>Sarà inoltre necessario utilizzare un file tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> che fornisce una serie di strumenti host di base con versioni fisse. Seguire la sezione <a class="reference internal" href="#system-requirements-buildtools"><span class="std std-ref">Versioni richieste di Git, tar, Python, make e gcc</span></a> di seguito per scoprire come scaricare e installare questo file tarball.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Le distribuzioni AlmaLinux 9, CentOS 9 e RockyLinux 9 sono interessate da un bug descritto in <a class="extlink-yocto_bugs reference external" href="https://bugzilla.yoctoproject.org/show_bug.cgi?id=16143">https://bugzilla.yoctoproject.org/show_bug.cgi?id=16143</a>, motivo per cui è necessario un file tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<ul class="simple">
+<li><p>Extra Packages for Enterprise Linux (ovvero <code class="docutils literal notranslate"><span class="pre">epel-release</span></code>) è una raccolta di pacchetti di Fedora basati su RHEL/CentOS per facilitare l'installazione di pacchetti non inclusi di default in Enterprise Linux. È necessario installare questi pacchetti separatamente.</p></li>
+<li><p>Il repository <code class="docutils literal notranslate"><span class="pre">PowerTools/CRB</span></code> fornisce pacchetti aggiuntivi come <code class="docutils literal notranslate"><span class="pre">rpcgen</span></code> e <code class="docutils literal notranslate"><span class="pre">texinfo</span></code>.</p></li>
+<li><p>Il comando <code class="docutils literal notranslate"><span class="pre">makecache</span></code> utilizza Metadati aggiuntivi da <code class="docutils literal notranslate"><span class="pre">epel-release</span></code>.</p></li>
+</ul>
+</div>
+<p>Ecco i pacchetti necessari per creare i manuali di documentazione del Progetto:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>git<span class="w"> </span>glibc-locale-source<span class="w"> </span>librsvg2-tools<span class="w"> </span>make<span class="w"> </span>python3-pip<span class="w"> </span>which
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>--clear<span class="w"> </span>./yocto-docs-venv
+.<span class="w"> </span>./yocto-docs-venv/bin/activate
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx_rtd_theme<span class="w"> </span>pyyaml<span class="w"> </span>sphinx-copybutton<span class="w"> </span><span class="s1">'sphinxcontrib-svg2pdfconverter&gt;=2.0.0'</span>
+</pre></div>
+</div>
+<p>Oltre ai pacchetti precedenti, per creare la documentazione in formato PDF sono necessari i seguenti pacchetti TeX Live, installabili tramite il <a class="reference external" href="https://tug.org/texlive/tlmgr.html">gestore di pacchetti TeX Live</a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>wget<span class="w"> </span>perl
+<span class="nv">textooldir</span><span class="o">=</span><span class="si">${</span><span class="nv">TEXTOOLDIR</span><span class="k">:-</span><span class="s2">"./docs-build-tex-tools"</span><span class="si">}</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/tl
+wget<span class="w"> </span>https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-unx.tar.gz
+tar<span class="w"> </span>xzf<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-unx.tar.gz<span class="w"> </span>-C<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>
+<span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-*/install-tl<span class="w"> </span>--scheme<span class="o">=</span>small<span class="w"> </span>--texdir<span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">"</span>/tl<span class="w"> </span>--no-interaction
+<span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PATH</span><span class="s2">:</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">/tl/bin/x86_64-linux"</span><span class="w"> </span>tlmgr<span class="w"> </span>install<span class="w"> </span>titlesec<span class="w"> </span>varwidth<span class="w"> </span>tabulary<span class="w"> </span>needspace<span class="w"> </span>upquote<span class="w"> </span>framed<span class="w"> </span>capt-of<span class="w"> </span>wrapfig<span class="w"> </span>fncychap<span class="w"> </span>gnu-freefont<span class="w"> </span>ctex<span class="w"> </span>latexmk<span class="w"> </span>nimbus15
+rm<span class="w"> </span>-r<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl*
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Avvertimento</p>
+<p>L'installazione di TeX Live sopra descritta è valida solo per sistemi host <cite>x86_64</cite>.</p>
+</div>
+<p>Prima di creare la documentazione in PDF, impostare la variabile d'ambiente <code class="docutils literal notranslate"><span class="pre">PATH</span></code> per utilizzare i pacchetti installati (con <code class="docutils literal notranslate"><span class="pre">${textooldir}</span></code> che punta all'installazione di TeX Live del passaggio precedente):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">/tl/bin/x86_64-linux"</span>
+</pre></div>
+</div>
+</section>
+<section id="centos-stream-packages">
+<h3><span class="section-number">1.4.5 </span>Pacchetti CentOS Stream<a class="headerlink" href="#centos-stream-packages" title="Link to this heading"></a></h3>
+<p>Ecco i pacchetti necessari per creare un'immagine su un sistema senza interfaccia grafica con una distribuzione CentOS Stream supportata:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>epel-release
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>dnf-plugins-core
+sudo<span class="w"> </span>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>crb<span class="w"> </span><span class="o">||</span><span class="w"> </span>sudo<span class="w"> </span>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>powertools
+sudo<span class="w"> </span>dnf<span class="w"> </span>makecache
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>bzip2<span class="w"> </span>chrpath<span class="w"> </span>cpio<span class="w"> </span>cpp<span class="w"> </span>diffstat<span class="w"> </span>diffutils<span class="w"> </span>gawk<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>git<span class="w"> </span>glibc-devel<span class="w"> </span>glibc-langpack-en<span class="w"> </span>gzip<span class="w"> </span>libacl<span class="w"> </span>make<span class="w"> </span>patch<span class="w"> </span>perl<span class="w"> </span>perl-Data-Dumper<span class="w"> </span>perl-Text-ParseWords<span class="w"> </span>perl-Thread-Queue<span class="w"> </span>python3<span class="w"> </span>python3-GitPython<span class="w"> </span>python3-jinja2<span class="w"> </span>python3-pexpect<span class="w"> </span>python3-pip<span class="w"> </span>rpcgen<span class="w"> </span>socat<span class="w"> </span>tar<span class="w"> </span>texinfo<span class="w"> </span>unzip<span class="w"> </span>wget<span class="w"> </span>which<span class="w"> </span>xz<span class="w"> </span>zstd
+</pre></div>
+</div>
+<p>Sarà inoltre necessario utilizzare un file tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> che fornisce una serie di strumenti host di base con versioni fisse. Seguire la sezione <a class="reference internal" href="#system-requirements-buildtools"><span class="std std-ref">Versioni richieste di Git, tar, Python, make e gcc</span></a> di seguito per scoprire come scaricare e installare questo file tarball.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Le distribuzioni AlmaLinux 9, CentOS 9 e RockyLinux 9 sono interessate da un bug descritto in <a class="extlink-yocto_bugs reference external" href="https://bugzilla.yoctoproject.org/show_bug.cgi?id=16143">https://bugzilla.yoctoproject.org/show_bug.cgi?id=16143</a>, motivo per cui è necessario un file tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a>.</p>
+</div>
+<p>Ecco i pacchetti necessari per creare i manuali di documentazione del Progetto:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>git<span class="w"> </span>glibc-locale-source<span class="w"> </span>librsvg2-tools<span class="w"> </span>make<span class="w"> </span>python3-pip<span class="w"> </span>which
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>--clear<span class="w"> </span>./yocto-docs-venv
+.<span class="w"> </span>./yocto-docs-venv/bin/activate
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx_rtd_theme<span class="w"> </span>pyyaml<span class="w"> </span>sphinx-copybutton<span class="w"> </span><span class="s1">'sphinxcontrib-svg2pdfconverter&gt;=2.0.0'</span>
+</pre></div>
+</div>
+<p>Oltre ai pacchetti precedenti, per creare la documentazione in formato PDF sono necessari i seguenti pacchetti TeX Live, installabili tramite il <a class="reference external" href="https://tug.org/texlive/tlmgr.html">gestore di pacchetti TeX Live</a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>wget<span class="w"> </span>perl
+<span class="nv">textooldir</span><span class="o">=</span><span class="si">${</span><span class="nv">TEXTOOLDIR</span><span class="k">:-</span><span class="s2">"./docs-build-tex-tools"</span><span class="si">}</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/tl
+wget<span class="w"> </span>https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-unx.tar.gz
+tar<span class="w"> </span>xzf<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-unx.tar.gz<span class="w"> </span>-C<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>
+<span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-*/install-tl<span class="w"> </span>--scheme<span class="o">=</span>small<span class="w"> </span>--texdir<span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">"</span>/tl<span class="w"> </span>--no-interaction
+<span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PATH</span><span class="s2">:</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">/tl/bin/x86_64-linux"</span><span class="w"> </span>tlmgr<span class="w"> </span>install<span class="w"> </span>titlesec<span class="w"> </span>varwidth<span class="w"> </span>tabulary<span class="w"> </span>needspace<span class="w"> </span>upquote<span class="w"> </span>framed<span class="w"> </span>capt-of<span class="w"> </span>wrapfig<span class="w"> </span>fncychap<span class="w"> </span>gnu-freefont<span class="w"> </span>ctex<span class="w"> </span>latexmk<span class="w"> </span>nimbus15
+rm<span class="w"> </span>-r<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl*
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Avvertimento</p>
+<p>L'installazione di TeX Live sopra descritta è valida solo per sistemi host <cite>x86_64</cite>.</p>
+</div>
+<p>Prima di creare la documentazione in PDF, impostare la variabile d'ambiente <code class="docutils literal notranslate"><span class="pre">PATH</span></code> per utilizzare i pacchetti installati (con <code class="docutils literal notranslate"><span class="pre">${textooldir}</span></code> che punta all'installazione di TeX Live del passaggio precedente):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">/tl/bin/x86_64-linux"</span>
+</pre></div>
+</div>
+</section>
+<section id="rockylinux-packages">
+<h3><span class="section-number">1.4.6 </span>Pacchetti RockyLinux<a class="headerlink" href="#rockylinux-packages" title="Link to this heading"></a></h3>
+<p>Ecco i pacchetti necessari per creare un'immagine su un sistema senza interfaccia grafica con una distribuzione RockyLinux supportata:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>epel-release
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>dnf-plugins-core
+sudo<span class="w"> </span>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>crb<span class="w"> </span><span class="o">||</span><span class="w"> </span>sudo<span class="w"> </span>dnf<span class="w"> </span>config-manager<span class="w"> </span>--set-enabled<span class="w"> </span>powertools
+sudo<span class="w"> </span>dnf<span class="w"> </span>makecache
+sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>bzip2<span class="w"> </span>chrpath<span class="w"> </span>cpio<span class="w"> </span>cpp<span class="w"> </span>diffstat<span class="w"> </span>diffutils<span class="w"> </span>gawk<span class="w"> </span>gcc<span class="w"> </span>gcc-c++<span class="w"> </span>git<span class="w"> </span>glibc-devel<span class="w"> </span>glibc-langpack-en<span class="w"> </span>gzip<span class="w"> </span>libacl<span class="w"> </span>make<span class="w"> </span>patch<span class="w"> </span>perl<span class="w"> </span>perl-Data-Dumper<span class="w"> </span>perl-Text-ParseWords<span class="w"> </span>perl-Thread-Queue<span class="w"> </span>python3<span class="w"> </span>python3-GitPython<span class="w"> </span>python3-jinja2<span class="w"> </span>python3-pexpect<span class="w"> </span>python3-pip<span class="w"> </span>rpcgen<span class="w"> </span>socat<span class="w"> </span>tar<span class="w"> </span>texinfo<span class="w"> </span>unzip<span class="w"> </span>wget<span class="w"> </span>which<span class="w"> </span>xz<span class="w"> </span>zstd
+</pre></div>
+</div>
+<p>Sarà inoltre necessario utilizzare un file tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> che fornisce una serie di strumenti host di base con versioni fisse. Seguire la sezione <a class="reference internal" href="#system-requirements-buildtools"><span class="std std-ref">Versioni richieste di Git, tar, Python, make e gcc</span></a> di seguito per scoprire come scaricare e installare questo file tarball.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Le distribuzioni AlmaLinux 9, CentOS 9 e RockyLinux 9 sono interessate da un bug descritto in <a class="extlink-yocto_bugs reference external" href="https://bugzilla.yoctoproject.org/show_bug.cgi?id=16143">https://bugzilla.yoctoproject.org/show_bug.cgi?id=16143</a>, motivo per cui è necessario un file tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<ul class="simple">
+<li><p>Extra Packages for Enterprise Linux (ovvero <code class="docutils literal notranslate"><span class="pre">epel-release</span></code>) è una raccolta di pacchetti di Fedora basati su RHEL/CentOS per facilitare l'installazione di pacchetti non inclusi di default in Enterprise Linux. È necessario installare questi pacchetti separatamente.</p></li>
+<li><p>Il repository <code class="docutils literal notranslate"><span class="pre">PowerTools/CRB</span></code> fornisce pacchetti aggiuntivi come <code class="docutils literal notranslate"><span class="pre">rpcgen</span></code> e <code class="docutils literal notranslate"><span class="pre">texinfo</span></code>.</p></li>
+<li><p>Il comando <code class="docutils literal notranslate"><span class="pre">makecache</span></code> utilizza Metadati aggiuntivi da <code class="docutils literal notranslate"><span class="pre">epel-release</span></code>.</p></li>
+</ul>
+</div>
+<p>Ecco i pacchetti necessari per creare i manuali di documentazione del Progetto:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>git<span class="w"> </span>glibc-locale-source<span class="w"> </span>librsvg2-tools<span class="w"> </span>make<span class="w"> </span>python3-pip<span class="w"> </span>which
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>--clear<span class="w"> </span>./yocto-docs-venv
+.<span class="w"> </span>./yocto-docs-venv/bin/activate
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx_rtd_theme<span class="w"> </span>pyyaml<span class="w"> </span>sphinx-copybutton<span class="w"> </span><span class="s1">'sphinxcontrib-svg2pdfconverter&gt;=2.0.0'</span>
+</pre></div>
+</div>
+<p>Oltre ai pacchetti precedenti, per creare la documentazione in formato PDF sono necessari i seguenti pacchetti TeX Live, installabili tramite il <a class="reference external" href="https://tug.org/texlive/tlmgr.html">gestore di pacchetti TeX Live</a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>dnf<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>wget<span class="w"> </span>perl
+<span class="nv">textooldir</span><span class="o">=</span><span class="si">${</span><span class="nv">TEXTOOLDIR</span><span class="k">:-</span><span class="s2">"./docs-build-tex-tools"</span><span class="si">}</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/tl
+wget<span class="w"> </span>https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz<span class="w"> </span>-O<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-unx.tar.gz
+tar<span class="w"> </span>xzf<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-unx.tar.gz<span class="w"> </span>-C<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>
+<span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl-*/install-tl<span class="w"> </span>--scheme<span class="o">=</span>small<span class="w"> </span>--texdir<span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">"</span>/tl<span class="w"> </span>--no-interaction
+<span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PATH</span><span class="s2">:</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">/tl/bin/x86_64-linux"</span><span class="w"> </span>tlmgr<span class="w"> </span>install<span class="w"> </span>titlesec<span class="w"> </span>varwidth<span class="w"> </span>tabulary<span class="w"> </span>needspace<span class="w"> </span>upquote<span class="w"> </span>framed<span class="w"> </span>capt-of<span class="w"> </span>wrapfig<span class="w"> </span>fncychap<span class="w"> </span>gnu-freefont<span class="w"> </span>ctex<span class="w"> </span>latexmk<span class="w"> </span>nimbus15
+rm<span class="w"> </span>-r<span class="w"> </span><span class="s2">"</span><span class="nv">$textooldir</span><span class="s2">"</span>/install-tl*
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Avvertimento</p>
+<p>L'installazione di TeX Live sopra descritta è valida solo per sistemi host <cite>x86_64</cite>.</p>
+</div>
+<p>Prima di creare la documentazione in PDF, impostare la variabile d'ambiente <code class="docutils literal notranslate"><span class="pre">PATH</span></code> per utilizzare i pacchetti installati (con <code class="docutils literal notranslate"><span class="pre">${textooldir}</span></code> che punta all'installazione di TeX Live del passaggio precedente):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">textooldir</span><span class="si">}</span><span class="s2">/tl/bin/x86_64-linux"</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="required-git-tar-python-make-and-gcc-versions">
+<span id="system-requirements-buildtools"></span><h2><span class="section-number">1.5 </span>Versioni richieste di Git, tar, Python, make e gcc<a class="headerlink" href="#required-git-tar-python-make-and-gcc-versions" title="Link to this heading"></a></h2>
+<p>Per utilizzare il sistema di build, il sistema host di sviluppo deve soddisfare i seguenti requisiti di versione per Git, tar e Python:</p>
+<ul class="simple">
+<li><p>Git 2.22.0 o superiore</p></li>
+<li><p>tar 1.28 o superiore</p></li>
+<li><p>Python 3.9.0 o superiore</p></li>
+<li><p>GNU make 4.0 o superiore</p></li>
+</ul>
+<p>Se il sistema host di sviluppo non soddisfa tutti questi requisiti, è possibile risolvere il problema installando un file tarball <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> contenente questi strumenti. È possibile scaricare un file tarball precompilato oppure utilizzare BitBake per crearne uno.</p>
+<p>Inoltre, il sistema host di sviluppo deve soddisfare il seguente requisito di versione per gcc:</p>
+<ul class="simple">
+<li><p>gcc 10.1 o superiore</p></li>
+</ul>
+<p>Se il sistema host di sviluppo non soddisfa questo requisito, è possibile risolvere il problema installando un tarball <a class="reference internal" href="terms.html#term-buildtools-extended"><span class="xref std std-term">buildtools-extended</span></a> che contiene strumenti aggiuntivi, l'equivalente del pacchetto <code class="docutils literal notranslate"><span class="pre">build-essential</span></code> di Debian/Ubuntu.</p>
+<p>Per i sistemi con una versione di make non funzionante (ad esempio make 4.2.1 senza patch) ma in cui gli altri strumenti host sono utilizzabili, è possibile utilizzare il tarball <a class="reference internal" href="terms.html#term-buildtools-make"><span class="xref std std-term">buildtools-make</span></a>.</p>
+<p>Nelle sezioni seguenti, verranno descritti tre diversi metodi per installare i toolset <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a>, <a class="reference internal" href="terms.html#term-buildtools-extended"><span class="xref std std-term">buildtools-extended</span></a> o <a class="reference internal" href="terms.html#term-buildtools-make"><span class="xref std std-term">buildtools-make</span></a>.</p>
+<section id="installing-a-pre-built-buildtools-tarball-with-install-buildtools-script">
+<h3><span class="section-number">1.5.1 </span>Installazione di un tarball <code class="docutils literal notranslate"><span class="pre">buildtools</span></code> Pre-Built con lo script <code class="docutils literal notranslate"><span class="pre">install-buildtools</span></code><a class="headerlink" href="#installing-a-pre-built-buildtools-tarball-with-install-buildtools-script" title="Link to this heading"></a></h3>
+<p>Lo script <code class="docutils literal notranslate"><span class="pre">install-buildtools</span></code> è il più semplice dei tre metodi per ottenere questi strumenti. Scaricare un programma di installazione precompilato di <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> e installare automaticamente gli strumenti:</p>
+<ol class="arabic">
+<li><p>Eseguire lo script <code class="docutils literal notranslate"><span class="pre">install-buildtools</span></code>. Ecco un esempio:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd /path/to/bitbake-builds
+$ ./layers/openembedded-core/scripts/install-buildtools \
+  --without-extended-buildtools \
+  --base-url https://downloads.yoctoproject.org/releases/yocto \
+  --release yocto-6.1 \
+  --installer-version 6.1
+</pre></div>
+</div>
+<p>Durante l'esecuzione, verrà scaricato il file tarball di <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a>, verrà verificato il checksum del download, verrà eseguito il programma di installazione e verranno effettuati alcuni controlli di base per assicurarsi che l'installazione sia funzionante.</p>
+<p>Per evitare la necessità di privilegi <code class="docutils literal notranslate"><span class="pre">sudo</span></code>, lo script <code class="docutils literal notranslate"><span class="pre">install-buildtools</span></code> , per default, indicherà al programma di installazione di installare i pacchetti nella directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">bitbake</span><span class="o">-</span><span class="n">builds</span><span class="o">/</span><span class="n">buildtools</span>
+</pre></div>
+</div>
+<p>Se il sistema host di sviluppo necessita degli strumenti aggiuntivi forniti nel file tarball <a class="reference internal" href="terms.html#term-buildtools-extended"><span class="xref std std-term">buildtools-extended</span></a>, è possibile eseguire lo script <code class="docutils literal notranslate"><span class="pre">install-buildtools</span></code> con i parametri di default:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd /path/to/bitbake-builds
+$ ./layers/openembedded-core/scripts/install-buildtools
+</pre></div>
+</div>
+<p>In alternativa, se il sistema host di sviluppo ha una versione di <code class="docutils literal notranslate"><span class="pre">make</span></code> non funzionante e si necessita solo di una versione funzionante, è possibile utilizzare l'opzione <code class="docutils literal notranslate"><span class="pre">--make-only</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd /path/to/bitbake-builds
+$ ./layers/openembedded-core/scripts/install-buildtools --make-only
+</pre></div>
+</div>
+</li>
+<li><p>Eseguire lo script di configurazione dell'ambiente degli strumenti utilizzando un comando simile al seguente:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ source /path/to/bitbake-builds/buildtools/environment-setup-x86_64-pokysdk-linux
+</pre></div>
+</div>
+<p>Dopo aver eseguito lo script di configurazione, gli strumenti vengono aggiunti a <code class="docutils literal notranslate"><span class="pre">PATH</span></code> e vengono inizializzate tutte le altre variabili d'ambiente necessarie per il loro funzionamento. Il risultato saranno versioni funzionanti di Git, tar, Python e <code class="docutils literal notranslate"><span class="pre">chrpath</span></code>. E nel caso del tarball <a class="reference internal" href="terms.html#term-buildtools-extended"><span class="xref std std-term">buildtools-extended</span></a>, sono presenti versioni funzionanti aggiuntive di strumenti tra cui <code class="docutils literal notranslate"><span class="pre">gcc</span></code>, <code class="docutils literal notranslate"><span class="pre">make</span></code> e gli altri strumenti inclusi in <code class="docutils literal notranslate"><span class="pre">packagegroup-core-buildessential</span></code>.</p>
+</li>
+</ol>
+</section>
+<section id="downloading-a-pre-built-buildtools-tarball">
+<h3><span class="section-number">1.5.2 </span>Download di un Archivio Tarball Precompilato di <code class="docutils literal notranslate"><span class="pre">buildtools</span></code><a class="headerlink" href="#downloading-a-pre-built-buildtools-tarball" title="Link to this heading"></a></h3>
+<p>Se si preferisce non utilizzare lo script <code class="docutils literal notranslate"><span class="pre">install-buildtools</span></code>, si può scaricare ed eseguire autonomamente un programma di installazione precompilato di <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> seguendo questi passaggi:</p>
+<ol class="arabic">
+<li><p>Go to <a class="extlink-yocto_dl reference external" href="https://downloads.yoctoproject.org/releases/yocto/yocto-6.1_M3/buildtools/">https://downloads.yoctoproject.org/releases/yocto/yocto-6.1_M3/buildtools/</a>, locate and
+download the <code class="docutils literal notranslate"><span class="pre">.sh</span></code> file corresponding to your host architecture
+and to <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a>, <a class="reference internal" href="terms.html#term-buildtools-extended"><span class="xref std std-term">buildtools-extended</span></a> or <a class="reference internal" href="terms.html#term-buildtools-make"><span class="xref std std-term">buildtools-make</span></a>.</p></li>
+<li><p>Eseguire lo script di installazione. Ecco un esempio per il programma di installazione tradizionale:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sh ~/Downloads/x86_64-buildtools-nativesdk-standalone-6.1.sh
+</pre></div>
+</div>
+<p>Ecco un esempio per il programma di installazione esteso:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sh ~/Downloads/x86_64-buildtools-extended-nativesdk-standalone-6.1.sh
+</pre></div>
+</div>
+<p>Esempio per il programma di installazione solo make:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sh ~/Downloads/x86_64-buildtools-make-nativesdk-standalone-6.1.sh
+</pre></div>
+</div>
+<p>Durante l'esecuzione, verrà visualizzato un prompt che permetterà di scegliere la directory di installazione. Ad esempio, si potrebbe scegliere il seguente path: <code class="docutils literal notranslate"><span class="pre">/home/your-username/buildtools</span></code></p>
+</li>
+<li><p>Come indicato dallo script di installazione, dovrai eseguire lo script di configurazione dell'ambiente degli strumenti:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ source /home/your_username/buildtools/environment-setup-x86_64-pokysdk-linux
+</pre></div>
+</div>
+<p>Dopo aver eseguito lo script di configurazione, gli strumenti vengono aggiunti a <code class="docutils literal notranslate"><span class="pre">PATH</span></code> e vengono inizializzate tutte le altre variabili d'ambiente necessarie per il loro funzionamento. Il risultato saranno versioni funzionanti di Git, tar, Python e <code class="docutils literal notranslate"><span class="pre">chrpath</span></code>. E nel caso del tarball <a class="reference internal" href="terms.html#term-buildtools-extended"><span class="xref std std-term">buildtools-extended</span></a>, sono presenti versioni funzionanti aggiuntive di strumenti tra cui <code class="docutils literal notranslate"><span class="pre">gcc</span></code>, <code class="docutils literal notranslate"><span class="pre">make</span></code> e gli altri strumenti inclusi in <code class="docutils literal notranslate"><span class="pre">packagegroup-core-buildessential</span></code>.</p>
+</li>
+</ol>
+</section>
+<section id="building-your-own-buildtools-tarball">
+<h3><span class="section-number">1.5.3 </span>Building del Proprio Archivio tar di <code class="docutils literal notranslate"><span class="pre">buildtools</span></code><a class="headerlink" href="#building-your-own-buildtools-tarball" title="Link to this heading"></a></h3>
+<p>La creazione e l'esecuzione del proprio programma di installazione di <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a> è possibile solo se si dispone di un host di build in grado di eseguire BitBake. In questo caso, si utilizza tale macchina per creare il file <code class="docutils literal notranslate"><span class="pre">.sh</span></code> e quindi si procede al trasferimento e all'esecuzione su una macchina che non soddisfa i requisiti minimi di Git, tar e Python (o gcc).</p>
+<p>Ecco i passaggi da seguire per creare ed eseguire il proprio programma di installazione di <a class="reference internal" href="terms.html#term-buildtools"><span class="xref std std-term">buildtools</span></a>:</p>
+<ol class="arabic">
+<li><p>Sulla macchina in grado di eseguire BitBake, assicurarsi di aver configurato l'ambiente di build con lo script di configurazione (<a class="reference internal" href="structure.html#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a>).</p></li>
+<li><p>Eseguire il comando BitBake per creare il tarball:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake buildtools-tarball
+</pre></div>
+</div>
+<p>oppure per creare il tarball esteso:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake buildtools-extended-tarball
+</pre></div>
+</div>
+<p>oppure per creare il tarball con soll make:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake buildtools-make-tarball
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The <a class="reference internal" href="variables.html#term-SDKMACHINE"><span class="xref std std-term">SDKMACHINE</span></a> variable determines
+whether you build tools for a 32-bit or 64-bit system.</p>
+</div>
+<p>Una volta completata la compilazione, è possibile trovare il file <code class="docutils literal notranslate"><span class="pre">.sh</span></code> che installa gli strumenti nella sottocartella <code class="docutils literal notranslate"><span class="pre">tmp/deploy/sdk</span></code> della directory di <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>. Il file di installazione ha la stringa &quot;buildtools&quot; o &quot;buildtools-extended&quot; nel nome.</p>
+</li>
+<li><p>Trasferire il file <code class="docutils literal notranslate"><span class="pre">.sh</span></code> dall'host di compilazione alla macchina che non soddisfa i requisiti di Git, tar o Python (o gcc).</p></li>
+<li><p>Su questa macchina, si esegue il file <code class="docutils literal notranslate"><span class="pre">.sh</span></code> per installare gli strumenti. Ecco un esempio per l'installazione tradizionale:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sh ~/Downloads/x86_64-buildtools-nativesdk-standalone-6.1.sh
+</pre></div>
+</div>
+<p>Per l'installazione estesa:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sh ~/Downloads/x86_64-buildtools-extended-nativesdk-standalone-6.1.sh
+</pre></div>
+</div>
+<p>E per l'installazione solo con make:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sh ~/Downloads/x86_64-buildtools-make-nativesdk-standalone-6.1.sh
+</pre></div>
+</div>
+<p>Durante l'esecuzione, verrà visualizzato un prompt che consente di scegliere la directory di installazione. Ad esempio, è possibile scegliere la seguente: <code class="docutils literal notranslate"><span class="pre">/home/your_username/buildtools</span></code></p>
+</li>
+<li><p>Eseguire lo script di configurazione dell'ambiente degli strumenti utilizzando un comando simile al seguente:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ source /home/your_username/buildtools/environment-setup-x86_64-poky-linux
+</pre></div>
+</div>
+<p>Dopo aver eseguito lo script di configurazione, gli strumenti vengono aggiunti a <code class="docutils literal notranslate"><span class="pre">PATH</span></code> e vengono inizializzate tutte le altre variabili d'ambiente necessarie per il loro funzionamento. Il risultato saranno versioni funzionanti di Git, tar, Python e <code class="docutils literal notranslate"><span class="pre">chrpath</span></code>. E nel caso del tarball <a class="reference internal" href="terms.html#term-buildtools-extended"><span class="xref std std-term">buildtools-extended</span></a>, sono presenti versioni funzionanti aggiuntive di strumenti tra cui <code class="docutils literal notranslate"><span class="pre">gcc</span></code>, <code class="docutils literal notranslate"><span class="pre">make</span></code> e gli altri strumenti inclusi in <code class="docutils literal notranslate"><span class="pre">packagegroup-core-buildessential</span></code>.</p>
+</li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

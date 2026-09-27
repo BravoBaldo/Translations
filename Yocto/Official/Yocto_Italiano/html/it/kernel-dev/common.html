@@ -1,0 +1,1930 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2 Common Tasks &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="3 Working with Advanced Metadata (yocto-kernel-cache)" href="advanced.html" />
+    <link rel="prev" title="1 Introduzione" href="intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Sviluppo del Kernel Linux</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduzione</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2 Common Tasks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#preparing-the-build-host-to-work-on-the-kernel">2.1 Preparazione dell'Host di Build per Lavorare sul Kernel.</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#getting-ready-to-develop-using-devtool">2.1.1 Getting Ready to Develop Using <code class="docutils literal notranslate"><span class="pre">devtool</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#getting-ready-for-traditional-kernel-development">2.1.2 Getting Ready for Traditional Kernel Development</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-and-preparing-a-layer">2.2 Creating and Preparing a Layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modifying-an-existing-recipe">2.3 Modifying an Existing Recipe</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#creating-the-append-file">2.3.1 Creating the Append File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#applying-patches">2.3.2 Applying Patches</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#changing-the-configuration">2.3.3 Changing the Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-an-in-tree-defconfig-file">2.3.4 Using an &quot;In-Tree&quot;  <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> File</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#using-devtool-to-patch-the-kernel">2.4 Using <code class="docutils literal notranslate"><span class="pre">devtool</span></code> to Patch the Kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-traditional-kernel-development-to-patch-the-kernel">2.5 Using Traditional Kernel Development to Patch the Kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-the-kernel">2.6 Configuring the Kernel</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#using-menuconfig">2.6.1 Using  <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creating-a-defconfig-file">2.6.2 Creating a  <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creating-configuration-fragments">2.6.3 Creating Configuration Fragments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validating-configuration">2.6.4 Validating Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine-tuning-the-kernel-configuration-file">2.6.5 Fine-Tuning the Kernel Configuration File</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#expanding-variables">2.7 Expanding Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-a-dirty-kernel-version-string">2.8 Working with a &quot;Dirty&quot; Kernel Version String</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-your-own-sources">2.9 Working With Your Own Sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-out-of-tree-modules">2.10 Working with Out-of-Tree Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#building-out-of-tree-modules-on-the-target">2.10.1 Building Out-of-Tree Modules on the Target</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#incorporating-out-of-tree-modules">2.10.2 Incorporating Out-of-Tree Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#inspecting-changes-and-commits">2.11 Inspecting Changes and Commits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-changed-in-a-kernel">2.11.1 What Changed in a Kernel?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#showing-a-particular-feature-or-branch-change">2.11.2 Showing a Particular Feature or Branch Change</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-recipe-space-kernel-features">2.12 Adding Recipe-Space Kernel Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html">3 Working with Advanced Metadata (<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts-appx.html">4 Advanced Kernel Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maint-appx.html">5 Kernel Maintenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html">6 Kernel Development FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sviluppo del Kernel Linux di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">2 </span>Common Tasks</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/kernel-dev/common.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="common-tasks">
+<h1><span class="section-number">2 </span>Common Tasks<a class="headerlink" href="#common-tasks" title="Link to this heading"></a></h1>
+<p>This chapter presents several common tasks you perform when you work
+with the Yocto Project Linux kernel. These tasks include preparing your
+host development system for kernel development, preparing a layer,
+modifying an existing recipe, patching the kernel, configuring the
+kernel, iterative development, working with your own sources, and
+incorporating out-of-tree modules.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The examples presented in this chapter work with the Yocto Project
+2.4 Release and forward.</p>
+</div>
+<section id="preparing-the-build-host-to-work-on-the-kernel">
+<h2><span class="section-number">2.1 </span>Preparazione dell'Host di Build per Lavorare sul Kernel.<a class="headerlink" href="#preparing-the-build-host-to-work-on-the-kernel" title="Link to this heading"></a></h2>
+<p>Before you can do any kernel development, you need to be sure your build
+host is set up to use the Yocto Project. For information on how to get
+set up, see the &quot;<a class="reference internal" href="../dev-manual/start.html"><span class="doc">Setting Up to Use the Yocto Project</span></a>&quot; section in
+the Yocto Project Development Tasks Manual.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Be sure you check out the appropriate development branch or you
+create your local branch by checking out a specific tag to get the
+desired version of Yocto Project.</p>
+</div>
+<p>Kernel development is best accomplished using
+<a class="reference internal" href="../sdk-manual/extensible.html#using-devtool-in-your-sdk-workflow"><span class="std std-ref">devtool</span></a>
+and not through traditional kernel workflow methods. The remainder of
+this section provides information for both scenarios.</p>
+<section id="getting-ready-to-develop-using-devtool">
+<h3><span class="section-number">2.1.1 </span>Getting Ready to Develop Using <code class="docutils literal notranslate"><span class="pre">devtool</span></code><a class="headerlink" href="#getting-ready-to-develop-using-devtool" title="Link to this heading"></a></h3>
+<p>Follow these steps to prepare to update the kernel image using
+<code class="docutils literal notranslate"><span class="pre">devtool</span></code>. Completing this procedure leaves you with a clean kernel
+image and ready to make modifications as described in the
+&quot;<a class="reference internal" href="#using-devtool-to-patch-the-kernel"><span class="std std-ref">Using devtool to Patch the Kernel</span></a>&quot;
+section:</p>
+<ol class="arabic">
+<li><p><em>Initialize the Build Environment:</em> Follow the <a class="reference internal" href="../dev-manual/start.html"><span class="doc">Setting Up to Use the Yocto Project</span></a>
+section of the Yocto Project Development Tasks Manual in order to have a
+ready-to-use shell that can execute <code class="docutils literal notranslate"><span class="pre">devtool</span></code>.</p></li>
+<li><p><em>Prepare Your local.conf File:</em> By default, the <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> variable
+is set to &quot;qemux86-64&quot;, which is fine if you are building for the QEMU
+emulator in 64-bit mode. However, if you are not, you need to set the
+<a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> variable appropriately in your
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file
+found in the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> (i.e.  <code class="docutils literal notranslate"><span class="pre">bitbake-builds/build</span></code> in this example).</p>
+<p>Also, since you are preparing to work on the kernel image, you need
+to set the <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS"><span class="xref std std-term">MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS</span></a> variable to include
+kernel modules.</p>
+<p>In this example we wish to build for qemux86 so we must set the
+<a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> variable to &quot;qemux86&quot; and also add the &quot;kernel-modules&quot;.
+As described we do this by appending to
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MACHINE</span> <span class="o">=</span> <span class="s2">"qemux86"</span>
+<span class="n">MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS</span> <span class="o">+=</span> <span class="s2">"kernel-modules"</span>
+</pre></div>
+</div>
+</li>
+<li><p><em>Create a Layer for Patches:</em> You need to create a layer to hold
+patches created for the kernel image. You can use the
+<code class="docutils literal notranslate"><span class="pre">bitbake-layers</span> <span class="pre">create-layer</span></code> command as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build
+$ bitbake-layers create-layer ../layers/meta-mylayer
+NOTE: Starting bitbake server...
+Add your new layer with 'bitbake-layers add-layer ../layers/meta-mylayer'
+$
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For background information on working with common and BSP layers,
+see the
+&quot;<a class="reference internal" href="../dev-manual/layers.html#understanding-and-creating-layers"><span class="std std-ref">Comprendere e Creare i Layer</span></a>&quot;
+section in the Yocto Project Development Tasks Manual and the
+&quot;<a class="reference internal" href="../bsp-manual/bsp.html#bsp-layers"><span class="std std-ref">Layer BSP</span></a>&quot; section in the Yocto Project Board
+Support (BSP) Developer's Guide, respectively. For information on how to
+use the <code class="docutils literal notranslate"><span class="pre">bitbake-layers</span> <span class="pre">create-layer</span></code> command to quickly set up a layer,
+see the
+&quot;<a class="reference internal" href="../dev-manual/layers.html#creating-your-own-layer"><span class="std std-ref">Creating Your Own Layer</span></a>&quot;
+section in the Yocto Project Development Tasks Manual.</p>
+</div>
+</li>
+<li><p><em>Inform the BitBake Build Environment About Your Layer:</em> As directed
+when you created your layer, you need to add the layer to the
+<a class="reference internal" href="../ref-manual/variables.html#term-BBLAYERS"><span class="xref std std-term">BBLAYERS</span></a> variable in the
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-bblayers-conf"><span class="std std-ref">build/conf/bblayers.conf</span></a> file as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build
+$ bitbake-layers add-layer ../../meta-mylayer
+NOTE: Starting bitbake server...
+$
+</pre></div>
+</div>
+</li>
+<li><p><em>Build the Clean Image:</em> The final step in preparing to work on the
+kernel is to build an initial image using <code class="docutils literal notranslate"><span class="pre">bitbake</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake core-image-minimal
+Parsing recipes: 100% |##########################################| Time: 0:00:05
+Parsing of 830 .bb files complete (0 cached, 830 parsed). 1299 targets, 47 skipped, 0 masked, 0 errors.
+WARNING: No packages to add, building image core-image-minimal unmodified
+Loading cache: 100% |############################################| Time: 0:00:00
+Loaded 1299 entries from dependency cache.
+NOTE: Resolving any missing task queue dependencies
+Initializing tasks: 100% |#######################################| Time: 0:00:07
+Checking sstate mirror object availability: 100% |###############| Time: 0:00:00
+NOTE: Executing SetScene Tasks
+NOTE: Executing RunQueue Tasks
+NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun and all succeeded.
+</pre></div>
+</div>
+<p>If you were
+building for actual hardware and not for emulation, you could flash
+the image to a USB stick on <code class="docutils literal notranslate"><span class="pre">/dev/sdd</span></code> and boot your device. For an
+example that uses a Minnowboard, see the
+<a class="extlink-yocto_wiki reference external" href="https://wiki.yoctoproject.org/wiki/TipsAndTricks/KernelDevelopmentWithEsdk">TipsAndTricks/KernelDevelopmentWithEsdk</a>
+Wiki page.</p>
+</li>
+</ol>
+<p>At this point you have set up to start making modifications to the
+kernel. For a continued example, see the
+&quot;<a class="reference internal" href="#using-devtool-to-patch-the-kernel"><span class="std std-ref">Using devtool to Patch the Kernel</span></a>&quot;
+section.</p>
+</section>
+<section id="getting-ready-for-traditional-kernel-development">
+<h3><span class="section-number">2.1.2 </span>Getting Ready for Traditional Kernel Development<a class="headerlink" href="#getting-ready-for-traditional-kernel-development" title="Link to this heading"></a></h3>
+<p>Getting ready for traditional kernel development using the Yocto Project
+involves many of the same steps as described in the previous section.
+However, you need to establish a local copy of the kernel source since
+you will be editing these files.</p>
+<p>Follow these steps to prepare to update the kernel image using
+traditional kernel development flow with the Yocto Project. Completing
+this procedure leaves you ready to make modifications to the kernel
+source as described in the &quot;<a class="reference internal" href="#using-traditional-kernel-development-to-patch-the-kernel"><span class="std std-ref">Using Traditional Kernel Development to Patch the Kernel</span></a>&quot;
+section:</p>
+<ol class="arabic">
+<li><p><em>Initialize the BitBake Environment:</em> Follow the steps in the
+<a class="reference internal" href="../dev-manual/start.html"><span class="doc">Setting Up to Use the Yocto Project</span></a> section of the Yocto Project Development Tasks Manual.</p></li>
+<li><p><em>Prepare Your local.conf File:</em> By default, the <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> variable is
+set to &quot;qemux86-64&quot;, which is fine if you are building for the QEMU emulator
+in 64-bit mode. However, if you are not, you need to set the <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a>
+variable appropriately in your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file found in the
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> (i.e.  <code class="docutils literal notranslate"><span class="pre">bitbake-builds/build</span></code> in this example).</p>
+<p>Also, since you are preparing to work on the kernel image, you need
+to set the
+<a class="reference internal" href="../ref-manual/variables.html#term-MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS"><span class="xref std std-term">MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS</span></a>
+variable to include kernel modules.</p>
+<p>In this example we wish to build for qemux86 so we must set the
+<a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> variable to &quot;qemux86&quot; and also add the &quot;kernel-modules&quot;.
+As described we do this by appending to
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MACHINE</span> <span class="o">=</span> <span class="s2">"qemux86"</span>
+<span class="n">MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS</span> <span class="o">+=</span> <span class="s2">"kernel-modules"</span>
+</pre></div>
+</div>
+</li>
+<li><p><em>Create a Layer for Patches:</em> You need to create a layer to hold
+patches created for the kernel image. You can use the
+<code class="docutils literal notranslate"><span class="pre">bitbake-layers</span> <span class="pre">create-layer</span></code> command as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build
+$ bitbake-layers create-layer ../../meta-mylayer
+NOTE: Starting bitbake server...
+Add your new layer with 'bitbake-layers add-layer ../../meta-mylayer'
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For background information on working with common and BSP layers,
+see the
+&quot;<a class="reference internal" href="../dev-manual/layers.html#understanding-and-creating-layers"><span class="std std-ref">Comprendere e Creare i Layer</span></a>&quot;
+section in the Yocto Project Development Tasks Manual and the
+&quot;<a class="reference internal" href="../bsp-manual/bsp.html#bsp-layers"><span class="std std-ref">Layer BSP</span></a>&quot; section in the Yocto Project Board
+Support (BSP) Developer's Guide, respectively. For information on how to
+use the <code class="docutils literal notranslate"><span class="pre">bitbake-layers</span> <span class="pre">create-layer</span></code> command to quickly set up a layer,
+see the
+&quot;<a class="reference internal" href="../dev-manual/layers.html#creating-your-own-layer"><span class="std std-ref">Creating Your Own Layer</span></a>&quot;
+section in the Yocto Project Development Tasks Manual.</p>
+</div>
+</li>
+<li><p><em>Inform the BitBake Build Environment About Your Layer:</em> As directed
+when you created your layer, you need to add the layer to the
+<a class="reference internal" href="../ref-manual/variables.html#term-BBLAYERS"><span class="xref std std-term">BBLAYERS</span></a> variable in the
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-bblayers-conf"><span class="std std-ref">build/conf/bblayers.conf</span></a> file as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build
+$ bitbake-layers add-layer ../../meta-mylayer
+NOTE: Starting bitbake server ...
+$
+</pre></div>
+</div>
+</li>
+<li><p><em>Create a Local Copy of the Kernel Git Repository:</em> You can find Git
+repositories of supported Yocto Project kernels organized under
+&quot;Yocto Linux Kernel&quot; in the Yocto Project Source Repositories at
+<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/">https://git.yoctoproject.org/</a>.</p>
+<p>For simplicity, it is recommended that you create your copy of the
+kernel Git repository outside of the
+<a class="reference internal" href="../ref-manual/terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a>. Also, be sure you are in the
+<code class="docutils literal notranslate"><span class="pre">standard/base</span></code> branch.</p>
+<p>The following commands show how to create a local copy of the
+<code class="docutils literal notranslate"><span class="pre">linux-yocto-4.12</span></code> kernel and be in the <code class="docutils literal notranslate"><span class="pre">standard/base</span></code> branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ~
+$ git clone https://git.yoctoproject.org/linux-yocto-4.12 --branch standard/base
+Cloning into 'linux-yocto-4.12'...
+remote: Counting objects: 6097195, done.
+remote: Compressing objects: 100% (901026/901026), done.
+remote: Total 6097195 (delta 5152604), reused 6096847 (delta 5152256)
+Receiving objects: 100% (6097195/6097195), 1.24 GiB | 7.81 MiB/s, done.
+Resolving deltas: 100% (5152604/5152604), done. Checking connectivity... done.
+Checking out files: 100% (59846/59846), done.
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">linux-yocto-4.12</span></code> kernel can be used with the Yocto Project 2.4
+release and forward.
+You cannot use the <code class="docutils literal notranslate"><span class="pre">linux-yocto-4.12</span></code> kernel with releases prior to
+Yocto Project 2.4.</p>
+</div>
+</li>
+<li><p><em>Create a Local Copy of the Kernel Cache Git Repository:</em> For
+simplicity, it is recommended that you create your copy of the kernel
+cache Git repository outside of the
+<a class="reference internal" href="../ref-manual/terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a>. Also, for this example, be sure you are in
+the <code class="docutils literal notranslate"><span class="pre">yocto-4.12</span></code> branch.</p>
+<p>The following commands show how to create a local copy of the
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> and switch to the <code class="docutils literal notranslate"><span class="pre">yocto-4.12</span></code> branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ~
+$ git clone https://git.yoctoproject.org/yocto-kernel-cache --branch yocto-4.12
+Cloning into 'yocto-kernel-cache'...
+remote: Counting objects: 22639, done.
+remote: Compressing objects: 100% (9761/9761), done.
+remote: Total 22639 (delta 12400), reused 22586 (delta 12347)
+Receiving objects: 100% (22639/22639), 22.34 MiB | 6.27 MiB/s, done.
+Resolving deltas: 100% (12400/12400), done.
+Checking connectivity... done.
+</pre></div>
+</div>
+</li>
+</ol>
+<p>At this point, you are ready to start making modifications to the kernel
+using traditional kernel development steps. For a continued example, see
+the &quot;<a class="reference internal" href="#using-traditional-kernel-development-to-patch-the-kernel"><span class="std std-ref">Using Traditional Kernel Development to Patch the Kernel</span></a>&quot;
+section.</p>
+</section>
+</section>
+<section id="creating-and-preparing-a-layer">
+<h2><span class="section-number">2.2 </span>Creating and Preparing a Layer<a class="headerlink" href="#creating-and-preparing-a-layer" title="Link to this heading"></a></h2>
+<p>If you are going to be modifying kernel recipes, it is recommended that
+you create and prepare your own layer in which to do your work. Your
+layer contains its own <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>
+append files (<code class="docutils literal notranslate"><span class="pre">.bbappend</span></code>) and provides a convenient mechanism to
+create your own recipe files (<code class="docutils literal notranslate"><span class="pre">.bb</span></code>) as well as store and use kernel
+patch files. For background information on working with layers, see the
+&quot;<a class="reference internal" href="../dev-manual/layers.html#understanding-and-creating-layers"><span class="std std-ref">Comprendere e Creare i Layer</span></a>&quot;
+section in the Yocto Project Development Tasks Manual.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The Yocto Project comes with many tools that simplify tasks you need
+to perform. One such tool is the <code class="docutils literal notranslate"><span class="pre">bitbake-layers</span> <span class="pre">create-layer</span></code>
+command, which simplifies creating a new layer. See the
+&quot;<a class="reference internal" href="../dev-manual/layers.html#creating-your-own-layer"><span class="std std-ref">Creating Your Own Layer</span></a>&quot;
+section in the Yocto Project Development Tasks Manual for
+information on how to use this script to quick set up a new layer.</p>
+</div>
+<p>To better understand the layer you create for kernel development, the
+following section describes how to create a layer without the aid of
+tools. These steps assume creation of a layer named <code class="docutils literal notranslate"><span class="pre">mylayer</span></code> in your
+home directory:</p>
+<ol class="arabic">
+<li><p><em>Create Structure</em>: Create the layer's structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mkdir -p meta-mylayer/conf meta-mylayer/recipes-kernel/linux/linux-yocto
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">conf</span></code> directory holds your configuration files, while the
+<code class="docutils literal notranslate"><span class="pre">recipes-kernel</span></code> directory holds your append file and eventual
+patch files.</p>
+</li>
+<li><p><em>Create the Layer Configuration File</em>: Move to the
+<code class="docutils literal notranslate"><span class="pre">meta-mylayer/conf</span></code> directory and create the <code class="docutils literal notranslate"><span class="pre">layer.conf</span></code> file as
+follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># We have a conf and classes directory, add to BBPATH</span>
+<span class="n">BBPATH</span> <span class="o">.=</span> <span class="s2">":$</span><span class="si">{LAYERDIR}</span><span class="s2">"</span>
+
+<span class="c1"># We have recipes-* directories, add to BBFILES</span>
+<span class="n">BBFILES</span> <span class="o">+=</span> <span class="s2">"$</span><span class="si">{LAYERDIR}</span><span class="s2">/recipes-*/*/*.bb </span><span class="se">\</span>
+<span class="s2">            $</span><span class="si">{LAYERDIR}</span><span class="s2">/recipes-*/*/*.bbappend"</span>
+
+<span class="n">BBFILE_COLLECTIONS</span> <span class="o">+=</span> <span class="s2">"mylayer"</span>
+<span class="n">BBFILE_PATTERN_mylayer</span> <span class="o">=</span> <span class="s2">"^$</span><span class="si">{LAYERDIR}</span><span class="s2">/"</span>
+<span class="n">BBFILE_PRIORITY_mylayer</span> <span class="o">=</span> <span class="s2">"5"</span>
+</pre></div>
+</div>
+<p>Notice <code class="docutils literal notranslate"><span class="pre">mylayer</span></code> as part of the last three statements.</p>
+</li>
+<li><p><em>Create the Kernel Recipe Append File</em>: Move to the
+<code class="docutils literal notranslate"><span class="pre">meta-mylayer/recipes-kernel/linux</span></code> directory and create the
+kernel's append file. This example uses the <code class="docutils literal notranslate"><span class="pre">linux-yocto-4.12</span></code>
+kernel. Thus, the name of the append file is
+<code class="docutils literal notranslate"><span class="pre">linux-yocto_4.12.bbappend</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FILESEXTRAPATHS</span><span class="p">:</span><span class="n">prepend</span> <span class="o">:=</span> <span class="s2">"$</span><span class="si">{THISDIR}</span><span class="s2">/$</span><span class="si">{PN}</span><span class="s2">:"</span>
+
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://patch-file-one.patch"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://patch-file-two.patch"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://patch-file-three.patch"</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a> and <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statements
+enable the OpenEmbedded build system to find patch files. For more
+information on using append files, see the
+&quot;<a class="reference internal" href="../dev-manual/layers.html#appending-other-layers-metadata-with-your-layer"><span class="std std-ref">Appending Other Layers Metadata With Your Layer</span></a>&quot;
+section in the Yocto Project Development Tasks Manual.</p>
+</li>
+</ol>
+</section>
+<section id="modifying-an-existing-recipe">
+<h2><span class="section-number">2.3 </span>Modifying an Existing Recipe<a class="headerlink" href="#modifying-an-existing-recipe" title="Link to this heading"></a></h2>
+<p>In many cases, you can customize an existing linux-yocto recipe to meet
+the needs of your project. Each release of the Yocto Project provides a
+few Linux kernel recipes from which you can choose. These are located in
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> in <code class="docutils literal notranslate"><span class="pre">meta/recipes-kernel/linux</span></code>.</p>
+<p>Modifying an existing recipe can consist of the following:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#creating-the-append-file"><span class="std std-ref">Creating the Append File</span></a></p></li>
+<li><p><a class="reference internal" href="#applying-patches"><span class="std std-ref">Applying Patches</span></a></p></li>
+<li><p><a class="reference internal" href="#changing-the-configuration"><span class="std std-ref">Changing the Configuration</span></a></p></li>
+</ul>
+<p>Before modifying an existing recipe, be sure that you have created a
+minimal, custom layer from which you can work. See the
+&quot;<a class="reference internal" href="#creating-and-preparing-a-layer"><span class="std std-ref">Creating and Preparing a Layer</span></a>&quot; section for
+information.</p>
+<section id="creating-the-append-file">
+<h3><span class="section-number">2.3.1 </span>Creating the Append File<a class="headerlink" href="#creating-the-append-file" title="Link to this heading"></a></h3>
+<p>You create this file in your custom layer. You also name it accordingly
+based on the linux-yocto recipe you are using. For example, if you are
+modifying the <code class="docutils literal notranslate"><span class="pre">meta/recipes-kernel/linux/linux-yocto_6.1.bb</span></code> recipe,
+the append file will typically be located as follows within your custom
+layer:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>your-layer/recipes-kernel/linux/linux-yocto_6.1.bbappend
+</pre></div>
+</div>
+<p>The append file should initially extend the
+<a class="reference internal" href="../ref-manual/variables.html#term-FILESPATH"><span class="xref std std-term">FILESPATH</span></a> search path by
+prepending the directory that contains your files to the
+<a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a>
+variable as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FILESEXTRAPATHS</span><span class="p">:</span><span class="n">prepend</span> <span class="o">:=</span> <span class="s2">"$</span><span class="si">{THISDIR}</span><span class="s2">/$</span><span class="si">{PN}</span><span class="s2">:"</span>
+</pre></div>
+</div>
+<p>The path <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="../ref-manual/variables.html#term-THISDIR"><span class="xref std std-term">THISDIR</span></a><code class="docutils literal notranslate"><span class="pre">}/${</span></code><a class="reference internal" href="../ref-manual/variables.html#term-PN"><span class="xref std std-term">PN</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>
+expands to &quot;linux-yocto&quot; in the current directory for this example. If
+you add any new files that modify the kernel recipe and you have
+extended <a class="reference internal" href="../ref-manual/variables.html#term-FILESPATH"><span class="xref std std-term">FILESPATH</span></a> as described above, you must place the files in
+your layer in the following area:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">your</span><span class="o">-</span><span class="n">layer</span><span class="o">/</span><span class="n">recipes</span><span class="o">-</span><span class="n">kernel</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">linux</span><span class="o">-</span><span class="n">yocto</span><span class="o">/</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>If you are working on a new machine Board Support Package (BSP), be
+sure to refer to the <a class="reference internal" href="../bsp-manual/index.html"><span class="doc">Manuale del Board Support Package (BSP) di Yocto Project</span></a>.</p>
+</div>
+<p>As an example, consider the following append file used by the BSPs in
+<code class="docutils literal notranslate"><span class="pre">meta-yocto-bsp</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>meta-yocto-bsp/recipes-kernel/linux/linux-yocto_6.1.bbappend
+</pre></div>
+</div>
+<p>Here are the contents of this file. Be aware that the actual commit ID
+strings in this example listing might be different than the actual
+strings in the file from the <code class="docutils literal notranslate"><span class="pre">meta-yocto-bsp</span></code> layer upstream:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>KBRANCH:genericx86  = "v6.1/standard/base"
+KBRANCH:genericx86-64  = "v6.1/standard/base"
+KBRANCH:beaglebone-yocto = "v6.1/standard/beaglebone"
+
+KMACHINE:genericx86 ?= "common-pc"
+KMACHINE:genericx86-64 ?= "common-pc-64"
+KMACHINE:beaglebone-yocto ?= "beaglebone"
+
+SRCREV_machine:genericx86 ?= "6ec439b4b456ce929c4c07fe457b5d6a4b468e86"
+SRCREV_machine:genericx86-64 ?= "6ec439b4b456ce929c4c07fe457b5d6a4b468e86"
+SRCREV_machine:beaglebone-yocto ?= "423e1996694b61fbfc8ec3bf062fc6461d64fde1"
+
+COMPATIBLE_MACHINE:genericx86 = "genericx86"
+COMPATIBLE_MACHINE:genericx86-64 = "genericx86-64"
+COMPATIBLE_MACHINE:beaglebone-yocto = "beaglebone-yocto"
+
+LINUX_VERSION:genericx86 = "6.1.30"
+LINUX_VERSION:genericx86-64 = "6.1.30"
+LINUX_VERSION:beaglebone-yocto = "6.1.20"
+</pre></div>
+</div>
+<p>This append file
+contains statements used to support several BSPs that ship with the
+Yocto Project. The file defines machines using the
+<a class="reference internal" href="../ref-manual/variables.html#term-COMPATIBLE_MACHINE"><span class="xref std std-term">COMPATIBLE_MACHINE</span></a>
+variable and uses the
+<a class="reference internal" href="../ref-manual/variables.html#term-KMACHINE"><span class="xref std std-term">KMACHINE</span></a> variable to ensure
+the machine name used by the OpenEmbedded build system maps to the
+machine name used by the Linux Yocto kernel. The file also uses the
+optional <a class="reference internal" href="../ref-manual/variables.html#term-KBRANCH"><span class="xref std std-term">KBRANCH</span></a> variable to
+ensure the build process uses the appropriate kernel branch.</p>
+<p>Although this particular example does not use it, the
+<a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_FEATURES"><span class="xref std std-term">KERNEL_FEATURES</span></a>
+variable could be used to enable features specific to the kernel. The
+append file points to specific commits in the
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> Git repository branches to identify the
+exact kernel needed to build the BSP.</p>
+<p>One thing missing in this particular BSP, which you will typically need
+when developing a BSP, is the kernel configuration file (<code class="docutils literal notranslate"><span class="pre">.config</span></code>)
+for your BSP. When developing a BSP, you probably have a kernel
+configuration file or a set of kernel configuration files that, when
+taken together, define the kernel configuration for your BSP. You can
+accomplish this definition by putting the configurations in a file or a
+set of files inside a directory located at the same level as your
+kernel's append file and having the same name as the kernel's main
+recipe file. With all these conditions met, simply reference those files
+in the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement in
+the append file.</p>
+<p>For example, suppose you had some configuration options in a file called
+<code class="docutils literal notranslate"><span class="pre">network_configs.cfg</span></code>. You can place that file inside a directory
+named <code class="docutils literal notranslate"><span class="pre">linux-yocto</span></code> and then add a <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement such as the
+following to the append file. When the OpenEmbedded build system builds
+the kernel, the configuration options are picked up and applied:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://network_configs.cfg"</span>
+</pre></div>
+</div>
+<p>To group related configurations into multiple files, you perform a
+similar procedure. Here is an example that groups separate
+configurations specifically for Ethernet and graphics into their own
+files and adds the configurations by using a <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement like
+the following in your append file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://myconfig.cfg </span><span class="se">\</span>
+<span class="s2">            file://eth.cfg </span><span class="se">\</span>
+<span class="s2">            file://gfx.cfg"</span>
+</pre></div>
+</div>
+<p>Another variable you can use in your kernel recipe append file is the
+<a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a>
+variable. When you use this statement, you are extending the locations
+used by the OpenEmbedded system to look for files and patches as the
+recipe is processed.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>There are other ways of grouping and defining configuration
+options. For example, if you are working with a local clone of the
+kernel repository, you could checkout the kernel's <code class="docutils literal notranslate"><span class="pre">meta</span></code> branch,
+make your changes, and then push the changes to the local bare clone
+of the kernel. The result is that you directly add configuration
+options to the <code class="docutils literal notranslate"><span class="pre">meta</span></code> branch for your BSP. The configuration
+options will likely end up in that location anyway if the BSP gets
+added to the Yocto Project.</p>
+<p>In general, however, the Yocto Project maintainers take care of
+moving the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>-specified configuration options to the
+kernel's <code class="docutils literal notranslate"><span class="pre">meta</span></code> branch. Not only is it easier for BSP developers
+not to have to put those configurations in the branch,
+but having the maintainers do it allows them to apply 'global'
+knowledge about the kinds of common configuration options multiple
+BSPs in the tree are typically using. This allows for promotion of
+common configurations into common features.</p>
+</div>
+</section>
+<section id="applying-patches">
+<h3><span class="section-number">2.3.2 </span>Applying Patches<a class="headerlink" href="#applying-patches" title="Link to this heading"></a></h3>
+<p>If you have a single patch or a small series of patches that you want to
+apply to the Linux kernel source, you can do so just as you would with
+any other recipe. You first copy the patches to the path added to
+<a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a> in
+your <code class="docutils literal notranslate"><span class="pre">.bbappend</span></code> file as described in the previous section, and then
+reference them in <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>
+statements.</p>
+<p>For example, you can apply a three-patch series by adding the following
+lines to your linux-yocto <code class="docutils literal notranslate"><span class="pre">.bbappend</span></code> file in your layer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://0001-first-change.patch"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://0002-second-change.patch"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://0003-third-change.patch"</span>
+</pre></div>
+</div>
+<p>The next time you run BitBake to build
+the Linux kernel, BitBake detects the change in the recipe and fetches
+and applies the patches before building the kernel.</p>
+<p>For a detailed example showing how to patch the kernel using
+<code class="docutils literal notranslate"><span class="pre">devtool</span></code>, see the
+&quot;<a class="reference internal" href="#using-devtool-to-patch-the-kernel"><span class="std std-ref">Using devtool to Patch the Kernel</span></a>&quot;
+and
+&quot;<a class="reference internal" href="#using-traditional-kernel-development-to-patch-the-kernel"><span class="std std-ref">Using Traditional Kernel Development to Patch the Kernel</span></a>&quot;
+sections.</p>
+</section>
+<section id="changing-the-configuration">
+<h3><span class="section-number">2.3.3 </span>Changing the Configuration<a class="headerlink" href="#changing-the-configuration" title="Link to this heading"></a></h3>
+<p>You can make wholesale or incremental changes to the final <code class="docutils literal notranslate"><span class="pre">.config</span></code>
+file used for the eventual Linux kernel configuration by including a
+<code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file and by specifying configuration fragments in the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> to be applied to that
+file.</p>
+<p>If you have a complete, working Linux kernel <code class="docutils literal notranslate"><span class="pre">.config</span></code> file you want
+to use for the configuration, as before, copy that file to the
+appropriate <code class="docutils literal notranslate"><span class="pre">${PN}</span></code> directory in your layer's <code class="docutils literal notranslate"><span class="pre">recipes-kernel/linux</span></code>
+directory, and rename the copied file to &quot;defconfig&quot;. Then, add the
+following lines to the linux-yocto <code class="docutils literal notranslate"><span class="pre">.bbappend</span></code> file in your layer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FILESEXTRAPATHS</span><span class="p">:</span><span class="n">prepend</span> <span class="o">:=</span> <span class="s2">"$</span><span class="si">{THISDIR}</span><span class="s2">/$</span><span class="si">{PN}</span><span class="s2">:"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://defconfig"</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> tells the build system how to search
+for the file, while the
+<a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a>
+extends the <a class="reference internal" href="../ref-manual/variables.html#term-FILESPATH"><span class="xref std std-term">FILESPATH</span></a>
+variable (search directories) to include the <code class="docutils literal notranslate"><span class="pre">${PN}</span></code> directory you
+created to hold the configuration changes.</p>
+<p>You can also use a regular <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file, as generated by the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-savedefconfig"><span class="std std-ref">do_savedefconfig</span></a>
+task instead of a complete <code class="docutils literal notranslate"><span class="pre">.config</span></code> file. This only specifies the
+non-default configuration values.  You need to additionally set
+<a class="reference internal" href="../ref-manual/variables.html#term-KCONFIG_MODE"><span class="xref std std-term">KCONFIG_MODE</span></a>
+in the linux-yocto <code class="docutils literal notranslate"><span class="pre">.bbappend</span></code> file in your layer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">KCONFIG_MODE</span> <span class="o">=</span> <span class="s2">"alldefconfig"</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The build system applies the configurations from the <code class="docutils literal notranslate"><span class="pre">defconfig</span></code>
+file before applying any subsequent configuration fragments. The
+final kernel configuration is a combination of the configurations in
+the <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file and any configuration fragments you provide. You need
+to realize that if you have any configuration fragments, the build system
+applies these on top of and after applying the existing <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file
+configurations.</p>
+</div>
+<p>Generally speaking, the preferred approach is to determine the
+incremental change you want to make and add that as a configuration
+fragment. For example, if you want to add support for a basic serial
+console, create a file named <code class="docutils literal notranslate"><span class="pre">8250.cfg</span></code> in the <code class="docutils literal notranslate"><span class="pre">${PN}</span></code> directory
+with the following content (without indentation):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CONFIG_SERIAL_8250</span><span class="o">=</span><span class="n">y</span>
+<span class="n">CONFIG_SERIAL_8250_CONSOLE</span><span class="o">=</span><span class="n">y</span>
+<span class="n">CONFIG_SERIAL_8250_PCI</span><span class="o">=</span><span class="n">y</span>
+<span class="n">CONFIG_SERIAL_8250_NR_UARTS</span><span class="o">=</span><span class="mi">4</span>
+<span class="n">CONFIG_SERIAL_8250_RUNTIME_UARTS</span><span class="o">=</span><span class="mi">4</span>
+<span class="n">CONFIG_SERIAL_CORE</span><span class="o">=</span><span class="n">y</span>
+<span class="n">CONFIG_SERIAL_CORE_CONSOLE</span><span class="o">=</span><span class="n">y</span>
+</pre></div>
+</div>
+<p>Next, include this
+configuration fragment and extend the <a class="reference internal" href="../ref-manual/variables.html#term-FILESPATH"><span class="xref std std-term">FILESPATH</span></a> variable in your
+<code class="docutils literal notranslate"><span class="pre">.bbappend</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FILESEXTRAPATHS</span><span class="p">:</span><span class="n">prepend</span> <span class="o">:=</span> <span class="s2">"$</span><span class="si">{THISDIR}</span><span class="s2">/$</span><span class="si">{PN}</span><span class="s2">:"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://8250.cfg"</span>
+</pre></div>
+</div>
+<p>The next time you run BitBake to build the
+Linux kernel, BitBake detects the change in the recipe and fetches and
+applies the new configuration before building the kernel.</p>
+<p>For a detailed example showing how to configure the kernel, see the
+&quot;<a class="reference internal" href="#configuring-the-kernel"><span class="std std-ref">Configuring the Kernel</span></a>&quot; section.</p>
+</section>
+<section id="using-an-in-tree-defconfig-file">
+<h3><span class="section-number">2.3.4 </span>Using an &quot;In-Tree&quot;  <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> File<a class="headerlink" href="#using-an-in-tree-defconfig-file" title="Link to this heading"></a></h3>
+<p>It might be desirable to have kernel configuration fragment support
+through a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file that is pulled from the kernel source tree
+for the configured machine. By default, the OpenEmbedded build system
+looks for <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> files in the layer used for Metadata, which is
+&quot;out-of-tree&quot;, and then configures them using the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://defconfig"</span>
+</pre></div>
+</div>
+<p>If you do not want to maintain copies of
+<code class="docutils literal notranslate"><span class="pre">defconfig</span></code> files in your layer but would rather allow users to use
+the default configuration from the kernel tree and still be able to add
+configuration fragments to the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> through, for example,
+append files, you can direct the OpenEmbedded build system to use a
+<code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file that is &quot;in-tree&quot;.</p>
+<p>To specify an &quot;in-tree&quot; <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file, use the following statement
+form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>KBUILD_DEFCONFIG:&lt;machine&gt; ?= "defconfig_file"
+</pre></div>
+</div>
+<p>Here is an example that assigns the <a class="reference internal" href="../ref-manual/variables.html#term-KBUILD_DEFCONFIG"><span class="xref std std-term">KBUILD_DEFCONFIG</span></a> variable utilizing
+an override for the &quot;raspberrypi2&quot; <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> and provides the path to the
+&quot;in-tree&quot; <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file to be used for a Raspberry Pi 2, which is based on
+the Broadcom 2708/2709 chipset:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>KBUILD_DEFCONFIG:raspberrypi2 ?= "bcm2709_defconfig"
+</pre></div>
+</div>
+<p>If the build system detects a statement that identifies an &quot;out-of-tree&quot;
+<code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file, your <a class="reference internal" href="../ref-manual/variables.html#term-KBUILD_DEFCONFIG"><span class="xref std std-term">KBUILD_DEFCONFIG</span></a> variable will take precedence
+over it.</p>
+<p>See the
+<a class="reference internal" href="../ref-manual/variables.html#term-KBUILD_DEFCONFIG"><span class="xref std std-term">KBUILD_DEFCONFIG</span></a>
+variable description for more information.</p>
+</section>
+</section>
+<section id="using-devtool-to-patch-the-kernel">
+<h2><span class="section-number">2.4 </span>Using <code class="docutils literal notranslate"><span class="pre">devtool</span></code> to Patch the Kernel<a class="headerlink" href="#using-devtool-to-patch-the-kernel" title="Link to this heading"></a></h2>
+<p>The steps in this procedure show you how you can patch the kernel using
+<code class="docutils literal notranslate"><span class="pre">devtool</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Before attempting this procedure, be sure you have performed the
+steps to get ready for updating the kernel as described in the
+&quot;<a class="reference internal" href="#getting-ready-to-develop-using-devtool"><span class="std std-ref">Getting Ready to Develop Using devtool</span></a>&quot;
+section.</p>
+</div>
+<p>Patching the kernel involves changing or adding configurations to an
+existing kernel, changing or adding recipes to the kernel that are
+needed to support specific hardware features, or even altering the
+source code itself.</p>
+<p>This example creates a simple patch by adding some QEMU emulator console
+output at boot time through <code class="docutils literal notranslate"><span class="pre">printk</span></code> statements in the kernel's
+<code class="docutils literal notranslate"><span class="pre">calibrate.c</span></code> source code file. Applying the patch and booting the
+modified image causes the added messages to appear on the emulator's
+console. The example is a continuation of the setup procedure found in
+the &quot;<a class="reference internal" href="#getting-ready-to-develop-using-devtool"><span class="std std-ref">Getting Ready to Develop Using devtool</span></a>&quot; Section.</p>
+<ol class="arabic">
+<li><p><em>Check Out the Kernel Source Files:</em> First you must use <code class="docutils literal notranslate"><span class="pre">devtool</span></code>
+to checkout the kernel source code in its workspace.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>See this step in the
+&quot;<a class="reference internal" href="#getting-ready-to-develop-using-devtool"><span class="std std-ref">Getting Ready to Develop Using devtool</span></a>&quot;
+section for more information.</p>
+</div>
+<p>Use the following <code class="docutils literal notranslate"><span class="pre">devtool</span></code> command to check out the code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ devtool modify linux-yocto
+</pre></div>
+</div>
+</li>
+<li><p><em>Edit the Source Files</em> Follow these steps to make some simple
+changes to the source files:</p>
+<ol class="arabic">
+<li><p><em>Change the working directory</em>: In the previous step, the output
+noted where you can find the source files (e.g.
+<code class="docutils literal notranslate"><span class="pre">build/workspace/sources/linux-yocto</span></code>). Change to where the
+kernel source code is before making your edits to the
+<code class="docutils literal notranslate"><span class="pre">calibrate.c</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd build/workspace/sources/linux-yocto
+</pre></div>
+</div>
+</li>
+<li><p><em>Edit the source file</em>: Edit the <code class="docutils literal notranslate"><span class="pre">init/calibrate.c</span></code> file to have
+the following changes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">void</span> <span class="n">calibrate_delay</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">unsigned</span> <span class="n">long</span> <span class="n">lpj</span><span class="p">;</span>
+    <span class="n">static</span> <span class="nb">bool</span> <span class="n">printed</span><span class="p">;</span>
+    <span class="nb">int</span> <span class="n">this_cpu</span> <span class="o">=</span> <span class="n">smp_processor_id</span><span class="p">();</span>
+
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*************************************</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*                                   *</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*        HELLO YOCTO KERNEL         *</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*                                   *</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*************************************</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">per_cpu</span><span class="p">(</span><span class="n">cpu_loops_per_jiffy</span><span class="p">,</span> <span class="n">this_cpu</span><span class="p">))</span> <span class="p">{</span>
+          <span class="o">.</span>
+          <span class="o">.</span>
+          <span class="o">.</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+<li><p><em>Build the Updated Kernel Source:</em> To build the updated kernel
+source, use <code class="docutils literal notranslate"><span class="pre">devtool</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ devtool build linux-yocto
+</pre></div>
+</div>
+</li>
+<li><p><em>Create the Image With the New Kernel:</em> Use the
+<code class="docutils literal notranslate"><span class="pre">devtool</span> <span class="pre">build-image</span></code> command to create a new image that has the
+new kernel:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ~
+$ devtool build-image core-image-minimal
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>If the image you originally created resulted in a Wic file, you
+can use an alternate method to create the new image with the
+updated kernel. For an example, see the steps in the
+<a class="extlink-yocto_wiki reference external" href="https://wiki.yoctoproject.org/wiki/TipsAndTricks/KernelDevelopmentWithEsdk">TipsAndTricks/KernelDevelopmentWithEsdk</a>
+Wiki Page.</p>
+</div>
+</li>
+<li><p><em>Test the New Image:</em> For this example, you can run the new image
+using QEMU to verify your changes:</p>
+<ol class="arabic">
+<li><p><em>Boot the image</em>: Boot the modified image in the QEMU emulator
+using this command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ runqemu qemux86
+</pre></div>
+</div>
+</li>
+<li><p><em>Verify the changes</em>: Log into the machine using <code class="docutils literal notranslate"><span class="pre">root</span></code> with no
+password and then use the following shell command to scroll
+through the console's boot output.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># dmesg | less
+</pre></div>
+</div>
+<p>You should see
+the results of your <code class="docutils literal notranslate"><span class="pre">printk</span></code> statements as part of the output
+when you scroll down the console window.</p>
+</li>
+</ol>
+</li>
+<li><p><em>Stage and commit your changes</em>: Change
+your working directory to where you modified the <code class="docutils literal notranslate"><span class="pre">calibrate.c</span></code> file
+and use these Git commands to stage and commit your changes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd build/workspace/sources/linux-yocto
+$ git status
+$ git add init/calibrate.c
+$ git commit -m "calibrate: Add printk example"
+</pre></div>
+</div>
+</li>
+<li><p><em>Export the Patches and Create an Append File:</em> To export your
+commits as patches and create a <code class="docutils literal notranslate"><span class="pre">.bbappend</span></code> file, use the following
+command. This example uses the previously established layer named <code class="docutils literal notranslate"><span class="pre">meta-mylayer</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ devtool finish linux-yocto ~/meta-mylayer
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>See Step 3 of the
+&quot;<a class="reference internal" href="#getting-ready-to-develop-using-devtool"><span class="std std-ref">Getting Ready to Develop Using devtool</span></a>&quot;
+section for information on setting up this layer.</p>
+</div>
+<p>Once the command
+finishes, the patches and the <code class="docutils literal notranslate"><span class="pre">.bbappend</span></code> file are located in the
+<code class="docutils literal notranslate"><span class="pre">~/meta-mylayer/recipes-kernel/linux</span></code> directory.</p>
+</li>
+<li><p><em>Build the Image With Your Modified Kernel:</em> You can now build an
+image that includes your kernel patches. Execute the following
+command from your <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> in the terminal
+set up to run BitBake:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build
+$ bitbake core-image-minimal
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="using-traditional-kernel-development-to-patch-the-kernel">
+<h2><span class="section-number">2.5 </span>Using Traditional Kernel Development to Patch the Kernel<a class="headerlink" href="#using-traditional-kernel-development-to-patch-the-kernel" title="Link to this heading"></a></h2>
+<p>The steps in this procedure show you how you can patch the kernel using
+traditional kernel development (i.e. not using <code class="docutils literal notranslate"><span class="pre">devtool</span></code>
+as described in the
+&quot;<a class="reference internal" href="#using-devtool-to-patch-the-kernel"><span class="std std-ref">Using devtool to Patch the Kernel</span></a>&quot;
+section).</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Before attempting this procedure, be sure you have performed the
+steps to get ready for updating the kernel as described in the
+&quot;<a class="reference internal" href="#getting-ready-for-traditional-kernel-development"><span class="std std-ref">Getting Ready for Traditional Kernel Development</span></a>&quot;
+section.</p>
+</div>
+<p>Patching the kernel involves changing or adding configurations to an
+existing kernel, changing or adding recipes to the kernel that are
+needed to support specific hardware features, or even altering the
+source code itself.</p>
+<p>The example in this section creates a simple patch by adding some QEMU
+emulator console output at boot time through <code class="docutils literal notranslate"><span class="pre">printk</span></code> statements in
+the kernel's <code class="docutils literal notranslate"><span class="pre">calibrate.c</span></code> source code file. Applying the patch and
+booting the modified image causes the added messages to appear on the
+emulator's console. The example is a continuation of the setup procedure
+found in the
+&quot;<a class="reference internal" href="#getting-ready-for-traditional-kernel-development"><span class="std std-ref">Getting Ready for Traditional Kernel Development</span></a>&quot;
+Section.</p>
+<ol class="arabic">
+<li><p><em>Edit the Source Files</em> Prior to this step, you should have used Git
+to create a local copy of the repository for your kernel. Assuming
+you created the repository as directed in the
+&quot;<a class="reference internal" href="#getting-ready-for-traditional-kernel-development"><span class="std std-ref">Getting Ready for Traditional Kernel Development</span></a>&quot;
+section, use the following commands to edit the <code class="docutils literal notranslate"><span class="pre">calibrate.c</span></code> file:</p>
+<ol class="arabic">
+<li><p><em>Change the working directory</em>: You need to locate the source
+files in the local copy of the kernel Git repository. Change to
+where the kernel source code is before making your edits to the
+<code class="docutils literal notranslate"><span class="pre">calibrate.c</span></code> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ~/linux-yocto-4.12/init
+</pre></div>
+</div>
+</li>
+<li><p><em>Edit the source file</em>: Edit the <code class="docutils literal notranslate"><span class="pre">calibrate.c</span></code> file to have the
+following changes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">void</span> <span class="n">calibrate_delay</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">unsigned</span> <span class="n">long</span> <span class="n">lpj</span><span class="p">;</span>
+    <span class="n">static</span> <span class="nb">bool</span> <span class="n">printed</span><span class="p">;</span>
+    <span class="nb">int</span> <span class="n">this_cpu</span> <span class="o">=</span> <span class="n">smp_processor_id</span><span class="p">();</span>
+
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*************************************</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*                                   *</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*        HELLO YOCTO KERNEL         *</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*                                   *</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s2">"*************************************</span><span class="se">\n</span><span class="s2">"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">per_cpu</span><span class="p">(</span><span class="n">cpu_loops_per_jiffy</span><span class="p">,</span> <span class="n">this_cpu</span><span class="p">))</span> <span class="p">{</span>
+          <span class="o">.</span>
+          <span class="o">.</span>
+          <span class="o">.</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+<li><p><em>Stage and Commit Your Changes:</em> Use standard Git commands to stage
+and commit the changes you just made:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git add calibrate.c
+$ git commit -m "calibrate.c - Added some printk statements"
+</pre></div>
+</div>
+<p>If you do not
+stage and commit your changes, the OpenEmbedded Build System will not
+pick up the changes.</p>
+</li>
+<li><p><em>Update Your local.conf File to Point to Your Source Files:</em> In
+addition to your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file specifying to use
+&quot;kernel-modules&quot; and the &quot;qemux86&quot; machine, it must also point to the
+updated kernel source files. Add
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> and
+<a class="reference internal" href="../ref-manual/variables.html#term-SRCREV"><span class="xref std std-term">SRCREV</span></a> statements similar
+to the following to your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build/conf
+</pre></div>
+</div>
+<p>Add the following to the <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span><span class="p">:</span><span class="n">pn</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">yocto</span> <span class="o">=</span> <span class="s2">"git:///path-to/linux-yocto-4.12;protocol=file;name=machine;branch=standard/base; </span><span class="se">\</span>
+<span class="s2">                          git:///path-to/yocto-kernel-cache;protocol=file;type=kmeta;name=meta;branch=yocto-4.12;destsuffix=$</span><span class="si">{KMETA}</span><span class="s2">"</span>
+<span class="n">SRCREV_meta</span><span class="p">:</span><span class="n">qemux86</span> <span class="o">=</span> <span class="s2">"$</span><span class="si">{AUTOREV}</span><span class="s2">"</span>
+<span class="n">SRCREV_machine</span><span class="p">:</span><span class="n">qemux86</span> <span class="o">=</span> <span class="s2">"$</span><span class="si">{AUTOREV}</span><span class="s2">"</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Be sure to replace <cite>path-to</cite>
+with the pathname to your local Git repositories. Also, you must
+be sure to specify the correct branch and machine types. For this
+example, the branch is <code class="docutils literal notranslate"><span class="pre">standard/base</span></code> and the machine is <code class="docutils literal notranslate"><span class="pre">qemux86</span></code>.</p>
+</div>
+</li>
+<li><p><em>Build the Image:</em> With the source modified, your changes staged and
+committed, and the <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file pointing to the kernel files,
+you can now use BitBake to build the image:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build
+$ bitbake core-image-minimal
+</pre></div>
+</div>
+</li>
+<li><p><em>Boot the image</em>: Boot the modified image in the QEMU emulator using
+this command. When prompted to login to the QEMU console, use &quot;root&quot;
+with no password:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build
+$ runqemu qemux86
+</pre></div>
+</div>
+</li>
+<li><p><em>Look for Your Changes:</em> As QEMU booted, you might have seen your
+changes rapidly scroll by. If not, use these commands to see your
+changes:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># dmesg | less
+</pre></div>
+</div>
+<p>You should see the results of your
+<code class="docutils literal notranslate"><span class="pre">printk</span></code> statements as part of the output when you scroll down the
+console window.</p>
+</li>
+<li><p><em>Generate the Patch File:</em> Once you are sure that your patch works
+correctly, you can generate a <code class="docutils literal notranslate"><span class="pre">*.patch</span></code> file in the kernel source
+repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ~/linux-yocto-4.12/init
+$ git format-patch -1
+0001-calibrate.c-Added-some-printk-statements.patch
+</pre></div>
+</div>
+</li>
+<li><p><em>Move the Patch File to Your Layer:</em> In order for subsequent builds
+to pick up patches, you need to move the patch file you created in
+the previous step to your layer <code class="docutils literal notranslate"><span class="pre">meta-mylayer</span></code>. For this example,
+the layer created earlier is located in your home directory as
+<code class="docutils literal notranslate"><span class="pre">meta-mylayer</span></code>. When the layer was created using the
+<code class="docutils literal notranslate"><span class="pre">yocto-create</span></code> script, no additional hierarchy was created to
+support patches. Before moving the patch file, you need to add
+additional structure to your layer using the following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd ~/meta-mylayer
+$ mkdir -p recipes-kernel recipes-kernel/linux/linux-yocto
+</pre></div>
+</div>
+<p>Once you have created this
+hierarchy in your layer, you can move the patch file using the
+following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ mv ~/linux-yocto-4.12/init/0001-calibrate.c-Added-some-printk-statements.patch ~/meta-mylayer/recipes-kernel/linux/linux-yocto
+</pre></div>
+</div>
+</li>
+<li><p><em>Create the Append File:</em> Finally, you need to create the
+<code class="docutils literal notranslate"><span class="pre">linux-yocto_4.12.bbappend</span></code> file and insert statements that allow
+the OpenEmbedded build system to find the patch. The append file
+needs to be in your layer's <code class="docutils literal notranslate"><span class="pre">recipes-kernel/linux</span></code> directory and it
+must be named <code class="docutils literal notranslate"><span class="pre">linux-yocto_4.12.bbappend</span></code> and have the following
+contents:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FILESEXTRAPATHS</span><span class="p">:</span><span class="n">prepend</span> <span class="o">:=</span> <span class="s2">"$</span><span class="si">{THISDIR}</span><span class="s2">/$</span><span class="si">{PN}</span><span class="s2">:"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://0001-calibrate.c-Added-some-printk-statements.patch"</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a> and <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statements
+enable the OpenEmbedded build system to find the patch file.</p>
+<p>For more information on append files and patches, see the
+&quot;<a class="reference internal" href="#creating-the-append-file"><span class="std std-ref">Creating the Append File</span></a>&quot; and
+&quot;<a class="reference internal" href="#applying-patches"><span class="std std-ref">Applying Patches</span></a>&quot; sections. You can also see the
+&quot;<a class="reference internal" href="../dev-manual/layers.html#appending-other-layers-metadata-with-your-layer"><span class="std std-ref">Appending Other Layers Metadata With Your Layer</span></a>&quot;
+section in the Yocto Project Development Tasks Manual.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>To build <code class="docutils literal notranslate"><span class="pre">core-image-minimal</span></code> again and see the effects of your patch,
+you can essentially eliminate the temporary source files saved in
+<code class="docutils literal notranslate"><span class="pre">bitbake-builds/build/tmp/work/...</span></code> and residual effects of the build by entering
+the following sequence of commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd bitbake-builds/build
+$ bitbake -c cleanall linux-yocto
+$ bitbake core-image-minimal -c cleanall
+$ bitbake core-image-minimal
+$ runqemu qemux86
+</pre></div>
+</div>
+</div>
+</li>
+</ol>
+</section>
+<section id="configuring-the-kernel">
+<h2><span class="section-number">2.6 </span>Configuring the Kernel<a class="headerlink" href="#configuring-the-kernel" title="Link to this heading"></a></h2>
+<p>Configuring the Yocto Project kernel consists of making sure the
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file has all the right information in it for the image you
+are building. You can use the <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> tool and configuration
+fragments to make sure your <code class="docutils literal notranslate"><span class="pre">.config</span></code> file is just how you need it.
+You can also save known configurations in a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file that the
+build system can use for kernel configuration.</p>
+<p>This section describes how to use <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code>, create and use
+configuration fragments, and how to interactively modify your
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file to create the leanest kernel configuration file
+possible.</p>
+<p>For more information on kernel configuration, see the
+&quot;<a class="reference internal" href="#changing-the-configuration"><span class="std std-ref">Changing the Configuration</span></a>&quot; section.</p>
+<section id="using-menuconfig">
+<h3><span class="section-number">2.6.1 </span>Using  <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code><a class="headerlink" href="#using-menuconfig" title="Link to this heading"></a></h3>
+<p>The easiest way to define kernel configurations is to set them through
+the <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> tool. This tool provides an interactive method with
+which to set kernel configurations. For general information on
+<code class="docutils literal notranslate"><span class="pre">menuconfig</span></code>, see <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Menuconfig">https://en.wikipedia.org/wiki/Menuconfig</a>.</p>
+<p>To use the <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> tool in the Yocto Project development
+environment, you must do the following:</p>
+<ul>
+<li><p>Because you launch <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> using BitBake, you must be sure to
+set up your environment by running the <a class="reference internal" href="../ref-manual/structure.html#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a> script
+found in the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>.</p></li>
+<li><p>You must be sure of the state of your build's configuration in the
+<a class="reference internal" href="../ref-manual/terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a>.</p></li>
+<li><p>Your build host must have the following two packages installed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">libncurses5</span><span class="o">-</span><span class="n">dev</span>
+<span class="n">libtinfo</span><span class="o">-</span><span class="n">dev</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>The following commands initialize the BitBake environment, run the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configme"><span class="std std-ref">do_kernel_configme</span></a>
+task, and launch <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code>. These commands assume the Source
+Directory's top-level folder is <code class="docutils literal notranslate"><span class="pre">work</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd work
+$ source layers/openembedded-core/oe-init-build-env
+$ bitbake linux-yocto -c kernel_configme -f
+$ bitbake linux-yocto -c menuconfig
+</pre></div>
+</div>
+<p>Once <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> comes up, its standard
+interface allows you to interactively examine and configure all the
+kernel configuration parameters. After making your changes, simply exit
+the tool and save your changes to create an updated version of the
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> configuration file.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You can use the entire <code class="docutils literal notranslate"><span class="pre">.config</span></code> file as the <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file. For
+information on <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> files, see the
+&quot;<a class="reference internal" href="#changing-the-configuration"><span class="std std-ref">Changing the Configuration</span></a>&quot;,
+&quot;<a class="reference internal" href="#using-an-in-tree-defconfig-file"><span class="std std-ref">Using an &quot;In-Tree&quot;  defconfig File</span></a>&quot;,
+and &quot;<a class="reference internal" href="#creating-a-defconfig-file"><span class="std std-ref">Creating a  defconfig File</span></a>&quot;
+sections.</p>
+</div>
+<p>Consider an example that configures the &quot;CONFIG_SMP&quot; setting for the
+<code class="docutils literal notranslate"><span class="pre">linux-yocto-4.12</span></code> kernel.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The OpenEmbedded build system recognizes this kernel as <code class="docutils literal notranslate"><span class="pre">linux-yocto</span></code>
+through Metadata (e.g. <a class="reference internal" href="../ref-manual/variables.html#term-PREFERRED_VERSION"><span class="xref std std-term">PREFERRED_VERSION</span></a><code class="docutils literal notranslate"><span class="pre">_linux-yocto</span> <span class="pre">?=</span> <span class="pre">&quot;4.12%&quot;</span></code>).</p>
+</div>
+<p>Once <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> launches, use the interface to navigate through the
+selections to find the configuration settings in which you are
+interested. For this example, you deselect &quot;CONFIG_SMP&quot; by clearing the
+&quot;Symmetric Multi-Processing Support&quot; option. Using the interface, you
+can find the option under &quot;Processor Type and Features&quot;. To deselect
+&quot;CONFIG_SMP&quot;, use the arrow keys to highlight &quot;Symmetric
+Multi-Processing Support&quot; and enter &quot;N&quot; to clear the asterisk. When you
+are finished, exit out and save the change.</p>
+<p>Saving the selections updates the <code class="docutils literal notranslate"><span class="pre">.config</span></code> configuration file. This is the
+file that the OpenEmbedded build system uses to configure the kernel during
+the build. You can find and examine this file in the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>
+in <code class="docutils literal notranslate"><span class="pre">tmp/work/</span></code>. The actual <code class="docutils literal notranslate"><span class="pre">.config</span></code> is located in the
+area where the specific kernel is built. For example, if you were
+building a Linux Yocto kernel based on the <code class="docutils literal notranslate"><span class="pre">linux-yocto-4.12</span></code> kernel
+and you were building a QEMU image targeted for <code class="docutils literal notranslate"><span class="pre">x86</span></code> architecture,
+the <code class="docutils literal notranslate"><span class="pre">.config</span></code> file would be:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>bitbake-builds/build/tmp/work/qemux86-poky-linux/linux-yocto/4.12.12+gitAUTOINC+eda4d18...
+...967-r0/linux-qemux86-standard-build/.config
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The previous example directory is artificially split and many of the
+characters in the actual filename are omitted in order to make it
+more readable. Also, depending on the kernel you are using, the exact
+pathname might differ.</p>
+</div>
+<p>Within the <code class="docutils literal notranslate"><span class="pre">.config</span></code> file, you can see the kernel settings. For
+example, the following entry shows that symmetric multi-processor
+support is not set:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># CONFIG_SMP is not set</span>
+</pre></div>
+</div>
+<p>A good method to isolate changed configurations is to use a combination
+of the <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> tool and simple shell commands. Before changing
+configurations with <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code>, copy the existing <code class="docutils literal notranslate"><span class="pre">.config</span></code> and
+rename it to something else, use <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> to make as many changes
+as you want and save them, then compare the renamed configuration file
+against the newly created file. You can use the resulting differences as
+your base to create configuration fragments to permanently save in your
+kernel layer.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Be sure to make a copy of the <code class="docutils literal notranslate"><span class="pre">.config</span></code> file and do not just rename it.
+The build system needs an existing <code class="docutils literal notranslate"><span class="pre">.config</span></code> file from which to work.</p>
+</div>
+</section>
+<section id="creating-a-defconfig-file">
+<h3><span class="section-number">2.6.2 </span>Creating a  <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> File<a class="headerlink" href="#creating-a-defconfig-file" title="Link to this heading"></a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file in the context of the Yocto Project is often a
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file that is copied from a build or a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> taken
+from the kernel tree and moved into recipe space. You can use a
+<code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file to retain a known set of kernel configurations from
+which the OpenEmbedded build system can draw to create the final
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Out-of-the-box, the Yocto Project never ships a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> or <code class="docutils literal notranslate"><span class="pre">.config</span></code>
+file. The OpenEmbedded build system creates the final <code class="docutils literal notranslate"><span class="pre">.config</span></code> file used
+to configure the kernel.</p>
+</div>
+<p>To create a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code>, start with a complete, working Linux kernel
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file. Copy that file to the appropriate
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="../ref-manual/variables.html#term-PN"><span class="xref std std-term">PN</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> directory in
+your layer's <code class="docutils literal notranslate"><span class="pre">recipes-kernel/linux</span></code> directory, and rename the copied
+file to &quot;defconfig&quot; (e.g.
+<code class="docutils literal notranslate"><span class="pre">~/meta-mylayer/recipes-kernel/linux/linux-yocto/defconfig</span></code>). Then,
+add the following lines to the linux-yocto <code class="docutils literal notranslate"><span class="pre">.bbappend</span></code> file in your
+layer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FILESEXTRAPATHS</span><span class="p">:</span><span class="n">prepend</span> <span class="o">:=</span> <span class="s2">"$</span><span class="si">{THISDIR}</span><span class="s2">/$</span><span class="si">{PN}</span><span class="s2">:"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://defconfig"</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> tells the build system how to search for the file, while the
+<a class="reference internal" href="../ref-manual/variables.html#term-FILESEXTRAPATHS"><span class="xref std std-term">FILESEXTRAPATHS</span></a> extends the <a class="reference internal" href="../ref-manual/variables.html#term-FILESPATH"><span class="xref std std-term">FILESPATH</span></a>
+variable (search directories) to include the <code class="docutils literal notranslate"><span class="pre">${PN}</span></code> directory you
+created to hold the configuration changes.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The build system applies the configurations from the <code class="docutils literal notranslate"><span class="pre">defconfig</span></code>
+file before applying any subsequent configuration fragments. The
+final kernel configuration is a combination of the configurations in
+the <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file and any configuration fragments you provide. You need
+to realize that if you have any configuration fragments, the build system
+applies these on top of and after applying the existing <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file
+configurations.</p>
+</div>
+<p>For more information on configuring the kernel, see the
+&quot;<a class="reference internal" href="#changing-the-configuration"><span class="std std-ref">Changing the Configuration</span></a>&quot; section.</p>
+</section>
+<section id="creating-configuration-fragments">
+<h3><span class="section-number">2.6.3 </span>Creating Configuration Fragments<a class="headerlink" href="#creating-configuration-fragments" title="Link to this heading"></a></h3>
+<p>Configuration fragments are simply kernel options that appear in a file
+placed where the OpenEmbedded build system can find and apply them. The
+build system applies configuration fragments after applying
+configurations from a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file. Thus, the final kernel
+configuration is a combination of the configurations in the
+<code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file and then any configuration fragments you provide. The
+build system applies fragments on top of and after applying the existing
+defconfig file configurations.</p>
+<p>Syntactically, the configuration statement is identical to what would
+appear in the <code class="docutils literal notranslate"><span class="pre">.config</span></code> file, which is in the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For more information about where the <code class="docutils literal notranslate"><span class="pre">.config</span></code> file is located, see the
+example in the
+&quot;<a class="reference internal" href="#using-menuconfig"><span class="std std-ref">Using  menuconfig</span></a>&quot;
+section.</p>
+</div>
+<p>It is simple to create a configuration fragment. One method is to use
+shell commands. For example, issuing the following from the shell
+creates a configuration fragment file named <code class="docutils literal notranslate"><span class="pre">my_changes.cfg</span></code> that enables
+multi-processor support within the kernel and disables the FPGA
+Configuration Framework:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ echo "CONFIG_SMP=y" &gt;&gt; my_changes.cfg
+$ echo "# CONFIG_FPGA is not set" &gt;&gt; my_changes.cfg
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>All configuration fragment files must use the <code class="docutils literal notranslate"><span class="pre">.cfg</span></code> extension in order
+for the OpenEmbedded build system to recognize them as a configuration
+fragment.</p>
+</div>
+<p>Another method is to create a configuration fragment using the
+differences between two configuration files: one previously created and
+saved, and one freshly created using the <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> tool.</p>
+<p>To create a configuration fragment using this method, follow these
+steps:</p>
+<ol class="arabic">
+<li><p><em>Complete a Build Through Kernel Configuration:</em> Complete a build at
+least through the kernel configuration task as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c kernel_configme -f
+</pre></div>
+</div>
+<p>This step ensures that you create a
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file from a known state. Because there are situations where
+your build state might become unknown, it is best to run this task
+prior to starting <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code>.</p>
+</li>
+<li><p><em>Launch menuconfig:</em> Run the <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c menuconfig
+</pre></div>
+</div>
+</li>
+<li><p><em>Create the Configuration Fragment:</em> Run the <code class="docutils literal notranslate"><span class="pre">diffconfig</span></code> command
+to prepare a configuration fragment. The resulting file
+<code class="docutils literal notranslate"><span class="pre">fragment.cfg</span></code> is placed in the
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="../ref-manual/variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>
+directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c diffconfig
+</pre></div>
+</div>
+</li>
+</ol>
+<p>The <code class="docutils literal notranslate"><span class="pre">diffconfig</span></code> command creates a file that is a list of Linux kernel
+<code class="docutils literal notranslate"><span class="pre">CONFIG_</span></code> assignments. See the
+&quot;<a class="reference internal" href="#changing-the-configuration"><span class="std std-ref">Changing the Configuration</span></a>&quot; section for additional
+information on how to use the output as a configuration fragment.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You can also use this method to create configuration fragments for a
+BSP. See the &quot;<a class="reference internal" href="advanced.html#bsp-descriptions"><span class="std std-ref">BSP Descriptions</span></a>&quot;
+section for more information.</p>
+</div>
+<p>Where do you put your configuration fragment files? You can place these
+files in an area pointed to by
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> as directed by your
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-bblayers-conf"><span class="std std-ref">build/conf/bblayers.conf</span></a> file, which is located in your layer. The OpenEmbedded
+build system picks up the configuration and adds it to the kernel's
+configuration. For example, suppose you had a set of configuration
+options in a file called <code class="docutils literal notranslate"><span class="pre">myconfig.cfg</span></code>. If you put that file inside a
+directory named <code class="docutils literal notranslate"><span class="pre">linux-yocto</span></code> that resides in the same directory as
+the kernel's append file within your layer and then add the following
+statements to the kernel's append file, those configuration options will
+be picked up and applied when the kernel is built:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FILESEXTRAPATHS</span><span class="p">:</span><span class="n">prepend</span> <span class="o">:=</span> <span class="s2">"$</span><span class="si">{THISDIR}</span><span class="s2">/$</span><span class="si">{PN}</span><span class="s2">:"</span>
+<span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://myconfig.cfg"</span>
+</pre></div>
+</div>
+<p>As mentioned earlier, you can group related configurations into multiple
+files and name them all in the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement as well. For
+example, you could group separate configurations specifically for
+Ethernet and graphics into their own files and add those by using a
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement like the following in your append file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://myconfig.cfg </span><span class="se">\</span>
+<span class="s2">            file://eth.cfg </span><span class="se">\</span>
+<span class="s2">            file://gfx.cfg"</span>
+</pre></div>
+</div>
+</section>
+<section id="validating-configuration">
+<h3><span class="section-number">2.6.4 </span>Validating Configuration<a class="headerlink" href="#validating-configuration" title="Link to this heading"></a></h3>
+<p>You can use the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a>
+task to provide configuration validation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c kernel_configcheck -f
+</pre></div>
+</div>
+<p>Running this task produces warnings for when a
+requested configuration does not appear in the final <code class="docutils literal notranslate"><span class="pre">.config</span></code> file or
+when you override a policy configuration in a hardware configuration
+fragment.</p>
+<p>In order to run this task, you must have an existing <code class="docutils literal notranslate"><span class="pre">.config</span></code> file.
+See the &quot;<a class="reference internal" href="#using-menuconfig"><span class="std std-ref">Using  menuconfig</span></a>&quot; section for
+information on how to create a configuration file.</p>
+<p>Here is sample output from the <a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a> task:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Loading cache: 100% |########################################################| Time: 0:00:00
+Loaded 1275 entries from dependency cache.
+NOTE: Resolving any missing task queue dependencies
+
+Build Configuration:
+    .
+    .
+    .
+
+NOTE: Executing SetScene Tasks
+NOTE: Executing RunQueue Tasks
+WARNING: linux-yocto-4.12.12+gitAUTOINC+eda4d18ce4_16de014967-r0 do_kernel_configcheck:
+    [kernel config]: specified values did not make it into the kernel's final configuration:
+
+---------- CONFIG_X86_TSC -----------------
+Config: CONFIG_X86_TSC
+From: /home/scottrif/bitbake-builds/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/bsp/common-pc/common-pc-cpu.cfg
+Requested value:  CONFIG_X86_TSC=y
+Actual value:
+
+
+---------- CONFIG_X86_BIGSMP -----------------
+Config: CONFIG_X86_BIGSMP
+From: /home/scottrif/bitbake-builds/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/cfg/smp.cfg
+      /home/scottrif/bitbake-builds/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/defconfig
+Requested value:  # CONFIG_X86_BIGSMP is not set
+Actual value:
+
+
+---------- CONFIG_NR_CPUS -----------------
+Config: CONFIG_NR_CPUS
+From: /home/scottrif/bitbake-builds/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/cfg/smp.cfg
+      /home/scottrif/bitbake-builds/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/bsp/common-pc/common-pc.cfg
+      /home/scottrif/bitbake-builds/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/defconfig
+Requested value:  CONFIG_NR_CPUS=8
+Actual value:     CONFIG_NR_CPUS=1
+
+
+---------- CONFIG_SCHED_SMT -----------------
+Config: CONFIG_SCHED_SMT
+From: /home/scottrif/bitbake-builds/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/cfg/smp.cfg
+      /home/scottrif/bitbake-builds/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/defconfig
+Requested value:  CONFIG_SCHED_SMT=y
+Actual value:
+
+
+
+NOTE: Tasks Summary: Attempted 288 tasks of which 285 didn't need to be rerun and all succeeded.
+
+Summary: There were 3 WARNING messages shown.
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The previous output example has artificial line breaks to make it
+more readable.</p>
+</div>
+<p>The output describes the various problems that you can encounter along
+with where to find the offending configuration items. You can use the
+information in the logs to adjust your configuration files and then
+repeat the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configme"><span class="std std-ref">do_kernel_configme</span></a>
+and
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a>
+tasks until they produce no warnings.</p>
+<p>For more information on how to use the <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code> tool, see the
+<a class="reference internal" href="#using-menuconfig"><span class="std std-ref">Using  menuconfig</span></a> section.</p>
+</section>
+<section id="fine-tuning-the-kernel-configuration-file">
+<h3><span class="section-number">2.6.5 </span>Fine-Tuning the Kernel Configuration File<a class="headerlink" href="#fine-tuning-the-kernel-configuration-file" title="Link to this heading"></a></h3>
+<p>You can make sure the <code class="docutils literal notranslate"><span class="pre">.config</span></code> file is as lean or efficient as
+possible by reading the output of the kernel configuration fragment
+audit, noting any issues, making changes to correct the issues, and then
+repeating.</p>
+<p>As part of the kernel build process, the <a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a> task
+runs. This task validates the kernel configuration by checking the final
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file against the input files. During the check, the task
+produces warning messages for the following issues:</p>
+<ul class="simple">
+<li><p>Requested options that did not make it into the final <code class="docutils literal notranslate"><span class="pre">.config</span></code> file.</p></li>
+<li><p>Configuration items that appear twice in the same configuration
+fragment.</p></li>
+<li><p>Configuration items tagged as &quot;required&quot; that were overridden.</p></li>
+<li><p>A board overrides a non-board specific option.</p></li>
+<li><p>Listed options not valid for the kernel being processed. In other
+words, the option does not appear anywhere.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The <a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a> task can also optionally report if
+an option is overridden during processing.</p>
+</div>
+<p>For each output warning, a message points to the file that contains a
+list of the options and a pointer to the configuration fragment that
+defines them. Collectively, the files are the key to streamlining the
+configuration.</p>
+<p>To streamline the configuration, do the following:</p>
+<ol class="arabic">
+<li><p><em>Use a Working Configuration:</em> Start with a full configuration that
+you know works. Be sure the configuration builds and boots
+successfully. Use this configuration file as your baseline.</p></li>
+<li><p><em>Run Configure and Check Tasks:</em> Separately run the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configme"><span class="std std-ref">do_kernel_configme</span></a> and <a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a> tasks:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c kernel_configme -f
+$ bitbake linux-yocto -c kernel_configcheck -f
+</pre></div>
+</div>
+</li>
+<li><p><em>Process the Results:</em> Take the resulting list of files from the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a> task warnings and do the following:</p>
+<ul class="simple">
+<li><p>Drop values that are redefined in the fragment but do not change
+the final <code class="docutils literal notranslate"><span class="pre">.config</span></code> file.</p></li>
+<li><p>Analyze and potentially drop values from the <code class="docutils literal notranslate"><span class="pre">.config</span></code> file that
+override required configurations.</p></li>
+<li><p>Analyze and potentially remove non-board specific options.</p></li>
+<li><p>Remove repeated and invalid options.</p></li>
+</ul>
+</li>
+<li><p><em>Re-Run Configure and Check Tasks:</em> After you have worked through the
+output of the kernel configuration audit, you can re-run the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configme"><span class="std std-ref">do_kernel_configme</span></a> and <a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a> tasks to see the
+results of your changes. If you have more issues, you can deal with
+them as described in the previous step.</p></li>
+</ol>
+<p>Iteratively working through steps two through four eventually yields a
+minimal, streamlined configuration file. Once you have the best
+<code class="docutils literal notranslate"><span class="pre">.config</span></code>, you can build the Linux Yocto kernel.</p>
+</section>
+</section>
+<section id="expanding-variables">
+<h2><span class="section-number">2.7 </span>Expanding Variables<a class="headerlink" href="#expanding-variables" title="Link to this heading"></a></h2>
+<p>Sometimes it is helpful to determine what a variable expands to during a
+build. You can examine the value of a variable by running the <code class="docutils literal notranslate"><span class="pre">bitbake-getvar</span></code>
+command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake-getvar -r virtual/kernel VARIABLE
+</pre></div>
+</div>
+<p>The output of the command explains exactly how the variable is expanded and used
+by the <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded Build System</span></a>.</p>
+</section>
+<section id="working-with-a-dirty-kernel-version-string">
+<h2><span class="section-number">2.8 </span>Working with a &quot;Dirty&quot; Kernel Version String<a class="headerlink" href="#working-with-a-dirty-kernel-version-string" title="Link to this heading"></a></h2>
+<p>If you build a kernel image and the version string has a &quot;+&quot; or a
+&quot;-dirty&quot; at the end, it means there are uncommitted modifications in the kernel's
+source directory. Follow these steps to clean up the version string:</p>
+<ol class="arabic">
+<li><p><em>Discover the Uncommitted Changes:</em> Go to the kernel's locally cloned
+Git repository (source directory) and use the following Git command
+to list the files that have been changed, added, or removed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git status
+</pre></div>
+</div>
+</li>
+<li><p><em>Commit the Changes:</em> You should commit those changes to the kernel
+source tree regardless of whether or not you will save, export, or
+use the changes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git add
+$ git commit -s -a -m "getting rid of -dirty"
+</pre></div>
+</div>
+</li>
+<li><p><em>Rebuild the Kernel Image:</em> Once you commit the changes, rebuild the
+kernel.</p>
+<p>Depending on your particular kernel development workflow, the
+commands you use to rebuild the kernel might differ. For information
+on building the kernel image when using <code class="docutils literal notranslate"><span class="pre">devtool</span></code>, see the
+&quot;<a class="reference internal" href="#using-devtool-to-patch-the-kernel"><span class="std std-ref">Using devtool to Patch the Kernel</span></a>&quot;
+section. For
+information on building the kernel image when using BitBake, see the
+&quot;<a class="reference internal" href="#using-traditional-kernel-development-to-patch-the-kernel"><span class="std std-ref">Using Traditional Kernel Development to Patch the Kernel</span></a>&quot;
+section.</p>
+</li>
+</ol>
+</section>
+<section id="working-with-your-own-sources">
+<h2><span class="section-number">2.9 </span>Working With Your Own Sources<a class="headerlink" href="#working-with-your-own-sources" title="Link to this heading"></a></h2>
+<p>If you cannot work with one of the Linux kernel versions supported by
+existing linux-yocto recipes, you can still make use of the Yocto
+Project Linux kernel tooling by working with your own sources. When you
+use your own sources, you will not be able to leverage the existing
+kernel <a class="reference internal" href="../ref-manual/terms.html#term-Metadata"><span class="xref std std-term">Metadata</span></a> and stabilization
+work of the linux-yocto sources. However, you will be able to manage
+your own Metadata in the same format as the linux-yocto sources.
+Maintaining format compatibility facilitates converging with linux-yocto
+on a future, mutually-supported kernel version.</p>
+<p>To help you use your own sources, the Yocto Project provides a
+<a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/tree/meta-skeleton/recipes-kernel/linux/linux-yocto-custom.bb">linux-yocto custom recipe</a>
+that uses <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code> sources and the Yocto Project Linux kernel tools for
+managing kernel Metadata.</p>
+<p>Here are some basic steps you can use to work with your own sources:</p>
+<ol class="arabic">
+<li><p><em>Create a Copy of the Kernel Recipe:</em> Copy the
+<code class="docutils literal notranslate"><span class="pre">linux-yocto-custom.bb</span></code> recipe to your layer and give it a
+meaningful name. The name should include the version of the Yocto
+Linux kernel you are using (e.g. <code class="docutils literal notranslate"><span class="pre">linux-yocto-myproject_4.12.bb</span></code>,
+where &quot;4.12&quot; is the base version of the Linux kernel with which you
+would be working).</p></li>
+<li><p><em>Create a Directory for Your Patches:</em> In the same directory inside
+your layer, create a matching directory to store your patches and
+configuration files (e.g. <code class="docutils literal notranslate"><span class="pre">linux-yocto-myproject</span></code>).</p></li>
+<li><p><em>Ensure You Have Configurations:</em> Make sure you have either a
+<code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file or configuration fragment files in your layer.
+When you use the <code class="docutils literal notranslate"><span class="pre">linux-yocto-custom.bb</span></code> recipe, you must specify a
+configuration. If you do not have a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file, you can run
+the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ make defconfig
+</pre></div>
+</div>
+<p>After running the command, copy the
+resulting <code class="docutils literal notranslate"><span class="pre">.config</span></code> file to the <code class="docutils literal notranslate"><span class="pre">files</span></code> directory in your layer
+as &quot;defconfig&quot; and then add it to the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> variable in the
+recipe.</p>
+<p>Running the <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">defconfig</span></code> command results in the default
+configuration for your architecture as defined by your kernel.
+However, there is no guarantee that this configuration is valid for
+your use case, or that your board will even boot. This is
+particularly true for non-x86 architectures.</p>
+<p>To use non-x86 <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> files, you need to be more specific and
+find one that matches your board (i.e. for arm, you look in
+<code class="docutils literal notranslate"><span class="pre">arch/arm/configs</span></code> and use the one that is the best starting point
+for your board).</p>
+</li>
+<li><p><em>Edit the Recipe:</em> Edit the following variables in your recipe as
+appropriate for your project:</p>
+<ul>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>: The
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> should specify a Git repository that uses one of the
+supported Git fetcher protocols (i.e. <code class="docutils literal notranslate"><span class="pre">file</span></code>, <code class="docutils literal notranslate"><span class="pre">git</span></code>, <code class="docutils literal notranslate"><span class="pre">http</span></code>,
+and so forth). The <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> variable should also specify either
+a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file or some configuration fragment files. The
+skeleton recipe provides an example <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> as a syntax
+reference.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-LINUX_VERSION"><span class="xref std std-term">LINUX_VERSION</span></a>:
+The Linux kernel version you are using (e.g. &quot;4.12&quot;).</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-LINUX_VERSION_EXTENSION"><span class="xref std std-term">LINUX_VERSION_EXTENSION</span></a>:
+The Linux kernel <code class="docutils literal notranslate"><span class="pre">CONFIG_LOCALVERSION</span></code> that is compiled into the
+resulting kernel and visible through the <code class="docutils literal notranslate"><span class="pre">uname</span></code> command.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-SRCREV"><span class="xref std std-term">SRCREV</span></a>: The commit ID
+from which you want to build.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-PR"><span class="xref std std-term">PR</span></a>: Treat this variable the
+same as you would in any other recipe. Increment the variable to
+indicate to the OpenEmbedded build system that the recipe has
+changed.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-PV"><span class="xref std std-term">PV</span></a>: The default <a class="reference internal" href="../ref-manual/variables.html#term-PV"><span class="xref std std-term">PV</span></a>
+assignment is typically adequate. It combines the value of
+<a class="reference internal" href="../ref-manual/variables.html#term-LINUX_VERSION"><span class="xref std std-term">LINUX_VERSION</span></a> and the value <code class="docutils literal notranslate"><span class="pre">+git</span></code> which adds source control
+information to <a class="reference internal" href="../ref-manual/variables.html#term-PKGV"><span class="xref std std-term">PKGV</span></a> later during the packaging phase.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-COMPATIBLE_MACHINE"><span class="xref std std-term">COMPATIBLE_MACHINE</span></a>:
+A list of the machines supported by your new recipe. This variable
+in the example recipe is set by default to a regular expression
+that matches only the empty string, &quot;(^$)&quot;. This default setting
+triggers an explicit build failure. You must change it to match a
+list of the machines that your new recipe supports. For example,
+to support the <code class="docutils literal notranslate"><span class="pre">qemux86</span></code> and <code class="docutils literal notranslate"><span class="pre">qemux86-64</span></code> machines, use the
+following form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">COMPATIBLE_MACHINE</span> <span class="o">=</span> <span class="s2">"qemux86|qemux86-64"</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><em>Customize Your Recipe as Needed:</em> Provide further customizations to
+your recipe as needed just as you would customize an existing
+linux-yocto recipe. See the
+&quot;<a class="reference internal" href="../ref-manual/devtool-reference.html#modifying-an-existing-recipe"><span class="std std-ref">Modifying an Existing Recipe</span></a>&quot; section
+for information.</p></li>
+</ol>
+</section>
+<section id="working-with-out-of-tree-modules">
+<h2><span class="section-number">2.10 </span>Working with Out-of-Tree Modules<a class="headerlink" href="#working-with-out-of-tree-modules" title="Link to this heading"></a></h2>
+<p>This section describes steps to build out-of-tree modules on your target
+and describes how to incorporate out-of-tree modules in the build.</p>
+<section id="building-out-of-tree-modules-on-the-target">
+<h3><span class="section-number">2.10.1 </span>Building Out-of-Tree Modules on the Target<a class="headerlink" href="#building-out-of-tree-modules-on-the-target" title="Link to this heading"></a></h3>
+<p>While the traditional Yocto Project development model would be to
+include kernel modules as part of the normal build process, you might
+find it useful to build modules on the target. This could be the case if
+your target system is capable and powerful enough to handle the
+necessary compilation. Before deciding to build on your target, however,
+you should consider the benefits of using a proper cross-development
+environment from your build host.</p>
+<p>If you want to be able to build out-of-tree modules on the target, there
+are some steps you need to take on the target that is running your SDK
+image. Briefly, the <code class="docutils literal notranslate"><span class="pre">kernel-dev</span></code> package is installed by default on
+all <code class="docutils literal notranslate"><span class="pre">*.sdk</span></code> images and the <code class="docutils literal notranslate"><span class="pre">kernel-devsrc</span></code> package is installed on
+many of the <code class="docutils literal notranslate"><span class="pre">*.sdk</span></code> images. However, you need to create some scripts
+prior to attempting to build the out-of-tree modules on the target that
+is running that image.</p>
+<p>Prior to attempting to build the out-of-tree modules, you need to be on
+the target as root and you need to change to the <code class="docutils literal notranslate"><span class="pre">/usr/src/kernel</span></code>
+directory. Next, <code class="docutils literal notranslate"><span class="pre">make</span></code> the scripts:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># cd /usr/src/kernel
+# make scripts
+</pre></div>
+</div>
+<p>Because all SDK image recipes include <code class="docutils literal notranslate"><span class="pre">dev-pkgs</span></code>, the
+<code class="docutils literal notranslate"><span class="pre">kernel-dev</span></code> packages will be installed as part of the SDK image and
+the <code class="docutils literal notranslate"><span class="pre">kernel-devsrc</span></code> packages will be installed as part of applicable
+SDK images. The SDK uses the scripts when building out-of-tree modules.
+Once you have switched to that directory and created the scripts, you
+should be able to build your out-of-tree modules on the target.</p>
+</section>
+<section id="incorporating-out-of-tree-modules">
+<h3><span class="section-number">2.10.2 </span>Incorporating Out-of-Tree Modules<a class="headerlink" href="#incorporating-out-of-tree-modules" title="Link to this heading"></a></h3>
+<p>While it is always preferable to work with sources integrated into the
+Linux kernel sources, if you need an external kernel module, the
+<a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/tree/meta-skeleton/recipes-kernel/hello-mod/">hello-mod</a>
+recipe is available as a template from which you can create your own out-of-tree
+Linux kernel module recipe.</p>
+<p>To get started, copy this recipe to your layer and give it a meaningful
+name (e.g. <code class="docutils literal notranslate"><span class="pre">mymodule_1.0.bb</span></code>). In the same directory, create a new
+directory named <code class="docutils literal notranslate"><span class="pre">files</span></code> where you can store any source files, patches,
+or other files necessary for building the module that do not come with
+the sources. Finally, update the recipe as needed for the module.
+Typically, you will need to set the following variables:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-DESCRIPTION"><span class="xref std std-term">DESCRIPTION</span></a></p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-LICENSE"><span class="xref std std-term">LICENSE*</span></a></p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a></p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-PV"><span class="xref std std-term">PV</span></a></p></li>
+</ul>
+<p>Depending on the build system used by the module sources, you might need
+to make some adjustments. For example, a typical module <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>
+looks much like the one provided with the <code class="docutils literal notranslate"><span class="pre">hello-mod</span></code> template:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>obj-m := hello.o
+
+SRC := $(shell pwd)
+
+all:
+     $(MAKE) -C $(KERNEL_SRC) M=$(SRC)
+
+modules_install:
+     $(MAKE) -C $(KERNEL_SRC) M=$(SRC) modules_install
+...
+</pre></div>
+</div>
+<p>The important point to note here is the <a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_SRC"><span class="xref std std-term">KERNEL_SRC</span></a> variable. The
+<a class="reference internal" href="../ref-manual/classes.html#ref-classes-module"><span class="std std-ref">module</span></a> class sets this variable and the <a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_PATH"><span class="xref std std-term">KERNEL_PATH</span></a>
+variable to <code class="docutils literal notranslate"><span class="pre">${STAGING_KERNEL_DIR}</span></code> with the necessary Linux kernel build
+information to build modules. If your module <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> uses a different
+variable, you might want to override the <a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-compile"><span class="std std-ref">do_compile</span></a> step, or
+create a patch to the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> to work with the more typical
+<a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_SRC"><span class="xref std std-term">KERNEL_SRC</span></a> or <a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_PATH"><span class="xref std std-term">KERNEL_PATH</span></a> variables.</p>
+<p>After you have prepared your recipe, you will likely want to include the
+module in your images. To do this, see the documentation for the
+following variables in the Yocto Project Reference Manual and set one of
+them appropriately for your machine configuration file:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-MACHINE_ESSENTIAL_EXTRA_RDEPENDS"><span class="xref std std-term">MACHINE_ESSENTIAL_EXTRA_RDEPENDS</span></a></p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS"><span class="xref std std-term">MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS</span></a></p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-MACHINE_EXTRA_RDEPENDS"><span class="xref std std-term">MACHINE_EXTRA_RDEPENDS</span></a></p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-MACHINE_EXTRA_RRECOMMENDS"><span class="xref std std-term">MACHINE_EXTRA_RRECOMMENDS</span></a></p></li>
+</ul>
+<p>Modules are often not required for boot and can be excluded from certain
+build configurations. The following allows for the most flexibility:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">MACHINE_EXTRA_RRECOMMENDS</span> <span class="o">+=</span> <span class="s2">"kernel-module-mymodule"</span>
+</pre></div>
+</div>
+<p>The value is
+derived by appending the module filename without the <code class="docutils literal notranslate"><span class="pre">.ko</span></code> extension
+to the string &quot;kernel-module-&quot;.</p>
+<p>Because the variable is
+<a class="reference internal" href="../ref-manual/variables.html#term-RRECOMMENDS"><span class="xref std std-term">RRECOMMENDS</span></a> and not a
+<a class="reference internal" href="../ref-manual/variables.html#term-RDEPENDS"><span class="xref std std-term">RDEPENDS</span></a> variable, the build
+will not fail if this module is not available to include in the image.</p>
+</section>
+</section>
+<section id="inspecting-changes-and-commits">
+<h2><span class="section-number">2.11 </span>Inspecting Changes and Commits<a class="headerlink" href="#inspecting-changes-and-commits" title="Link to this heading"></a></h2>
+<p>A common question when working with a kernel is: &quot;What changes have been
+applied to this tree?&quot; Rather than using &quot;grep&quot; across directories to
+see what has changed, you can use Git to inspect or search the kernel
+tree. Using Git is an efficient way to see what has changed in the tree.</p>
+<section id="what-changed-in-a-kernel">
+<h3><span class="section-number">2.11.1 </span>What Changed in a Kernel?<a class="headerlink" href="#what-changed-in-a-kernel" title="Link to this heading"></a></h3>
+<p>Here are a few examples that show how to use Git commands to
+examine changes. These examples are by no means the only way to see
+changes.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>In the following examples, unless you provide a commit range, <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code>
+history is blended with Yocto Project kernel changes. You can form
+ranges by using branch names from the kernel tree as the upper and
+lower commit markers with the Git commands. You can see the branch
+names through the web interface to the Yocto Project source
+repositories at <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/">https://git.yoctoproject.org/</a>.</p>
+</div>
+<p>To see a full range of the changes, use the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">whatchanged</span></code> command
+and specify a commit range for the branch (<cite>commit</cite><code class="docutils literal notranslate"><span class="pre">..</span></code><cite>commit</cite>).</p>
+<p>Here is an example that looks at what has changed in the <code class="docutils literal notranslate"><span class="pre">emenlow</span></code>
+branch of the <code class="docutils literal notranslate"><span class="pre">linux-yocto-3.19</span></code> kernel. The lower commit range is the
+commit associated with the <code class="docutils literal notranslate"><span class="pre">standard/base</span></code> branch, while the upper
+commit range is the commit associated with the <code class="docutils literal notranslate"><span class="pre">standard/emenlow</span></code>
+branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git whatchanged origin/standard/base..origin/standard/emenlow
+</pre></div>
+</div>
+<p>To see short, one line summaries of changes use the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">log</span></code> command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git log --oneline origin/standard/base..origin/standard/emenlow
+</pre></div>
+</div>
+<p>Use this command to see code differences for the changes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git diff origin/standard/base..origin/standard/emenlow
+</pre></div>
+</div>
+<p>Use this command to see the commit log messages and the text
+differences:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git show origin/standard/base..origin/standard/emenlow
+</pre></div>
+</div>
+<p>Use this command to create individual patches for each change. Here is
+an example that creates patch files for each commit and places them
+in your <code class="docutils literal notranslate"><span class="pre">Documents</span></code> directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git format-patch -o $HOME/Documents origin/standard/base..origin/standard/emenlow
+</pre></div>
+</div>
+</section>
+<section id="showing-a-particular-feature-or-branch-change">
+<h3><span class="section-number">2.11.2 </span>Showing a Particular Feature or Branch Change<a class="headerlink" href="#showing-a-particular-feature-or-branch-change" title="Link to this heading"></a></h3>
+<p>Tags in the Yocto Project kernel tree divide changes for significant
+features or branches. The <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">show</span></code> tag command shows changes based
+on a tag. Here is an example that shows <code class="docutils literal notranslate"><span class="pre">systemtap</span></code> changes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git show systemtap
+</pre></div>
+</div>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">branch</span> <span class="pre">--contains</span></code> tag command to
+show the branches that contain a particular feature. This command shows
+the branches that contain the <code class="docutils literal notranslate"><span class="pre">systemtap</span></code> feature:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git branch --contains systemtap
+</pre></div>
+</div>
+</section>
+</section>
+<section id="adding-recipe-space-kernel-features">
+<h2><span class="section-number">2.12 </span>Adding Recipe-Space Kernel Features<a class="headerlink" href="#adding-recipe-space-kernel-features" title="Link to this heading"></a></h2>
+<p>You can add kernel features in the
+<a class="reference internal" href="advanced.html#recipe-space-metadata"><span class="std std-ref">recipe-space</span></a>
+by using the <a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_FEATURES"><span class="xref std std-term">KERNEL_FEATURES</span></a>
+variable and by specifying the feature's <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file path in the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement. When you
+add features using this method, the OpenEmbedded build system checks to
+be sure the features are present. If the features are not present, the
+build stops. Kernel features are the last elements processed for
+configuring and patching the kernel. Therefore, adding features in this
+manner is a way to enforce specific features are present and enabled
+without needing to do a full audit of any other layer's additions to the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement.</p>
+<p>You add a kernel feature by providing the feature as part of the
+<a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_FEATURES"><span class="xref std std-term">KERNEL_FEATURES</span></a> variable and by providing the path to the feature's
+<code class="docutils literal notranslate"><span class="pre">.scc</span></code> file, which is relative to the root of the kernel Metadata. The
+OpenEmbedded build system searches all forms of kernel Metadata on the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement regardless of whether the Metadata is in the
+&quot;kernel-cache&quot;, system kernel Metadata, or a recipe-space Metadata (i.e.
+part of the kernel recipe). See the
+&quot;<a class="reference internal" href="advanced.html#kernel-metadata-location"><span class="std std-ref">Kernel Metadata Location</span></a>&quot; section for
+additional information.</p>
+<p>When you specify the feature's <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file on the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>
+statement, the OpenEmbedded build system adds the directory of that
+<code class="docutils literal notranslate"><span class="pre">.scc</span></code> file along with all its subdirectories to the kernel feature
+search path. Because subdirectories are searched, you can reference a
+single <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file in the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement to reference multiple
+kernel features.</p>
+<p>Consider the following example that adds the &quot;test.scc&quot; feature to the
+build.</p>
+<ol class="arabic">
+<li><p><em>Create the Feature File:</em> Create a <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file and locate it just
+as you would any other patch file, <code class="docutils literal notranslate"><span class="pre">.cfg</span></code> file, or fetcher item you
+specify in the <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<ul class="simple">
+<li><p>You must add the directory of the <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file to the
+fetcher's search path in the same manner as you would add a
+<code class="docutils literal notranslate"><span class="pre">.patch</span></code> file.</p></li>
+<li><p>You can create additional <code class="docutils literal notranslate"><span class="pre">.scc</span></code> files beneath the directory
+that contains the file you are adding. All subdirectories are
+searched during the build as potential feature directories.</p></li>
+</ul>
+</div>
+<p>Continuing with the example, suppose the &quot;test.scc&quot; feature you are
+adding has a <code class="docutils literal notranslate"><span class="pre">test.scc</span></code> file in the following directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_recipe</span>
+<span class="o">|</span>
+<span class="o">+-</span><span class="n">linux</span><span class="o">-</span><span class="n">yocto</span>
+   <span class="o">|</span>
+   <span class="o">+-</span><span class="n">test</span><span class="o">.</span><span class="n">cfg</span>
+   <span class="o">+-</span><span class="n">test</span><span class="o">.</span><span class="n">scc</span>
+</pre></div>
+</div>
+<p>In this example, the
+<code class="docutils literal notranslate"><span class="pre">linux-yocto</span></code> directory has both the feature <code class="docutils literal notranslate"><span class="pre">test.scc</span></code> file and
+a similarly named configuration fragment file <code class="docutils literal notranslate"><span class="pre">test.cfg</span></code>.</p>
+</li>
+<li><p><em>Add the Feature File to SRC_URI:</em> Add the <code class="docutils literal notranslate"><span class="pre">.scc</span></code> file to the
+recipe's <a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">+=</span> <span class="s2">"file://test.scc"</span>
+</pre></div>
+</div>
+<p>The leading space before the path is important as the path is
+appended to the existing path.</p>
+</li>
+<li><p><em>Specify the Feature as a Kernel Feature:</em> Use the
+<a class="reference internal" href="../ref-manual/variables.html#term-KERNEL_FEATURES"><span class="xref std std-term">KERNEL_FEATURES</span></a> statement to specify the feature as a kernel
+feature:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">KERNEL_FEATURES</span> <span class="o">+=</span> <span class="s2">"test.scc"</span>
+</pre></div>
+</div>
+<p>The OpenEmbedded build
+system processes the kernel feature when it builds the kernel.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>If other features are contained below &quot;test.scc&quot;, then their
+directories are relative to the directory containing the <code class="docutils literal notranslate"><span class="pre">test.scc</span></code>
+file.</p>
+</div>
+</li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

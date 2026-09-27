@@ -1,0 +1,924 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7 I Task &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="8 Using Configuration Fragments" href="fragments.html" />
+    <link rel="prev" title="6 Classi" href="classes.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Riferimento</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="system-requirements.html">1 Requisiti di Sistema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yocto-project-supported-features.html">2 Architetture e Funzionalità Supportate da Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terms.html">3 Terminologia di Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release-process.html">4 Rilasci di Yocto Project e Iter dei Rilasci Stabili</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">5 Source Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html">6 Classi</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">7 I Task</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#normal-recipe-build-tasks">7.1 Normal Recipe Build Tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#do-build">7.1.1 <code class="docutils literal notranslate"><span class="pre">do_build</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-compile">7.1.2 <code class="docutils literal notranslate"><span class="pre">do_compile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-compile-ptest-base">7.1.3 <code class="docutils literal notranslate"><span class="pre">do_compile_ptest_base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-configure">7.1.4 <code class="docutils literal notranslate"><span class="pre">do_configure</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-configure-ptest-base">7.1.5 <code class="docutils literal notranslate"><span class="pre">do_configure_ptest_base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-deploy">7.1.6 <code class="docutils literal notranslate"><span class="pre">do_deploy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-fetch">7.1.7 <code class="docutils literal notranslate"><span class="pre">do_fetch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-image">7.1.8 <code class="docutils literal notranslate"><span class="pre">do_image</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-image-complete">7.1.9 <code class="docutils literal notranslate"><span class="pre">do_image_complete</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-install">7.1.10 <code class="docutils literal notranslate"><span class="pre">do_install</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-install-ptest-base">7.1.11 <code class="docutils literal notranslate"><span class="pre">do_install_ptest_base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-package">7.1.12 <code class="docutils literal notranslate"><span class="pre">do_package</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-package-qa">7.1.13 <code class="docutils literal notranslate"><span class="pre">do_package_qa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-package-write-deb">7.1.14 <code class="docutils literal notranslate"><span class="pre">do_package_write_deb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-package-write-ipk">7.1.15 <code class="docutils literal notranslate"><span class="pre">do_package_write_ipk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-package-write-rpm">7.1.16 <code class="docutils literal notranslate"><span class="pre">do_package_write_rpm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-packagedata">7.1.17 <code class="docutils literal notranslate"><span class="pre">do_packagedata</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-patch">7.1.18 <code class="docutils literal notranslate"><span class="pre">do_patch</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-populate-lic">7.1.19 <code class="docutils literal notranslate"><span class="pre">do_populate_lic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-populate-sdk">7.1.20 <code class="docutils literal notranslate"><span class="pre">do_populate_sdk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-populate-sdk-ext">7.1.21 <code class="docutils literal notranslate"><span class="pre">do_populate_sdk_ext</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-populate-sysroot">7.1.22 <code class="docutils literal notranslate"><span class="pre">do_populate_sysroot</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-prepare-recipe-sysroot">7.1.23 <code class="docutils literal notranslate"><span class="pre">do_prepare_recipe_sysroot</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-recipe-qa">7.1.24 <code class="docutils literal notranslate"><span class="pre">do_recipe_qa</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-rm-work">7.1.25 <code class="docutils literal notranslate"><span class="pre">do_rm_work</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-unpack">7.1.26 <code class="docutils literal notranslate"><span class="pre">do_unpack</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#manually-called-tasks">7.2 Manually Called Tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#do-checkuri">7.2.1 <code class="docutils literal notranslate"><span class="pre">do_checkuri</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-clean">7.2.2 <code class="docutils literal notranslate"><span class="pre">do_clean</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-cleanall">7.2.3 <code class="docutils literal notranslate"><span class="pre">do_cleanall</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-cleansstate">7.2.4 <code class="docutils literal notranslate"><span class="pre">do_cleansstate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-pydevshell">7.2.5 <code class="docutils literal notranslate"><span class="pre">do_pydevshell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-devshell">7.2.6 <code class="docutils literal notranslate"><span class="pre">do_devshell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-list-image-features">7.2.7 <code class="docutils literal notranslate"><span class="pre">do_list_image_features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-listtasks">7.2.8 <code class="docutils literal notranslate"><span class="pre">do_listtasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-package-index">7.2.9 <code class="docutils literal notranslate"><span class="pre">do_package_index</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#image-related-tasks">7.3 Image-Related Tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#do-bootimg">7.3.1 <code class="docutils literal notranslate"><span class="pre">do_bootimg</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-bundle-initramfs">7.3.2 <code class="docutils literal notranslate"><span class="pre">do_bundle_initramfs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-rootfs">7.3.3 <code class="docutils literal notranslate"><span class="pre">do_rootfs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-testimage">7.3.4 <code class="docutils literal notranslate"><span class="pre">do_testimage</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-testimage-auto">7.3.5 <code class="docutils literal notranslate"><span class="pre">do_testimage_auto</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#kernel-related-tasks">7.4 Kernel-Related Tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#do-compile-kernelmodules">7.4.1 <code class="docutils literal notranslate"><span class="pre">do_compile_kernelmodules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-diffconfig">7.4.2 <code class="docutils literal notranslate"><span class="pre">do_diffconfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-kernel-checkout">7.4.3 <code class="docutils literal notranslate"><span class="pre">do_kernel_checkout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-kernel-configcheck">7.4.4 <code class="docutils literal notranslate"><span class="pre">do_kernel_configcheck</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-kernel-configme">7.4.5 <code class="docutils literal notranslate"><span class="pre">do_kernel_configme</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-kernel-metadata">7.4.6 <code class="docutils literal notranslate"><span class="pre">do_kernel_metadata</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-menuconfig">7.4.7 <code class="docutils literal notranslate"><span class="pre">do_menuconfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-savedefconfig">7.4.8 <code class="docutils literal notranslate"><span class="pre">do_savedefconfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-shared-workdir">7.4.9 <code class="docutils literal notranslate"><span class="pre">do_shared_workdir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-sizecheck">7.4.10 <code class="docutils literal notranslate"><span class="pre">do_sizecheck</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-strip">7.4.11 <code class="docutils literal notranslate"><span class="pre">do_strip</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#do-validate-branches">7.4.12 <code class="docutils literal notranslate"><span class="pre">do_validate_branches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fragments.html">8 Using Configuration Fragments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devtool-reference.html">9 <code class="docutils literal notranslate"><span class="pre">devtool</span></code> Quick Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kickstart.html">10 OpenEmbedded Kickstart (<code class="docutils literal notranslate"><span class="pre">.wks</span></code>) Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qa-checks.html">11 QA Error and Warning Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="images.html">12 Immagini</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">13 Caratteristiche</a></li>
+<li class="toctree-l2"><a class="reference internal" href="variables.html">14 Glossario delle Variabili</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varlocality.html">15 Variable Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html">16 FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resources.html">17 Contributions and Additional Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Yocto Project Reference Manual</a> &raquo;</li>
+    
+    <li><span class="section-number">7 </span>I Task</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ref-manual/tasks.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tasks">
+<h1><span class="section-number">7 </span>I Task<a class="headerlink" href="#tasks" title="Link to this heading"></a></h1>
+<p>Tasks are units of execution for BitBake. Recipes (<code class="docutils literal notranslate"><span class="pre">.bb</span></code> files) use
+tasks to complete configuring, compiling, and packaging software. This
+chapter provides a reference of the tasks defined in the OpenEmbedded
+build system.</p>
+<p>To see the tasks defined (in alphabetical order) for a given recipe,
+you can run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake<span class="w"> </span>-c<span class="w"> </span>listtasks<span class="w"> </span>recipename
+<span class="go">do_build                              Default task for a recipe - depends on all other normal tasks required to 'build' a recipe</span>
+<span class="go">do_checkuri                           Validates the SRC_URI value</span>
+<span class="go">do_clean                              Removes all output files for a target including ${WORKDIR}, sstate manifests and stamps</span>
+<span class="go">do_cleanall                           Removes all output files, shared state cache, and downloaded source files for a target</span>
+<span class="go">do_cleansstate                        Removes all output files and shared state cache for a target</span>
+<span class="go">do_compile                            Compiles the source in the compilation directory</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+<p>In addition, once a recipe has been built, you can examine the
+resulting task information in that recipe's <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/temp/</span></code>
+directory, which will consist of the following:</p>
+<ul class="simple">
+<li><p>for each task, a <code class="docutils literal notranslate"><span class="pre">run</span></code> file that represents the code that
+was executed for that task</p></li>
+<li><p>for each task, a corresponding <code class="docutils literal notranslate"><span class="pre">log</span></code> file showing the result of
+task execution</p></li>
+<li><p>a single <code class="docutils literal notranslate"><span class="pre">log.task_order</span></code> file showing the execution order
+of all tasks for that recipe</p></li>
+</ul>
+<section id="normal-recipe-build-tasks">
+<h2><span class="section-number">7.1 </span>Normal Recipe Build Tasks<a class="headerlink" href="#normal-recipe-build-tasks" title="Link to this heading"></a></h2>
+<p>The following sections describe normal tasks associated with building a
+recipe. For more information on tasks and dependencies, see the
+&quot;<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-metadata.html#tasks" title="(in Bitbake Version: Current Development)"><span>Tasks</span></a>&quot; and
+&quot;<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-execution.html#dependencies" title="(in Bitbake Version: Current Development)"><span>Dependencies</span></a>&quot; sections in the
+BitBake User Manual.</p>
+<section id="do-build">
+<span id="ref-tasks-build"></span><h3><span class="section-number">7.1.1 </span><code class="docutils literal notranslate"><span class="pre">do_build</span></code><a class="headerlink" href="#do-build" title="Link to this heading"></a></h3>
+<p>The default task for all recipes. This task depends on all other normal
+tasks required to build a recipe.</p>
+</section>
+<section id="do-compile">
+<span id="ref-tasks-compile"></span><h3><span class="section-number">7.1.2 </span><code class="docutils literal notranslate"><span class="pre">do_compile</span></code><a class="headerlink" href="#do-compile" title="Link to this heading"></a></h3>
+<p>Compiles the source code. This task runs with the current working
+directory set to <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-B"><span class="xref std std-term">B</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>.</p>
+<p>The default behavior of this task is to run the <code class="docutils literal notranslate"><span class="pre">oe_runmake</span></code> function
+if a makefile (<code class="docutils literal notranslate"><span class="pre">Makefile</span></code>, <code class="docutils literal notranslate"><span class="pre">makefile</span></code>, or <code class="docutils literal notranslate"><span class="pre">GNUmakefile</span></code>) is found.
+If no such file is found, the <a class="reference internal" href="#ref-tasks-compile"><span class="std std-ref">do_compile</span></a> task does nothing.</p>
+</section>
+<section id="do-compile-ptest-base">
+<span id="ref-tasks-compile-ptest-base"></span><h3><span class="section-number">7.1.3 </span><code class="docutils literal notranslate"><span class="pre">do_compile_ptest_base</span></code><a class="headerlink" href="#do-compile-ptest-base" title="Link to this heading"></a></h3>
+<p>Compiles the runtime test suite included in the software being built.</p>
+</section>
+<section id="do-configure">
+<span id="ref-tasks-configure"></span><h3><span class="section-number">7.1.4 </span><code class="docutils literal notranslate"><span class="pre">do_configure</span></code><a class="headerlink" href="#do-configure" title="Link to this heading"></a></h3>
+<p>Configures the source by enabling and disabling any build-time and
+configuration options for the software being built. The task runs with
+the current working directory set to <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-B"><span class="xref std std-term">B</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>.</p>
+<p>The default behavior of this task is to run <code class="docutils literal notranslate"><span class="pre">oe_runmake</span> <span class="pre">clean</span></code> if a
+makefile (<code class="docutils literal notranslate"><span class="pre">Makefile</span></code>, <code class="docutils literal notranslate"><span class="pre">makefile</span></code>, or <code class="docutils literal notranslate"><span class="pre">GNUmakefile</span></code>) is found and
+<a class="reference internal" href="variables.html#term-CLEANBROKEN"><span class="xref std std-term">CLEANBROKEN</span></a> is not set to &quot;1&quot;. If no such
+file is found or the <a class="reference internal" href="variables.html#term-CLEANBROKEN"><span class="xref std std-term">CLEANBROKEN</span></a> variable is set to &quot;1&quot;, the
+<a class="reference internal" href="#ref-tasks-configure"><span class="std std-ref">do_configure</span></a> task does nothing.</p>
+</section>
+<section id="do-configure-ptest-base">
+<span id="ref-tasks-configure-ptest-base"></span><h3><span class="section-number">7.1.5 </span><code class="docutils literal notranslate"><span class="pre">do_configure_ptest_base</span></code><a class="headerlink" href="#do-configure-ptest-base" title="Link to this heading"></a></h3>
+<p>Configures the runtime test suite included in the software being built.</p>
+</section>
+<section id="do-deploy">
+<span id="ref-tasks-deploy"></span><h3><span class="section-number">7.1.6 </span><code class="docutils literal notranslate"><span class="pre">do_deploy</span></code><a class="headerlink" href="#do-deploy" title="Link to this heading"></a></h3>
+<p>Writes output files that are to be deployed to
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-DEPLOY_DIR_IMAGE"><span class="xref std std-term">DEPLOY_DIR_IMAGE</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>. The
+task runs with the current working directory set to
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-B"><span class="xref std std-term">B</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>.</p>
+<p>Recipes implementing this task should inherit the
+<a class="reference internal" href="classes.html#ref-classes-deploy"><span class="std std-ref">deploy</span></a> class and should write the output
+to <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-DEPLOYDIR"><span class="xref std std-term">DEPLOYDIR</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>, which is not to be
+confused with <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-DEPLOY_DIR"><span class="xref std std-term">DEPLOY_DIR</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>. The <a class="reference internal" href="classes.html#ref-classes-deploy"><span class="std std-ref">deploy</span></a> class sets up
+<a class="reference internal" href="#ref-tasks-deploy"><span class="std std-ref">do_deploy</span></a> as a shared state (sstate) task that can be accelerated
+through sstate use. The sstate mechanism takes care of copying the
+output from <code class="docutils literal notranslate"><span class="pre">${DEPLOYDIR}</span></code> to <code class="docutils literal notranslate"><span class="pre">${DEPLOY_DIR_IMAGE}</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Do not write the output directly to <code class="docutils literal notranslate"><span class="pre">${DEPLOY_DIR_IMAGE}</span></code>, as this causes
+the sstate mechanism to malfunction.</p>
+</div>
+<p>The <a class="reference internal" href="#ref-tasks-deploy"><span class="std std-ref">do_deploy</span></a> task is not added as a task by default and
+consequently needs to be added manually. If you want the task to run
+after <a class="reference internal" href="#ref-tasks-compile"><span class="std std-ref">do_compile</span></a>, you can add it by doing
+the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">addtask</span> <span class="n">deploy</span> <span class="n">after</span> <span class="n">do_compile</span>
+</pre></div>
+</div>
+<p>Adding <a class="reference internal" href="#ref-tasks-deploy"><span class="std std-ref">do_deploy</span></a> after other tasks works the same way.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You do not need to add <code class="docutils literal notranslate"><span class="pre">before</span> <span class="pre">do_build</span></code> to the <code class="docutils literal notranslate"><span class="pre">addtask</span></code> command
+(though it is harmless), because the <a class="reference internal" href="classes.html#ref-classes-base"><span class="std std-ref">base</span></a> class contains the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">do_build</span><span class="p">[</span><span class="n">recrdeptask</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">"do_deploy"</span>
+</pre></div>
+</div>
+<p>See the &quot;<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-execution.html#dependencies" title="(in Bitbake Version: Current Development)"><span>Dependencies</span></a>&quot;
+section in the BitBake User Manual for more information.</p>
+</div>
+<p>If the <a class="reference internal" href="#ref-tasks-deploy"><span class="std std-ref">do_deploy</span></a> task re-executes, any previous output is removed
+(i.e. &quot;cleaned&quot;).</p>
+</section>
+<section id="do-fetch">
+<span id="ref-tasks-fetch"></span><h3><span class="section-number">7.1.7 </span><code class="docutils literal notranslate"><span class="pre">do_fetch</span></code><a class="headerlink" href="#do-fetch" title="Link to this heading"></a></h3>
+<p>Fetches the source code. This task uses the <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> variable and the
+argument's prefix to determine the correct
+<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-fetching.html#fetchers" title="(in Bitbake Version: Current Development)"><span class="xref std std-ref">fetcher</span></a>
+module.</p>
+</section>
+<section id="do-image">
+<span id="ref-tasks-image"></span><h3><span class="section-number">7.1.8 </span><code class="docutils literal notranslate"><span class="pre">do_image</span></code><a class="headerlink" href="#do-image" title="Link to this heading"></a></h3>
+<p>Starts the image generation process. The <a class="reference internal" href="#ref-tasks-image"><span class="std std-ref">do_image</span></a> task runs after
+the OpenEmbedded build system has run the
+<a class="reference internal" href="#ref-tasks-rootfs"><span class="std std-ref">do_rootfs</span></a> task during which packages are
+identified for installation into the image and the root filesystem is
+created, complete with post-processing.</p>
+<p>The <a class="reference internal" href="#ref-tasks-image"><span class="std std-ref">do_image</span></a> task performs pre-processing on the image through the
+<a class="reference internal" href="variables.html#term-IMAGE_PREPROCESS_COMMAND"><span class="xref std std-term">IMAGE_PREPROCESS_COMMAND</span></a> and
+dynamically generates supporting <a class="reference internal" href="#ref-tasks-image"><span class="std std-ref">do_image_*</span></a> tasks as needed.</p>
+<p>For more information on image creation, see the &quot;<a class="reference internal" href="../overview-manual/concepts.html#image-generation"><span class="std std-ref">Generazione dell'Immagine</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual.</p>
+</section>
+<section id="do-image-complete">
+<span id="ref-tasks-image-complete"></span><h3><span class="section-number">7.1.9 </span><code class="docutils literal notranslate"><span class="pre">do_image_complete</span></code><a class="headerlink" href="#do-image-complete" title="Link to this heading"></a></h3>
+<p>Completes the image generation process. The <a class="reference internal" href="#ref-tasks-image-complete"><span class="std std-ref">do_image_complete</span></a> task
+runs after the OpenEmbedded build system has run the
+<a class="reference internal" href="#ref-tasks-image"><span class="std std-ref">do_image</span></a> task during which image
+pre-processing occurs and through dynamically generated <a class="reference internal" href="#ref-tasks-image"><span class="std std-ref">do_image_*</span></a>
+tasks the image is constructed.</p>
+<p>The <a class="reference internal" href="#ref-tasks-image-complete"><span class="std std-ref">do_image_complete</span></a> task performs post-processing on the image
+through the
+<a class="reference internal" href="variables.html#term-IMAGE_POSTPROCESS_COMMAND"><span class="xref std std-term">IMAGE_POSTPROCESS_COMMAND</span></a>.</p>
+<p>For more information on image creation, see the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#image-generation"><span class="std std-ref">Generazione dell'Immagine</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual.</p>
+</section>
+<section id="do-install">
+<span id="ref-tasks-install"></span><h3><span class="section-number">7.1.10 </span><code class="docutils literal notranslate"><span class="pre">do_install</span></code><a class="headerlink" href="#do-install" title="Link to this heading"></a></h3>
+<p>Copies files that are to be packaged into the holding area
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-D"><span class="xref std std-term">D</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>. This task runs with the current
+working directory set to <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-B"><span class="xref std std-term">B</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>, which is the
+compilation directory. The <a class="reference internal" href="#ref-tasks-install"><span class="std std-ref">do_install</span></a> task, as well as other tasks
+that either directly or indirectly depend on the installed files (e.g.
+<a class="reference internal" href="#ref-tasks-package"><span class="std std-ref">do_package</span></a>, <a class="reference internal" href="#ref-tasks-package-write-deb"><span class="std std-ref">do_package_write_*</span></a>, and
+<a class="reference internal" href="#ref-tasks-rootfs"><span class="std std-ref">do_rootfs</span></a>), run under
+<a class="reference internal" href="../overview-manual/concepts.html#fakeroot-and-pseudo"><span class="std std-ref">fakeroot</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>When installing files, be careful not to set the owner and group IDs
+of the installed files to unintended values. Some methods of copying
+files, notably when using the recursive <code class="docutils literal notranslate"><span class="pre">cp</span></code> command, can preserve
+the UID and/or GID of the original file, which is usually not what
+you want. The <code class="docutils literal notranslate"><span class="pre">host-user-contaminated</span></code> QA check checks for files
+that probably have the wrong ownership.</p>
+<p>Safe methods for installing files include the following:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">install</span></code> utility. This utility is the preferred method.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">cp</span></code> command with the <code class="docutils literal notranslate"><span class="pre">--no-preserve=ownership</span></code> option.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">tar</span></code> command with the <code class="docutils literal notranslate"><span class="pre">--no-same-owner</span></code> option. See the
+<code class="docutils literal notranslate"><span class="pre">bin_package.bbclass</span></code> file in the <code class="docutils literal notranslate"><span class="pre">meta/classes-recipe</span></code>
+subdirectory of <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> for an example.</p></li>
+</ul>
+</div>
+</section>
+<section id="do-install-ptest-base">
+<span id="ref-tasks-install-ptest-base"></span><h3><span class="section-number">7.1.11 </span><code class="docutils literal notranslate"><span class="pre">do_install_ptest_base</span></code><a class="headerlink" href="#do-install-ptest-base" title="Link to this heading"></a></h3>
+<p>Copies the runtime test suite files from the compilation directory to a
+holding area.</p>
+</section>
+<section id="do-package">
+<span id="ref-tasks-package"></span><h3><span class="section-number">7.1.12 </span><code class="docutils literal notranslate"><span class="pre">do_package</span></code><a class="headerlink" href="#do-package" title="Link to this heading"></a></h3>
+<p>Analyzes the content of the holding area
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-D"><span class="xref std std-term">D</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> and splits the content into subsets
+based on available packages and files. This task makes use of the
+<a class="reference internal" href="variables.html#term-PACKAGES"><span class="xref std std-term">PACKAGES</span></a> and <a class="reference internal" href="variables.html#term-FILES"><span class="xref std std-term">FILES</span></a>
+variables.</p>
+<p>The <a class="reference internal" href="#ref-tasks-package"><span class="std std-ref">do_package</span></a> task, in conjunction with the
+<a class="reference internal" href="#ref-tasks-packagedata"><span class="std std-ref">do_packagedata</span></a> task, also saves some
+important package metadata. For additional information, see the
+<a class="reference internal" href="variables.html#term-PKGDESTWORK"><span class="xref std std-term">PKGDESTWORK</span></a> variable and the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#automatically-added-runtime-dependencies"><span class="std std-ref">Dipendenze di Runtime Aggiunte Automaticamente</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual.</p>
+</section>
+<section id="do-package-qa">
+<span id="ref-tasks-package-qa"></span><h3><span class="section-number">7.1.13 </span><code class="docutils literal notranslate"><span class="pre">do_package_qa</span></code><a class="headerlink" href="#do-package-qa" title="Link to this heading"></a></h3>
+<p>Runs QA checks on packaged files. For more information on these checks,
+see the <a class="reference internal" href="qa-checks.html"><span class="doc">QA Error and Warning Messages</span></a> document.</p>
+</section>
+<section id="do-package-write-deb">
+<span id="ref-tasks-package-write-deb"></span><h3><span class="section-number">7.1.14 </span><code class="docutils literal notranslate"><span class="pre">do_package_write_deb</span></code><a class="headerlink" href="#do-package-write-deb" title="Link to this heading"></a></h3>
+<p>Creates Debian packages (i.e. <code class="docutils literal notranslate"><span class="pre">*.deb</span></code> files) and places them in the
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-DEPLOY_DIR_DEB"><span class="xref std std-term">DEPLOY_DIR_DEB</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> directory in
+the package feeds area. For more information, see the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#package-feeds"><span class="std std-ref">Feed dei Pacchetti</span></a>&quot; section in
+the Yocto Project Overview and Concepts Manual.</p>
+</section>
+<section id="do-package-write-ipk">
+<span id="ref-tasks-package-write-ipk"></span><h3><span class="section-number">7.1.15 </span><code class="docutils literal notranslate"><span class="pre">do_package_write_ipk</span></code><a class="headerlink" href="#do-package-write-ipk" title="Link to this heading"></a></h3>
+<p>Creates IPK packages (i.e. <code class="docutils literal notranslate"><span class="pre">*.ipk</span></code> files) and places them in the
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-DEPLOY_DIR_IPK"><span class="xref std std-term">DEPLOY_DIR_IPK</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> directory in
+the package feeds area. For more information, see the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#package-feeds"><span class="std std-ref">Feed dei Pacchetti</span></a>&quot; section in
+the Yocto Project Overview and Concepts Manual.</p>
+</section>
+<section id="do-package-write-rpm">
+<span id="ref-tasks-package-write-rpm"></span><h3><span class="section-number">7.1.16 </span><code class="docutils literal notranslate"><span class="pre">do_package_write_rpm</span></code><a class="headerlink" href="#do-package-write-rpm" title="Link to this heading"></a></h3>
+<p>Creates RPM packages (i.e. <code class="docutils literal notranslate"><span class="pre">*.rpm</span></code> files) and places them in the
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-DEPLOY_DIR_RPM"><span class="xref std std-term">DEPLOY_DIR_RPM</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> directory in
+the package feeds area. For more information, see the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#package-feeds"><span class="std std-ref">Feed dei Pacchetti</span></a>&quot; section in
+the Yocto Project Overview and Concepts Manual.</p>
+</section>
+<section id="do-packagedata">
+<span id="ref-tasks-packagedata"></span><h3><span class="section-number">7.1.17 </span><code class="docutils literal notranslate"><span class="pre">do_packagedata</span></code><a class="headerlink" href="#do-packagedata" title="Link to this heading"></a></h3>
+<p>Saves package metadata generated by the
+<a class="reference internal" href="#ref-tasks-package"><span class="std std-ref">do_package</span></a> task in
+<a class="reference internal" href="variables.html#term-PKGDATA_DIR"><span class="xref std std-term">PKGDATA_DIR</span></a> to make it available globally.</p>
+</section>
+<section id="do-patch">
+<span id="ref-tasks-patch"></span><h3><span class="section-number">7.1.18 </span><code class="docutils literal notranslate"><span class="pre">do_patch</span></code><a class="headerlink" href="#do-patch" title="Link to this heading"></a></h3>
+<p>Locates patch files and applies them to the source code.</p>
+<p>After fetching and unpacking source files, the build system uses the
+recipe's <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statements
+to locate and apply patch files to the source code.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The build system uses the <a class="reference internal" href="variables.html#term-FILESPATH"><span class="xref std std-term">FILESPATH</span></a> variable to determine the
+default set of directories when searching for patches.</p>
+</div>
+<p>Patch files, by default, are <code class="docutils literal notranslate"><span class="pre">*.patch</span></code> and <code class="docutils literal notranslate"><span class="pre">*.diff</span></code> files created
+and kept in a subdirectory of the directory holding the recipe file. For
+example, consider the
+<a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/tree/meta/recipes-connectivity/bluez5">bluez5</a>
+recipe from the <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> layer:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">meta</span><span class="o">/</span><span class="n">recipes</span><span class="o">-</span><span class="n">connectivity</span><span class="o">/</span><span class="n">bluez5</span>
+</pre></div>
+</div>
+<p>This recipe has two patch files located here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">meta</span><span class="o">/</span><span class="n">recipes</span><span class="o">-</span><span class="n">connectivity</span><span class="o">/</span><span class="n">bluez5</span><span class="o">/</span><span class="n">bluez5</span>
+</pre></div>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">bluez5</span></code> recipe, the <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statements point to the source
+and patch files needed to build the package.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>In the case for the <code class="docutils literal notranslate"><span class="pre">bluez5_5.48.bb</span></code> recipe, the <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statements
+are from an include file <code class="docutils literal notranslate"><span class="pre">bluez5.inc</span></code>.</p>
+</div>
+<p>As mentioned earlier, the build system treats files whose file types are
+<code class="docutils literal notranslate"><span class="pre">.patch</span></code> and <code class="docutils literal notranslate"><span class="pre">.diff</span></code> as patch files. However, you can use the
+&quot;apply=yes&quot; parameter with the <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement to indicate any
+file as a patch file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">=</span> <span class="s2">" </span><span class="se">\</span>
+<span class="s2">    git://path_to_repo/some_package </span><span class="se">\</span>
+<span class="s2">    file://file;apply=yes </span><span class="se">\</span>
+<span class="s2">    "</span>
+</pre></div>
+</div>
+<p>Conversely, if you have a file whose file type is <code class="docutils literal notranslate"><span class="pre">.patch</span></code> or <code class="docutils literal notranslate"><span class="pre">.diff</span></code>
+and you want to exclude it so that the <a class="reference internal" href="#ref-tasks-patch"><span class="std std-ref">do_patch</span></a> task does not apply
+it during the patch phase, you can use the &quot;apply=no&quot; parameter with the
+<a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> statement:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">=</span> <span class="s2">" </span><span class="se">\</span>
+<span class="s2">    git://path_to_repo/some_package </span><span class="se">\</span>
+<span class="s2">    file://file1.patch </span><span class="se">\</span>
+<span class="s2">    file://file2.patch;apply=no </span><span class="se">\</span>
+<span class="s2">    "</span>
+</pre></div>
+</div>
+<p>In the previous example <code class="docutils literal notranslate"><span class="pre">file1.patch</span></code> would be applied as a patch by default
+while <code class="docutils literal notranslate"><span class="pre">file2.patch</span></code> would not be applied.</p>
+<p>You can find out more about the patching process in the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#patching"><span class="std std-ref">Applicazione delle Patch</span></a>&quot; section in
+the Yocto Project Overview and Concepts Manual and the
+&quot;<a class="reference internal" href="../dev-manual/new-recipe.html#patching-code"><span class="std std-ref">Patching Code</span></a>&quot; section in the
+Yocto Project Development Tasks Manual.</p>
+</section>
+<section id="do-populate-lic">
+<span id="ref-tasks-populate-lic"></span><h3><span class="section-number">7.1.19 </span><code class="docutils literal notranslate"><span class="pre">do_populate_lic</span></code><a class="headerlink" href="#do-populate-lic" title="Link to this heading"></a></h3>
+<p>Writes license information for the recipe that is collected later when
+the image is constructed.</p>
+</section>
+<section id="do-populate-sdk">
+<span id="ref-tasks-populate-sdk"></span><h3><span class="section-number">7.1.20 </span><code class="docutils literal notranslate"><span class="pre">do_populate_sdk</span></code><a class="headerlink" href="#do-populate-sdk" title="Link to this heading"></a></h3>
+<p>Creates the file and directory structure for an installable SDK. See the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#sdk-generation"><span class="std std-ref">Generazione dell'SDK</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual for more
+information.</p>
+</section>
+<section id="do-populate-sdk-ext">
+<span id="ref-tasks-populate-sdk-ext"></span><h3><span class="section-number">7.1.21 </span><code class="docutils literal notranslate"><span class="pre">do_populate_sdk_ext</span></code><a class="headerlink" href="#do-populate-sdk-ext" title="Link to this heading"></a></h3>
+<p>Creates the file and directory structure for an installable extensible
+SDK (eSDK). See the &quot;<a class="reference internal" href="../overview-manual/concepts.html#sdk-generation"><span class="std std-ref">Generazione dell'SDK</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual for more
+information.</p>
+</section>
+<section id="do-populate-sysroot">
+<span id="ref-tasks-populate-sysroot"></span><h3><span class="section-number">7.1.22 </span><code class="docutils literal notranslate"><span class="pre">do_populate_sysroot</span></code><a class="headerlink" href="#do-populate-sysroot" title="Link to this heading"></a></h3>
+<p>Stages (copies) a subset of the files installed by the
+<a class="reference internal" href="#ref-tasks-install"><span class="std std-ref">do_install</span></a> task into the appropriate
+sysroot. For information on how to access these files from other
+recipes, see the <a class="reference internal" href="variables.html#term-STAGING_DIR_HOST"><span class="xref std std-term">STAGING_DIR*</span></a> variables.
+Directories that would typically not be needed by other recipes at build
+time (e.g. <code class="docutils literal notranslate"><span class="pre">/etc</span></code>) are not copied by default.</p>
+<p>For information on what directories are copied by default, see the
+<a class="reference internal" href="variables.html#term-SYSROOT_DIRS"><span class="xref std std-term">SYSROOT_DIRS*</span></a> variables. You can change
+these variables inside your recipe if you need to make additional (or
+fewer) directories available to other recipes at build time.</p>
+<p>The <a class="reference internal" href="#ref-tasks-populate-sysroot"><span class="std std-ref">do_populate_sysroot</span></a> task is a shared state (sstate) task, which
+means that the task can be accelerated through sstate use. Realize also
+that if the task is re-executed, any previous output is removed (i.e.
+&quot;cleaned&quot;).</p>
+</section>
+<section id="do-prepare-recipe-sysroot">
+<span id="ref-tasks-prepare-recipe-sysroot"></span><h3><span class="section-number">7.1.23 </span><code class="docutils literal notranslate"><span class="pre">do_prepare_recipe_sysroot</span></code><a class="headerlink" href="#do-prepare-recipe-sysroot" title="Link to this heading"></a></h3>
+<p>Installs the files into the individual recipe specific sysroots (i.e.
+<code class="docutils literal notranslate"><span class="pre">recipe-sysroot</span></code> and <code class="docutils literal notranslate"><span class="pre">recipe-sysroot-native</span></code> under
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> based upon the
+dependencies specified by <a class="reference internal" href="variables.html#term-DEPENDS"><span class="xref std std-term">DEPENDS</span></a>). See the
+&quot;<a class="reference internal" href="classes.html#ref-classes-staging"><span class="std std-ref">staging</span></a>&quot; class for more information.</p>
+</section>
+<section id="do-recipe-qa">
+<span id="ref-tasks-recipe-qa"></span><h3><span class="section-number">7.1.24 </span><code class="docutils literal notranslate"><span class="pre">do_recipe_qa</span></code><a class="headerlink" href="#do-recipe-qa" title="Link to this heading"></a></h3>
+<p>Performs QA check on recipes that can operate entirely from recipe metadata and
+do not need any of the build artefacts or source code.</p>
+<p>The list of QA checks that this tasks defines are documented in
+<a class="reference internal" href="qa-checks.html"><span class="doc">QA Error and Warning Messages</span></a>.</p>
+</section>
+<section id="do-rm-work">
+<span id="ref-tasks-rm-work"></span><h3><span class="section-number">7.1.25 </span><code class="docutils literal notranslate"><span class="pre">do_rm_work</span></code><a class="headerlink" href="#do-rm-work" title="Link to this heading"></a></h3>
+<p>Removes work files after the OpenEmbedded build system has finished with
+them. You can learn more by looking at the
+&quot;<a class="reference internal" href="classes.html#ref-classes-rm-work"><span class="std std-ref">rm_work</span></a>&quot; section.</p>
+</section>
+<section id="do-unpack">
+<span id="ref-tasks-unpack"></span><h3><span class="section-number">7.1.26 </span><code class="docutils literal notranslate"><span class="pre">do_unpack</span></code><a class="headerlink" href="#do-unpack" title="Link to this heading"></a></h3>
+<p>Unpacks the source code into a working directory pointed to by
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-UNPACKDIR"><span class="xref std std-term">UNPACKDIR</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>.
+For more information on how source files are unpacked, see the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#source-fetching"><span class="std std-ref">Prelievo del Codice Sorgente</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual.</p>
+</section>
+</section>
+<section id="manually-called-tasks">
+<h2><span class="section-number">7.2 </span>Manually Called Tasks<a class="headerlink" href="#manually-called-tasks" title="Link to this heading"></a></h2>
+<p>These tasks are typically manually triggered (e.g. by using the
+<code class="docutils literal notranslate"><span class="pre">bitbake</span> <span class="pre">-c</span></code> command-line option) because they are not normally
+part of any standard build workflow. As an example, consider the
+<code class="docutils literal notranslate"><span class="pre">listtasks</span></code> task, which displays the tasks defined for a given
+recipe and would be invoked with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake<span class="w"> </span>-c<span class="w"> </span>listtasks<span class="w"> </span>recipename
+</pre></div>
+</div>
+<p>A typical definition of a manually-called task would look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">addtask</span> <span class="n">listtasks</span>
+<span class="n">do_listtasks</span><span class="p">[</span><span class="n">nostamp</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
+<span class="n">python</span> <span class="n">do_listtasks</span><span class="p">()</span> <span class="p">{</span>
+   <span class="o">...</span> <span class="n">definition</span> <span class="n">of</span> <span class="n">task</span> <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>which defines that function as a task without building it into any
+task dependency chain, as well as setting the <code class="docutils literal notranslate"><span class="pre">[nostamp]</span></code> flag to
+ensure that it is run every time it is invoked.</p>
+<section id="do-checkuri">
+<h3><span class="section-number">7.2.1 </span><code class="docutils literal notranslate"><span class="pre">do_checkuri</span></code><a class="headerlink" href="#do-checkuri" title="Link to this heading"></a></h3>
+<p>Validates the <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> value.</p>
+</section>
+<section id="do-clean">
+<span id="ref-tasks-clean"></span><h3><span class="section-number">7.2.2 </span><code class="docutils literal notranslate"><span class="pre">do_clean</span></code><a class="headerlink" href="#do-clean" title="Link to this heading"></a></h3>
+<p>Removes all output files for a target from the
+<a class="reference internal" href="#ref-tasks-unpack"><span class="std std-ref">do_unpack</span></a> task forward (i.e. <a class="reference internal" href="#ref-tasks-unpack"><span class="std std-ref">do_unpack</span></a>,
+<a class="reference internal" href="#ref-tasks-configure"><span class="std std-ref">do_configure</span></a>,
+<a class="reference internal" href="#ref-tasks-compile"><span class="std std-ref">do_compile</span></a>,
+<a class="reference internal" href="#ref-tasks-install"><span class="std std-ref">do_install</span></a>, and
+<a class="reference internal" href="#ref-tasks-package"><span class="std std-ref">do_package</span></a>).</p>
+<p>You can run this task using BitBake as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake -c clean recipe
+</pre></div>
+</div>
+<p>Running this task removes the working directory of the recipe (represented by its <a class="reference internal" href="variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a> value),
+the sstate manifests and the <a class="reference internal" href="../overview-manual/concepts.html#stamp-files-and-the-rerunning-of-tasks"><span class="std std-ref">stamps</span></a>.
+However, it does not remove the <a class="reference internal" href="../overview-manual/concepts.html#shared-state-cache"><span class="std std-ref">sstate</span></a>
+cache files. Consequently, if no changes have been made and the recipe is rebuilt
+after cleaning, output files are simply restored from the sstate cache.
+If you want to remove the sstate cache files for the recipe, you need to
+use the <a class="reference internal" href="#ref-tasks-cleansstate"><span class="std std-ref">do_cleansstate</span></a> task instead
+(i.e. <code class="docutils literal notranslate"><span class="pre">bitbake</span> <span class="pre">-c</span> <span class="pre">cleansstate</span></code> recipe).</p>
+</section>
+<section id="do-cleanall">
+<span id="ref-tasks-cleanall"></span><h3><span class="section-number">7.2.3 </span><code class="docutils literal notranslate"><span class="pre">do_cleanall</span></code><a class="headerlink" href="#do-cleanall" title="Link to this heading"></a></h3>
+<p>Removes all output files, shared state
+(<a class="reference internal" href="../overview-manual/concepts.html#shared-state-cache"><span class="std std-ref">sstate</span></a>) cache, and
+downloaded source files for a target (i.e. the contents of
+<a class="reference internal" href="variables.html#term-DL_DIR"><span class="xref std std-term">DL_DIR</span></a>). Essentially, the <a class="reference internal" href="#ref-tasks-cleanall"><span class="std std-ref">do_cleanall</span></a> task is
+identical to the <a class="reference internal" href="#ref-tasks-cleansstate"><span class="std std-ref">do_cleansstate</span></a> task
+with the added removal of downloaded source files.</p>
+<p>You can run this task using BitBake as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake -c cleanall recipe
+</pre></div>
+</div>
+<p>You should never use the <a class="reference internal" href="#ref-tasks-cleanall"><span class="std std-ref">do_cleanall</span></a> task in a normal
+scenario. If you want to start fresh with the <a class="reference internal" href="#ref-tasks-fetch"><span class="std std-ref">do_fetch</span></a> task,
+use instead:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake -f -c fetch recipe
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The reason to prefer <code class="docutils literal notranslate"><span class="pre">bitbake</span> <span class="pre">-f</span> <span class="pre">-c</span> <span class="pre">fetch</span></code> is that the
+<a class="reference internal" href="#ref-tasks-cleanall"><span class="std std-ref">do_cleanall</span></a> task would break in some cases, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake -c fetch    recipe
+$ bitbake -c cleanall recipe-native
+$ bitbake -c unpack   recipe
+</pre></div>
+</div>
+<p>because after step 1 there is a stamp file for the
+<a class="reference internal" href="#ref-tasks-fetch"><span class="std std-ref">do_fetch</span></a> task of <code class="docutils literal notranslate"><span class="pre">recipe</span></code>, and it won't be removed at
+step 2 because step 2 uses a different work directory. So the unpack task
+at step 3 will try to extract the downloaded archive and fail as it has
+been deleted in step 2.</p>
+<p>Note that this also applies to BitBake from concurrent processes when a
+shared download directory (<a class="reference internal" href="variables.html#term-DL_DIR"><span class="xref std std-term">DL_DIR</span></a>) is setup.</p>
+</div>
+</section>
+<section id="do-cleansstate">
+<span id="ref-tasks-cleansstate"></span><h3><span class="section-number">7.2.4 </span><code class="docutils literal notranslate"><span class="pre">do_cleansstate</span></code><a class="headerlink" href="#do-cleansstate" title="Link to this heading"></a></h3>
+<p>Removes all output files and shared state
+(<a class="reference internal" href="../overview-manual/concepts.html#shared-state-cache"><span class="std std-ref">sstate</span></a>) cache for a
+target. Essentially, the <a class="reference internal" href="#ref-tasks-cleansstate"><span class="std std-ref">do_cleansstate</span></a> task is identical to the
+<a class="reference internal" href="#ref-tasks-clean"><span class="std std-ref">do_clean</span></a> task with the added removal of
+shared state (<a class="reference internal" href="../overview-manual/concepts.html#shared-state-cache"><span class="std std-ref">sstate</span></a>)
+cache.</p>
+<p>You can run this task using BitBake as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake -c cleansstate recipe
+</pre></div>
+</div>
+<p>When you run the <a class="reference internal" href="#ref-tasks-cleansstate"><span class="std std-ref">do_cleansstate</span></a> task, the OpenEmbedded build system
+no longer uses any sstate. Consequently, building the recipe from
+scratch is guaranteed.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Using <a class="reference internal" href="#ref-tasks-cleansstate"><span class="std std-ref">do_cleansstate</span></a> with a shared <a class="reference internal" href="variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a> is
+not recommended because it could trigger an error during the build of a
+separate BitBake instance. This is because the builds check sstate &quot;up
+front&quot; but download the files later, so it if is deleted in the
+meantime, it will cause an error but not a total failure as it will
+rebuild it.</p>
+<p>The reliable and preferred way to force a new build is to use <code class="docutils literal notranslate"><span class="pre">bitbake</span>
+<span class="pre">-f</span></code> instead.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The <a class="reference internal" href="#ref-tasks-cleansstate"><span class="std std-ref">do_cleansstate</span></a> task cannot remove sstate from a remote sstate
+mirror. If you need to build a target from scratch using remote mirrors, use
+the &quot;-f&quot; option as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake -f -c do_cleansstate target
+</pre></div>
+</div>
+</div>
+</section>
+<section id="do-pydevshell">
+<span id="ref-tasks-pydevshell"></span><h3><span class="section-number">7.2.5 </span><code class="docutils literal notranslate"><span class="pre">do_pydevshell</span></code><a class="headerlink" href="#do-pydevshell" title="Link to this heading"></a></h3>
+<p>Starts a shell in which an interactive Python interpreter allows you to
+interact with the BitBake build environment. From within this shell, you
+can directly examine and set bits from the data store and execute
+functions as if within the BitBake environment. See the &quot;<a class="reference internal" href="../dev-manual/python-development-shell.html#using-a-python-development-shell"><span class="std std-ref">Using a Python Development Shell</span></a>&quot; section in
+the Yocto Project Development Tasks Manual for more information about
+using <code class="docutils literal notranslate"><span class="pre">pydevshell</span></code>.</p>
+</section>
+<section id="do-devshell">
+<span id="ref-tasks-devshell"></span><h3><span class="section-number">7.2.6 </span><code class="docutils literal notranslate"><span class="pre">do_devshell</span></code><a class="headerlink" href="#do-devshell" title="Link to this heading"></a></h3>
+<p>Starts a shell whose environment is set up for development, debugging,
+or both. See the &quot;<a class="reference internal" href="../dev-manual/development-shell.html#using-a-development-shell"><span class="std std-ref">Using a Development Shell</span></a>&quot; section in the
+Yocto Project Development Tasks Manual for more information about using
+<code class="docutils literal notranslate"><span class="pre">devshell</span></code>.</p>
+</section>
+<section id="do-list-image-features">
+<span id="ref-tasks-list-image-features"></span><h3><span class="section-number">7.2.7 </span><code class="docutils literal notranslate"><span class="pre">do_list_image_features</span></code><a class="headerlink" href="#do-list-image-features" title="Link to this heading"></a></h3>
+<p>Lists the available features for an image recipe. These features can be set
+through either the <a class="reference internal" href="variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a> or <a class="reference internal" href="variables.html#term-EXTRA_IMAGE_FEATURES"><span class="xref std std-term">EXTRA_IMAGE_FEATURES</span></a> variables.</p>
+</section>
+<section id="do-listtasks">
+<span id="ref-tasks-listtasks"></span><h3><span class="section-number">7.2.8 </span><code class="docutils literal notranslate"><span class="pre">do_listtasks</span></code><a class="headerlink" href="#do-listtasks" title="Link to this heading"></a></h3>
+<p>Lists all defined tasks for a target.</p>
+</section>
+<section id="do-package-index">
+<span id="ref-tasks-package-index"></span><h3><span class="section-number">7.2.9 </span><code class="docutils literal notranslate"><span class="pre">do_package_index</span></code><a class="headerlink" href="#do-package-index" title="Link to this heading"></a></h3>
+<p>Creates or updates the index in the <a class="reference internal" href="../overview-manual/concepts.html#package-feeds"><span class="std std-ref">Feed dei Pacchetti</span></a> area.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>This task is not triggered with the <code class="docutils literal notranslate"><span class="pre">bitbake</span> <span class="pre">-c</span></code> command-line option as
+are the other tasks in this section. Because this task is specifically for
+the <code class="docutils literal notranslate"><span class="pre">package-index</span></code> recipe, you run it using <code class="docutils literal notranslate"><span class="pre">bitbake</span> <span class="pre">package-index</span></code>.</p>
+</div>
+</section>
+</section>
+<section id="image-related-tasks">
+<h2><span class="section-number">7.3 </span>Image-Related Tasks<a class="headerlink" href="#image-related-tasks" title="Link to this heading"></a></h2>
+<p>The following tasks are applicable to image recipes.</p>
+<section id="do-bootimg">
+<span id="ref-tasks-bootimg"></span><h3><span class="section-number">7.3.1 </span><code class="docutils literal notranslate"><span class="pre">do_bootimg</span></code><a class="headerlink" href="#do-bootimg" title="Link to this heading"></a></h3>
+<p>Creates a bootable live image. See the
+<a class="reference internal" href="variables.html#term-IMAGE_FSTYPES"><span class="xref std std-term">IMAGE_FSTYPES</span></a> variable for additional
+information on live image types.</p>
+</section>
+<section id="do-bundle-initramfs">
+<span id="ref-tasks-bundle-initramfs"></span><h3><span class="section-number">7.3.2 </span><code class="docutils literal notranslate"><span class="pre">do_bundle_initramfs</span></code><a class="headerlink" href="#do-bundle-initramfs" title="Link to this heading"></a></h3>
+<p>Combines an <a class="reference internal" href="terms.html#term-Initramfs"><span class="xref std std-term">Initramfs</span></a> image and kernel together to
+form a single image.</p>
+</section>
+<section id="do-rootfs">
+<span id="ref-tasks-rootfs"></span><h3><span class="section-number">7.3.3 </span><code class="docutils literal notranslate"><span class="pre">do_rootfs</span></code><a class="headerlink" href="#do-rootfs" title="Link to this heading"></a></h3>
+<p>Creates the root filesystem (file and directory structure) for an image.
+See the &quot;<a class="reference internal" href="../overview-manual/concepts.html#image-generation"><span class="std std-ref">Generazione dell'Immagine</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual for more
+information on how the root filesystem is created.</p>
+</section>
+<section id="do-testimage">
+<span id="ref-tasks-testimage"></span><h3><span class="section-number">7.3.4 </span><code class="docutils literal notranslate"><span class="pre">do_testimage</span></code><a class="headerlink" href="#do-testimage" title="Link to this heading"></a></h3>
+<p>Boots an image and performs runtime tests within the image. For
+information on automatically testing images, see the
+&quot;<a class="reference internal" href="../test-manual/runtime-testing.html#performing-automated-runtime-testing"><span class="std std-ref">Performing Automated Runtime Testing</span></a>&quot;
+section in the Yocto Project Test Environment Manual.</p>
+</section>
+<section id="do-testimage-auto">
+<span id="ref-tasks-testimage-auto"></span><h3><span class="section-number">7.3.5 </span><code class="docutils literal notranslate"><span class="pre">do_testimage_auto</span></code><a class="headerlink" href="#do-testimage-auto" title="Link to this heading"></a></h3>
+<p>Boots an image and performs runtime tests within the image immediately
+after it has been built. This task is enabled when you set
+<a class="reference internal" href="variables.html#term-TESTIMAGE_AUTO"><span class="xref std std-term">TESTIMAGE_AUTO</span></a> equal to &quot;1&quot;.</p>
+<p>For information on automatically testing images, see the
+&quot;<a class="reference internal" href="../test-manual/runtime-testing.html#performing-automated-runtime-testing"><span class="std std-ref">Performing Automated Runtime Testing</span></a>&quot;
+section in the Yocto Project Test Environment Manual.</p>
+</section>
+</section>
+<section id="kernel-related-tasks">
+<h2><span class="section-number">7.4 </span>Kernel-Related Tasks<a class="headerlink" href="#kernel-related-tasks" title="Link to this heading"></a></h2>
+<p>The following tasks are applicable to kernel recipes. Some of these
+tasks (e.g. the <a class="reference internal" href="#ref-tasks-menuconfig"><span class="std std-ref">do_menuconfig</span></a> task) are
+also applicable to recipes that use Linux kernel style configuration
+such as the BusyBox recipe.</p>
+<section id="do-compile-kernelmodules">
+<span id="ref-tasks-compile-kernelmodules"></span><h3><span class="section-number">7.4.1 </span><code class="docutils literal notranslate"><span class="pre">do_compile_kernelmodules</span></code><a class="headerlink" href="#do-compile-kernelmodules" title="Link to this heading"></a></h3>
+<p>Runs the step that builds the kernel modules (if needed). Building a
+kernel consists of two steps: 1) the kernel (<code class="docutils literal notranslate"><span class="pre">vmlinux</span></code>) is built, and
+2) the modules are built (i.e. <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">modules</span></code>).</p>
+</section>
+<section id="do-diffconfig">
+<span id="ref-tasks-diffconfig"></span><h3><span class="section-number">7.4.2 </span><code class="docutils literal notranslate"><span class="pre">do_diffconfig</span></code><a class="headerlink" href="#do-diffconfig" title="Link to this heading"></a></h3>
+<p>When invoked by the user, this task creates a file containing the
+differences between the original config as produced by
+<a class="reference internal" href="#ref-tasks-kernel-configme"><span class="std std-ref">do_kernel_configme</span></a> task and the
+changes made by the user with other methods (i.e. using
+(<a class="reference internal" href="#ref-tasks-menuconfig"><span class="std std-ref">do_menuconfig</span></a>). Once the
+file of differences is created, it can be used to create a config
+fragment that only contains the differences. You can invoke this task
+from the command line as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c diffconfig
+</pre></div>
+</div>
+<p>For more information, see the
+&quot;<a class="reference internal" href="../kernel-dev/common.html#creating-configuration-fragments"><span class="std std-ref">Creating Configuration Fragments</span></a>&quot;
+section in the Yocto Project Linux Kernel Development Manual.</p>
+</section>
+<section id="do-kernel-checkout">
+<span id="ref-tasks-kernel-checkout"></span><h3><span class="section-number">7.4.3 </span><code class="docutils literal notranslate"><span class="pre">do_kernel_checkout</span></code><a class="headerlink" href="#do-kernel-checkout" title="Link to this heading"></a></h3>
+<p>Converts the newly unpacked kernel source into a form with which the
+OpenEmbedded build system can work. Because the kernel source can be
+fetched in several different ways, the <a class="reference internal" href="#ref-tasks-kernel-checkout"><span class="std std-ref">do_kernel_checkout</span></a> task makes
+sure that subsequent tasks are given a clean working tree copy of the
+kernel with the correct branches checked out.</p>
+</section>
+<section id="do-kernel-configcheck">
+<span id="ref-tasks-kernel-configcheck"></span><h3><span class="section-number">7.4.4 </span><code class="docutils literal notranslate"><span class="pre">do_kernel_configcheck</span></code><a class="headerlink" href="#do-kernel-configcheck" title="Link to this heading"></a></h3>
+<p>Validates the configuration produced by the
+<a class="reference internal" href="#ref-tasks-menuconfig"><span class="std std-ref">do_menuconfig</span></a> task. The
+<a class="reference internal" href="#ref-tasks-kernel-configcheck"><span class="std std-ref">do_kernel_configcheck</span></a> task produces warnings when a requested
+configuration does not appear in the final <code class="docutils literal notranslate"><span class="pre">.config</span></code> file or when you
+override a policy configuration in a hardware configuration fragment.
+You can run this task explicitly and view the output by using the
+following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c kernel_configcheck -f
+</pre></div>
+</div>
+<p>For more information, see the
+&quot;<a class="reference internal" href="../kernel-dev/common.html#validating-configuration"><span class="std std-ref">Validating Configuration</span></a>&quot;
+section in the Yocto Project Linux Kernel Development Manual.</p>
+</section>
+<section id="do-kernel-configme">
+<span id="ref-tasks-kernel-configme"></span><h3><span class="section-number">7.4.5 </span><code class="docutils literal notranslate"><span class="pre">do_kernel_configme</span></code><a class="headerlink" href="#do-kernel-configme" title="Link to this heading"></a></h3>
+<p>After the kernel is patched by the <a class="reference internal" href="#ref-tasks-patch"><span class="std std-ref">do_patch</span></a>
+task, the <a class="reference internal" href="#ref-tasks-kernel-configme"><span class="std std-ref">do_kernel_configme</span></a> task assembles and merges all the
+kernel config fragments into a merged configuration that can then be
+passed to the kernel configuration phase proper. This is also the time
+during which user-specified defconfigs are applied if present, and where
+configuration modes such as <code class="docutils literal notranslate"><span class="pre">--allnoconfig</span></code> are applied.</p>
+</section>
+<section id="do-kernel-metadata">
+<span id="ref-tasks-kernel-metadata"></span><h3><span class="section-number">7.4.6 </span><code class="docutils literal notranslate"><span class="pre">do_kernel_metadata</span></code><a class="headerlink" href="#do-kernel-metadata" title="Link to this heading"></a></h3>
+<p>Collects all the features required for a given kernel build, whether the
+features come from <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> or from Git
+repositories. After collection, the <a class="reference internal" href="#ref-tasks-kernel-metadata"><span class="std std-ref">do_kernel_metadata</span></a> task
+processes the features into a series of config fragments and patches,
+which can then be applied by subsequent tasks such as
+<a class="reference internal" href="#ref-tasks-patch"><span class="std std-ref">do_patch</span></a> and
+<a class="reference internal" href="#ref-tasks-kernel-configme"><span class="std std-ref">do_kernel_configme</span></a>.</p>
+</section>
+<section id="do-menuconfig">
+<span id="ref-tasks-menuconfig"></span><h3><span class="section-number">7.4.7 </span><code class="docutils literal notranslate"><span class="pre">do_menuconfig</span></code><a class="headerlink" href="#do-menuconfig" title="Link to this heading"></a></h3>
+<p>Invoked by the user to manipulate the <code class="docutils literal notranslate"><span class="pre">.config</span></code> file used to build a
+linux-yocto recipe. This task starts the Linux kernel configuration
+tool, which you then use to modify the kernel configuration.</p>
+<p>You can invoke this tool from the command line as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake<span class="w"> </span>linux-yocto<span class="w"> </span>-c<span class="w"> </span>menuconfig
+</pre></div>
+</div>
+<p>See the &quot;<a class="reference internal" href="../kernel-dev/common.html#using-menuconfig"><span class="std std-ref">Using  menuconfig</span></a>&quot;
+section in the Yocto Project Linux Kernel Development Manual for more
+information on this configuration tool.</p>
+</section>
+<section id="do-savedefconfig">
+<span id="ref-tasks-savedefconfig"></span><h3><span class="section-number">7.4.8 </span><code class="docutils literal notranslate"><span class="pre">do_savedefconfig</span></code><a class="headerlink" href="#do-savedefconfig" title="Link to this heading"></a></h3>
+<p>When invoked by the user, creates a defconfig file that can be used
+instead of the default defconfig. The saved defconfig contains the
+differences between the default defconfig and the changes made by the
+user using other methods (i.e. the
+<a class="reference internal" href="#ref-tasks-menuconfig"><span class="std std-ref">do_menuconfig</span></a> task. You
+can invoke the task using the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake linux-yocto -c savedefconfig
+</pre></div>
+</div>
+</section>
+<section id="do-shared-workdir">
+<span id="ref-tasks-shared-workdir"></span><h3><span class="section-number">7.4.9 </span><code class="docutils literal notranslate"><span class="pre">do_shared_workdir</span></code><a class="headerlink" href="#do-shared-workdir" title="Link to this heading"></a></h3>
+<p>After the kernel has been compiled but before the kernel modules have
+been compiled, this task copies files required for module builds and
+which are generated from the kernel build into the shared work
+directory. With these copies successfully copied, the
+<a class="reference internal" href="#ref-tasks-compile-kernelmodules"><span class="std std-ref">do_compile_kernelmodules</span></a> task
+can successfully build the kernel modules in the next step of the build.</p>
+</section>
+<section id="do-sizecheck">
+<span id="ref-tasks-sizecheck"></span><h3><span class="section-number">7.4.10 </span><code class="docutils literal notranslate"><span class="pre">do_sizecheck</span></code><a class="headerlink" href="#do-sizecheck" title="Link to this heading"></a></h3>
+<p>If the variable <a class="reference internal" href="variables.html#term-KERNEL_IMAGE_MAXSIZE"><span class="xref std std-term">KERNEL_IMAGE_MAXSIZE</span></a> is set, this task compares
+the size of all stripped kernel images listed in <a class="reference internal" href="variables.html#term-KERNEL_IMAGETYPES"><span class="xref std std-term">KERNEL_IMAGETYPES</span></a>
+against that value. If more than one image type is listed there, warn on
+any that exceed that value, but fail only if none of them fit.</p>
+</section>
+<section id="do-strip">
+<span id="ref-tasks-strip"></span><h3><span class="section-number">7.4.11 </span><code class="docutils literal notranslate"><span class="pre">do_strip</span></code><a class="headerlink" href="#do-strip" title="Link to this heading"></a></h3>
+<p>If <a class="reference internal" href="variables.html#term-KERNEL_IMAGE_STRIP_EXTRA_SECTIONS"><span class="xref std std-term">KERNEL_IMAGE_STRIP_EXTRA_SECTIONS</span></a> is defined, this task strips
+the sections named in that variable from <code class="docutils literal notranslate"><span class="pre">vmlinux</span></code>. This stripping is
+typically used to remove nonessential sections such as <code class="docutils literal notranslate"><span class="pre">.comment</span></code>
+sections from a size-sensitive configuration.</p>
+<p>Common sections to strip:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.comment</span></code>: Holds compiler version strings and information</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.note.*</span></code>: Extra notes often left by the compiler</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.debug</span></code>: Debugging information</p></li>
+</ul>
+</section>
+<section id="do-validate-branches">
+<span id="ref-tasks-validate-branches"></span><h3><span class="section-number">7.4.12 </span><code class="docutils literal notranslate"><span class="pre">do_validate_branches</span></code><a class="headerlink" href="#do-validate-branches" title="Link to this heading"></a></h3>
+<p>After the kernel is unpacked but before it is patched, this task makes
+sure that the machine and metadata branches as specified by the
+<a class="reference internal" href="variables.html#term-SRCREV"><span class="xref std std-term">SRCREV</span></a> variables actually exist on the specified
+branches. Otherwise, if <a class="reference internal" href="variables.html#term-AUTOREV"><span class="xref std std-term">AUTOREV</span></a> is not being used, the
+<a class="reference internal" href="#ref-tasks-validate-branches"><span class="std std-ref">do_validate_branches</span></a> task fails during the build.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

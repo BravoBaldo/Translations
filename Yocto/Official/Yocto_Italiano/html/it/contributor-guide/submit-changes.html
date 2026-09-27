@@ -1,0 +1,688 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 Apportare Modifiche a un Componente &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Yocto Project Reference Manual" href="../ref-manual/index.html" />
+    <link rel="prev" title="3 Guida di Stile per le Ricette" href="recipe-style-guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Guida per i Collaboratori</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="identify-component.html">1 Identificazione del Componente</a></li>
+<li class="toctree-l2"><a class="reference internal" href="report-defect.html">2 Segnalazione di un Difetto in Yocto Project e in OpenEmbedded</a></li>
+<li class="toctree-l2"><a class="reference internal" href="recipe-style-guide.html">3 Guida di Stile per le Ricette</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4 Apportare Modifiche a un Componente</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#contributing-through-mailing-lists-why-not-using-web-based-workflows">4.1 Contribuire tramite mailing list: Perché non utilizzare flussi di lavoro basati sul web?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preparing-changes-for-submission">4.2 Preparazione delle Modifiche per l'Invio</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#set-up-git">4.2.1 Configurazione di Git</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#clone-the-git-repository-for-the-component-to-modify">4.2.2 Clonare il repository Git del componente da modificare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-a-new-branch">4.2.3 Creare un nuovo branch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implement-and-commit-changes">4.2.4 Implementare e confermare le modifiche</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-your-changes">4.2.5 Verificare le modifiche</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-patches">4.3 Creazione di Patch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validating-patches-with-patchtest">4.4 Validazione delle Patch con Patchtest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sending-the-patches-via-email">4.5 Invio delle Patch via Email</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#using-git-to-send-patches">4.5.1 Utilizzo di Git per Inviare le Patch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setting-up-git-to-send-email">4.5.2 Configurazione di Git per l'Invio di Email</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finding-a-suitable-mailing-list">4.5.3 Trovare una Mailing List Adatta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subscribing-to-the-mailing-list">4.5.4 Iscrizione alla Mailing List</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sending-patches-via-email">4.5.5 Invio delle Patch via Email</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#troubleshooting-email-issues">4.5.6 Risoluzione dei Problemi Relativi alle Email</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#streamlining-git-send-email-usage">4.5.7 Ottimizzazione dell'utilizzo di &quot;git send-email&quot;</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#using-scripts-to-push-a-change-upstream-and-request-a-pull">4.6 Uso di Script per il Push di una Modifica Upstream e il Pull Request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#submitting-changes-to-stable-release-branches">4.7 Invio di Modifiche ai Branch di Rilascio Stabili</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#taking-patch-review-into-account">4.8 Considerazioni sulla Revisione delle Patch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tracking-the-status-of-patches">4.9 Monitoraggio dello Stato delle Patch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#acceptance-of-ai-generated-code">4.10 Accettazione del Codice Generato dall'IA</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Guida per i Collaboratori di Yocto Project e di OpenEmbedded</a> &raquo;</li>
+    
+    <li><span class="section-number">4 </span>Apportare Modifiche a un Componente</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/contributor-guide/submit-changes.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing-changes-to-a-component">
+<h1><span class="section-number">4 </span>Apportare Modifiche a un Componente<a class="headerlink" href="#contributing-changes-to-a-component" title="Link to this heading"></a></h1>
+<p>I contributi a Yocto Project e a OpenEmbedded sono benvenuti. Dato che il sistema è estremamente configurabile e flessibile, sappiamo che gli sviluppatori vorranno estenderlo, configurarlo o ottimizzarlo per le loro esigenze specifiche.</p>
+<section id="contributing-through-mailing-lists-why-not-using-web-based-workflows">
+<span id="ref-why-mailing-lists"></span><h2><span class="section-number">4.1 </span>Contribuire tramite mailing list: Perché non utilizzare flussi di lavoro basati sul web?<a class="headerlink" href="#contributing-through-mailing-lists-why-not-using-web-based-workflows" title="Link to this heading"></a></h2>
+<p>Sia Yocto Project che OpenEmbedded hanno molti componenti chiave che vengono mantenuti tramite patch inviate tramite mailing list. Sappiamo che questo approccio può sembrare un po' antiquato, considerando che sono disponibili altri flussi di lavoro basati su tecnologie web come GitHub, GitLab e altri. Poiché ci viene spesso posta questa domanda, abbiamo deciso di documentare i motivi per cui utilizziamo le mailing list.</p>
+<p>Un fattore importante è che diamo valore alla revisione paritaria. Quando viene proposta una modifica a molti dei componenti principali del progetto, è utile che venga esaminata da più persone. Sebbene la decisione finale sull'accettazione o il rifiuto di una patch spetti a un singolo manutentore, la revisione viene effettuata da più persone e l'identità di chi la effettua è probabilmente sconosciuta al manutentore. Spesso è il revisore a sorpresa a individuare i problemi più interessanti!</p>
+<p>Questo contrasta con il flusso di lavoro in stile &quot;GitHub&quot;, dove la revisione viene effettuata solo dal manutentore o richiesta specificamente a persone designate. Crediamo che questo tipo di revisione tra pari apporti un valore significativo al codice sorgente e che abbandonare le mailing list sarebbe dannoso per il nostro codice.</p>
+<p>Dobbiamo anche riconoscere che molti dei nostri sviluppatori sono abituati a questo flusso di lavoro tramite mailing list e lo utilizzano da anni, con strumenti e processi creati appositamente per questo scopo. Abbandonare questo sistema comporterebbe la perdita di persone chiave dal progetto, il che sarebbe a sua volta dannoso.</p>
+<p>I progetti sono perfettamente consapevoli che i potenziali nuovi collaboratori trovano l'approccio tramite mailing list scoraggiante e preferirebbero un'interfaccia grafica basata sul web. Poiché non crediamo che questa soluzione possa funzionare per noi, il progetto si propone di rendere disponibile <a class="reference external" href="https://patchwork.yoctoproject.org/">patchwork</a> per aiutare a monitorare lo stato delle patch e sta anche valutando come gli strumenti possano fornire un feedback più completo agli utenti sullo stato delle patch. Stiamo cercando di migliorare strumenti come <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> per testare i contributi degli utenti prima che vengano inviati alle mailing list e anche di documentare meglio come utilizzare tali flussi di lavoro, poiché riconosciamo che, mentre questo era di dominio pubblico dieci anni fa, potrebbe non esserlo più.</p>
+</section>
+<section id="preparing-changes-for-submission">
+<h2><span class="section-number">4.2 </span>Preparazione delle Modifiche per l'Invio<a class="headerlink" href="#preparing-changes-for-submission" title="Link to this heading"></a></h2>
+<section id="set-up-git">
+<h3><span class="section-number">4.2.1 </span>Configurazione di Git<a class="headerlink" href="#set-up-git" title="Link to this heading"></a></h3>
+<p>La prima cosa da fare è installare i pacchetti Git. Ecco un esempio su Debian e Ubuntu:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">git</span><span class="o">-</span><span class="n">core</span> <span class="n">git</span><span class="o">-</span><span class="n">email</span>
+</pre></div>
+</div>
+<p>Successivamente, è necessario impostare un nome e un indirizzo e-mail che Git utilizzerà per identificare i commit:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="s2">"Ada Lovelace"</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span> <span class="s2">"ada.lovelace@gmail.com"</span>
+</pre></div>
+</div>
+<p>Per default, Git aggiunge una riga di firma alla fine delle patch contenente la versione di Git. Si consiglia di rimuoverla in quanto non aggiunge informazioni utili.</p>
+<p>Rimuoverla con il seguente comando:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="nb">format</span><span class="o">.</span><span class="n">signature</span> <span class="s2">""</span>
+</pre></div>
+</div>
+</section>
+<section id="clone-the-git-repository-for-the-component-to-modify">
+<h3><span class="section-number">4.2.2 </span>Clonare il repository Git del componente da modificare<a class="headerlink" href="#clone-the-git-repository-for-the-component-to-modify" title="Link to this heading"></a></h3>
+<p>Dopo aver identificato il componente da modificare come descritto nella sezione &quot;<a class="reference internal" href="identify-component.html"><span class="doc">Identificazione del Componente</span></a>&quot;, clonare il repository Git corrispondente. Ecco un esempio per OpenEmbedded-Core:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">git</span><span class="o">.</span><span class="n">openembedded</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">openembedded</span><span class="o">-</span><span class="n">core</span>
+<span class="n">cd</span> <span class="n">openembedded</span><span class="o">-</span><span class="n">core</span>
+</pre></div>
+</div>
+</section>
+<section id="create-a-new-branch">
+<h3><span class="section-number">4.2.3 </span>Creare un nuovo branch<a class="headerlink" href="#create-a-new-branch" title="Link to this heading"></a></h3>
+<p>Poi, si crea un nuovo branch nel proprio repository Git locale per le modifiche, partendo dal branch di riferimento nel repository upstream (spesso chiamato <code class="docutils literal notranslate"><span class="pre">master</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git checkout &lt;ref-branch&gt;
+$ git checkout -b my-changes
+</pre></div>
+</div>
+<p>Se si ha un set di modifiche completamente indipendenti da inviare, si dovrebbe addirittura creare un branch per ogni set.</p>
+</section>
+<section id="implement-and-commit-changes">
+<h3><span class="section-number">4.2.4 </span>Implementare e confermare le modifiche<a class="headerlink" href="#implement-and-commit-changes" title="Link to this heading"></a></h3>
+<p>In ogni branch, si deve raggruppare le proprie modifiche in piccole parti controllate e isolate. Mantenere le modifiche piccole e isolate facilita la revisione, semplificare le operazioni di merge/rebase e mantenere pulita la cronologia delle modifiche, qualora qualcuno dovesse farvi riferimento in futuro.</p>
+<p>A questo scopo, si deve creare <em>un commit Git per ogni modifica</em>, corrispondente a ciascuna delle patch che si invierà. Consultare <a class="reference external" href="https://www.kernel.org/doc/html/latest/process/submitting-patches.html#separate-your-changes">ulteriori indicazioni</a> nella documentazione del kernel Linux, se necessario.</p>
+<p>Ad esempio, quando si intende aggiungere più nuove ricette, ciascuna ricetta deve essere aggiunta in un commit separato. Per gli aggiornamenti di ricette esistenti, la versione precedente dovrebbe in genere essere eliminata come parte dello stesso commit per aggiungere la versione aggiornata.</p>
+<ol class="arabic">
+<li><p><em>Staging delle Modifiche:</em> Aggiungere le modifiche all'area di staging utilizzando il comando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span></code> su ogni file modificato. Per aggiungere tutti i file modificati all'area di staging, si può anche utilizzare il comando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">-A</span></code>.</p></li>
+<li><p><em>Commit delle Modifiche:</em> In questa fase si possono creare commit separati. Per ogni commit da creare, si utilizza il comando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-s</span></code> specificando i file o le directory da includere nel commit:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git commit -s file1 file2 dir1 dir2 ...
+</pre></div>
+</div>
+<p>Per includere tutti i file aggiunti all'area di staging:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git commit -sa
+</pre></div>
+</div>
+<ol class="arabic">
+<li><p>L'opzione <code class="docutils literal notranslate"><span class="pre">-s</span></code> di <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span></code> aggiunge la riga &quot;Signed-off-by:&quot; al messaggio di commit. Lo stesso requisito vale per chi contribuisce al kernel Linux. L'aggiunta di tale riga indica che l'utente che invia la patch ha accettato il <a class="reference external" href="https://www.kernel.org/doc/html/latest/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin">Developer's Certificate of Origin 1.1</a> come segue:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Developer's Certificate of Origin 1.1
+
+By making a contribution to this project, I certify that:
+
+(a) The contribution was created in whole or in part by me and I
+    have the right to submit it under the open source license
+    indicated in the file; or
+
+(b) The contribution is based upon previous work that, to the best
+    of my knowledge, is covered under an appropriate open source
+    license and I have the right under that license to submit that
+    work with modifications, whether created in whole or in part
+    by me, under the same open source license (unless I am
+    permitted to submit under a different license), as indicated
+    in the file; or
+
+(c) The contribution was provided directly to me by some other
+    person who certified (a), (b) or (c) and I have not modified
+    it.
+
+(d) I understand and agree that this project and the contribution
+    are public and that a record of the contribution (including all
+    personal information I submit with it, including my sign-off) is
+    maintained indefinitely and may be redistributed consistent with
+    this project or the open source license(s) involved.
+</pre></div>
+</div>
+</li>
+<li><p>Fornire un breve riepilogo della modifica su una sola riga e, se sono necessarie ulteriori spiegazioni, aggiungere maggiori dettagli nella descrizione del commit. Questo riepilogo è generalmente visibile nella &quot;shortlist&quot; delle modifiche. Pertanto, fornire una descrizione breve e concisa che riassuma la modifica è utile quando si visualizza un elenco di molti commit. Anteporre a questa breve descrizione il nome della ricetta (se si modifica una ricetta) o il path abbreviato del file modificato.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Per trovare un prefisso adatto per il riepilogo del commit, un buon consiglio è quello di cercare i prefissi utilizzati nei commit precedenti che hanno interessato gli stessi file o directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">log</span> <span class="o">--</span><span class="n">oneline</span> <span class="o">&lt;</span><span class="n">paths</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p>Nella descrizione del commit, fornire informazioni dettagliate che descrivano cosa è stato modificato, perché è stato fatto e l'approccio che utilizzato. Potrebbe anche essere utile menzionare come è stata testato la modifica. Fornire il maggior numero possibile di dettagli nella descrizione del commit.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Se il riepilogo di una sola riga è sufficiente a descrivere una modifica semplice, la descrizione del commit può essere lasciata vuota.</p>
+</div>
+</li>
+<li><p>Se la modifica risolve un bug o un problema specifico associato a un ID di tracciamento dei bug, includere un riferimento a tale ID nel corpo del messaggio di commit. Ad esempio, Yocto Project utilizza una convenzione specifica per i riferimenti ai bug: qualsiasi commit che risolve un bug specifico dovrebbe utilizzare il seguente formato per il corpo del messaggio di commit. Assicurarsi di utilizzare l'ID di tracciamento del bug effettivo di Bugzilla per bug-id:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">single</span><span class="o">-</span><span class="n">line</span> <span class="n">summary</span> <span class="n">of</span> <span class="n">change</span>
+
+<span class="n">Fixes</span> <span class="p">[</span><span class="n">YOCTO</span> <span class="c1">#bug-id]</span>
+
+<span class="n">detailed</span> <span class="n">description</span> <span class="n">of</span> <span class="n">change</span>
+</pre></div>
+</div>
+</li>
+<li><p>Se altre persone hanno partecipato a questa patch, aggiungere alcuni tag alla descrizione del commit per dare credito agli altri contributori alla modifica:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Reported-by</span></code>: nome e indirizzo email della persona che ha segnalato un bug che il commit sta cercando di correggere. Questa è una buona pratica per incoraggiare gli utenti a continuare a segnalare bug e far loro sapere che le loro segnalazioni vengono prese in considerazione.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Suggested-by</span></code>: nome e indirizzo email della persona a cui attribuire il merito dell'idea di apportare la modifica.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tested-by</span></code>, <code class="docutils literal notranslate"><span class="pre">Reviewed-by</span></code>: nome e indirizzo email delle persone che hanno testato le modifiche o revisionato il codice. Questi campi vengono solitamente aggiunti dal manutentore che accetta una patch, oppure in proprio se si è il mittente delle patch a dei revisori preliminari o se si sta inviando nuovamente una patch non modificata come parte di una nuova iterazione della propria serie di patch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Cc</span></code>: nome e indirizzo email delle persone a cui inviare una copia delle modifiche. Questo campo verrà utilizzato da <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">send-email</span></code>.</p></li>
+</ul>
+<p>Per, <a class="reference external" href="https://www.kernel.org/doc/html/latest/process/submitting-patches.html#using-reported-by-tested-by-reviewed-by-suggested-by-and-fixes">ulteriori informazioni sull'utilizzo di questi tag</a> consultare la documentazione del kernel Linux.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>È possibile modificare un messaggio di commit Git esistente per aggiungere i tag mancanti per i collaboratori con il comando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">--amend</span></code>.</p>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+</section>
+<section id="test-your-changes">
+<h3><span class="section-number">4.2.5 </span>Verificare le modifiche<a class="headerlink" href="#test-your-changes" title="Link to this heading"></a></h3>
+<p>Per ogni contributo che apporti, si devono anche testare le modifiche. A tal fine, Yocto Project offre diversi tipi di test. Questi test coprono aree diverse e la loro fattibilità dipende dalle modifiche che apportata. Ad esempio, eseguire:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Per modifiche che interessano l'ambiente di build:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">bitbake-selftest</span></code>: per le modifiche all'interno di BitBake</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oe-selftest</span></code>: per testare combinazioni di esecuzioni di BitBake</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oe-build-perf-test</span></code>: per testare le prestazioni di scenari di compilazione comuni</p></li>
+</ul>
+</li>
+<li><p>Per modifiche a una ricetta:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ptest</span></code>: esegue test specifici del pacchetto, se presenti</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testimage</span></code>: creare un'immagine, avviarla ed eseguirci i test</p></li>
+<li><p>Se applicabile, eseguire anche le build delle varianti <code class="docutils literal notranslate"><span class="pre">native</span></code> e <code class="docutils literal notranslate"><span class="pre">nativesdk</span></code></p></li>
+</ul>
+</li>
+<li><p>Per modifiche relative all'SDK:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">testsdk</span></code>: per compilare, installare ed eseguire test su un SDK</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">testsdk_ext</span></code>: per compilare, installare ed eseguire test su un SDK esteso</p></li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<p>Si noti che questo elenco fornisce solo suggerimenti e non è esaustivo. Maggiori dettagli sono disponibili qui: <a class="reference internal" href="../test-manual/intro.html#yocto-project-tests-types-of-testing-overview"><span class="std std-ref">Yocto Project Tests --- Types of Testing Overview</span></a>.</p>
+</section>
+</section>
+<section id="creating-patches">
+<h2><span class="section-number">4.3 </span>Creazione di Patch<a class="headerlink" href="#creating-patches" title="Link to this heading"></a></h2>
+<p>Ecco la procedura generale per creare patch da inviare via email:</p>
+<ol class="arabic">
+<li><p><em>Descrivere le Modifiche nel Proprio Branch:</em> Se il branch contiene più di un commit, si consiglia di allegare una lettera di presentazione che descriva la serie di patch inviata.</p>
+<p>A questo scopo, una buona soluzione è quella di salvare il contenuto della lettera di presentazione direttamente nel branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">branch</span> <span class="o">--</span><span class="n">edit</span><span class="o">-</span><span class="n">description</span>
+</pre></div>
+</div>
+<p>Questo aprirà un editor di testo in cui si potrà inserire la descrizione delle modifiche. Questa descrizione può essere aggiornata quando necessario e verrà utilizzata da Git per creare la lettera di presentazione insieme alle patch.</p>
+<p>Si consiglia di iniziare la descrizione con un titolo che fungerà da oggetto per la lettera di presentazione.</p>
+</li>
+<li><p><em>Generare le Patch per il Branch:</em> Il comando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">format-patch</span></code> genererà i file patch per ogni commit del branch. È necessario specificare il branch di riferimento da cui parte il branch.</p>
+<p>Se il branch non necessitava di una descrizione nel passaggio precedente:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git format-patch &lt;ref-branch&gt;
+</pre></div>
+</div>
+<p>Se invece è stata inserita una descrizione per il branch, si dovrà generare anche una lettera di presentazione:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git format-patch --cover-letter --cover-from-description=auto &lt;ref-branch&gt;
+</pre></div>
+</div>
+<p>Dopo l'esecuzione del comando, la directory corrente conterrà file <code class="docutils literal notranslate"><span class="pre">.patch</span></code> numerati per i commit del branch. Se c'è una lettera di presentazione, la si troverà nel file <code class="docutils literal notranslate"><span class="pre">0000-cover-letter.patch</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>L'opzione <code class="docutils literal notranslate"><span class="pre">--cover-from-description=auto</span></code> fa sì che <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">format-patch</span></code> utilizzi il primo paragrafo della descrizione del branch come titolo della lettera di presentazione. Un'altra possibilità, più facile da ricordare, è quella di passare solo l'opzione <code class="docutils literal notranslate"><span class="pre">--cover-letter</span></code>, ma si dovrà modificare manualmente l'oggetto ogni volta che si generano le patch.</p>
+<p>Consultare la <a class="reference external" href="https://git-scm.com/docs/git-format-patch">pagina del manuale di git</a> per maggiori dettagli.</p>
+</div>
+</li>
+<li><p><em>Rivedere Ogni File di Patch:</em> Questa revisione finale delle patch prima dell'invio consente spesso di visualizzare le modifiche da una prospettiva diversa e di individuare difetti come errori di battitura, problemi di spaziatura o di riga, o persino file che non si intendevano modificare. Questa revisione dovrebbe includere anche la patch della lettera di presentazione.</p>
+<p>Se necessario, rielaborare i propri commit come descritto in &quot;<a class="reference internal" href="#taking-patch-review-into-account"><span class="std std-ref">Considerazioni sulla Revisione delle Patch</span></a>&quot;.</p>
+</li>
+</ol>
+</section>
+<section id="validating-patches-with-patchtest">
+<h2><span class="section-number">4.4 </span>Validazione delle Patch con Patchtest<a class="headerlink" href="#validating-patches-with-patchtest" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">patchtest</span></code> è disponibile in <code class="docutils literal notranslate"><span class="pre">openembedded-core</span></code> come strumento per garantire che le patch siano ben formattate e contengano informazioni importanti per la manutenzione, come la presenza di <code class="docutils literal notranslate"><span class="pre">Signed-off-by</span></code>. Si noti che <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> non eseguirà alcun test funzionale delle modifiche. Attualmente, supporta solo il test delle patch per i branch di <code class="docutils literal notranslate"><span class="pre">openembedded-core</span></code>. Per configurarlo, procedere come segue:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">meta</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">patchtest</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">source</span> <span class="n">oe</span><span class="o">-</span><span class="n">init</span><span class="o">-</span><span class="n">build</span><span class="o">-</span><span class="n">env</span>
+<span class="n">bitbake</span><span class="o">-</span><span class="n">layers</span> <span class="n">add</span><span class="o">-</span><span class="n">layer</span> <span class="o">../</span><span class="n">meta</span><span class="o">-</span><span class="n">selftest</span>
+</pre></div>
+</div>
+<p>Una volta completati questi passaggi e generati i file delle patch, è possibile eseguire <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> in questo modo:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">patchtest</span> <span class="o">--</span><span class="n">patch</span> <span class="o">&lt;</span><span class="n">patch_name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>In alternativa, se si desidera che <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> esegua un'iterazione e testi più patch memorizzate in una directory, è possibile utilizzare:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">patchtest</span> <span class="o">--</span><span class="n">directory</span> <span class="o">&lt;</span><span class="n">directory_name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Per default, <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> utilizza i path dei file dei propri moduli per determinare il repository e la suite di test da utilizzare per il controllo delle patch. Per testare le patch su un repository diverso da <code class="docutils literal notranslate"><span class="pre">openembedded-core</span></code> e/o utilizzare un set di test diverso, si possono usare i flag <code class="docutils literal notranslate"><span class="pre">--repodir</span></code> e <code class="docutils literal notranslate"><span class="pre">--testdir</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">patchtest</span> <span class="o">--</span><span class="n">patch</span> <span class="o">&lt;</span><span class="n">patch_name</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">repodir</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">repo</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">testdir</span> <span class="o">&lt;</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">testdir</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Infine, si tenga presente che <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> è progettato per testare le patch in modo indipendente, quindi se le patch devono essere applicate sopra le modifiche apportate da patch precedenti in una serie, è possibile che <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> segnali falsi errori relativi al test &quot;merge on head&quot;.</p>
+<p>L'utilizzo di <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> in questo modo fornisce un controllo finale sulla qualità complessiva delle modifiche prima che vengano inviate per la revisione da parte dei manutentori.</p>
+</section>
+<section id="sending-the-patches-via-email">
+<h2><span class="section-number">4.5 </span>Invio delle Patch via Email<a class="headerlink" href="#sending-the-patches-via-email" title="Link to this heading"></a></h2>
+<section id="using-git-to-send-patches">
+<h3><span class="section-number">4.5.1 </span>Utilizzo di Git per Inviare le Patch<a class="headerlink" href="#using-git-to-send-patches" title="Link to this heading"></a></h3>
+<p>Per inviare patch via email, è fondamentale che non contengano spazi bianchi o formattazione HTML, né introdotti manualmente né dal client di posta. Il manutentore che riceve le patch deve essere in grado di salvarle e applicarle direttamente dalle email, utilizzando il comando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">am</span></code>.</p>
+<p>L'utilizzo del comando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">send-email</span></code> è l'unico modo sicuro per inviare patch via email, poiché elimina il rischio di compromettere la formattazione degli spazi bianchi nel corpo del messaggio, cosa che può accadere utilizzando il proprio client di posta. Inoltre, includerà correttamente le patch come <em>inline attachments</em>, cosa non facile da fare con i client di posta elettronica standard senza mandare a capo il testo. Utilizzando il normale client di posta elettronica e condividendo le patch come allegati, i revisori non sarebbero in grado di citare sezioni specifiche delle modifiche e di commentarle.</p>
+</section>
+<section id="setting-up-git-to-send-email">
+<h3><span class="section-number">4.5.2 </span>Configurazione di Git per l'Invio di Email<a class="headerlink" href="#setting-up-git-to-send-email" title="Link to this heading"></a></h3>
+<p>Il comando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">send-email</span></code> può inviare email utilizzando un Mail Transport Agent (MTA) locale o remoto, come <code class="docutils literal notranslate"><span class="pre">msmtp</span></code>, <code class="docutils literal notranslate"><span class="pre">sendmail</span></code>, oppure tramite una configurazione SMTP diretta nel file <code class="docutils literal notranslate"><span class="pre">~/.gitconfig</span></code> di Git.</p>
+<p>Ecco le impostazioni per consentire aHere are the settings for letting <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">send-email</span></code> di inviare email tramite il tuo server SMTP abituale, utilizzando un account Google Mail come esempio:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">sendemail</span><span class="o">.</span><span class="n">smtpserver</span> <span class="n">smtp</span><span class="o">.</span><span class="n">gmail</span><span class="o">.</span><span class="n">com</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">sendemail</span><span class="o">.</span><span class="n">smtpserverport</span> <span class="mi">587</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">sendemail</span><span class="o">.</span><span class="n">smtpencryption</span> <span class="n">tls</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">sendemail</span><span class="o">.</span><span class="n">smtpuser</span> <span class="n">ada</span><span class="o">.</span><span class="n">lovelace</span><span class="nd">@gmail</span><span class="o">.</span><span class="n">com</span>
+<span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">sendemail</span><span class="o">.</span><span class="n">smtppass</span> <span class="o">=</span> <span class="n">XXXXXXXX</span>
+</pre></div>
+</div>
+<p>Queste impostazioni appariranno nel file <code class="docutils literal notranslate"><span class="pre">.gitconfig</span></code> nella propria directory home.</p>
+<p>Se non si può utilizzare né un MTA locale né SMTP, si deve utilizzare un client di posta elettronica che non modifichi il messaggio (invertendo gli spazi in tabulazioni, mandando a capo le righe, ecc.). Un buon client di posta per questo scopo è Pine (o Alpine) o Mutt. Per ulteriori informazioni sui client compatibili, consultare la sezione <a class="reference external" href="https://www.kernel.org/doc/html/latest/process/email-clients.html">Informazioni sui client di posta elettronica per Linux</a> nei sorgenti del kernel Linux.</p>
+<p>Se si utilizzano client di questo tipo, è sufficiente includere la patch nel corpo dell'e-mail.</p>
+</section>
+<section id="finding-a-suitable-mailing-list">
+<h3><span class="section-number">4.5.3 </span>Trovare una Mailing List Adatta<a class="headerlink" href="#finding-a-suitable-mailing-list" title="Link to this heading"></a></h3>
+<p>È necessario inviare le patch alla mailing list appropriata affinché possano essere esaminate dai collaboratori competenti e integrate dal manutentore di riferimento. La mailing list specifica da utilizzare dipende dalla posizione del codice che si sta modificando.</p>
+<p>Se qualcuno ha dubbi su una qualsiasi delle patch, di solito li esprime tramite la mailing list. Se le patch non ricevono recensioni negative, il manutentore del layer interessato in genere le prende, le testa e, in base all'esito positivo dei test, le integra.</p>
+<p>In generale, ogni componente (ad esempio, un layer) dovrebbe avere un file <code class="docutils literal notranslate"><span class="pre">README</span></code> che indica dove inviare le modifiche e quale procedura seguire.</p>
+<p>Se si intende inviare una nuova ricetta che non rientra né in <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>, né in <a class="extlink-oe_git reference external" href="https://git.openembedded.org/meta-openembedded/">meta-openembedded</a>, è necessario cercare un layer adatto su <a class="reference external" href="https://layers.openembedded.org">https://layers.openembedded.org</a>. Se si prevedono ricette simili, si può consultare la sezione <a class="reference internal" href="../dev-manual/layers.html#creating-your-own-layer"><span class="std std-ref">Creating Your Own Layer</span></a>.</p>
+<p>In caso di dubbi, si prega di chiedere sulla mailing list generale <a class="extlink-yocto_lists reference external" href="https://lists.yoctoproject.org/g/yocto/">yocto</a> o sulla mailing list <a class="extlink-oe_lists reference external" href="https://lists.openembedded.org/g/openembedded-devel">openembedded-devel</a>.</p>
+</section>
+<section id="subscribing-to-the-mailing-list">
+<h3><span class="section-number">4.5.4 </span>Iscrizione alla Mailing List<a class="headerlink" href="#subscribing-to-the-mailing-list" title="Link to this heading"></a></h3>
+<p>Dopo aver individuato la mailing list più adatta, si dovrà iscriversi se non già fatto.</p>
+<p>Se si tenta di inviare patch a una lista a cui non si è iscritti, l'email verrà restituita come non recapitata.</p>
+<p>Tuttavia, se non si desidera ricevere tutti i messaggi inviati a una mailing list, si può impostare l'iscrizione su &quot;no email&quot;. Si rimarrà comunque iscritti e si potranno inviare messaggi, ma non si riceveranno email. Se qualcuno risponde al messaggio, il suo client di posta elettronica includerà automaticamente il proprio indirizzo email nella conversazione.</p>
+<p>In ogni caso, si potrà accedere ai nuovi messaggi negli archivi delle mailing list, tramite un browser web oppure, per le liste archiviate su <a class="reference external" href="https://lore.kernel.org">https://lore.kernel.org</a>, tramite un feed di newsgroup individuale o un repository Git.</p>
+</section>
+<section id="sending-patches-via-email">
+<h3><span class="section-number">4.5.5 </span>Invio delle Patch via Email<a class="headerlink" href="#sending-patches-via-email" title="Link to this heading"></a></h3>
+<p>A questo punto, si è pronti per inviare le patch via email. Ecco l'utilizzo tipico di <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">send-email</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">send</span><span class="o">-</span><span class="n">email</span> <span class="o">--</span><span class="n">to</span> <span class="o">&lt;</span><span class="n">mailing</span><span class="o">-</span><span class="nb">list</span><span class="o">-</span><span class="n">address</span><span class="o">&gt;</span> <span class="o">*.</span><span class="n">patch</span>
+</pre></div>
+</div>
+<p>Successivamente, rivedere attentamente ogni riga dell'oggetto e l'elenco dei destinatari, quindi consentire al comando di inviare ogni messaggio.</p>
+<p>Si noterà che <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">send-email</span></code> invierà automaticamente una copia a tutti i destinatari indicati nei tag di commit, come <code class="docutils literal notranslate"><span class="pre">Signed-off-by</span></code> o <code class="docutils literal notranslate"><span class="pre">Reported-by</span></code>.</p>
+<p>Nel caso in cui si stia inviando patch per <a class="extlink-oe_git reference external" href="https://git.openembedded.org/meta-openembedded/">meta-openembedded</a> o per qualsiasi altro layer diverso da <a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/">openembedded-core</a>, aggiungere il prefisso appropriato in modo che sia chiaro a quale layer deve essere applicata la patch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="nb">format</span><span class="o">-</span><span class="n">patch</span> <span class="o">--</span><span class="n">subject</span><span class="o">-</span><span class="n">prefix</span><span class="o">=</span><span class="s2">"meta-oe][PATCH"</span> <span class="o">...</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>È possibile inviare patch anche senza generarle prima. Tuttavia, assicurarsi di aver esaminato attentamente le modifiche, perché <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">send-email</span></code> mostrerà solo le righe del titolo di ciascuna patch.</p>
+<p>Ecco un comando utilizzabile se è stata cambiata una sola patch nel proprio branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">send</span><span class="o">-</span><span class="n">email</span> <span class="o">--</span><span class="n">to</span> <span class="o">&lt;</span><span class="n">mailing</span><span class="o">-</span><span class="nb">list</span><span class="o">-</span><span class="n">address</span><span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>Se si hanno più patch e una lettera di presentazione, si possono inviare le patch per tutti i commit tra il branch di riferimento e la fine del proprio branch:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">send</span><span class="o">-</span><span class="n">email</span> <span class="o">--</span><span class="n">cover</span><span class="o">-</span><span class="n">letter</span> <span class="o">--</span><span class="n">cover</span><span class="o">-</span><span class="n">from</span><span class="o">-</span><span class="n">description</span><span class="o">=</span><span class="n">auto</span> <span class="o">--</span><span class="n">to</span> <span class="o">&lt;</span><span class="n">mailing</span><span class="o">-</span><span class="nb">list</span><span class="o">-</span><span class="n">address</span><span class="o">&gt;</span> <span class="o">-</span><span class="n">M</span> <span class="o">&lt;</span><span class="n">ref</span><span class="o">-</span><span class="n">branch</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<p>Consultare la <a class="reference external" href="https://git-scm.com/docs/git-send-email">pagina del manuale di send-email di git</a> per maggiori dettagli.</p>
+</section>
+<section id="troubleshooting-email-issues">
+<h3><span class="section-number">4.5.6 </span>Risoluzione dei Problemi Relativi alle Email<a class="headerlink" href="#troubleshooting-email-issues" title="Link to this heading"></a></h3>
+<section id="fixing-your-from-identity">
+<h4><span class="section-number">4.5.6.1 </span>Correzione dell'Identità del Mittente<a class="headerlink" href="#fixing-your-from-identity" title="Link to this heading"></a></h4>
+<p>Abbiamo un problema frequente con i collaboratori le cui patch vengono ricevute tramite un campo <code class="docutils literal notranslate"><span class="pre">From</span></code> che non corrisponde alle informazioni <code class="docutils literal notranslate"><span class="pre">Signed-off-by</span></code>. Ecco un esempio tipico per chi invia da un nome di dominio con <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/DMARC">https://en.wikipedia.org/wiki/DMARC</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">From</span><span class="p">:</span> <span class="s2">"Linus Torvalds via lists.openembedded.org &lt;linus.torvalds=kernel.org@lists.openembedded.org&gt;"</span>
+</pre></div>
+</div>
+<p>Questo campo <code class="docutils literal notranslate"><span class="pre">From</span></code> viene utilizzato da <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">am</span></code> per ricreare i commit con il nome dell'autore corretto. Quanto segue garantirà che le e-mail abbiano un campo <code class="docutils literal notranslate"><span class="pre">From</span></code> aggiuntivo all'inizio del corpo dell'e-mail, in modo che i manutentori che accettano le patch non debbano correggere manualmente le informazioni sull'autore del commit:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">sendemail</span><span class="o">.</span><span class="kn">from</span><span class="w"> </span><span class="s2">"linus.torvalds@kernel.org"</span>
+</pre></div>
+</div>
+<p>Il campo <code class="docutils literal notranslate"><span class="pre">sendemail.from</span></code> deve corrispondere all'impostazione <code class="docutils literal notranslate"><span class="pre">user.email</span></code>, che appare nella riga <code class="docutils literal notranslate"><span class="pre">Signed-off-by</span></code> dei commit.</p>
+</section>
+</section>
+<section id="streamlining-git-send-email-usage">
+<h3><span class="section-number">4.5.7 </span>Ottimizzazione dell'utilizzo di &quot;git send-email&quot;<a class="headerlink" href="#streamlining-git-send-email-usage" title="Link to this heading"></a></h3>
+<p>Per risparmiare tempo ed evitare di dover ricordare le opzioni corrette da utilizzare con <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">send-email</span></code>, si possono utilizzare le impostazioni di configurazione di Git.</p>
+<ul>
+<li><p>Per impostare l'indirizzo corretto della mailing list per un determinato repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="n">local</span> <span class="n">sendemail</span><span class="o">.</span><span class="n">to</span> <span class="n">openembedded</span><span class="o">-</span><span class="n">devel</span><span class="nd">@lists</span><span class="o">.</span><span class="n">openembedded</span><span class="o">.</span><span class="n">org</span>
+</pre></div>
+</div>
+</li>
+<li><p>Se la mailing list richiede un prefisso per l'oggetto del layer (questo funziona solo se il repository contiene un solo layer):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="n">local</span> <span class="nb">format</span><span class="o">.</span><span class="n">subjectprefix</span> <span class="s2">"meta-something][PATCH"</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="using-scripts-to-push-a-change-upstream-and-request-a-pull">
+<h2><span class="section-number">4.6 </span>Uso di Script per il Push di una Modifica Upstream e il Pull Request<a class="headerlink" href="#using-scripts-to-push-a-change-upstream-and-request-a-pull" title="Link to this heading"></a></h2>
+<p>Per serie di patch più ampie, è preferibile inviare una pull request che includa non solo la patch, ma anche un puntatore a un branch da cui prelevare le modifiche. Questo comporta la creazione di un branch locale per le modifiche, il push di questo branch in un repository accessibile e quindi l'utilizzo degli script <code class="docutils literal notranslate"><span class="pre">create-pull-request</span></code> e <code class="docutils literal notranslate"><span class="pre">send-pull-request</span></code> di openembedded-core per creare e inviare una serie di patch con un link al branch per la revisione.</p>
+<p>Seguire questa procedura per inviare una modifica a un repository Git &quot;contrib&quot; upstream dopo aver seguito i passaggi descritti in &quot;<a class="reference internal" href="#preparing-changes-for-submission"><span class="std std-ref">Preparazione delle Modifiche per l'Invio</span></a>&quot;:</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Si possono trovare informazioni generali su Git e su come inviare una modifica upstream nel <a class="reference external" href="https://git-scm.com/book/en/v2/Distributed-Git-Distributed-Workflows">Git Community Book</a>.</p>
+</div>
+<ol class="arabic">
+<li><p><em>Richiedere l'Accesso in Push a un Repository &quot;Upstream&quot; Contrib:</em> Inviare un'email a <code class="docutils literal notranslate"><span class="pre">helpdesk&#64;yoctoproject.org</span></code>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Allegare la propria chiave pubblica SSH, che di solito si chiama <code class="docutils literal notranslate"><span class="pre">id_rsa.pub.</span></code>. Se non se ne possiede una, generala eseguendo <code class="docutils literal notranslate"><span class="pre">ssh-keygen</span> <span class="pre">-t</span> <span class="pre">rsa</span> <span class="pre">-b</span> <span class="pre">4096</span> <span class="pre">-C</span> <span class="pre">&quot;your_email&#64;example.com&quot;</span></code>.</p></li>
+<li><p>Elencare i repository a cui si intende contribuire.</p></li>
+<li><p>Includere il prefisso del branch che si preferisce per i repository <code class="docutils literal notranslate"><span class="pre">-contrib</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><em>Eseguire il Push dei Commit al Repository &quot;Contrib&quot; Upstream:</em> Eseguire il push delle modifiche a quel repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git push upstream_remote_repo local_branch_name
+</pre></div>
+</div>
+<p>Ad esempio, supponiamo che si abbiano i permessi per eseguire il push nel repository upstream <code class="docutils literal notranslate"><span class="pre">meta-intel-contrib</span></code> e che si stia lavorando in un branch locale chiamato <cite>your_name</cite><code class="docutils literal notranslate"><span class="pre">/README</span></code>. Il seguente comando invia i propri commit locali al repository upstream <code class="docutils literal notranslate"><span class="pre">meta-intel-contrib</span></code> e li inserisce in un branch denominato <cite>your_name</cite><code class="docutils literal notranslate"><span class="pre">/README</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git push meta-intel-contrib your_name/README
+</pre></div>
+</div>
+</li>
+<li><p><em>Determinare a Chi Notificare:</em> Determinare il manutentore o la mailing list a cui notificare la modifica.</p>
+<p>Prima di inviare qualsiasi modifica, ci si deve accertare di chi sia il manutentore o a quale mailing list inviare la notifica. Utilizzare uno di questi metodi per scoprirlo:</p>
+<ul>
+<li><p><em>File di Manutenzione:</em> Esaminare il file <code class="docutils literal notranslate"><span class="pre">maintainers.inc</span></code>, che si trova in <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> in <code class="docutils literal notranslate"><span class="pre">meta/conf/distro/include</span></code>, per vedere chi è responsabile del codice.</p></li>
+<li><p><em>Ricercare per File:</em> Utilizzando <a class="reference internal" href="../overview-manual/development-environment.html#git"><span class="std std-ref">Git</span></a>, è possibile inserire il seguente comando per visualizzare un breve elenco di tutti i commit relativi a un file specifico:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">shortlog</span> <span class="o">--</span> <span class="n">filename</span>
+</pre></div>
+</div>
+<p>Basta fornire il nome del file di interesse. Le informazioni restituite non sono ordinate cronologicamente, ma includono un elenco di tutti coloro che hanno effettuato commit, raggruppati per nome. Dall'elenco, è possibile vedere chi è responsabile della maggior parte delle modifiche al file.</p>
+</li>
+<li><p><em>Trovare la Mailing List da Utilizzare:</em> Consultare la sezione &quot;<a class="reference internal" href="#finding-a-suitable-mailing-list"><span class="std std-ref">Trovare una Mailing List Adatta</span></a>&quot; sopra.</p></li>
+</ul>
+</li>
+<li><p><em>Creare una Pull Request:</em> Notificare al manutentore o alla mailing list di aver inviato una modifica creando una pull request.</p>
+<p>Yocto Project fornisce due script che consentono di generare e inviare facilmente pull request a Yocto Project. Questi script sono <code class="docutils literal notranslate"><span class="pre">create-pull-request</span></code> e <code class="docutils literal notranslate"><span class="pre">send-pull-request</span></code>. Si trovano nella directory <code class="docutils literal notranslate"><span class="pre">scripts</span></code> in <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>.</p>
+<p>L'utilizzo di questi script formatta correttamente le richieste senza introdurre spazi bianchi o formattazione HTML. Il manutentore che riceve le patch, direttamente o tramite la mailing list, deve essere in grado di salvarle e applicarle direttamente dalle e-mail. Questo è il metodo preferito per l'invio delle patch.</p>
+<p>Innanzitutto, si crea la pull request. Ad esempio, il seguente comando esegue lo script, specifica il repository upstream nella directory contrib in cui si è effettuato il push della modifica e fornisce un oggetto nei file patch creati:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./scripts/create-pull-request -u meta-intel-contrib -s "Updated Manual Section Reference in README"
+</pre></div>
+</div>
+<p>L'esecuzione di questo script crea file <code class="docutils literal notranslate"><span class="pre">*.patch</span></code> in una cartella denominata <code class="docutils literal notranslate"><span class="pre">pull-</span></code><cite>PID</cite> nella directory corrente. Uno dei file patch è una lettera di presentazione.</p>
+<p>Prima di eseguire lo script <code class="docutils literal notranslate"><span class="pre">send-pull-request</span></code>, è necessario modificare la patch della lettera di presentazione per inserire le informazioni sulla modifica. Dopo aver modificato la lettera di presentazione, si invia la pull request. Ad esempio, il seguente comando esegue lo script e specifica la directory della patch e l'indirizzo email. In questo esempio, l'indirizzo email è quello di una mailing list:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./scripts/send-pull-request -p ~/meta-intel/pull-10565 -t meta-intel@lists.yoctoproject.org
+</pre></div>
+</div>
+<p>È necessario seguire le istruzioni visualizzate, poiché lo script è interattivo.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Per ricevere assistenza sull'utilizzo di questi script, è sufficiente specificare l'argomento <code class="docutils literal notranslate"><span class="pre">-h</span></code> come segue:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./scripts/create-pull-request -h
+$ ./scripts/send-pull-request -h
+</pre></div>
+</div>
+</div>
+</li>
+</ol>
+</section>
+<section id="submitting-changes-to-stable-release-branches">
+<h2><span class="section-number">4.7 </span>Invio di Modifiche ai Branch di Rilascio Stabili<a class="headerlink" href="#submitting-changes-to-stable-release-branches" title="Link to this heading"></a></h2>
+<p>La procedura per proporre modifiche a un branch stabile di Yocto Project differisce dai passaggi descritti sopra. Le modifiche a un branch stabile devono risolvere bug o CVE identificati e devono essere apportate con attenzione per evitare il rischio di introdurre nuovi bug o compromettere la compatibilità con le versioni precedenti. In genere, le correzioni di bug devono essere già state accettate nel branch master prima di poter essere retroportate a un branch stabile, a meno che il bug in questione non influisca sul branch master o la correzione sul branch master non sia adatta al &quot;backporting&quot; [retroportazione].</p>
+<p>L'elenco dei branch stabili, insieme allo stato e al manutentore di ciascun branch, è disponibile nella pagina <a class="extlink-yocto_home reference external" href="https://www.yoctoproject.org/development/releases/">Releases</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Le patch inviate per un branch stabile devono essere modifiche isolate, leggibili e comprensibili. Le correzioni per CVE o altri problemi di elevata complessità, che consistono in un numero elevato di commit e/o un numero elevato di righe modificate, difficilmente verranno accettate a causa delle difficoltà che comportano in termini di manutenibilità e scalabilità.</p>
+<p>In genere, le modifiche non vengono accettate per i branch contrassegnati come End-Of-Life (EOL).</p>
+</div>
+<p>Tenendo presente questo, i passaggi per inviare una modifica per un branch stabile sono i seguenti:</p>
+<ol class="arabic">
+<li><p><em>Identificare il bug o la CVE da correggere:</em> Queste informazioni devono essere raccolte in modo da poter essere incluse nella richiesta di modifica.</p>
+<p>Consultare <a class="reference internal" href="../security-manual/vulnerabilities.html#checking-for-vulnerabilities"><span class="std std-ref">Verifica delle Vulnerabilità</span></a> per i dettagli sul tracciamento delle CVE.</p>
+</li>
+<li><p><em>Verificare se la correzione è già presente nel branch master:</em> Questo consentirà di individuare il path più semplice per l'integrazione della correzione nel branch stabile.</p>
+<ol class="arabic">
+<li><p><em>Se la correzione è presente nel branch master, inviare una richiesta di backport via email:</em> È necessario inviare un'e-mail al manutentore del branch stabile di riferimento e alla mailing list con i dettagli del bug o della CVE da correggere, l'hash del commit sul branch master che risolve il problema e i branch stabili su cui si desidera che la correzione venga retroportata.</p></li>
+<li><p><em>Se la correzione non è presente nel branch master, inviarla prima al branch master:</em> Questo garantirà che la correzione superi i normali processi di revisione e test delle patch del progetto prima di essere accettata. Inoltre, assicurerà che non rimangano bug irrisolti nel branch master stesso. Una volta che la correzione è stata accettata nel branch master, è possibile inviare una richiesta di backport come descritto sopra.</p></li>
+<li><p><em>Se la correzione non è adatta al branch master, si invia una patch direttamente al branch stabile:</em> Questo metodo dovrebbe essere considerato come ultima risorsa. In genere è necessario quando il branch master utilizza una versione più recente del software che include una correzione upstream per il problema o quando il problema è stato risolto sul branch master in un modo che introduce modifiche incompatibili con le versioni precedenti. In questo caso, si seguono i passaggi descritti in &quot;<a class="reference internal" href="#preparing-changes-for-submission"><span class="std std-ref">Preparazione delle Modifiche per l'Invio</span></a>&quot; e nelle sezioni seguenti, ma si modifica l'oggetto dell'e-mail della patch includendo il nome del branch stabile a cui si sta indirizzando la patch. Questo può essere fatto utilizzando l'argomento <code class="docutils literal notranslate"><span class="pre">--subject-prefix</span></code> di <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">format-patch</span></code>, ad esempio per inviare una patch al branch &quot;wrynose&quot; utilizzare:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="nb">format</span><span class="o">-</span><span class="n">patch</span> <span class="o">--</span><span class="n">subject</span><span class="o">-</span><span class="n">prefix</span><span class="o">=</span><span class="s1">'wrynose][PATCH'</span> <span class="o">...</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+</section>
+<section id="taking-patch-review-into-account">
+<h2><span class="section-number">4.8 </span>Considerazioni sulla Revisione delle Patch<a class="headerlink" href="#taking-patch-review-into-account" title="Link to this heading"></a></h2>
+<p>Si potrebbe ricevere feedback sulle patch inviate da altri membri della community o dal servizio automatico di test delle patch. Se vengono identificati problemi nelle proprie patch, di solito è necessario risolverli prima che le patch vengano accettate nel progetto. In questo caso, si devono rivedere i propri commit in base al feedback e inviare una versione aggiornata alla mailing list pertinente.</p>
+<p>In ogni caso, non correggere mai i problemi segnalati modificandoli in nuovi commit sul proprio branch. Creare sempre una nuova serie di commit senza i problemi segnalati.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>È buona norma inviare una copia ai revisori che hanno fornito feedback sulla versione precedente della patch. Ciò avviene aggiungendo un tag <code class="docutils literal notranslate"><span class="pre">CC</span></code> alla descrizione del commit:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CC</span><span class="p">:</span> <span class="n">William</span> <span class="n">Shakespeare</span> <span class="o">&lt;</span><span class="n">bill</span><span class="nd">@yoctoproject</span><span class="o">.</span><span class="n">org</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<p>Una singola patch può essere modificata usando <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">--amend</span></code>, e più patch possono essere facilmente rielaborate e riordinate tramite un rebase interattivo di Git:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">rebase</span> <span class="o">-</span><span class="n">i</span> <span class="o">&lt;</span><span class="n">ref</span><span class="o">-</span><span class="n">branch</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Consultare questo tutorial <a class="reference external" href="https://hackernoon.com/beginners-guide-to-interactive-rebasing-346a3f9c3a6d">this tutorial</a> per una guida pratica sull'utilizzo del rebase interattivo di Git.</p>
+<p>Si deve anche modificare il tag <code class="docutils literal notranslate"><span class="pre">[PATCH]</span></code> nell'oggetto dell'email quando si invia la patch rivista per contrassegnare la nuova iterazione come <code class="docutils literal notranslate"><span class="pre">[PATCH</span> <span class="pre">v2]</span></code>, <code class="docutils literal notranslate"><span class="pre">[PATCH</span> <span class="pre">v3]</span></code>, ecc. a seconda dei casi. Questo può essere fatto passando l'argomento <code class="docutils literal notranslate"><span class="pre">-v</span></code> a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">format-patch</span></code> con un numero di versione:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="nb">format</span><span class="o">-</span><span class="n">patch</span> <span class="o">-</span><span class="n">v2</span> <span class="o">&lt;</span><span class="n">ref</span><span class="o">-</span><span class="n">branch</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Dopo aver generato patch aggiornate (v2, v3 e così via) tramite <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">format-patch</span></code>, idealmente gli sviluppatori dovrebbero aggiungere un changelog della versione della patch a ciascuna patch, che descriva le modifiche apportate tra le varie revisioni. Aggiungere il changelog della versione della patch dopo il marcatore <code class="docutils literal notranslate"><span class="pre">---</span></code> nella patch, indicando che queste informazioni fanno parte della patch stessa, ma non sono adatte per essere incluse nel messaggio di commit (ovvero nella cronologia di Git). Fornire un changelog della versione della patch facilita la comprensione sintetica delle modifiche apportate in tutte le versioni della patch da parte di manutentori e revisori, senza dover consultare fonti di informazione alternative, come ad esempio la ricerca tra i messaggi di una mailing list. Ad esempio:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">patch</span> <span class="n">title</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">commit</span> <span class="n">message</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">Signed</span><span class="o">-</span><span class="n">off</span><span class="o">-</span><span class="n">by</span><span class="o">/</span><span class="n">other</span> <span class="n">trailers</span><span class="o">&gt;</span>
+<span class="o">---</span>
+<span class="n">changes</span> <span class="ow">in</span> <span class="n">v4</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">provide</span> <span class="n">a</span> <span class="n">clearer</span> <span class="n">commit</span> <span class="n">message</span>
+<span class="o">-</span> <span class="n">fix</span> <span class="n">spelling</span> <span class="n">mistakes</span>
+
+<span class="n">changes</span> <span class="ow">in</span> <span class="n">v3</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">replace</span> <span class="n">func</span><span class="p">()</span> <span class="n">to</span> <span class="n">use</span> <span class="n">other_func</span><span class="p">()</span> <span class="n">instead</span>
+
+<span class="n">changes</span> <span class="ow">in</span> <span class="n">v2</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">this</span> <span class="n">patch</span> <span class="n">was</span> <span class="n">added</span> <span class="ow">in</span> <span class="n">v2</span>
+<span class="o">---</span>
+<span class="o">&lt;</span><span class="n">diffstat</span> <span class="n">output</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">unified</span> <span class="n">diff</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Infine, si devono testare anche le modifiche apportate. In particolare, non ci si limiti a modificare il file di patch generato da <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">format-patch</span></code> e a inviarlo nuovamente.</p>
+</section>
+<section id="tracking-the-status-of-patches">
+<h2><span class="section-number">4.9 </span>Monitoraggio dello Stato delle Patch<a class="headerlink" href="#tracking-the-status-of-patches" title="Link to this heading"></a></h2>
+<p>Yocto Project utilizza <a class="reference external" href="https://patchwork.yoctoproject.org/">un'istanza di Patchwork</a> per monitorare lo stato delle patch inviate alle varie mailing list e per supportare il test automatico delle patch. Ogni patch inviata viene controllata per individuare errori comuni e deviazioni dal formato previsto, e gli autori vengono avvisati da <code class="docutils literal notranslate"><span class="pre">patchtest</span></code> se vengono rilevati tali errori. Questo processo contribuisce a ridurre il carico di lavoro dei manutentori per la revisione delle patch.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Questo sistema non è perfetto e a volte le modifiche possono andare perse. È opportuno chiedere informazioni sullo stato di una patch o di una modifica se questa è rimasta inattiva per un po' di tempo senza alcun feedback.</p>
+</div>
+<p>Se le patch non hanno ricevuto alcun feedback per alcuni giorni, potrebbero essere già state integrate. Si può eseguire <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> branch per verificarlo. Da tener presente che molti, se non la maggior parte, dei manutentori dei layer non inviano email di conferma quando accettano una patch. In alternativa, se non c'è risposta o integrazione dopo alcuni giorni, la patch potrebbe essere stata trascurata o i revisori appropriati potrebbero non essere disponibili al momento. È quindi perfettamente lecito rispondere personalmente con un promemoria per richiedere un feedback.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Le revisioni delle patch per gli aggiornamenti di funzionalità e ricette potrebbero subire ritardi durante un blocco delle funzionalità, poiché questo tipo di patch non viene unito in quel periodo; potrebbe essere necessario attendere la revoca del blocco.</p>
+</div>
+<p>I manutentori utilizzano comunemente anche i branch <code class="docutils literal notranslate"><span class="pre">-next</span></code> per testare le modifiche prima di unire le patch. Pertanto, è possibile farsi un'idea dello stato di una patch in base al fatto che sia stata unita o meno a uno di questi branch. I branch di test comunemente utilizzati per OpenEmbedded-Core sono i seguenti:</p>
+<ul class="simple">
+<li><p><em>openembedded-core &quot;master-next&quot; branch:</em> Questo branch fa parte del repository <a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/">openembedded-core</a> e contiene le modifiche proposte ai metadati del core.</p></li>
+<li><p><em>bitbake &quot;master-next&quot; branch:</em> Questo branch fa parte del repository <a class="extlink-oe_git reference external" href="https://git.openembedded.org/bitbake/">bitbake</a> e contiene modifiche a <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>.</p></li>
+<li><p><em>meta-yocto &quot;master-next&quot; branch:</em> Questo branch fa parte del repository <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-yocto/">meta-yocto</a> e contiene le modifiche proposte per meta-yocto.</p></li>
+</ul>
+<p>Analogamente, i branch stabili gestiti dal progetto possono avere corrispondenti branch <code class="docutils literal notranslate"><span class="pre">-next</span></code> che raccolgono le modifiche proposte. Ad esempio, i branch <code class="docutils literal notranslate"><span class="pre">blacksail-next</span></code> e <code class="docutils literal notranslate"><span class="pre">wrynose-next</span></code> nei repository &quot;openembedded-core&quot; e &quot;meta-yocto&quot;.</p>
+<p>Altri layer possono avere branch di test simili, ma non esiste un requisito o uno standard formale in merito, quindi si deve di consultare la documentazione dei layer a cui si sta contribuendo.</p>
+</section>
+<section id="acceptance-of-ai-generated-code">
+<h2><span class="section-number">4.10 </span>Accettazione del Codice Generato dall'IA<a class="headerlink" href="#acceptance-of-ai-generated-code" title="Link to this heading"></a></h2>
+<p>Yocto Project e OpenEmbedded seguono le linee guida della Linux Foundation per quanto riguarda l'utilizzo di strumenti di IA generativa. Vedere: <a class="reference external" href="https://www.linuxfoundation.org/legal/generative-ai">https://www.linuxfoundation.org/legal/generative-ai</a>.</p>
+<p>È necessario seguire tutte le linee guida presenti in questo documento, incluse quelle contenute nella <a class="reference internal" href="recipe-style-guide.html"><span class="doc">Guida di Stile per le Ricette</span></a>, e contribuire con modifiche e requisiti aggiuntivi agli elementi nella sezione <a class="reference internal" href="#implement-and-commit-changes"><span class="std std-ref">Implementare e confermare le modifiche</span></a>.</p>
+<p>Tutto il codice generato dall'IA deve essere etichettato come tale nel messaggio di commit, prima della riga <code class="docutils literal notranslate"><span class="pre">Signed-off-by</span></code>. Si raccomanda inoltre vivamente che qualsiasi patch o codice all'interno del commit contenga un commento o un'altra indicazione che specifichi che tale codice è stato generato dall'IA.</p>
+<p>Ad esempio, ecco un messaggio di commit formattato correttamente:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">component</span><span class="p">:</span> <span class="n">Add</span> <span class="n">the</span> <span class="n">ability</span> <span class="n">to</span> <span class="o">...</span>
+
+<span class="n">AI</span><span class="o">-</span><span class="n">Generated</span><span class="p">:</span> <span class="n">Uses</span> <span class="n">GitHub</span> <span class="n">Copilot</span>
+
+<span class="n">Signed</span><span class="o">-</span><span class="n">off</span><span class="o">-</span><span class="n">by</span><span class="p">:</span> <span class="n">Your</span> <span class="n">Name</span> <span class="o">&lt;</span><span class="n">your</span><span class="o">.</span><span class="n">name</span><span class="nd">@domain</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>La riga <code class="docutils literal notranslate"><span class="pre">Signed-off-by</span></code> deve essere scritta da un umano e non dall'IA. Come promemoria, quando si contribuisce con una modifica, è richiesta la riga <code class="docutils literal notranslate"><span class="pre">Signed-off-by</span></code> e le disposizioni contenute nella <a class="reference external" href="https://developercertificate.org/">Developer's Statement of Origin 1.1</a> rimangono valide.</p>
+<p>Inoltre, è necessario specificare che i contributi relativi all'IA siano conformi alle politiche della Linux Foundation, in particolare:</p>
+<ol class="arabic simple">
+<li><p>I contributori devono assicurarsi che i termini e le condizioni dello strumento di IA generativa non impongano restrizioni contrattuali sull'utilizzo dell'output dello strumento che siano incompatibili con la licenza del software open source del progetto, le politiche sulla proprietà intellettuale del progetto o la Definizione di Open Source.</p></li>
+<li><p>Qualora l'output dello strumento di intelligenza artificiale includa materiale protetto da copyright preesistente (incluso codice open source preesistente) di proprietà o creato da terzi, prima di contribuire al progetto, il Contributore deve accertarsi di aver ottenuto l'autorizzazione dai proprietari terzi – ad esempio tramite una licenza open source o una dichiarazione di pubblico dominio conforme alle politiche di licenza del progetto – per utilizzare e modificare tale materiale preesistente e contribuire al progetto. Inoltre, il Contributore deve fornire, insieme al proprio contributo, una notifica e l'attribuzione di tali diritti di terzi, unitamente alle informazioni sui termini di licenza applicabili.</p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

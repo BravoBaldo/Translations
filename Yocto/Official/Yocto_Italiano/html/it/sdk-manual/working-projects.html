@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 Using the SDK Toolchain Directly &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="5 Obtaining the SDK" href="appendix-obtain.html" />
+    <link rel="prev" title="3 Using the Standard SDK" href="using.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduzione</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensible.html">2 Using the Extensible SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="using.html">3 Using the Standard SDK</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4 Using the SDK Toolchain Directly</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#autotools-based-projects">4.1 Autotools-Based Projects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#makefile-based-projects">4.2 Makefile-Based Projects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="appendix-obtain.html">5 Obtaining the SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix-customizing.html">6 Customizing the Extensible SDK standalone installer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix-customizing-standard.html">7 Customizing the Standard SDK</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sviluppo di Applicazioni Yocto Project e Software Development Kit (SDK/eSDK)</a> &raquo;</li>
+    
+    <li><span class="section-number">4 </span>Using the SDK Toolchain Directly</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sdk-manual/working-projects.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-the-sdk-toolchain-directly">
+<h1><span class="section-number">4 </span>Using the SDK Toolchain Directly<a class="headerlink" href="#using-the-sdk-toolchain-directly" title="Link to this heading"></a></h1>
+<p>You can use the SDK toolchain directly with Makefile and Autotools-based
+projects.</p>
+<section id="autotools-based-projects">
+<h2><span class="section-number">4.1 </span>Autotools-Based Projects<a class="headerlink" href="#autotools-based-projects" title="Link to this heading"></a></h2>
+<p>Once you have a suitable <a class="reference internal" href="intro.html#the-cross-development-toolchain"><span class="std std-ref">The Cross-Development Toolchain</span></a>
+installed, it is very easy to develop a project using the <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/GNU_Build_System">GNU
+Autotools-based</a> workflow, which is outside of the
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded Build System</span></a>.</p>
+<p>The following figure presents a simple Autotools workflow.</p>
+<a class="reference internal image-reference" href="../_images/sdk-autotools-flow.png"><img alt="../_images/sdk-autotools-flow.png" class="align-center" src="../_images/sdk-autotools-flow.png" style="width: 70%;" />
+</a>
+<p>Follow these steps to create a simple Autotools-based &quot;Hello World&quot;
+project:</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For more information on the GNU Autotools workflow, see the same
+example on the
+GNOME Developer
+site.</p>
+</div>
+<ol class="arabic">
+<li><p><em>Create a Working Directory and Populate It:</em> Create a clean
+directory for your project and then make that directory your working
+location:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mkdir<span class="w"> </span><span class="nv">$HOME</span>/helloworld
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span><span class="nv">$HOME</span>/helloworld
+</pre></div>
+</div>
+<p>After setting up the directory, populate it with files needed for the flow.
+You need a project source file, a file to help with configuration,
+and a file to help create the Makefile, and a README file:
+<code class="docutils literal notranslate"><span class="pre">hello.c</span></code>, <code class="docutils literal notranslate"><span class="pre">configure.ac</span></code>, <code class="docutils literal notranslate"><span class="pre">Makefile.am</span></code>, and <code class="docutils literal notranslate"><span class="pre">README</span></code>,
+respectively.</p>
+<p>Use the following command to create an empty README file, which is
+required by GNU Coding Standards:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>touch<span class="w"> </span>README
+</pre></div>
+</div>
+<p>Create the remaining
+three files as follows:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">hello.c</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"Hello World!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configure.ac</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>AC_INIT(hello,0.1)
+AM_INIT_AUTOMAKE([foreign])
+AC_PROG_CC
+AC_CONFIG_FILES(Makefile)
+AC_OUTPUT
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Makefile.am</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>bin_PROGRAMS = hello
+hello_SOURCES = hello.c
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><em>Source the Cross-Toolchain Environment Setup File:</em> As described
+earlier in the manual, installing the cross-toolchain creates a
+cross-toolchain environment setup script in the directory that the
+SDK was installed. Before you can use the tools to develop your
+project, you must source this setup script. The script begins with
+the string &quot;environment-setup&quot; and contains the machine architecture,
+which is followed by the string &quot;poky-linux&quot;. For this example, the
+command sources a script from the default SDK installation directory
+that uses the 32-bit Intel x86 Architecture and the 6.1 Yocto
+Project release:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>/opt/poky/6.1/environment-setup-i586-poky-linux
+</pre></div>
+</div>
+<p>Another example is sourcing the environment setup directly in a Yocto
+build:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>tmp/deploy/images/qemux86-64/environment-setup-core2-64-poky-linux
+</pre></div>
+</div>
+</li>
+<li><p><em>Create the configure Script:</em> Use the <code class="docutils literal notranslate"><span class="pre">autoreconf</span></code> command to
+generate the <code class="docutils literal notranslate"><span class="pre">configure</span></code> script:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>autoreconf
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">autoreconf</span></code>
+tool takes care of running the other Autotools such as <code class="docutils literal notranslate"><span class="pre">aclocal</span></code>,
+<code class="docutils literal notranslate"><span class="pre">autoconf</span></code>, and <code class="docutils literal notranslate"><span class="pre">automake</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>If you get errors from <code class="docutils literal notranslate"><span class="pre">configure.ac</span></code>, which <code class="docutils literal notranslate"><span class="pre">autoreconf</span></code>
+runs, that indicate missing files, you can use the &quot;-i&quot; option,
+which ensures missing auxiliary files are copied to the build
+host.</p>
+</div>
+</li>
+<li><p><em>Cross-Compile the Project:</em> This command compiles the project using
+the cross-compiler. The
+<a class="reference internal" href="../ref-manual/variables.html#term-CONFIGURE_FLAGS"><span class="xref std std-term">CONFIGURE_FLAGS</span></a>
+environment variable provides the minimal arguments for GNU
+configure:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./configure<span class="w"> </span><span class="si">${</span><span class="nv">CONFIGURE_FLAGS</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>For an Autotools-based
+project, you can use the cross-toolchain by just passing the
+appropriate host option to <code class="docutils literal notranslate"><span class="pre">configure.sh</span></code>. The host option you use
+is derived from the name of the environment setup script found in the
+directory in which you installed the cross-toolchain. For example,
+the host option for an ARM-based target that uses the GNU EABI is
+<code class="docutils literal notranslate"><span class="pre">armv5te-poky-linux-gnueabi</span></code>. You will notice that the name of the
+script is <code class="docutils literal notranslate"><span class="pre">environment-setup-armv5te-poky-linux-gnueabi</span></code>. Thus, the
+following command works to update your project and rebuild it using
+the appropriate cross-toolchain tools:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./configure<span class="w"> </span>--host<span class="o">=</span>armv5te-poky-linux-gnueabi<span class="w"> </span>--with-libtool-sysroot<span class="o">=</span>sysroot_dir
+</pre></div>
+</div>
+</li>
+<li><p><em>Make and Install the Project:</em> These two commands generate and
+install the project into the destination directory:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make
+<span class="gp">$ </span>make<span class="w"> </span>install<span class="w"> </span><span class="nv">DESTDIR</span><span class="o">=</span>./tmp
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>To learn about environment variables established when you run the
+cross-toolchain environment setup script and how they are used or
+overridden by the Makefile, see the
+<a class="reference internal" href="#makefile-based-projects"><span class="std std-ref">Makefile-Based Projects</span></a> section.</p>
+</div>
+<p>This next command is a simple way to verify the installation of your
+project. Running the command prints the architecture on which the
+binary file can run. This architecture should be the same
+architecture that the installed cross-toolchain supports:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>file<span class="w"> </span>./tmp/usr/local/bin/hello
+</pre></div>
+</div>
+</li>
+<li><p><em>Execute Your Project:</em> To execute the project, you would need to run
+it on your target hardware. If your target hardware happens to be
+your build host, you could run the project as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./tmp/usr/local/bin/hello
+</pre></div>
+</div>
+<p>As expected, the project displays the &quot;Hello World!&quot; message.</p>
+</li>
+</ol>
+</section>
+<section id="makefile-based-projects">
+<h2><span class="section-number">4.2 </span>Makefile-Based Projects<a class="headerlink" href="#makefile-based-projects" title="Link to this heading"></a></h2>
+<p>Simple Makefile-based projects use and interact with the cross-toolchain
+environment variables established when you run the cross-toolchain
+environment setup script. The environment variables are subject to
+general <code class="docutils literal notranslate"><span class="pre">make</span></code> rules.</p>
+<p>This section presents a simple Makefile development flow and provides an
+example that lets you see how you can use cross-toolchain environment
+variables and Makefile variables during development.</p>
+<a class="reference internal image-reference" href="../_images/sdk-makefile-flow.png"><img alt="../_images/sdk-makefile-flow.png" class="align-center" src="../_images/sdk-makefile-flow.png" style="width: 70%;" />
+</a>
+<p>The main point of this section is to explain the following three cases
+regarding variable behavior:</p>
+<ul class="simple">
+<li><p><em>Case 1 --- No Variables Set in the Makefile Map to Equivalent
+Environment Variables Set in the SDK Setup Script:</em> Because matching
+variables are not specifically set in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>, the variables
+retain their values based on the environment setup script.</p></li>
+<li><p><em>Case 2 --- Variables Are Set in the Makefile that Map to Equivalent
+Environment Variables from the SDK Setup Script:</em> Specifically
+setting matching variables in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> during the build
+results in the environment settings of the variables being
+overwritten. In this case, the variables you set in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>
+are used.</p></li>
+<li><p><em>Case 3 --- Variables Are Set Using the Command Line that Map to
+Equivalent Environment Variables from the SDK Setup Script:</em>
+Executing the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> from the command line results in the
+environment variables being overwritten. In this case, the
+command-line content is used.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Regardless of how you set your variables, if you use the &quot;-e&quot; option
+with <code class="docutils literal notranslate"><span class="pre">make</span></code>, the variables from the SDK setup script take precedence:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>-e<span class="w"> </span>target
+</pre></div>
+</div>
+</div>
+<p>The remainder of this section presents a simple Makefile example that
+demonstrates these variable behaviors.</p>
+<p>In a new shell environment variables are not established for the SDK
+until you run the setup script. For example, the following commands show
+a null value for the compiler variable (i.e.
+<a class="reference internal" href="../ref-manual/variables.html#term-CC"><span class="xref std std-term">CC</span></a>):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">CC</span><span class="si">}</span>
+
+<span class="gp">$</span>
+</pre></div>
+</div>
+<p>Running the
+SDK setup script for a 64-bit build host and an i586-tuned target
+architecture for a <code class="docutils literal notranslate"><span class="pre">core-image-sato</span></code> image using the current 6.1
+Yocto Project release and then echoing that variable shows the value
+established through the script:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>/opt/poky/6.1/environment-setup-i586-poky-linux
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="si">${</span><span class="nv">CC</span><span class="si">}</span>
+<span class="go">i586-poky-linux-gcc -m32 -march=i586 --sysroot=/opt/poky/6.1/sysroots/i586-poky-linux</span>
+</pre></div>
+</div>
+<p>To illustrate variable use, work through this simple &quot;Hello World!&quot;
+example:</p>
+<ol class="arabic">
+<li><p><em>Create a Working Directory and Populate It:</em> Create a clean
+directory for your project and then make that directory your working
+location:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mkdir<span class="w"> </span><span class="nv">$HOME</span>/helloworld
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span><span class="nv">$HOME</span>/helloworld
+</pre></div>
+</div>
+<p>After
+setting up the directory, populate it with files needed for the flow.
+You need a <code class="docutils literal notranslate"><span class="pre">main.c</span></code> file from which you call your function, a
+<code class="docutils literal notranslate"><span class="pre">module.h</span></code> file to contain headers, and a <code class="docutils literal notranslate"><span class="pre">module.c</span></code> that defines
+your function.</p>
+<p>Create the three files as follows:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">main.c</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"module.h"</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">sample_func</span><span class="p">();</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">sample_func</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">module.h</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">sample_func</span><span class="p">();</span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">module.c</span></code>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">"module.h"</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">sample_func</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">"Hello World!"</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><em>Source the Cross-Toolchain Environment Setup File:</em> As described
+earlier in the manual, installing the cross-toolchain creates a
+cross-toolchain environment setup script in the directory that the
+SDK was installed. Before you can use the tools to develop your
+project, you must source this setup script. The script begins with
+the string &quot;environment-setup&quot; and contains the machine architecture,
+which is followed by the string &quot;poky-linux&quot;. For this example, the
+command sources a script from the default SDK installation directory
+that uses the 32-bit Intel x86 Architecture and the Blacksail Yocto
+Project release:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>/opt/poky/6.1/environment-setup-i586-poky-linux
+</pre></div>
+</div>
+<p>Another example is sourcing the environment setup directly in a Yocto
+build:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>tmp/deploy/images/qemux86-64/environment-setup-core2-64-poky-linux
+</pre></div>
+</div>
+</li>
+<li><p><em>Create the Makefile:</em> For this example, the Makefile contains
+two lines that can be used to set the <a class="reference internal" href="../ref-manual/variables.html#term-CC"><span class="xref std std-term">CC</span></a> variable. One line is
+identical to the value that is set when you run the SDK environment
+setup script, and the other line sets <a class="reference internal" href="../ref-manual/variables.html#term-CC"><span class="xref std std-term">CC</span></a> to &quot;gcc&quot;, the default
+GNU compiler on the build host:</p>
+<div class="highlight-Makefile notranslate"><div class="highlight"><pre><span></span><span class="c"># CC=i586-poky-linux-gcc -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux</span>
+<span class="c"># CC="gcc"</span>
+<span class="nf">all</span><span class="o">:</span><span class="w"> </span><span class="n">main</span>.<span class="n">o</span> <span class="n">module</span>.<span class="n">o</span>
+<span class="w">  </span><span class="si">${</span><span class="nv">CC</span><span class="si">}</span><span class="w"> </span>main.o<span class="w"> </span>module.o<span class="w"> </span>-o<span class="w"> </span>target_bin
+<span class="nf">main.o</span><span class="o">:</span><span class="w"> </span><span class="n">main</span>.<span class="n">c</span> <span class="n">module</span>.<span class="n">h</span>
+<span class="w">  </span><span class="si">${</span><span class="nv">CC</span><span class="si">}</span><span class="w"> </span>-I<span class="w"> </span>.<span class="w"> </span>-c<span class="w"> </span>main.c
+<span class="nf">module.o</span><span class="o">:</span><span class="w"> </span><span class="n">module</span>.<span class="n">c</span> <span class="n">module</span>.<span class="n">h</span>
+<span class="w">  </span><span class="si">${</span><span class="nv">CC</span><span class="si">}</span><span class="w"> </span>-I<span class="w"> </span>.<span class="w"> </span>-c<span class="w"> </span>module.c
+<span class="nf">clean</span><span class="o">:</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>*.o
+<span class="w">  </span>rm<span class="w"> </span>target_bin
+</pre></div>
+</div>
+</li>
+<li><p><em>Make the Project:</em> Use the <code class="docutils literal notranslate"><span class="pre">make</span></code> command to create the binary
+output file. Because variables are commented out in the Makefile, the
+value used for <a class="reference internal" href="../ref-manual/variables.html#term-CC"><span class="xref std std-term">CC</span></a> is the value set when the SDK environment setup
+file was run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make
+<span class="go">i586-poky-linux-gcc -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux -I . -c main.c</span>
+<span class="go">i586-poky-linux-gcc -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux -I . -c module.c</span>
+<span class="go">i586-poky-linux-gcc -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux main.o module.o -o target_bin</span>
+</pre></div>
+</div>
+<p>From the results of the previous command, you can see that
+the compiler used was the compiler established through the <a class="reference internal" href="../ref-manual/variables.html#term-CC"><span class="xref std std-term">CC</span></a>
+variable defined in the setup script.</p>
+<p>You can override the <a class="reference internal" href="../ref-manual/variables.html#term-CC"><span class="xref std std-term">CC</span></a> environment variable with the same
+variable as set from the Makefile by uncommenting the line in the
+Makefile and running <code class="docutils literal notranslate"><span class="pre">make</span></code> again:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>clean
+<span class="go">rm -rf *.o</span>
+<span class="go">rm target_bin</span>
+<span class="gp">#</span>
+<span class="gp"># </span>Edit<span class="w"> </span>the<span class="w"> </span>Makefile<span class="w"> </span>by<span class="w"> </span>uncommenting<span class="w"> </span>the<span class="w"> </span>line<span class="w"> </span>that<span class="w"> </span>sets<span class="w"> </span>CC<span class="w"> </span>to<span class="w"> </span><span class="s2">"gcc"</span>
+<span class="gp">#</span>
+<span class="gp">$ </span>make
+<span class="go">gcc -I . -c main.c</span>
+<span class="go">gcc -I . -c module.c</span>
+<span class="go">gcc main.o module.o -o target_bin</span>
+</pre></div>
+</div>
+<p>As shown in the previous example, the
+cross-toolchain compiler is not used. Rather, the default compiler is
+used.</p>
+<p>This next case shows how to override a variable by providing the
+variable as part of the command line. Go into the Makefile and
+re-insert the comment character so that running <code class="docutils literal notranslate"><span class="pre">make</span></code> uses the
+established SDK compiler. However, when you run <code class="docutils literal notranslate"><span class="pre">make</span></code>, use a
+command-line argument to set <a class="reference internal" href="../ref-manual/variables.html#term-CC"><span class="xref std std-term">CC</span></a> to &quot;gcc&quot;:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>clean
+<span class="go">rm -rf *.o</span>
+<span class="go">rm target_bin</span>
+<span class="gp">#</span>
+<span class="gp"># </span>Edit<span class="w"> </span>the<span class="w"> </span>Makefile<span class="w"> </span>to<span class="w"> </span>comment<span class="w"> </span>out<span class="w"> </span>the<span class="w"> </span>line<span class="w"> </span>setting<span class="w"> </span>CC<span class="w"> </span>to<span class="w"> </span><span class="s2">"gcc"</span>
+<span class="gp">#</span>
+<span class="gp">$ </span>make
+<span class="go">i586-poky-linux-gcc  -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux -I . -c main.c</span>
+<span class="go">i586-poky-linux-gcc  -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux -I . -c module.c</span>
+<span class="go">i586-poky-linux-gcc  -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux main.o module.o -o target_bin</span>
+<span class="gp">$ </span>make<span class="w"> </span>clean
+<span class="go">rm -rf *.o</span>
+<span class="go">rm target_bin</span>
+<span class="gp">$ </span>make<span class="w"> </span><span class="nv">CC</span><span class="o">=</span><span class="s2">"gcc"</span>
+<span class="go">gcc -I . -c main.c</span>
+<span class="go">gcc -I . -c module.c</span>
+<span class="go">gcc main.o module.o -o target_bin</span>
+</pre></div>
+</div>
+<p>In the previous case, the command-line argument overrides the SDK
+environment variable.</p>
+<p>In this last case, edit Makefile again to use the &quot;gcc&quot; compiler but
+then use the &quot;-e&quot; option on the <code class="docutils literal notranslate"><span class="pre">make</span></code> command line:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>clean
+<span class="go">rm -rf *.o</span>
+<span class="go">rm target_bin</span>
+<span class="gp">#</span>
+<span class="gp"># </span>Edit<span class="w"> </span>the<span class="w"> </span>Makefile<span class="w"> </span>to<span class="w"> </span>use<span class="w"> </span><span class="s2">"gcc"</span>
+<span class="gp">#</span>
+<span class="gp">$ </span>make
+<span class="go">gcc -I . -c main.c</span>
+<span class="go">gcc -I . -c module.c</span>
+<span class="go">gcc main.o module.o -o target_bin</span>
+<span class="gp">$ </span>make<span class="w"> </span>clean
+<span class="go">rm -rf *.o</span>
+<span class="go">rm target_bin</span>
+<span class="gp">$ </span>make<span class="w"> </span>-e
+<span class="go">i586-poky-linux-gcc  -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux -I . -c main.c</span>
+<span class="go">i586-poky-linux-gcc  -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux -I . -c module.c</span>
+<span class="go">i586-poky-linux-gcc  -m32 -march=i586 --sysroot=/opt/poky/2.5/sysroots/i586-poky-linux main.o module.o -o target_bin</span>
+</pre></div>
+</div>
+<p>In the previous case, the &quot;-e&quot; option forces <code class="docutils literal notranslate"><span class="pre">make</span></code> to
+use the SDK environment variables regardless of the values in the
+Makefile.</p>
+</li>
+<li><p><em>Execute Your Project:</em> To execute the project (i.e. <code class="docutils literal notranslate"><span class="pre">target_bin</span></code>),
+use the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>./target_bin
+<span class="go">Hello World!</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>If you used the cross-toolchain compiler to build
+target_bin
+and your build host differs in architecture from that of the
+target machine, you need to run your project on the target device.</p>
+</div>
+<p>As expected, the project displays the &quot;Hello World!&quot; message.</p>
+</li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6 Firma dello Stato Condiviso &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="Manuale di Profilazione e Tracing di Yocto Project" href="../profile-manual/index.html" />
+    <link rel="prev" title="5 Creazione di un Filesystem Root di Sola Lettura" href="read-only-rootfs.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Sicurezza</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduzione</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-process-security.html">2 Sicurezza del Processo di Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="securing-images.html">3 Come Rendere le Immagini più Sicure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vulnerabilities.html">4 Verifica delle Vulnerabilità</a></li>
+<li class="toctree-l2"><a class="reference internal" href="read-only-rootfs.html">5 Creazione di un Filesystem Root di Sola Lettura</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">6 Firma dello Stato Condiviso</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#host-requirements">6.1 Requisiti dell'Host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-a-public-and-private-key-pair-with-gpg">6.2 Generazione di Una Coppia di Chiavi Pubblica e Privata con GPG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-the-build-system-to-sign-shared-state-artifacts">6.3 Configurazione del Sistema di Build per la Firma degli Artefatti di Shared State</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#shared-state-location">6.3.1 Posizione dello Shared State</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enabling-shared-state-signing">6.3.2 Abilitazione della Firma dello Shared State</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#verifying-signed-shared-state-artifacts">6.4 Verifica degli Artefatti Firmati dello Shared State</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sicurezza di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">6 </span>Firma dello Stato Condiviso</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/security-manual/sstate-signing.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="shared-state-signing">
+<h1><span class="section-number">6 </span>Firma dello Stato Condiviso<a class="headerlink" href="#shared-state-signing" title="Link to this heading"></a></h1>
+<p>Il sistema di build <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded Build System</span></a> dispone di un meccanismo integrato che consente di risparmiare tempo di esecuzione riutilizzando artefatti precompilati: la <a class="reference internal" href="../overview-manual/concepts.html#shared-state-cache"><span class="std std-ref">cache dello shared state (sstate cache)</span></a>. Questi artefatti sono memorizzati in una directory (<a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a>) e non sono firmati per default.</p>
+<p>Questo documento illustra i passaggi per abilitare la firma dello shared state. Questa funzionalità dipende completamente da <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/GNU_Privacy_Guard">GPG</a>, il che significa che gli esempi mostrati in questo documento utilizzeranno il tool da riga di comando <code class="docutils literal notranslate"><span class="pre">gpg</span></code>.</p>
+<section id="host-requirements">
+<h2><span class="section-number">6.1 </span>Requisiti dell'Host<a class="headerlink" href="#host-requirements" title="Link to this heading"></a></h2>
+<p>Poiché <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/GNU_Privacy_Guard">GPG</a> non fa parte dei requisiti <a class="reference internal" href="../ref-manual/system-requirements.html#required-packages-for-the-build-host"><span class="std std-ref">requisiti host</span></a> di default, sarà necessario installarlo sull'host.</p>
+<p>Ad esempio, le distribuzioni basate su Debian lo forniscono tramite il pacchetto <code class="docutils literal notranslate"><span class="pre">gpg</span></code>. Installarlo come segue:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>gpg
+</pre></div>
+</div>
+<p>Verificare che l'installazione sia andata a buon fine controllando la versione di GPG:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>gpg<span class="w"> </span>--version
+</pre></div>
+</div>
+</section>
+<section id="generating-a-public-and-private-key-pair-with-gpg">
+<h2><span class="section-number">6.2 </span>Generazione di Una Coppia di Chiavi Pubblica e Privata con GPG<a class="headerlink" href="#generating-a-public-and-private-key-pair-with-gpg" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Questo passaggio è facoltativo se si dispone già di una coppia di chiavi pubblica e privata.</p>
+</div>
+<p>C'è bisogno di una coppia di chiavi pubblica e privata per due attività [task] indipendenti:</p>
+<ul class="simple">
+<li><p>Firmare gli artefatti di shared state che <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded Build System</span></a> genera con la propria <strong>chiave privata</strong>.</p></li>
+<li><p>Verificare gli artefatti di stato condivisi con la propria <strong>chiave pubblica</strong> quando si riutilizzano.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Per ulteriori informazioni sulla crittografia a chiave pubblica, consultare la pagina di Wikipedia <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Public-key_cryptography">https://en.wikipedia.org/wiki/Public-key_cryptography</a>.</p>
+</div>
+<p>Col tool da riga di comando <code class="docutils literal notranslate"><span class="pre">gpg</span></code>, genera una nuova coppia di chiavi pubblica e privata:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>gpg<span class="w"> </span>--full-generate-key
+</pre></div>
+</div>
+<p>Guiderà attraverso i passaggi per la creazione della coppia di chiavi.</p>
+<p>Una volta completata la procedura, si dovrebbe essere in grado di visualizzare la nuova chiave con il seguente comando:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>gpg<span class="w"> </span>--list-keys
+<span class="go">pub   ed25519 2026-04-17 [SC]</span>
+<span class="go">      4049A47E3AAA99D0250966DC5B97632FA7F4E942</span>
+<span class="go">uid           [ultimate] Antonin Godard (SState Signing) &lt;antonin.godard\@bootlin.com&gt;</span>
+<span class="go">sub   cv25519 2026-04-17 [E]</span>
+</pre></div>
+</div>
+<p>Nell'esempio precedente, prendere nota dell'identificativo della chiave <code class="docutils literal notranslate"><span class="pre">4049A47E3AAA99D0250966DC5B97632FA7F4E942</span></code>. Questo verrà utilizzato per configurare la build.</p>
+</section>
+<section id="configuring-the-build-system-to-sign-shared-state-artifacts">
+<h2><span class="section-number">6.3 </span>Configurazione del Sistema di Build per la Firma degli Artefatti di Shared State<a class="headerlink" href="#configuring-the-build-system-to-sign-shared-state-artifacts" title="Link to this heading"></a></h2>
+<section id="shared-state-location">
+<h3><span class="section-number">6.3.1 </span>Posizione dello Shared State<a class="headerlink" href="#shared-state-location" title="Link to this heading"></a></h3>
+<p>Il sistema di build deve essere configurato per firmare i nuovi artefatti di shared state quando vengono generati. La generazione di nuovi artefatti avviene al termine dell'esecuzione di un task.</p>
+<p>Per le sezioni seguenti, supponiamo che il sistema di build abbia la directory di shared state (<a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a>) definita come segue:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SSTATE_DIR</span> <span class="o">=</span> <span class="s2">"$</span><span class="si">{TOPDIR}</span><span class="s2">/sstate-cache"</span>
+</pre></div>
+</div>
+<p>Supponendo che questa directory e la directory temporanea (<a class="reference internal" href="../ref-manual/variables.html#term-TMPDIR"><span class="xref std std-term">TMPDIR</span></a>) siano vuote, eseguiamo il task <code class="docutils literal notranslate"><span class="pre">create_recipe_spdx</span></code> della ricetta <code class="docutils literal notranslate"><span class="pre">gettext-minimal-native</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake<span class="w"> </span>gettext-minimal-native<span class="w"> </span>-c<span class="w"> </span>create_recipe_spdx
+</pre></div>
+</div>
+<p>Utilizzeremo questo comando come esempio in tutto il documento.</p>
+<p>Dopo l'esecuzione, la directory di shared state dovrebbe essere popolata con nuovi file:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>find<span class="w"> </span><span class="nv">$BUILDDIR</span>/sstate-cache/<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*gettext-minimal-native*create_recipe_spdx*"</span>
+<span class="go">sstate-cache/universal/a3/6e/sstate:gettext-minimal-native:x86_64-linux:1.0:r0:x86_64:14:a36ef66df6b8c0cb5a849bc70a99dcfd61e4bacd11cefe6bbaf4978b2b3b617a_create_recipe_spdx.tar.zst</span>
+<span class="go">sstate-cache/universal/a3/6e/sstate:gettext-minimal-native:x86_64-linux:1.0:r0:x86_64:14:a36ef66df6b8c0cb5a849bc70a99dcfd61e4bacd11cefe6bbaf4978b2b3b617a_create_recipe_spdx.tar.zst.siginfo</span>
+</pre></div>
+</div>
+<p>Questi sono gli artefatti di shared state predefiniti generati da <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded Build System</span></a>. Non sono firmati con GPG per default, quindi vediamo come aggiungere la firma a questi artefatti.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Nonostante il nome, il file <cite>siginfo</cite> non è correlato alla firma GPG.</p>
+</div>
+</section>
+<section id="enabling-shared-state-signing">
+<h3><span class="section-number">6.3.2 </span>Abilitazione della Firma dello Shared State<a class="headerlink" href="#enabling-shared-state-signing" title="Link to this heading"></a></h3>
+<p>Creare un nuovo <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a> sul proprio host <strong>in una posizione sicura</strong> e aggiungere le due seguenti istruzioni:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SSTATE_VERIFY_SIG</span> <span class="o">=</span> <span class="s2">"1"</span>
+<span class="n">SSTATE_SIG_KEY</span> <span class="o">=</span> <span class="s2">"4049A47E3AAA99D0250966DC5B97632FA7F4E942"</span>
+<span class="n">SSTATE_SIG_PASSPHRASE</span> <span class="o">=</span> <span class="s2">"&lt;your GPG key passphrase&gt;"</span>
+</pre></div>
+</div>
+<p>Si consiglia di inserire queste istruzioni in un file separato, poiché contengono informazioni riservate e non devono essere condivise. Per questo esempio, supponiamo che il file si chiami <code class="docutils literal notranslate"><span class="pre">conf/sstate-sig-key.conf</span></code>.</p>
+<p>Ci si può assicurare che questo file sia di proprietà e non leggibile da altri utenti con:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>chown<span class="w"> </span><span class="nv">$USER</span>:<span class="nv">$USER</span><span class="w"> </span>conf/sstate-sig-key.conf
+<span class="gp">$ </span>chmod<span class="w"> </span>o-rwx<span class="w"> </span>conf/sstate-sig-key.conf
+</pre></div>
+</div>
+<p>Le istruzioni in questo file definiscono:</p>
+<ul>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_VERIFY_SIG"><span class="xref std std-term">SSTATE_VERIFY_SIG</span></a>: impostando questa variabile su &quot;1&quot; si abilita la funzionalità di firma dello shared state.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_SIG_KEY"><span class="xref std std-term">SSTATE_SIG_KEY</span></a>: l'identificativo della chiave GPG per la firma degli artefatti dello shared state con la chiave privata.</p>
+<p>Nell'esempio, questo corrisponde all'identificativo visualizzato con il comando <code class="docutils literal notranslate"><span class="pre">gpg</span> <span class="pre">--list-keys</span></code> <a class="reference internal" href="#generating-a-public-and-private-key-pair-with-gpg"><span class="std std-ref">precedente</span></a>.</p>
+</li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_SIG_PASSPHRASE"><span class="xref std std-term">SSTATE_SIG_PASSPHRASE</span></a>: la passphrase utilizzata per proteggere la chiave privata, scelta al momento della creazione della coppia di chiavi.</p></li>
+</ul>
+<p>Testiamo la configurazione:</p>
+<ol class="arabic">
+<li><p>Continuando con l'esempio <code class="docutils literal notranslate"><span class="pre">gettext-minimal-native</span></code>, rimuoviamo innanzitutto gli artefatti di stato condiviso esistenti, per assicurarci che gli artefatti di shared state per il proprio task <code class="docutils literal notranslate"><span class="pre">do_create_recipe_spdx</span></code> vengano rigenerati:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rm<span class="w"> </span>-r<span class="w"> </span>sstate-cache/
+</pre></div>
+</div>
+</li>
+<li><p>Eseguiamo il task <code class="docutils literal notranslate"><span class="pre">create_recipe_spdx</span></code> per <code class="docutils literal notranslate"><span class="pre">gettext-minimal-native</span></code>, ma questa volta passiamo il nuovo file <code class="docutils literal notranslate"><span class="pre">sstate-sig-key.conf</span></code> a <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake<span class="w"> </span>-R<span class="w"> </span>conf/sstate-sig-key.conf<span class="w"> </span>gettext-minimal-native<span class="w"> </span>-c<span class="w"> </span>create_recipe_spdx
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Elenchiamo nuovamente i file nella directory dello shared state:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>find<span class="w"> </span>sstate-cache/<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*gettext-minimal-native*create_recipe_spdx*"</span>
+<span class="go">sstate-cache/universal/a3/6e/sstate:gettext-minimal-native:x86_64-linux:1.0:r0:x86_64:14:a36ef66df6b8c0cb5a849bc70a99dcfd61e4bacd11cefe6bbaf4978b2b3b617a_create_recipe_spdx.tar.zst</span>
+<span class="go">sstate-cache/universal/a3/6e/sstate:gettext-minimal-native:x86_64-linux:1.0:r0:x86_64:14:a36ef66df6b8c0cb5a849bc70a99dcfd61e4bacd11cefe6bbaf4978b2b3b617a_create_recipe_spdx.tar.zst.sig</span>
+<span class="go">sstate-cache/universal/a3/6e/sstate:gettext-minimal-native:x86_64-linux:1.0:r0:x86_64:14:a36ef66df6b8c0cb5a849bc70a99dcfd61e4bacd11cefe6bbaf4978b2b3b617a_create_recipe_spdx.tar.zst.siginfo</span>
+</pre></div>
+</div>
+<p>È stato creato un nuovo file <code class="docutils literal notranslate"><span class="pre">.sig</span></code>: questo significa che l'artefatto è stato firmato correttamente e la firma è memorizzata in un file <code class="docutils literal notranslate"><span class="pre">.sig</span></code> separato.</p>
+</section>
+</section>
+<section id="verifying-signed-shared-state-artifacts">
+<h2><span class="section-number">6.4 </span>Verifica degli Artefatti Firmati dello Shared State<a class="headerlink" href="#verifying-signed-shared-state-artifacts" title="Link to this heading"></a></h2>
+<p>Ora che è stato configurata la build per firmare gli artefatti dello shared state, vediamo come so possono verificare con la corrispondente chiave pubblica della chiave privata.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>La firma dello shared state e la sua verifica possono avvenire su due host diversi, il che significa che un host può occuparsi della firma mentre un altro si limita a verificare gli artefatti. Questa soluzione è preferibile in quanto la chiave privata non dovrebbe essere condivisa tra più host.</p>
+</div>
+<p>Da un <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>, come ad esempio il <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-site-conf"><span class="std std-ref">file di configurazione del sito</span></a>, includere le seguenti istruzioni:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SSTATE_VERIFY_SIG</span> <span class="o">=</span> <span class="s2">"1"</span>
+<span class="n">SSTATE_VALID_SIGS</span> <span class="o">=</span> <span class="s2">"5B97632FA7F4E942"</span>
+</pre></div>
+</div>
+<p>Queste dichiarazioni definiscono:</p>
+<ul>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_VERIFY_SIG"><span class="xref std std-term">SSTATE_VERIFY_SIG</span></a>: impostando questa variabile su &quot;1&quot; si abilita la funzionalità di firma dello shared state.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_VALID_SIGS"><span class="xref std std-term">SSTATE_VALID_SIGS</span></a>: un elenco di identificatori di chiave separati da spazi per i quali sono accettati artefatti di shared state.</p>
+<p>Ciò significa che lo stato condiviso verrà riutilizzato <strong>solo se è stato firmato con la chiave privata corrispondente all'identificatore di chiave</strong>.</p>
+<p>Si noterà qui la forma abbreviata dell'identificativo della chiave, ovvero gli ultimi 16 caratteri dell'identificativo della chiave in forma estesa mostrato con <code class="docutils literal notranslate"><span class="pre">gpg</span> <span class="pre">--list-keys</span></code> (in grassetto qui sotto):</p>
+<pre class="literal-block">pub   ed25519 2026-04-17 [SC]
+      4049A47E3AAA99D0250966DC<strong>5B97632FA7F4E942</strong>
+uid           [ultimate] Antonin Godard (SState Signing) &lt;antonin.godard&#64;bootlin.com&gt;
+sub   cv25519 2026-04-17 [E]</pre>
+</li>
+</ul>
+<p>Confermiamo che la verifica della firma funzioni:</p>
+<ol class="arabic">
+<li><p>Innanzitutto, rimuoviamo gli output temporanei (<a class="reference internal" href="../ref-manual/variables.html#term-TMPDIR"><span class="xref std std-term">TMPDIR</span></a>) dalle build precedenti, in modo che <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded Build System</span></a> ricompili tutto utilizzando lo shared state:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rm<span class="w"> </span>-rf<span class="w"> </span>tmp/
+</pre></div>
+</div>
+</li>
+<li><p>Quindi, eseguiamo nuovamente il task:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake<span class="w"> </span>gettext-minimal-native<span class="w"> </span>-c<span class="w"> </span>create_recipe_spdx
+</pre></div>
+</div>
+</li>
+<li><p>Per assicurarci che l'artefatto dello shared state sia stato utilizzato correttamente, cerchiamo il task <a class="reference internal" href="../overview-manual/concepts.html#setscene-tasks-and-shared-state"><span class="std std-ref">setscene</span></a> per <code class="docutils literal notranslate"><span class="pre">create_recipe_spdx</span></code> nell'ultimo file di log di <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>grep<span class="w"> </span>create_recipe_spdx_setscene<span class="w"> </span>tmp/log/cooker/&lt;machine&gt;/console-latest.log
+<span class="go">NOTE: Running setscene task 1 of 1 (../layers/openembedded-core/meta/recipes-core/gettext/gettext-minimal-native_1.0.bb:do_create_recipe_spdx_setscene)</span>
+<span class="go">NOTE: recipe gettext-minimal-native-1.0-r0: task do_create_recipe_spdx_setscene: Started</span>
+<span class="go">NOTE: recipe gettext-minimal-native-1.0-r0: task do_create_recipe_spdx_setscene: Succeeded</span>
+</pre></div>
+</div>
+<p>Lo shared state è stato verificato e utilizzato correttamente!</p>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Per verificare che la verifica dello shared state funzioni correttamente, è possibile impostare un identificatore di chiave pubblica &quot;fake&quot; in <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_VALID_SIGS"><span class="xref std std-term">SSTATE_VALID_SIGS</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SSTATE_VALID_SIGS</span> <span class="o">=</span> <span class="s2">"CAFECAFECAFECAFE"</span>
+</pre></div>
+</div>
+<p>Rimuovere nuovamente gli output temporanei:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rm<span class="w"> </span>-r<span class="w"> </span>tmp/
+</pre></div>
+</div>
+<p>Ora, provare a eseguire il task:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake<span class="w"> </span>gettext-minimal-native<span class="w"> </span>-c<span class="w"> </span>create_recipe_spdx
+</pre></div>
+</div>
+<p>Dovrebbero essere visualizzati dei warning da <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a> sulla console:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>WARNING: gettext-minimal-native-1.0-r0 do_create_recipe_spdx_setscene: No accepted signatures found. Good signatures found: 5B97632FA7F4E942.
+WARNING: gettext-minimal-native-1.0-r0 do_create_recipe_spdx_setscene: Cannot verify signature on sstate package ../build/sstate-cache/universal/a3/6e/sstate:gettext-minimal-native:x86_64-linux:1.0:r0:x86_64:14:a36ef66df6b8c0cb5a849bc70a99dcfd61e4bacd11cefe6bbaf4978b2b3b617a_create_recipe_spdx.tar.zst, skipping acceleration...
+WARNING: gettext-minimal-native-1.0-r0 do_create_recipe_spdx_setscene: No sstate archive obtainable, will run full task instead.
+WARNING: Logfile for failed setscene task is ../build/tmp/work/x86_64-linux/gettext-minimal-native/1.0/temp/log.do_create_recipe_spdx_setscene.6994
+WARNING: Setscene task (../layers/openembedded-core/meta/recipes-core/gettext/gettext-minimal-native_1.0.bb:do_create_recipe_spdx_setscene) failed with exit code '1' - real task will be run instead
+</pre></div>
+</div>
+<p>Come si può notare, questo non impedisce a <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a> di proseguire, ma viene eseguito il task reale invece di riutilizzare lo shared state.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

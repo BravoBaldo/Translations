@@ -1,0 +1,705 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2 Setting Up to Use the Yocto Project &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="3 Comprendere e Creare i Layer" href="layers.html" />
+    <link rel="prev" title="1 Il Manuale di Sviluppo dei Task di Yocto Project" href="intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale dei Task di Sviluppo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Il Manuale di Sviluppo dei Task di Yocto Project</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2 Setting Up to Use the Yocto Project</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-team-development-environment">2.1 Creating a Team Development Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preparing-the-build-host">2.2 Preparing the Build Host</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-up-a-native-linux-host">2.2.1 Setting Up a Native Linux Host</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setting-up-to-use-windows-subsystem-for-linux-wsl-2">2.2.2 Setting Up to Use Windows Subsystem For Linux (WSL 2)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#preparing-the-poky-reference-distro">2.2.3 Preparing the Poky Reference Distro</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initializing-the-build-environment">2.2.4 Initializing the Build Environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#where-to-go-from-here">2.2.5 Where To Go From Here</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="layers.html">3 Comprendere e Creare i Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customizing-images.html">4 Customizing Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-recipe.html">5 Scrivere una Nuova Ricetta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-machine.html">6 Adding a New Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrading-recipes.html">7 Upgrading Recipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temporary-source-code.html">8 Finding Temporary Source Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-fragments.html">9 Creating New Configuration Fragments In Your Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="poky-manual-setup.html">10 Setting Up the Poky Reference Distro Manually</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quilt.html">11 Using Quilt in Your Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development-shell.html">12 Using a Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-development-shell.html">13 Using a Python Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html">14 Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiconfig.html">15 Building Images for Multiple Targets With Multiconfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="speeding-up-build.html">16 Speeding Up a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiting-resources.html">17 Limiting the Host Resources Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html">18 Working With Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prebuilt-libraries.html">19 Working with Pre-Built Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devtool.html">20 Using the <code class="docutils literal notranslate"><span class="pre">devtool</span></code> command-line tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="x32-psabi.html">21 Using x32 psABI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gobject-introspection.html">22 Enabling GObject Introspection Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-toolchain.html">23 Optionally Using an External Toolchain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wic.html">24 Creating Partitioned Images Using Wic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bmaptool.html">25 Flashing Images Using <cite>bmaptool</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-distribution.html">26 Creating Your Own Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-template-configuration-directory.html">27 Creating a Custom Template Configuration Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disk-space.html">28 Conserving Disk Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">29 Working with Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="efficiently-fetching-sources.html">30 Efficiently Fetching Source Files During a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="init-manager.html">31 Selecting an Initialization Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device-manager.html">32 Selecting a Device Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-scm.html">33 Using an External SCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-quality.html">34 Maintaining Build Output Quality with <code class="docutils literal notranslate"><span class="pre">buildhistory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">35 Debugging Tools and Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="licenses.html">36 Working With Licenses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbom.html">37 Creating a Software Bill of Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error-reporting-tool.html">38 Using the Error Reporting Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wayland.html">39 Using Wayland and Weston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qemu.html">40 Using the Quick EMUlator (QEMU)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bblock.html">41 Locking and Unlocking Recipes Using <code class="docutils literal notranslate"><span class="pre">bblock</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sstate-mirrors-setup.html">42 Setting up a Shared State Cache Mirror</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashequivserver.html">43 Setting up a Hash Equivalence Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sviluppo dei Task di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">2 </span>Setting Up to Use the Yocto Project</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dev-manual/start.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="setting-up-to-use-the-yocto-project">
+<h1><span class="section-number">2 </span>Setting Up to Use the Yocto Project<a class="headerlink" href="#setting-up-to-use-the-yocto-project" title="Link to this heading"></a></h1>
+<p>This chapter provides guidance on how to prepare to use the Yocto
+Project. You can learn about creating a team environment to develop
+using the Yocto Project, how to set up a <a class="reference internal" href="#preparing-the-build-host"><span class="std std-ref">build
+host</span></a>, how to locate
+Yocto Project source repositories, and how to create local Git
+repositories.</p>
+<section id="creating-a-team-development-environment">
+<h2><span class="section-number">2.1 </span>Creating a Team Development Environment<a class="headerlink" href="#creating-a-team-development-environment" title="Link to this heading"></a></h2>
+<p>It might not be immediately clear how you can use the Yocto Project in a
+team development environment, or how to scale it for a large team of
+developers. You can adapt the Yocto Project to many different use cases
+and scenarios; however, this flexibility could cause difficulties if you
+are trying to create a working setup that scales effectively.</p>
+<p>To help you understand how to set up this type of environment, this
+section presents a procedure that gives you information that can help
+you get the results you want. The procedure is high-level and presents
+some of the project's most successful experiences, practices, solutions,
+and available technologies that have proved to work well in the past;
+however, keep in mind, the procedure here is simply a starting point.
+You can build off these steps and customize the procedure to fit any
+particular working environment and set of practices.</p>
+<ol class="arabic">
+<li><p><em>Determine Who is Going to be Developing:</em> You first need to
+understand who is going to be doing anything related to the Yocto
+Project and determine their roles. Making this determination is
+essential to completing subsequent steps, which are to get your
+equipment together and set up your development environment's
+hardware topology.</p>
+<p>Possible roles are:</p>
+<ul class="simple">
+<li><p><em>Application Developer:</em> This type of developer does application
+level work on top of an existing software stack.</p></li>
+<li><p><em>Core System Developer:</em> This type of developer works on the
+contents of the operating system image itself.</p></li>
+<li><p><em>Build Engineer:</em> This type of developer manages Autobuilders and
+releases. Depending on the specifics of the environment, not all
+situations might need a Build Engineer.</p></li>
+<li><p><em>Test Engineer:</em> This type of developer creates and manages
+automated tests that are used to ensure all application and core
+system development meets desired quality standards.</p></li>
+</ul>
+</li>
+<li><p><em>Gather the Hardware:</em> Based on the size and make-up of the team,
+get the hardware together. Ideally, any development, build, or test
+engineer uses a system that runs a supported Linux distribution.
+These systems, in general, should be high performance (e.g. dual,
+six-core Xeons with 24 Gbytes of RAM and plenty of disk space). You
+can help ensure efficiency by having any machines used for testing
+or that run Autobuilders be as high performance as possible.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Given sufficient processing power, you might also consider
+building Yocto Project development containers to be run under
+Docker, which is described later.</p>
+</div>
+</li>
+<li><p><em>Understand the Hardware Topology of the Environment:</em> Once you
+understand the hardware involved and the make-up of the team, you
+can understand the hardware topology of the development environment.
+You can get a visual idea of the machines and their roles across the
+development environment.</p></li>
+<li><p><em>Use Git as Your Source Control Manager (SCM):</em> Keeping your
+<a class="reference internal" href="../ref-manual/terms.html#term-Metadata"><span class="xref std std-term">Metadata</span></a> (i.e. recipes,
+configuration files, classes, and so forth) and any software you are
+developing under the control of an SCM system that is compatible
+with the <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded build system</span></a> is advisable. Of all of the SCMs
+supported by BitBake, the Yocto Project team strongly recommends using
+<a class="reference internal" href="../overview-manual/development-environment.html#git"><span class="std std-ref">Git</span></a>.
+Git is a distributed system
+that is easy to back up, allows you to work remotely, and then
+connects back to the infrastructure.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For information about BitBake, see the
+<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/index.html" title="(in Bitbake Version: Current Development)"><span>BitBake User Manual</span></a>.</p>
+</div>
+<p>It is relatively easy to set up Git services and create infrastructure like
+<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/">https://git.yoctoproject.org/</a>, which is based on server software called
+<a class="reference external" href="https://gitolite.com">Gitolite</a>
+with <a class="reference external" href="https://git.zx2c4.com/cgit/about/">cgit</a> being used to
+generate the web interface that lets you view the repositories.
+<code class="docutils literal notranslate"><span class="pre">gitolite</span></code> identifies users using SSH keys and allows
+branch-based access controls to repositories that you can control as
+little or as much as necessary.</p>
+</li>
+<li><p><em>Set up the Application Development Machines:</em> As mentioned earlier,
+application developers are creating applications on top of existing
+software stacks. Here are some best practices for setting up
+machines used for application development:</p>
+<ul class="simple">
+<li><p>Use a pre-built toolchain that contains the software stack
+itself. Then, develop the application code on top of the stack.
+This method works well for small numbers of relatively isolated
+applications.</p></li>
+<li><p>Keep your cross-development toolchains updated. You can do this
+through provisioning either as new toolchain downloads or as
+updates through a package update mechanism to
+provide updates to an existing toolchain. The exact mechanics of
+how and when to do this depend on local policy.</p></li>
+<li><p>Use multiple toolchains installed locally into different
+locations to allow development across versions.</p></li>
+</ul>
+</li>
+<li><p><em>Set up the Core Development Machines:</em> As mentioned earlier, core
+developers work on the contents of the operating system itself.
+Here are some best practices for setting up machines used for
+developing images:</p>
+<ul class="simple">
+<li><p>Have the <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded Build System</span></a> available on
+the developer workstations so developers can run their own builds
+and directly rebuild the software stack.</p></li>
+<li><p>Keep the core system unchanged as much as possible and do your
+work in layers on top of the core system. Doing so gives you a
+greater level of portability when upgrading to new versions of
+the core system or Board Support Packages (BSPs).</p></li>
+<li><p>Share layers amongst the developers of a particular project and
+contain the policy configuration that defines the project.</p></li>
+</ul>
+</li>
+<li><p><em>Set up an Autobuilder:</em> Autobuilders are often the core of the
+development environment. It is here that changes from individual
+developers are brought together and centrally tested. Based on this
+automated build and test environment, subsequent decisions about
+releases can be made. Autobuilders also allow for &quot;continuous
+integration&quot; style testing of software components and regression
+identification and tracking.</p>
+<p>See &quot;<a class="extlink-yocto_ab reference external" href="https://autobuilder.yoctoproject.org">Yocto Project Autobuilder</a>&quot; for more
+information and links to buildbot. The Yocto Project team has found
+this implementation works well in this role. A public example of
+this is the Yocto Project Autobuilders, which the Yocto Project team
+uses to test the overall health of the project.</p>
+<p>The features of this system are:</p>
+<ul class="simple">
+<li><p>Highlights when commits break the build.</p></li>
+<li><p>Populates an <a class="reference internal" href="../overview-manual/concepts.html#shared-state-cache"><span class="std std-ref">sstate
+cache</span></a> from which
+developers can pull rather than requiring local builds.</p></li>
+<li><p>Allows commit hook triggers, which trigger builds when commits
+are made.</p></li>
+<li><p>Allows triggering of automated image booting and testing under
+the Quick EMUlator (QEMU).</p></li>
+<li><p>Supports incremental build testing and from-scratch builds.</p></li>
+<li><p>Shares output that allows developer testing and historical
+regression investigation.</p></li>
+<li><p>Creates output that can be used for releases.</p></li>
+<li><p>Allows scheduling of builds so that resources can be used
+efficiently.</p></li>
+</ul>
+</li>
+<li><p><em>Set up Test Machines:</em> Use a small number of shared, high
+performance systems for testing purposes. Developers can use these
+systems for wider, more extensive testing while they continue to
+develop locally using their primary development system.</p></li>
+<li><p><em>Document Policies and Change Flow:</em> The Yocto Project uses a
+hierarchical structure and a pull model. There are scripts to create and
+send pull requests (i.e. <code class="docutils literal notranslate"><span class="pre">create-pull-request</span></code> and
+<code class="docutils literal notranslate"><span class="pre">send-pull-request</span></code>). This model is in line with other open source
+projects where maintainers are responsible for specific areas of the
+project and a single maintainer handles the final &quot;top-of-tree&quot;
+merges.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You can also use a more collective push model. The <code class="docutils literal notranslate"><span class="pre">gitolite</span></code>
+software supports both the push and pull models quite easily.</p>
+</div>
+<p>As with any development environment, it is important to document the
+policy used as well as any main project guidelines so they are
+understood by everyone. It is also a good idea to have
+well-structured commit messages, which are usually a part of a
+project's guidelines. Good commit messages are essential when
+looking back in time and trying to understand why changes were made.</p>
+<p>If you discover that changes are needed to the core layer of the
+project, it is worth sharing those with the community as soon as
+possible. Chances are if you have discovered the need for changes,
+someone else in the community needs them also.</p>
+</li>
+<li><p><em>Development Environment Summary:</em> Aside from the previous steps,
+here are best practices within the Yocto Project development
+environment:</p>
+<ul>
+<li><p>Use <a class="reference internal" href="../overview-manual/development-environment.html#git"><span class="std std-ref">Git</span></a> as the source control
+system.</p></li>
+<li><p>Maintain your Metadata in layers that make sense for your
+situation. See the &quot;<a class="reference internal" href="../overview-manual/yp-intro.html#the-yocto-project-layer-model"><span class="std std-ref">Il Modello a Layer di Yocto Project</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual and the
+&quot;<a class="reference internal" href="layers.html#understanding-and-creating-layers"><span class="std std-ref">Comprendere e Creare i Layer</span></a>&quot;
+section for more information on layers.</p></li>
+<li><p>Separate the project's Metadata and code by using separate Git
+repositories. See the &quot;<a class="reference internal" href="../overview-manual/development-environment.html#yocto-project-source-repositories"><span class="std std-ref">I Repository del Codice Sorgente di Yocto Project</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual for
+information on these repositories. See the
+&quot;<a class="reference internal" href="poky-manual-setup.html"><span class="doc">Setting Up the Poky Reference Distro Manually</span></a>&quot;
+section for information on how to set up local Git repositories
+for related upstream Yocto Project Git repositories.</p></li>
+<li><p>Set up the directory for the shared state cache
+(<a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a>) where
+it makes sense. For example, set up the sstate cache on a system
+used by developers in the same organization and share the same
+source directories on their machines.</p></li>
+<li><p>Set up a local <a class="reference internal" href="../overview-manual/concepts.html#hash-equivalence"><span class="std std-ref">Equivalenza degli Hash</span></a> server.</p>
+<p>See the <a class="reference internal" href="../overview-manual/concepts.html#hash-equivalence"><span class="std std-ref">Equivalenza degli Hash</span></a> section of the
+Yocto Project Overview and Concepts Manual for more details on the hash
+equivalence feature.</p>
+<p>See the <a class="reference internal" href="hashequivserver.html"><span class="doc">Setting up a Hash Equivalence Server</span></a> section of the Yocto Project
+Development Tasks Manual for details on how to set up a
+<a class="reference internal" href="../overview-manual/concepts.html#hash-equivalence"><span class="std std-ref">Equivalenza degli Hash</span></a> server.</p>
+</li>
+<li><p>Set up an Autobuilder and have it populate the sstate cache and
+source directories.</p></li>
+<li><p>The Yocto Project community encourages you to send patches to the
+project to fix bugs or add features. If you do submit patches,
+follow the project commit guidelines for writing good commit
+messages. See the &quot;<a class="reference internal" href="../contributor-guide/submit-changes.html"><span class="doc">Apportare Modifiche a un Componente</span></a>&quot;
+section in the Yocto Project and OpenEmbedded Contributor Guide.</p></li>
+<li><p>Send changes to the core sooner than later as others are likely
+to run into the same issues. For some guidance on mailing lists
+to use, see the lists in the
+&quot;<a class="reference internal" href="../contributor-guide/submit-changes.html#finding-a-suitable-mailing-list"><span class="std std-ref">Trovare una Mailing List Adatta</span></a>&quot;
+section. For a description
+of the available mailing lists, see the &quot;<a class="reference internal" href="../ref-manual/resources.html#resources-mailinglist"><span class="std std-ref">Mailing lists</span></a>&quot; section in
+the Yocto Project Reference Manual.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="preparing-the-build-host">
+<h2><span class="section-number">2.2 </span>Preparing the Build Host<a class="headerlink" href="#preparing-the-build-host" title="Link to this heading"></a></h2>
+<p>This section provides procedures to set up a system to be used as your
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Host"><span class="xref std std-term">Build Host</span></a> for
+development using the Yocto Project. Your build host can be a native
+Linux machine (recommended), it can be an <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Open_Container_Initiative">OCI container</a> (such as <a class="reference external" href="https://www.docker.com/">Docker</a> or
+<a class="reference external" href="https://podman.io/">Podman</a>), or it can be a Windows machine capable of
+running version 2 of Windows Subsystem For Linux (WSL 2).</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The Yocto Project is not compatible with version 1 of
+<a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux">Windows Subsystem for Linux</a>.
+It is compatible but neither officially supported nor validated with
+WSL 2. If you still decide to use WSL please upgrade to
+<a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL 2</a>.</p>
+</div>
+<p>Once your build host is set up to use the Yocto Project, further steps
+are necessary depending on what you want to accomplish. See the
+following references for information on how to prepare for Board Support
+Package (BSP) development and kernel development:</p>
+<ul class="simple">
+<li><p><em>BSP Development:</em> See the &quot;<a class="reference internal" href="../bsp-manual/bsp.html#preparing-your-build-host-to-work-with-bsp-layers"><span class="std std-ref">Preparazione dell'Host di Build per Lavorare con i Layer BSP</span></a>&quot;
+section in the Yocto Project Board Support Package (BSP) Developer's
+Guide.</p></li>
+<li><p><em>Kernel Development:</em> See the &quot;<a class="reference internal" href="../kernel-dev/common.html#preparing-the-build-host-to-work-on-the-kernel"><span class="std std-ref">Preparazione dell'Host di Build per Lavorare sul Kernel.</span></a>&quot;
+section in the Yocto Project Linux Kernel Development Manual.</p></li>
+</ul>
+<section id="setting-up-a-native-linux-host">
+<h3><span class="section-number">2.2.1 </span>Setting Up a Native Linux Host<a class="headerlink" href="#setting-up-a-native-linux-host" title="Link to this heading"></a></h3>
+<p>Follow these steps to prepare a native Linux machine as your Yocto
+Project Build Host:</p>
+<ol class="arabic">
+<li><p><em>Use a Supported Linux Distribution:</em> You should have a reasonably
+current Linux-based host system. You will have the best results with
+a recent release of Fedora, openSUSE, Debian, Ubuntu, RHEL or CentOS
+as these releases are frequently tested against the Yocto Project and
+officially supported. For a list of the distributions under
+validation and their status, see the &quot;<a class="reference internal" href="../ref-manual/system-requirements.html#system-requirements-supported-distros"><span class="std std-ref">Supported Linux
+Distributions</span></a>&quot;
+section in the Yocto Project Reference Manual.</p></li>
+<li><p><em>Have Enough Free Memory:</em> Your system should have at least 50 Gbytes
+of free disk space for building images.</p></li>
+<li><p><em>Meet Minimal Version Requirements:</em> The OpenEmbedded build system
+should be able to run on any modern distribution that has the
+following versions for Git, tar, Python, gcc and make.</p>
+<ul class="simple">
+<li><p>Git 2.22.0 o superiore</p></li>
+<li><p>tar 1.28 o superiore</p></li>
+<li><p>Python 3.9.0 or greater.</p></li>
+<li><p>gcc 10.1 or greater.</p></li>
+<li><p>GNU make 4.0 o superiore</p></li>
+</ul>
+<p>If your build host does not satisfy all of these listed version
+requirements, you can take steps to prepare the system so that you
+can still use the Yocto Project. See the
+&quot;<a class="reference internal" href="../ref-manual/system-requirements.html#required-git-tar-python-make-and-gcc-versions"><span class="std std-ref">Versioni richieste di Git, tar, Python, make e gcc</span></a>&quot;
+section in the Yocto Project Reference Manual for information.</p>
+</li>
+<li><p><em>Install Development Host Packages:</em> Required development host
+packages vary depending on your build host and what you want to do
+with the Yocto Project. Collectively, the number of required packages
+is large if you want to be able to cover all cases.</p>
+<p>For lists of required packages for all scenarios, see the
+&quot;<a class="reference internal" href="../ref-manual/system-requirements.html#required-packages-for-the-build-host"><span class="std std-ref">Pacchetti Richiesti per l'Host di Build</span></a>&quot;
+section in the Yocto Project Reference Manual.</p>
+</li>
+</ol>
+<p>Once you have completed the previous steps, you are ready to continue
+using a given development path on your native Linux machine. If you are
+going to use BitBake, see the
+&quot;<a class="reference internal" href="#preparing-the-poky-reference-distro"><span class="std std-ref">Preparing the Poky Reference Distro</span></a>&quot;
+section. If you are going
+to use the Extensible SDK, see the &quot;<a class="reference internal" href="../sdk-manual/extensible.html"><span class="doc">Using the Extensible SDK</span></a>&quot; Chapter in the Yocto
+Project Application Development and the Extensible Software Development
+Kit (eSDK) manual. If you want to work on the kernel, see the <a class="reference internal" href="../kernel-dev/index.html"><span class="doc">Manuale di Sviluppo del Kernel Linux di Yocto Project</span></a>. If you are going to use
+Toaster, see the &quot;<a class="reference internal" href="../toaster-manual/setup-and-use.html"><span class="doc">Configurazione e Utilizzo di Toaster</span></a>&quot;
+section in the Toaster User Manual. If you are a VSCode user, you can configure
+the <a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=yocto-project.yocto-bitbake">Yocto Project BitBake</a>
+extension accordingly.</p>
+</section>
+<section id="setting-up-to-use-windows-subsystem-for-linux-wsl-2">
+<h3><span class="section-number">2.2.2 </span>Setting Up to Use Windows Subsystem For Linux (WSL 2)<a class="headerlink" href="#setting-up-to-use-windows-subsystem-for-linux-wsl-2" title="Link to this heading"></a></h3>
+<p>With <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/">Windows Subsystem for Linux (WSL 2)</a>,
+you can create a Yocto Project development environment that allows you
+to build on Windows. You can set up a Linux distribution inside Windows
+in which you can develop using the Yocto Project.</p>
+<p>Follow these general steps to prepare a Windows machine using WSL 2 as
+your Yocto Project build host:</p>
+<ol class="arabic">
+<li><p><em>Make sure your Windows machine is capable of running WSL 2:</em></p>
+<p>While all Windows 11 and Windows Server 2022 builds support WSL 2,
+the first versions of Windows 10 and Windows Server 2019 didn't.
+Check the minimum build numbers for <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install-manual#step-2---check-requirements-for-running-wsl-2">Windows 10</a>
+and for <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install-on-server">Windows Server 2019</a>.</p>
+<p>To check which build version you are running, you may open a command
+prompt on Windows and execute the command &quot;ver&quot;:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">myuser</span><span class="o">&gt;</span> <span class="n">ver</span>
+
+<span class="n">Microsoft</span> <span class="n">Windows</span> <span class="p">[</span><span class="n">Version</span> <span class="mf">10.0.19041.153</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p><em>Install the Linux distribution of your choice inside WSL 2:</em>
+Once you know your version of Windows supports WSL 2, you can
+install the distribution of your choice from the Microsoft Store.
+Open the Microsoft Store and search for Linux. While there are
+several Linux distributions available, the assumption is that your
+pick will be one of the distributions supported by the Yocto Project
+as stated on the instructions for using a native Linux host. After
+making your selection, simply click &quot;Get&quot; to download and install the
+distribution.</p></li>
+<li><p><em>Check which Linux distribution WSL 2 is using:</em> Open a Windows
+PowerShell and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">WINDOWS</span>\<span class="n">system32</span><span class="o">&gt;</span> <span class="n">wsl</span> <span class="o">-</span><span class="n">l</span> <span class="o">-</span><span class="n">v</span>
+<span class="n">NAME</span>    <span class="n">STATE</span>   <span class="n">VERSION</span>
+<span class="o">*</span><span class="n">Ubuntu</span> <span class="n">Running</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>Note that WSL 2 supports running as many different Linux distributions
+as you want to install.</p>
+</li>
+<li><p><em>Optionally Get Familiar with WSL:</em> You can learn more on
+<a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/wsl2-about">https://docs.microsoft.com/en-us/windows/wsl/wsl2-about</a>.</p></li>
+<li><p><em>Launch your WSL Distibution:</em> From the Windows start menu simply
+launch your WSL distribution just like any other application.</p></li>
+<li><p><em>Optimize your WSL 2 storage often:</em> Due to the way storage is
+handled on WSL 2, the storage space used by the underlying Linux
+distribution is not reflected immediately, and since BitBake heavily
+uses storage, after several builds, you may be unaware you are
+running out of space. As WSL 2 uses a VHDX file for storage, this issue
+can be easily avoided by regularly optimizing this file in a manual way:</p>
+<ol class="arabic">
+<li><p><em>Find the location of your VHDX file:</em></p>
+<p>First you need to find the distro app package directory, to achieve this
+open a Windows Powershell as Administrator and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">WINDOWS</span>\<span class="n">system32</span><span class="o">&gt;</span> <span class="n">Get</span><span class="o">-</span><span class="n">AppxPackage</span> <span class="o">-</span><span class="n">Name</span> <span class="s2">"*Ubuntu*"</span> <span class="o">|</span> <span class="n">Select</span> <span class="n">PackageFamilyName</span>
+<span class="n">PackageFamilyName</span>
+<span class="o">-----------------</span>
+<span class="n">CanonicalGroupLimited</span><span class="o">.</span><span class="n">UbuntuonWindows_79abcdefgh</span>
+</pre></div>
+</div>
+<p>You should now
+replace the PackageFamilyName and your user on the following path
+to find your VHDX file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ls</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">myuser</span>\<span class="n">AppData</span>\<span class="n">Local</span>\<span class="n">Packages</span>\<span class="n">CanonicalGroupLimited</span><span class="o">.</span><span class="n">UbuntuonWindows_79abcdefgh</span>\<span class="n">LocalState</span>\
+<span class="n">Mode</span>                 <span class="n">LastWriteTime</span>         <span class="n">Length</span> <span class="n">Name</span>
+<span class="o">-</span><span class="n">a</span><span class="o">----</span>         <span class="mi">3</span><span class="o">/</span><span class="mi">14</span><span class="o">/</span><span class="mi">2020</span>   <span class="mi">9</span><span class="p">:</span><span class="mi">52</span> <span class="n">PM</span>    <span class="mi">57418973184</span> <span class="n">ext4</span><span class="o">.</span><span class="n">vhdx</span>
+</pre></div>
+</div>
+<p>Your VHDX file path is:
+<code class="docutils literal notranslate"><span class="pre">C:\Users\myuser\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79abcdefgh\LocalState\ext4.vhdx</span></code></p>
+</li>
+</ol>
+<p>2a. <em>Optimize your VHDX file using Windows Powershell:</em></p>
+<blockquote>
+<div><p>To use the <code class="docutils literal notranslate"><span class="pre">optimize-vhd</span></code> cmdlet below, first install the Hyper-V
+option on Windows. Then, open a Windows Powershell as Administrator to
+optimize your VHDX file, shutting down WSL first:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">WINDOWS</span>\<span class="n">system32</span><span class="o">&gt;</span> <span class="n">wsl</span> <span class="o">--</span><span class="n">shutdown</span>
+<span class="n">C</span><span class="p">:</span>\<span class="n">WINDOWS</span>\<span class="n">system32</span><span class="o">&gt;</span> <span class="n">optimize</span><span class="o">-</span><span class="n">vhd</span> <span class="o">-</span><span class="n">Path</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">myuser</span>\<span class="n">AppData</span>\<span class="n">Local</span>\<span class="n">Packages</span>\<span class="n">CanonicalGroupLimited</span><span class="o">.</span><span class="n">UbuntuonWindows_79abcdefgh</span>\<span class="n">LocalState</span>\<span class="n">ext4</span><span class="o">.</span><span class="n">vhdx</span> <span class="o">-</span><span class="n">Mode</span> <span class="n">full</span>
+</pre></div>
+</div>
+<p>A progress bar should be shown while optimizing the
+VHDX file, and storage should now be reflected correctly on the
+Windows Explorer.</p>
+</div></blockquote>
+<p>2b. <em>Optimize your VHDX file using DiskPart:</em></p>
+<blockquote>
+<div><p>The <code class="docutils literal notranslate"><span class="pre">optimize-vhd</span></code> cmdlet noted in step 2a above is provided by
+Hyper-V. Not all SKUs of Windows can install Hyper-V. As an alternative,
+use the DiskPart tool. To start, open a Windows command prompt as
+Administrator to optimize your VHDX file, shutting down WSL first:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\<span class="n">WINDOWS</span>\<span class="n">system32</span><span class="o">&gt;</span> <span class="n">wsl</span> <span class="o">--</span><span class="n">shutdown</span>
+<span class="n">C</span><span class="p">:</span>\<span class="n">WINDOWS</span>\<span class="n">system32</span><span class="o">&gt;</span> <span class="n">diskpart</span>
+
+<span class="n">DISKPART</span><span class="o">&gt;</span> <span class="n">select</span> <span class="n">vdisk</span> <span class="n">file</span><span class="o">=</span><span class="s2">"&lt;path_to_VHDX_file&gt;"</span>
+<span class="n">DISKPART</span><span class="o">&gt;</span> <span class="n">attach</span> <span class="n">vdisk</span> <span class="n">readonly</span>
+<span class="n">DISKPART</span><span class="o">&gt;</span> <span class="n">compact</span> <span class="n">vdisk</span>
+<span class="n">DISKPART</span><span class="o">&gt;</span> <span class="n">detach</span>
+<span class="n">DISKPART</span><span class="o">&gt;</span> <span class="n">exit</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The current implementation of WSL 2 does not have out-of-the-box
+access to external devices such as those connected through a USB
+port, but it automatically mounts your <code class="docutils literal notranslate"><span class="pre">C:</span></code> drive on <code class="docutils literal notranslate"><span class="pre">/mnt/c/</span></code>
+(and others), which you can use to share deploy artifacts to be later
+flashed on hardware through Windows, but your <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>
+should not reside inside this mountpoint.</p>
+</div>
+<p>Once you have WSL 2 set up, everything is in place to develop just as if
+you were running on a native Linux machine. If you are going to use the
+Extensible SDK container, see the &quot;<a class="reference internal" href="../sdk-manual/extensible.html"><span class="doc">Using the Extensible SDK</span></a>&quot; Chapter in the Yocto
+Project Application Development and the Extensible Software Development
+Kit (eSDK) manual. If you are going to use the Toaster container, see
+the &quot;<a class="reference internal" href="../toaster-manual/setup-and-use.html"><span class="doc">Configurazione e Utilizzo di Toaster</span></a>&quot;
+section in the Toaster User Manual. If you are a VSCode user, you can configure
+the <a class="reference external" href="https://marketplace.visualstudio.com/items?itemName=yocto-project.yocto-bitbake">Yocto Project BitBake</a>
+extension accordingly.</p>
+</section>
+<section id="preparing-the-poky-reference-distro">
+<h3><span class="section-number">2.2.3 </span>Preparing the Poky Reference Distro<a class="headerlink" href="#preparing-the-poky-reference-distro" title="Link to this heading"></a></h3>
+<p>Now that the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Host"><span class="xref std std-term">Build Host</span></a> has been prepared to build images, the next step
+can be to build the <a class="reference internal" href="../ref-manual/terms.html#term-Poky"><span class="xref std std-term">Poky</span></a> reference distro. There are two ways of setting
+up the <a class="reference internal" href="../ref-manual/terms.html#term-Poky"><span class="xref std std-term">Poky</span></a> reference distro:</p>
+<ul>
+<li><p>Utilizzando l'utilità da riga di comando <code class="docutils literal notranslate"><span class="pre">bitbake-setup</span></code> di <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>. Seguire le istruzioni riportate in:</p>
+<p><a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-environment-setup.html" title="(in Bitbake Version: Current Development)"><span class="xref std std-doc">Setting Up The Environment With bitbake-setup</span></a></p>
+</li>
+<li><p>Clonando manualmente i repository necessari. Seguire le istruzioni riportate in:</p>
+<p><a class="reference internal" href="poky-manual-setup.html"><span class="doc">Setting Up the Poky Reference Distro Manually</span></a></p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The <a class="reference internal" href="../ref-manual/terms.html#term-Poky"><span class="xref std std-term">Poky</span></a> distro is a reference distro. It can be used to try the
+Yocto Project but should not be used in a production environment. Instead, it
+is recommended to create your own distro, see the
+<a class="reference internal" href="custom-distribution.html"><span class="doc">Creating Your Own Distribution</span></a> section of the Yocto Project
+Development Tasks Manual.</p>
+</div>
+</section>
+<section id="initializing-the-build-environment">
+<h3><span class="section-number">2.2.4 </span>Initializing the Build Environment<a class="headerlink" href="#initializing-the-build-environment" title="Link to this heading"></a></h3>
+<p>Initializing the build environment is a common task, as it needs to be done for
+each new instance of the shell where the <a class="reference internal" href="../ref-manual/terms.html#term-Poky"><span class="xref std std-term">Poky</span></a> reference distro was set up:</p>
+<ul>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">bitbake-setup</span></code> was used to set up the <a class="reference internal" href="../ref-manual/terms.html#term-Poky"><span class="xref std std-term">Poky</span></a> reference distro, you
+need to source the <code class="docutils literal notranslate"><span class="pre">init-build-env</span></code> file of the <a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-environment-setup.html#term-Setup" title="(in Bitbake Version: Current Development)"><span>Setup</span></a>
+directory that was created after the <a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-environment-setup.html#ref-bbsetup-command-init" title="(in Bitbake Version: Current Development)"><span>bitbake-setup init</span></a>
+command execution:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>&lt;setup-dir&gt;/build/init-build-env
+</pre></div>
+</div>
+</li>
+<li><p>If the <a class="reference internal" href="../ref-manual/terms.html#term-Poky"><span class="xref std std-term">Poky</span></a> distro was set up using manual clones of the layers, you
+need to source the <code class="docutils literal notranslate"><span class="pre">oe-init-build-env</span></code> script present in the
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> layer:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span><span class="w"> </span>openembedded-core/oe-init-build-env
+</pre></div>
+</div>
+</li>
+</ul>
+<p>This will set up your current shell and change the current working directory to
+the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>.</p>
+</section>
+<section id="where-to-go-from-here">
+<h3><span class="section-number">2.2.5 </span>Where To Go From Here<a class="headerlink" href="#where-to-go-from-here" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Configure your build: follow <a class="reference internal" href="../overview-manual/concepts.html#user-configuration"><span class="std std-ref">Configurazione Utente</span></a>.</p></li>
+<li><p>Learn how and what to build with <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>: follow <a class="reference internal" href="building.html"><span class="doc">Building</span></a>.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

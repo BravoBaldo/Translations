@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 Performing Automated Runtime Testing &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="5 Understanding the Yocto Project Autobuilder" href="understand-autobuilder.html" />
+    <link rel="prev" title="3 Testing Packages With ptest" href="ptest.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale dell'Ambiente di Test</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 The Yocto Project Test Environment Manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test-process.html">2 Project Testing and Release Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptest.html">3 Testing Packages With ptest</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4 Performing Automated Runtime Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enabling-tests">4.1 Enabling Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#enabling-runtime-tests-on-qemu">4.1.1 Enabling Runtime Tests on QEMU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enabling-runtime-tests-on-hardware">4.1.2 Enabling Runtime Tests on Hardware</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#selecting-systemdboottarget">4.1.3 Selecting SystemdbootTarget</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#power-control">4.1.4 Power Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#serial-console-connection">4.1.5 Serial Console Connection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-tests">4.2 Running Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exporting-tests">4.3 Exporting Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-new-tests">4.4 Writing New Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#class-methods">4.4.1 Class Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class-attributes">4.4.2 Class Attributes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#instance-attributes">4.4.3 Instance Attributes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#installing-packages-in-the-dut-without-the-package-manager">4.5 Installing Packages in the DUT Without the Package Manager</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understand-autobuilder.html">5 Understanding the Yocto Project Autobuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reproducible-builds.html">6 Reproducible Builds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yocto-project-compatible.html">7 Yocto Project Compatible</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale dell'Ambiente di Test di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">4 </span>Performing Automated Runtime Testing</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/test-manual/runtime-testing.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="performing-automated-runtime-testing">
+<h1><span class="section-number">4 </span>Performing Automated Runtime Testing<a class="headerlink" href="#performing-automated-runtime-testing" title="Link to this heading"></a></h1>
+<p>The OpenEmbedded build system makes available a series of automated
+tests for images to verify runtime functionality. You can run these
+tests on either QEMU or actual target hardware. Tests are written in
+Python making use of the <code class="docutils literal notranslate"><span class="pre">unittest</span></code> module, and the majority of them
+run commands on the target system over SSH. This section describes how
+you set up the environment to use these tests, run available tests, and
+write and add your own tests.</p>
+<p>For information on the test and QA infrastructure available within the
+Yocto Project, see the &quot;<a class="reference internal" href="../ref-manual/release-process.html#testing-and-quality-assurance"><span class="std std-ref">Testing and Quality Assurance</span></a>&quot;
+section in the Yocto Project Reference Manual.</p>
+<section id="enabling-tests">
+<h2><span class="section-number">4.1 </span>Enabling Tests<a class="headerlink" href="#enabling-tests" title="Link to this heading"></a></h2>
+<p>Depending on whether you are planning to run tests using QEMU or on the
+hardware, you have to take different steps to enable the tests. See the
+following subsections for information on how to enable both types of
+tests.</p>
+<section id="enabling-runtime-tests-on-qemu">
+<h3><span class="section-number">4.1.1 </span>Enabling Runtime Tests on QEMU<a class="headerlink" href="#enabling-runtime-tests-on-qemu" title="Link to this heading"></a></h3>
+<p>In order to run tests, you need to do the following:</p>
+<ul>
+<li><p><em>Set up to avoid interaction with sudo for networking:</em> To
+accomplish this, you must do one of the following:</p>
+<ul>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">NOPASSWD</span></code> for your user in <code class="docutils literal notranslate"><span class="pre">/etc/sudoers</span></code> either for all
+commands or just for <code class="docutils literal notranslate"><span class="pre">runqemu-ifup</span></code>. You must provide the full
+path as that can change if you are using multiple clones of the
+source repository.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>On some distributions, you also need to comment out &quot;Defaults
+requiretty&quot; in <code class="docutils literal notranslate"><span class="pre">/etc/sudoers</span></code>.</p>
+</div>
+</li>
+<li><p>Manually configure a tap interface for your system.</p></li>
+<li><p>Run as root the script in <code class="docutils literal notranslate"><span class="pre">scripts/runqemu-gen-tapdevs</span></code>, which
+should generate a list of tap devices. This is the option
+typically chosen for Autobuilder-type environments.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<ul>
+<li><p>Be sure to use an absolute path when calling this script
+with sudo.</p></li>
+<li><p>Ensure that your host has the package <code class="docutils literal notranslate"><span class="pre">iptables</span></code> installed.</p></li>
+<li><p>The package recipe <code class="docutils literal notranslate"><span class="pre">qemu-helper-native</span></code> is required to run
+this script. Build the package using the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake qemu-helper-native
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</li>
+<li><p><em>Set the DISPLAY variable:</em> You need to set this variable so that
+you have an X server available (e.g. start <code class="docutils literal notranslate"><span class="pre">vncserver</span></code> for a
+headless machine).</p></li>
+<li><p><em>Be sure your host's firewall accepts incoming connections from
+192.168.7.0/24:</em> Some of the tests (in particular DNF tests) start an
+HTTP server on a random high number port, which is used to serve
+files to the target. The DNF module serves
+<code class="docutils literal notranslate"><span class="pre">${WORKDIR}/oe-rootfs-repo</span></code> so it can run DNF channel commands.
+That means your host's firewall must accept incoming connections from
+192.168.7.0/24, which is the default IP range used for tap devices by
+<code class="docutils literal notranslate"><span class="pre">runqemu</span></code>.</p></li>
+<li><p><em>Be sure your host has the correct packages installed:</em> Depending
+your host's distribution, you need to have the following packages
+installed:</p>
+<ul class="simple">
+<li><p>Ubuntu and Debian: <code class="docutils literal notranslate"><span class="pre">sysstat</span></code> and <code class="docutils literal notranslate"><span class="pre">iproute2</span></code></p></li>
+<li><p>openSUSE: <code class="docutils literal notranslate"><span class="pre">sysstat</span></code> and <code class="docutils literal notranslate"><span class="pre">iproute2</span></code></p></li>
+<li><p>Fedora: <code class="docutils literal notranslate"><span class="pre">sysstat</span></code> and <code class="docutils literal notranslate"><span class="pre">iproute</span></code></p></li>
+<li><p>CentOS: <code class="docutils literal notranslate"><span class="pre">sysstat</span></code> and <code class="docutils literal notranslate"><span class="pre">iproute</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>Once you start running the tests, the following happens:</p>
+<ol class="arabic simple">
+<li><p>A copy of the root filesystem is written to <code class="docutils literal notranslate"><span class="pre">${WORKDIR}/testimage</span></code>.</p></li>
+<li><p>The image is booted under QEMU using the standard <code class="docutils literal notranslate"><span class="pre">runqemu</span></code> script.</p></li>
+<li><p>A default timeout of 500 seconds occurs to allow for the boot process
+to reach the login prompt. You can change the timeout period by
+setting
+<a class="reference internal" href="../ref-manual/variables.html#term-TEST_QEMUBOOT_TIMEOUT"><span class="xref std std-term">TEST_QEMUBOOT_TIMEOUT</span></a>
+in a <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>.</p></li>
+<li><p>Once the boot process is reached and the login prompt appears, the
+tests run. The full boot log is written to
+<code class="docutils literal notranslate"><span class="pre">${WORKDIR}/testimage/qemu_boot_log</span></code>.</p></li>
+<li><p>Each test module loads in the order found in <a class="reference internal" href="../ref-manual/variables.html#term-TEST_SUITES"><span class="xref std std-term">TEST_SUITES</span></a>. You can
+find the full output of the commands run over SSH in
+<code class="docutils literal notranslate"><span class="pre">${WORKDIR}/testimgage/ssh_target_log</span></code>.</p></li>
+<li><p>If no failures occur, the task running the tests ends successfully.
+You can find the output from the <code class="docutils literal notranslate"><span class="pre">unittest</span></code> in the task log at
+<code class="docutils literal notranslate"><span class="pre">${WORKDIR}/temp/log.do_testimage</span></code>.</p></li>
+</ol>
+</section>
+<section id="enabling-runtime-tests-on-hardware">
+<h3><span class="section-number">4.1.2 </span>Enabling Runtime Tests on Hardware<a class="headerlink" href="#enabling-runtime-tests-on-hardware" title="Link to this heading"></a></h3>
+<p>The OpenEmbedded build system can run tests on real hardware, and for
+certain devices it can also deploy the image to be tested onto the
+device beforehand.</p>
+<p>For automated deployment, a &quot;controller image&quot; is installed onto the
+hardware once as part of setup. Then, each time tests are to be run, the
+following occurs:</p>
+<ol class="arabic simple">
+<li><p>The controller image is booted into and used to write the image to be
+tested to a second partition.</p></li>
+<li><p>The device is then rebooted using an external script that you need to
+provide.</p></li>
+<li><p>The device boots into the image to be tested.</p></li>
+</ol>
+<p>When running tests (independent of whether the image has been deployed
+automatically or not), the device is expected to be connected to a
+network on a pre-determined IP address. You can either use static IP
+addresses written into the image, or set the image to use DHCP and have
+your DHCP server on the test network assign a known IP address based on
+the MAC address of the device.</p>
+<p>In order to run tests on hardware, you need to set <a class="reference internal" href="../ref-manual/variables.html#term-TEST_TARGET"><span class="xref std std-term">TEST_TARGET</span></a> to an
+appropriate value. For QEMU, you do not have to change anything, the
+default value is &quot;qemu&quot;. For running tests on hardware, the following
+options are available:</p>
+<ul>
+<li><p><em>&quot;simpleremote&quot;:</em> Choose &quot;simpleremote&quot; if you are going to run tests
+on a target system that is already running the image to be tested and
+is available on the network. You can use &quot;simpleremote&quot; in
+conjunction with either real hardware or an image running within a
+separately started QEMU or any other virtual machine manager.</p></li>
+<li><p><em>&quot;SystemdbootTarget&quot;:</em> Choose &quot;SystemdbootTarget&quot; if your hardware is
+an EFI-based machine with <code class="docutils literal notranslate"><span class="pre">systemd-boot</span></code> as bootloader and
+<code class="docutils literal notranslate"><span class="pre">core-image-testmaster</span></code> (or something similar) is installed. Also,
+your hardware under test must be in a DHCP-enabled network that gives
+it the same IP address for each reboot.</p>
+<p>If you choose &quot;SystemdbootTarget&quot;, there are additional requirements
+and considerations. See the
+&quot;<a class="reference internal" href="#selecting-systemdboottarget"><span class="std std-ref">Selecting SystemdbootTarget</span></a>&quot; section, which
+follows, for more information.</p>
+</li>
+<li><p><em>&quot;BeagleBoneTarget&quot;:</em> Choose &quot;BeagleBoneTarget&quot; if you are deploying
+images and running tests on the BeagleBone &quot;Black&quot; or original
+&quot;White&quot; hardware. For information on how to use these tests, see the
+comments at the top of the BeagleBoneTarget
+<code class="docutils literal notranslate"><span class="pre">meta-yocto-bsp/lib/oeqa/controllers/beaglebonetarget.py</span></code> file.</p></li>
+<li><p><em>&quot;GrubTarget&quot;:</em> Choose &quot;GrubTarget&quot; if you are deploying images and running
+tests on any generic PC that boots using GRUB. For information on how
+to use these tests, see the comments at the top of the GrubTarget
+<code class="docutils literal notranslate"><span class="pre">meta-yocto-bsp/lib/oeqa/controllers/grubtarget.py</span></code> file.</p></li>
+<li><p><em>&quot;your-target&quot;:</em> Create your own custom target if you want to run
+tests when you are deploying images and running tests on a custom
+machine within your BSP layer. To do this, you need to add a Python
+unit that defines the target class under <code class="docutils literal notranslate"><span class="pre">lib/oeqa/controllers/</span></code>
+within your layer. You must also provide an empty <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>.
+For examples, see files in <code class="docutils literal notranslate"><span class="pre">meta-yocto-bsp/lib/oeqa/controllers/</span></code>.</p></li>
+</ul>
+</section>
+<section id="selecting-systemdboottarget">
+<h3><span class="section-number">4.1.3 </span>Selecting SystemdbootTarget<a class="headerlink" href="#selecting-systemdboottarget" title="Link to this heading"></a></h3>
+<p>If you did not set <a class="reference internal" href="../ref-manual/variables.html#term-TEST_TARGET"><span class="xref std std-term">TEST_TARGET</span></a> to &quot;SystemdbootTarget&quot;, then you do
+not need any information in this section. You can skip down to the
+&quot;<a class="reference internal" href="#running-tests"><span class="std std-ref">Running Tests</span></a>&quot; section.</p>
+<p>If you did set <a class="reference internal" href="../ref-manual/variables.html#term-TEST_TARGET"><span class="xref std std-term">TEST_TARGET</span></a> to &quot;SystemdbootTarget&quot;, you also need to
+perform a one-time setup of your controller image by doing the following:</p>
+<ol class="arabic">
+<li><p><em>Set EFI_PROVIDER:</em> Be sure that <a class="reference internal" href="../ref-manual/variables.html#term-EFI_PROVIDER"><span class="xref std std-term">EFI_PROVIDER</span></a> is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">EFI_PROVIDER</span> <span class="o">=</span> <span class="s2">"systemd-boot"</span>
+</pre></div>
+</div>
+</li>
+<li><p><em>Build the controller image:</em> Build the <code class="docutils literal notranslate"><span class="pre">core-image-testmaster</span></code> image.
+The <code class="docutils literal notranslate"><span class="pre">core-image-testmaster</span></code> recipe is provided as an example for a
+&quot;controller&quot; image and you can customize the image recipe as you would
+any other recipe.</p>
+<p>Image recipe requirements are:</p>
+<ul class="simple">
+<li><p>Inherits <code class="docutils literal notranslate"><span class="pre">core-image</span></code> so that kernel modules are installed.</p></li>
+<li><p>Installs normal linux utilities not BusyBox ones (e.g. <code class="docutils literal notranslate"><span class="pre">bash</span></code>,
+<code class="docutils literal notranslate"><span class="pre">coreutils</span></code>, <code class="docutils literal notranslate"><span class="pre">tar</span></code>, <code class="docutils literal notranslate"><span class="pre">gzip</span></code>, and <code class="docutils literal notranslate"><span class="pre">kmod</span></code>).</p></li>
+<li><p>Uses a custom <a class="reference internal" href="../ref-manual/terms.html#term-Initramfs"><span class="xref std std-term">Initramfs</span></a> image with a custom
+installer. A normal image that you can install usually creates a
+single root filesystem partition. This image uses another installer that
+creates a specific partition layout. Not all Board Support
+Packages (BSPs) can use an installer. For such cases, you need to
+manually create the following partition layout on the target:</p>
+<ul>
+<li><p>First partition mounted under <code class="docutils literal notranslate"><span class="pre">/boot</span></code>, labeled &quot;boot&quot;.</p></li>
+<li><p>The main root filesystem partition where this image gets installed,
+which is mounted under <code class="docutils literal notranslate"><span class="pre">/</span></code>.</p></li>
+<li><p>Another partition labeled &quot;testrootfs&quot; where test images get
+deployed.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><em>Install image:</em> Install the image that you just built on the target
+system.</p></li>
+</ol>
+<p>The final thing you need to do when setting <a class="reference internal" href="../ref-manual/variables.html#term-TEST_TARGET"><span class="xref std std-term">TEST_TARGET</span></a> to
+&quot;SystemdbootTarget&quot; is to set up the test image:</p>
+<ol class="arabic">
+<li><p><em>Set up your local.conf file:</em> Make sure you have the following
+statements in your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_FSTYPES</span> <span class="o">+=</span> <span class="s2">"tar.gz"</span>
+<span class="n">IMAGE_CLASSES</span> <span class="o">+=</span> <span class="s2">"testimage"</span>
+<span class="n">TEST_TARGET</span> <span class="o">=</span> <span class="s2">"SystemdbootTarget"</span>
+<span class="n">TEST_TARGET_IP</span> <span class="o">=</span> <span class="s2">"192.168.2.3"</span>
+</pre></div>
+</div>
+</li>
+<li><p><em>Build your test image:</em> Use BitBake to build the image:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake core-image-sato
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="power-control">
+<h3><span class="section-number">4.1.4 </span>Power Control<a class="headerlink" href="#power-control" title="Link to this heading"></a></h3>
+<p>For most hardware targets other than &quot;simpleremote&quot;, you can control
+power:</p>
+<ul>
+<li><p>You can use <a class="reference internal" href="../ref-manual/variables.html#term-TEST_POWERCONTROL_CMD"><span class="xref std std-term">TEST_POWERCONTROL_CMD</span></a> together with
+<a class="reference internal" href="../ref-manual/variables.html#term-TEST_POWERCONTROL_EXTRA_ARGS"><span class="xref std std-term">TEST_POWERCONTROL_EXTRA_ARGS</span></a> as a command that runs on the host
+and does power cycling. The test code passes one argument to that
+command: off, on or cycle (off then on). Here is an example that
+could appear in your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_POWERCONTROL_CMD</span> <span class="o">=</span> <span class="s2">"powercontrol.exp test 10.11.12.1 nuc1"</span>
+</pre></div>
+</div>
+<p>In this example, the expect
+script does the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>test@10.11.12.1<span class="w"> </span><span class="s2">"pyctl nuc1 arg"</span>
+</pre></div>
+</div>
+<p>It then runs a Python script that controls power for a label called
+<code class="docutils literal notranslate"><span class="pre">nuc1</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You need to customize <a class="reference internal" href="../ref-manual/variables.html#term-TEST_POWERCONTROL_CMD"><span class="xref std std-term">TEST_POWERCONTROL_CMD</span></a> and
+<a class="reference internal" href="../ref-manual/variables.html#term-TEST_POWERCONTROL_EXTRA_ARGS"><span class="xref std std-term">TEST_POWERCONTROL_EXTRA_ARGS</span></a> for your own setup. The one requirement
+is that it accepts &quot;on&quot;, &quot;off&quot;, and &quot;cycle&quot; as the last argument.</p>
+</div>
+</li>
+<li><p>When no command is defined, it connects to the device over SSH and
+uses the classic reboot command to reboot the device. Classic reboot
+is fine as long as the machine actually reboots (i.e. the SSH test
+has not failed). It is useful for scenarios where you have a simple
+setup, typically with a single board, and where some manual
+interaction is okay from time to time.</p></li>
+</ul>
+<p>If you have no hardware to automatically perform power control but still
+wish to experiment with automated hardware testing, you can use the
+<code class="docutils literal notranslate"><span class="pre">dialog-power-control</span></code> script that shows a dialog prompting you to perform
+the required power action. This script requires either KDialog or Zenity
+to be installed. To use this script, set the
+<a class="reference internal" href="../ref-manual/variables.html#term-TEST_POWERCONTROL_CMD"><span class="xref std std-term">TEST_POWERCONTROL_CMD</span></a>
+variable as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_POWERCONTROL_CMD</span> <span class="o">=</span> <span class="s2">"$</span><span class="si">{COREBASE}</span><span class="s2">/scripts/contrib/dialog-power-control"</span>
+</pre></div>
+</div>
+</section>
+<section id="serial-console-connection">
+<h3><span class="section-number">4.1.5 </span>Serial Console Connection<a class="headerlink" href="#serial-console-connection" title="Link to this heading"></a></h3>
+<p>For test target classes requiring a serial console to interact with the
+bootloader (e.g. BeagleBoneTarget and GrubTarget),
+you need to specify a command to use to connect to the serial console of
+the target machine by using the
+<a class="reference internal" href="../ref-manual/variables.html#term-TEST_SERIALCONTROL_CMD"><span class="xref std std-term">TEST_SERIALCONTROL_CMD</span></a>
+variable and optionally the
+<a class="reference internal" href="../ref-manual/variables.html#term-TEST_SERIALCONTROL_EXTRA_ARGS"><span class="xref std std-term">TEST_SERIALCONTROL_EXTRA_ARGS</span></a>
+variable.</p>
+<p>These cases could be a serial terminal program if the machine is
+connected to a local serial port, or a <code class="docutils literal notranslate"><span class="pre">telnet</span></code> or <code class="docutils literal notranslate"><span class="pre">ssh</span></code> command
+connecting to a remote console server. Regardless of the case, the
+command simply needs to connect to the serial console and forward that
+connection to standard input and output as any normal terminal program
+does. For example, to use the picocom terminal program on serial device
+<code class="docutils literal notranslate"><span class="pre">/dev/ttyUSB0</span></code> at 115200bps, you would set the variable as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_SERIALCONTROL_CMD</span> <span class="o">=</span> <span class="s2">"picocom /dev/ttyUSB0 -b 115200"</span>
+</pre></div>
+</div>
+<p>For local
+devices where the serial port device disappears when the device reboots,
+an additional &quot;serdevtry&quot; wrapper script is provided. To use this
+wrapper, simply prefix the terminal command with
+<code class="docutils literal notranslate"><span class="pre">${COREBASE}/scripts/contrib/serdevtry</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_SERIALCONTROL_CMD</span> <span class="o">=</span> <span class="s2">"$</span><span class="si">{COREBASE}</span><span class="s2">/scripts/contrib/serdevtry picocom -b 115200 /dev/ttyUSB0"</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="running-tests">
+<h2><span class="section-number">4.2 </span>Running Tests<a class="headerlink" href="#running-tests" title="Link to this heading"></a></h2>
+<p>You can start the tests automatically or manually:</p>
+<ul>
+<li><p><em>Automatically running tests:</em> To run the tests automatically after the
+OpenEmbedded build system successfully creates an image, first set the
+<a class="reference internal" href="../ref-manual/variables.html#term-TESTIMAGE_AUTO"><span class="xref std std-term">TESTIMAGE_AUTO</span></a> variable to &quot;1&quot; in your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file in the
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TESTIMAGE_AUTO</span> <span class="o">=</span> <span class="s2">"1"</span>
+</pre></div>
+</div>
+<p>Next, build your image. If the image successfully builds, the
+tests run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bitbake</span> <span class="n">core</span><span class="o">-</span><span class="n">image</span><span class="o">-</span><span class="n">sato</span>
+</pre></div>
+</div>
+</li>
+<li><p><em>Manually running tests:</em> To manually run the tests, first globally
+inherit the <a class="reference internal" href="../ref-manual/classes.html#ref-classes-testimage"><span class="std std-ref">testimage</span></a> class by editing your
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_CLASSES</span> <span class="o">+=</span> <span class="s2">"testimage"</span>
+</pre></div>
+</div>
+<p>Next, use BitBake to run the tests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bitbake</span> <span class="o">-</span><span class="n">c</span> <span class="n">testimage</span> <span class="n">image</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>All test files reside in <code class="docutils literal notranslate"><span class="pre">meta/lib/oeqa/runtime/cases</span></code> in
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>. A test name maps
+directly to a Python module. Each test module may contain a number of
+individual tests. Tests are usually grouped together by the area tested
+(e.g tests for systemd reside in <code class="docutils literal notranslate"><span class="pre">meta/lib/oeqa/runtime/cases/systemd.py</span></code>).</p>
+<p>You can add tests to any layer provided you place them in the proper
+area and you extend <a class="reference internal" href="../ref-manual/variables.html#term-BBPATH"><span class="xref std std-term">BBPATH</span></a> in
+the <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file as normal. Be sure that tests reside in
+<code class="docutils literal notranslate"><span class="pre">layer/lib/oeqa/runtime/cases</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Be sure that module names do not collide with module names used in
+the default set of test modules in <code class="docutils literal notranslate"><span class="pre">meta/lib/oeqa/runtime/cases</span></code>.</p>
+</div>
+<p>You can change the set of tests run by appending or overriding
+<a class="reference internal" href="../ref-manual/variables.html#term-TEST_SUITES"><span class="xref std std-term">TEST_SUITES</span></a> variable in
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a>. Each name in <a class="reference internal" href="../ref-manual/variables.html#term-TEST_SUITES"><span class="xref std std-term">TEST_SUITES</span></a> represents a required test
+for the image. Test modules named within <a class="reference internal" href="../ref-manual/variables.html#term-TEST_SUITES"><span class="xref std std-term">TEST_SUITES</span></a> cannot be
+skipped even if a test is not suitable for an image (e.g. running the
+RPM tests on an image without <code class="docutils literal notranslate"><span class="pre">rpm</span></code>). Appending &quot;auto&quot; to
+<a class="reference internal" href="../ref-manual/variables.html#term-TEST_SUITES"><span class="xref std std-term">TEST_SUITES</span></a> causes the build system to try to run all tests that are
+suitable for the image (i.e. each test module may elect to skip itself).</p>
+<p>The order you list tests in <a class="reference internal" href="../ref-manual/variables.html#term-TEST_SUITES"><span class="xref std std-term">TEST_SUITES</span></a> is important and influences
+test dependencies. Consequently, tests that depend on other tests should
+be added after the test on which they depend. For example, since the
+<code class="docutils literal notranslate"><span class="pre">ssh</span></code> test depends on the <code class="docutils literal notranslate"><span class="pre">ping</span></code> test, &quot;ssh&quot; needs to come after
+&quot;ping&quot; in the list. The test class provides no re-ordering or dependency
+handling.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Each module can have multiple classes with multiple test methods.
+And, Python <code class="docutils literal notranslate"><span class="pre">unittest</span></code> rules apply.</p>
+</div>
+<p>Here are some things to keep in mind when running tests:</p>
+<ul>
+<li><p>The default tests for the image are defined as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DEFAULT_TEST_SUITES</span><span class="p">:</span><span class="n">pn</span><span class="o">-</span><span class="n">image</span> <span class="o">=</span> <span class="s2">"ping ssh df connman syslog xorg scp vnc date rpm dnf dmesg"</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add your own test to the list of the by using the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_SUITES</span><span class="p">:</span><span class="n">append</span> <span class="o">=</span> <span class="s2">" mytest"</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run a specific list of tests as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_SUITES</span> <span class="o">=</span> <span class="s2">"test1 test2 test3"</span>
+</pre></div>
+</div>
+<p>Remember, order is important. Be sure to place a test that is
+dependent on another test later in the order.</p>
+</li>
+</ul>
+</section>
+<section id="exporting-tests">
+<h2><span class="section-number">4.3 </span>Exporting Tests<a class="headerlink" href="#exporting-tests" title="Link to this heading"></a></h2>
+<p>You can export tests so that they can run independently of the build
+system. Exporting tests is required if you want to be able to hand the
+test execution off to a scheduler. You can only export tests that are
+defined in <a class="reference internal" href="../ref-manual/variables.html#term-TEST_SUITES"><span class="xref std std-term">TEST_SUITES</span></a>.</p>
+<p>If your image is already built, make sure the following are set in your
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_CLASSES</span> <span class="o">+=</span> <span class="s2">"testexport"</span>
+<span class="n">TEST_TARGET_IP</span> <span class="o">=</span> <span class="s2">"IP-address-for-the-test-target"</span>
+<span class="n">TEST_SERVER_IP</span> <span class="o">=</span> <span class="s2">"IP-address-for-the-test-server"</span>
+</pre></div>
+</div>
+<p>You can then export the tests with the
+following BitBake command form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake image -c testexport
+</pre></div>
+</div>
+<p>Exporting the tests places them in the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> in
+<code class="docutils literal notranslate"><span class="pre">tmp/testimage/</span></code>image, which is controlled by the <a class="reference internal" href="../ref-manual/variables.html#term-TEST_EXPORT_DIR"><span class="xref std std-term">TEST_EXPORT_DIR</span></a>
+variable.</p>
+<p>You can now run the tests outside of the build environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tmp/testimage/image
+$ ./oe-test runtime
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You might need to run the image under QEMU or deploy it to your
+hardware before you can run the tests.</p>
+</div>
+<p>Here is a complete example that shows IP addresses and uses the
+<code class="docutils literal notranslate"><span class="pre">core-image-sato</span></code> image:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">IMAGE_CLASSES</span> <span class="o">+=</span> <span class="s2">"testexport"</span>
+<span class="n">TEST_TARGET_IP</span> <span class="o">=</span> <span class="s2">"192.168.7.2"</span>
+<span class="n">TEST_SERVER_IP</span> <span class="o">=</span> <span class="s2">"192.168.7.1"</span>
+</pre></div>
+</div>
+<p>Use BitBake to export the tests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake core-image-sato -c testexport
+</pre></div>
+</div>
+<p>Run the tests outside of
+the build environment using the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd tmp/testimage/core-image-sato
+$ ./oe-test runtime
+</pre></div>
+</div>
+</section>
+<section id="writing-new-tests">
+<h2><span class="section-number">4.4 </span>Writing New Tests<a class="headerlink" href="#writing-new-tests" title="Link to this heading"></a></h2>
+<p>As mentioned previously, all new test files need to be in the proper
+place for the build system to find them. New tests for additional
+functionality outside of the core should be added to the layer that adds
+the functionality, in <code class="docutils literal notranslate"><span class="pre">layer/lib/oeqa/runtime/cases</span></code> (as long as
+<a class="reference internal" href="../ref-manual/variables.html#term-BBPATH"><span class="xref std std-term">BBPATH</span></a> is extended in the
+layer's <code class="docutils literal notranslate"><span class="pre">layer.conf</span></code> file as normal). Just remember the following:</p>
+<ul class="simple">
+<li><p>Filenames need to map directly to test (module) names.</p></li>
+<li><p>Do not use module names that collide with existing core tests.</p></li>
+<li><p>Minimally, an empty <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file must be present in the runtime
+directory.</p></li>
+</ul>
+<p>To create a new test, start by copying an existing module (e.g.
+<code class="docutils literal notranslate"><span class="pre">oe_syslog.py</span></code> or <code class="docutils literal notranslate"><span class="pre">gcc.py</span></code> are good ones to use). Test modules can use
+code from <code class="docutils literal notranslate"><span class="pre">meta/lib/oeqa/utils</span></code>, which are helper classes.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Structure shell commands such that you rely on them and they return a
+single code for success. Be aware that sometimes you will need to
+parse the output. See the <code class="docutils literal notranslate"><span class="pre">df.py</span></code> and <code class="docutils literal notranslate"><span class="pre">date.py</span></code> modules for examples.</p>
+</div>
+<p>You will notice that all test classes inherit <code class="docutils literal notranslate"><span class="pre">oeRuntimeTest</span></code>, which
+is found in <code class="docutils literal notranslate"><span class="pre">meta/lib/oetest.py</span></code>. This base class offers some helper
+attributes, which are described in the following sections:</p>
+<section id="class-methods">
+<h3><span class="section-number">4.4.1 </span>Class Methods<a class="headerlink" href="#class-methods" title="Link to this heading"></a></h3>
+<p>Class methods are as follows:</p>
+<ul class="simple">
+<li><p><em>hasPackage(pkg):</em> Returns &quot;True&quot; if <code class="docutils literal notranslate"><span class="pre">pkg</span></code> is in the installed
+package list of the image, which is based on the manifest file that
+is generated during the <a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-rootfs"><span class="std std-ref">do_rootfs</span></a> task.</p></li>
+<li><p><em>hasFeature(feature):</em> Returns &quot;True&quot; if the feature is in
+<a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a> or
+<a class="reference internal" href="../ref-manual/variables.html#term-DISTRO_FEATURES"><span class="xref std std-term">DISTRO_FEATURES</span></a>.</p></li>
+</ul>
+</section>
+<section id="class-attributes">
+<h3><span class="section-number">4.4.2 </span>Class Attributes<a class="headerlink" href="#class-attributes" title="Link to this heading"></a></h3>
+<p>Class attributes are as follows:</p>
+<ul class="simple">
+<li><p><em>pscmd:</em> Equals &quot;ps -ef&quot; if <code class="docutils literal notranslate"><span class="pre">procps</span></code> is installed in the image.
+Otherwise, <code class="docutils literal notranslate"><span class="pre">pscmd</span></code> equals &quot;ps&quot; (busybox).</p></li>
+<li><p><em>tc:</em> The called test context, which gives access to the
+following attributes:</p>
+<ul>
+<li><p><em>d:</em> The BitBake datastore, which allows you to use stuff such
+as <code class="docutils literal notranslate"><span class="pre">oeRuntimeTest.tc.d.getVar(&quot;VIRTUAL-RUNTIME_init_manager&quot;)</span></code>.</p></li>
+<li><p><em>testslist and testsrequired:</em> Used internally. The tests
+do not need these.</p></li>
+<li><p><em>filesdir:</em> The absolute path to
+<code class="docutils literal notranslate"><span class="pre">meta/lib/oeqa/runtime/files</span></code>, which contains helper files for
+tests meant for copying on the target such as small files written
+in C for compilation.</p></li>
+<li><p><em>target:</em> The target controller object used to deploy and
+start an image on a particular target (e.g. Qemu, SimpleRemote,
+and SystemdbootTarget). Tests usually use the following:</p>
+<ul>
+<li><p><em>ip:</em> The target's IP address.</p></li>
+<li><p><em>server_ip:</em> The host's IP address, which is usually used
+by the DNF test suite.</p></li>
+<li><p><em>run(cmd, timeout=None):</em> The single, most used method.
+This command is a wrapper for: <code class="docutils literal notranslate"><span class="pre">ssh</span> <span class="pre">root&#64;host</span> <span class="pre">&quot;cmd&quot;</span></code>. The
+command returns a tuple: (status, output), which are what their
+names imply - the return code of &quot;cmd&quot; and whatever output it
+produces. The optional timeout argument represents the number
+of seconds the test should wait for &quot;cmd&quot; to return. If the
+argument is &quot;None&quot;, the test uses the default instance's
+timeout period, which is 300 seconds. If the argument is &quot;0&quot;,
+the test runs until the command returns.</p></li>
+<li><p><em>copy_to(localpath, remotepath):</em>
+<code class="docutils literal notranslate"><span class="pre">scp</span> <span class="pre">localpath</span> <span class="pre">root&#64;ip:remotepath</span></code>.</p></li>
+<li><p><em>copy_from(remotepath, localpath):</em>
+<code class="docutils literal notranslate"><span class="pre">scp</span> <span class="pre">root&#64;host:remotepath</span> <span class="pre">localpath</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="instance-attributes">
+<h3><span class="section-number">4.4.3 </span>Instance Attributes<a class="headerlink" href="#instance-attributes" title="Link to this heading"></a></h3>
+<p>There is a single instance attribute, which is <code class="docutils literal notranslate"><span class="pre">target</span></code>. The <code class="docutils literal notranslate"><span class="pre">target</span></code>
+instance attribute is identical to the class attribute of the same name,
+which is described in the previous section. This attribute exists as
+both an instance and class attribute so tests can use
+<code class="docutils literal notranslate"><span class="pre">self.target.run(cmd)</span></code> in instance methods instead of
+<code class="docutils literal notranslate"><span class="pre">oeRuntimeTest.tc.target.run(cmd)</span></code>.</p>
+</section>
+</section>
+<section id="installing-packages-in-the-dut-without-the-package-manager">
+<h2><span class="section-number">4.5 </span>Installing Packages in the DUT Without the Package Manager<a class="headerlink" href="#installing-packages-in-the-dut-without-the-package-manager" title="Link to this heading"></a></h2>
+<p>When a test requires a package built by BitBake, it is possible to
+install that package. Installing the package does not require a package
+manager be installed in the device under test (DUT). It does, however,
+require an SSH connection and the target must be using the
+<code class="docutils literal notranslate"><span class="pre">sshcontrol</span></code> class.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>This method uses <code class="docutils literal notranslate"><span class="pre">scp</span></code> to copy files from the host to the target, which
+causes permissions and special attributes to be lost.</p>
+</div>
+<p>A JSON file is used to define the packages needed by a test. This file
+must be in the same path as the file used to define the tests.
+Furthermore, the filename must map directly to the test module name with
+a <code class="docutils literal notranslate"><span class="pre">.json</span></code> extension.</p>
+<p>The JSON file must include an object with the test name as keys of an
+object or an array. This object (or array of objects) uses the following
+data:</p>
+<ul class="simple">
+<li><p>&quot;pkg&quot; --- a mandatory string that is the name of the package to be
+installed.</p></li>
+<li><p>&quot;rm&quot; --- an optional boolean, which defaults to &quot;false&quot;, that specifies
+to remove the package after the test.</p></li>
+<li><p>&quot;extract&quot; --- an optional boolean, which defaults to &quot;false&quot;, that
+specifies if the package must be extracted from the package format.
+When set to &quot;true&quot;, the package is not automatically installed into
+the DUT.</p></li>
+</ul>
+<p>Here is an example JSON file that handles test &quot;foo&quot; installing
+package &quot;bar&quot; and test &quot;foobar&quot; installing packages &quot;foo&quot; and &quot;bar&quot;.
+Once the test is complete, the packages are removed from the DUT:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">"foo"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"pkg"</span><span class="p">:</span> <span class="s2">"bar"</span>
+    <span class="p">},</span>
+    <span class="s2">"foobar"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"pkg"</span><span class="p">:</span> <span class="s2">"foo"</span><span class="p">,</span>
+            <span class="s2">"rm"</span><span class="p">:</span> <span class="n">true</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">"pkg"</span><span class="p">:</span> <span class="s2">"bar"</span><span class="p">,</span>
+            <span class="s2">"rm"</span><span class="p">:</span> <span class="n">true</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

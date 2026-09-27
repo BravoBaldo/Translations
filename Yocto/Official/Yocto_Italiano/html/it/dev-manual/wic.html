@@ -1,0 +1,925 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>24 Creating Partitioned Images Using Wic &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="25 Flashing Images Using bmaptool" href="bmaptool.html" />
+    <link rel="prev" title="23 Optionally Using an External Toolchain" href="external-toolchain.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale dei Task di Sviluppo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Il Manuale di Sviluppo dei Task di Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html">2 Setting Up to Use the Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="layers.html">3 Comprendere e Creare i Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customizing-images.html">4 Customizing Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-recipe.html">5 Scrivere una Nuova Ricetta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-machine.html">6 Adding a New Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrading-recipes.html">7 Upgrading Recipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temporary-source-code.html">8 Finding Temporary Source Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-fragments.html">9 Creating New Configuration Fragments In Your Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="poky-manual-setup.html">10 Setting Up the Poky Reference Distro Manually</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quilt.html">11 Using Quilt in Your Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development-shell.html">12 Using a Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-development-shell.html">13 Using a Python Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html">14 Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiconfig.html">15 Building Images for Multiple Targets With Multiconfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="speeding-up-build.html">16 Speeding Up a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiting-resources.html">17 Limiting the Host Resources Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html">18 Working With Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prebuilt-libraries.html">19 Working with Pre-Built Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devtool.html">20 Using the <code class="docutils literal notranslate"><span class="pre">devtool</span></code> command-line tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="x32-psabi.html">21 Using x32 psABI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gobject-introspection.html">22 Enabling GObject Introspection Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-toolchain.html">23 Optionally Using an External Toolchain</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">24 Creating Partitioned Images Using Wic</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#background">24.1 Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">24.2 Requisiti</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-help">24.3 Getting Help</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#operational-modes">24.4 Operational Modes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#raw-mode">24.4.1 Raw Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cooked-mode">24.4.2 Cooked Mode</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#using-an-existing-kickstart-file">24.5 Using an Existing Kickstart File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-wic-plugin-interface">24.6 Using the Wic Plugin Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#wic-examples">24.7 Wic Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#generate-an-image-using-an-existing-kickstart-file">24.7.1 Generate an Image using an Existing Kickstart File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-a-modified-kickstart-file">24.7.2 Using a Modified Kickstart File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-a-modified-kickstart-file-and-running-in-raw-mode">24.7.3 Using a Modified Kickstart File and Running in Raw Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-wic-to-manipulate-an-image">24.7.4 Using Wic to Manipulate an Image</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bmaptool.html">25 Flashing Images Using <cite>bmaptool</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-distribution.html">26 Creating Your Own Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-template-configuration-directory.html">27 Creating a Custom Template Configuration Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disk-space.html">28 Conserving Disk Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">29 Working with Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="efficiently-fetching-sources.html">30 Efficiently Fetching Source Files During a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="init-manager.html">31 Selecting an Initialization Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device-manager.html">32 Selecting a Device Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-scm.html">33 Using an External SCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-quality.html">34 Maintaining Build Output Quality with <code class="docutils literal notranslate"><span class="pre">buildhistory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">35 Debugging Tools and Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="licenses.html">36 Working With Licenses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbom.html">37 Creating a Software Bill of Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error-reporting-tool.html">38 Using the Error Reporting Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wayland.html">39 Using Wayland and Weston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qemu.html">40 Using the Quick EMUlator (QEMU)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bblock.html">41 Locking and Unlocking Recipes Using <code class="docutils literal notranslate"><span class="pre">bblock</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sstate-mirrors-setup.html">42 Setting up a Shared State Cache Mirror</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashequivserver.html">43 Setting up a Hash Equivalence Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sviluppo dei Task di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">24 </span>Creating Partitioned Images Using Wic</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dev-manual/wic.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="creating-partitioned-images-using-wic">
+<h1><span class="section-number">24 </span>Creating Partitioned Images Using Wic<a class="headerlink" href="#creating-partitioned-images-using-wic" title="Link to this heading"></a></h1>
+<p>Creating an image for a particular hardware target using the
+OpenEmbedded build system does not necessarily mean you can boot that
+image as is on your device. Physical devices accept and boot images in
+various ways depending on the specifics of the device. Usually,
+information about the hardware can tell you what image format the device
+requires. Should your device require multiple partitions on an SD card,
+flash, or an HDD, you can use the OpenEmbedded Image Creator, Wic, to
+create the properly partitioned image.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">wic</span></code> command generates partitioned images from existing
+OpenEmbedded build artifacts. Image generation is driven by partitioning
+commands contained in an OpenEmbedded kickstart file (<code class="docutils literal notranslate"><span class="pre">.wks</span></code>)
+specified either directly on the command line or as one of a selection
+of canned kickstart files as shown with the <code class="docutils literal notranslate"><span class="pre">wic</span> <span class="pre">list</span> <span class="pre">images</span></code> command
+in the
+&quot;<a class="reference internal" href="#generate-an-image-using-an-existing-kickstart-file"><span class="std std-ref">Generate an Image using an Existing Kickstart File</span></a>&quot;
+section. When you apply the command to a given set of build artifacts, the
+result is an image or set of images that can be directly written onto media and
+used on a particular system.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For a kickstart file reference, see the
+&quot;<a class="reference internal" href="../ref-manual/kickstart.html#openembedded-kickstart-wks-reference"><span class="std std-ref">OpenEmbedded Kickstart (.wks) Reference</span></a>&quot;
+Chapter in the Yocto Project Reference Manual.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">wic</span></code> command and the infrastructure it is based on is by
+definition incomplete. The purpose of the command is to allow the
+generation of customized images, and as such, was designed to be
+completely extensible through a plugin interface. See the
+&quot;<a class="reference internal" href="#using-the-wic-plugin-interface"><span class="std std-ref">Using the Wic Plugin Interface</span></a>&quot; section
+for information on these plugins.</p>
+<p>This section provides some background information on Wic, describes what
+you need to have in place to run the tool, provides instruction on how
+to use the Wic utility, provides information on using the Wic plugins
+interface, and provides several examples that show how to use Wic.</p>
+<section id="background">
+<h2><span class="section-number">24.1 </span>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h2>
+<p>This section provides some background on the Wic utility. While none of
+this information is required to use Wic, you might find it interesting.</p>
+<ul class="simple">
+<li><p>The name &quot;Wic&quot; is derived from OpenEmbedded Image Creator (oeic). The
+&quot;oe&quot; diphthong in &quot;oeic&quot; was promoted to the letter &quot;w&quot;, because
+&quot;oeic&quot; is both difficult to remember and to pronounce.</p></li>
+<li><p>Wic is loosely based on the Meego Image Creator (<code class="docutils literal notranslate"><span class="pre">mic</span></code>) framework.
+The Wic implementation has been heavily modified to make direct use
+of OpenEmbedded build artifacts instead of package installation and
+configuration, which are already incorporated within the OpenEmbedded
+artifacts.</p></li>
+<li><p>Wic is a completely independent standalone utility that initially
+provides easier-to-use and more flexible replacements for an existing
+functionality in OE-Core's <a class="reference internal" href="../ref-manual/classes.html#ref-classes-image-live"><span class="std std-ref">image-live</span></a>
+class. The difference between Wic and those examples is that with Wic
+the functionality of those scripts is implemented by a
+general-purpose partitioning language, which is based on Redhat
+kickstart syntax.</p></li>
+</ul>
+</section>
+<section id="requirements">
+<h2><span class="section-number">24.2 </span>Requisiti<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<p>In order to use the Wic utility with the OpenEmbedded Build system, your
+system needs to meet the following requirements:</p>
+<ul>
+<li><p>You environment and <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> must be ready, as if you were
+going to run <code class="docutils literal notranslate"><span class="pre">bitbake</span></code> commands. See <a class="reference internal" href="start.html#initializing-the-build-environment"><span class="std std-ref">Initializing the Build Environment</span></a> for more details.</p></li>
+<li><p>Make the <code class="docutils literal notranslate"><span class="pre">wic</span></code> command-line tool available in your shell:</p>
+<ol class="arabic">
+<li><p>Run the following command first:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake<span class="w"> </span>wic-native<span class="w"> </span>-c<span class="w"> </span>addto_recipe_sysroot
+</pre></div>
+</div>
+</li>
+<li><p>Check if you can use the <code class="docutils literal notranslate"><span class="pre">wic</span></code> utility using <code class="docutils literal notranslate"><span class="pre">oe-run-native</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>oe-run-native<span class="w"> </span>wic-native<span class="w"> </span>wic<span class="w"> </span>--help
+</pre></div>
+</div>
+</li>
+<li><p>Define a local alias for the above command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">alias</span><span class="w"> </span><span class="nv">wic</span><span class="o">=</span><span class="s2">"oe-run-native wic-native wic"</span>
+</pre></div>
+</div>
+<p>This will make it possible to use <code class="docutils literal notranslate"><span class="pre">wic</span></code> from the <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded
+Build System</span></a> transparently below.</p>
+</li>
+</ol>
+</li>
+<li><p>You need to have the build artifacts already available, which
+typically means that you must have already created an image using the
+OpenEmbedded build system (e.g. <code class="docutils literal notranslate"><span class="pre">core-image-minimal</span></code>). While it
+might seem redundant to generate an image in order to create an image
+using Wic, the current version of Wic requires the artifacts in the
+form generated by the OpenEmbedded build system.</p></li>
+<li><p>Include &quot;wic&quot; as part of the <a class="reference internal" href="../ref-manual/variables.html#term-IMAGE_FSTYPES"><span class="xref std std-term">IMAGE_FSTYPES</span></a> variable (from a
+<a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a> or in the image recipe).</p></li>
+<li><p>Include the name of the <a class="reference internal" href="../ref-manual/kickstart.html#id1"><span class="std std-ref">wic kickstart file</span></a>
+as part of the <a class="reference internal" href="../ref-manual/variables.html#term-WKS_FILE"><span class="xref std std-term">WKS_FILE</span></a> variable. If multiple candidate files can
+be provided by different layers, specify all the possible names through the
+<a class="reference internal" href="../ref-manual/variables.html#term-WKS_FILES"><span class="xref std std-term">WKS_FILES</span></a> variable instead.</p>
+<p>These assignments are typically made in a machine <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>.</p>
+</li>
+</ul>
+</section>
+<section id="getting-help">
+<h2><span class="section-number">24.3 </span>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h2>
+<p>You can get general help for the <code class="docutils literal notranslate"><span class="pre">wic</span></code> command by entering the <code class="docutils literal notranslate"><span class="pre">wic</span></code>
+command by itself or by entering the command with a help argument as
+follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>-h
+<span class="gp">$ </span>wic<span class="w"> </span>--help
+<span class="gp">$ </span>wic<span class="w"> </span><span class="nb">help</span>
+</pre></div>
+</div>
+<p>Currently, Wic supports seven commands: <code class="docutils literal notranslate"><span class="pre">cp</span></code>, <code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">help</span></code>,
+<code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">ls</span></code>, <code class="docutils literal notranslate"><span class="pre">rm</span></code>, and <code class="docutils literal notranslate"><span class="pre">write</span></code>. You can get help for all these
+commands except &quot;help&quot; by using the following form:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span><span class="nb">help</span><span class="w"> </span><span class="nb">command</span>
+</pre></div>
+</div>
+<p>For example, the following command returns help for the <code class="docutils literal notranslate"><span class="pre">write</span></code>
+command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span><span class="nb">help</span><span class="w"> </span>write
+</pre></div>
+</div>
+<p>Wic supports help for three topics: <code class="docutils literal notranslate"><span class="pre">overview</span></code>, <code class="docutils literal notranslate"><span class="pre">plugins</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">kickstart</span></code>. You can get help for any topic using the following form:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span><span class="nb">help</span><span class="w"> </span>topic
+</pre></div>
+</div>
+<p>For example, the following returns overview help for Wic:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span><span class="nb">help</span><span class="w"> </span>overview
+</pre></div>
+</div>
+<p>There is one additional level of help for Wic. You can get help on
+individual images through the <code class="docutils literal notranslate"><span class="pre">list</span></code> command. You can use the <code class="docutils literal notranslate"><span class="pre">list</span></code>
+command to return the available Wic images as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>list<span class="w"> </span>images
+<span class="go">  genericx86                                 Create an EFI disk image for genericx86*</span>
+<span class="go">  beaglebone-yocto                           Create SD card image for Beaglebone</span>
+<span class="go">  qemuriscv                                  Create qcow2 image for RISC-V QEMU machines</span>
+<span class="go">  mkefidisk                                  Create an EFI disk image</span>
+<span class="go">  qemuloongarch                              Create qcow2 image for LoongArch QEMU machines</span>
+<span class="go">  directdisk-multi-rootfs                    Create multi rootfs image using rootfs plugin</span>
+<span class="go">  directdisk                                 Create a 'pcbios' direct disk image</span>
+<span class="go">  efi-bootdisk</span>
+<span class="go">  mkhybridiso                                Create a hybrid ISO image</span>
+<span class="go">  directdisk-gpt                             Create a 'pcbios' direct disk image</span>
+<span class="go">  systemd-bootdisk                           Create an EFI disk image with systemd-boot</span>
+<span class="go">  sdimage-bootpart                           Create SD card image with a boot partition</span>
+<span class="go">  qemux86-directdisk                         Create a qemu machine 'pcbios' direct disk image</span>
+<span class="go">  directdisk-bootloader-config               Create a 'pcbios' direct disk image with custom bootloader config</span>
+</pre></div>
+</div>
+<p>Once you know the list of available
+Wic images, you can use <code class="docutils literal notranslate"><span class="pre">help</span></code> with the command to get help on a
+particular image. For example, the following command returns help on the
+&quot;beaglebone-yocto&quot; image:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>list<span class="w"> </span>beaglebone-yocto<span class="w"> </span><span class="nb">help</span>
+
+<span class="go">Creates a partitioned SD card image for Beaglebone.</span>
+<span class="go">Boot files are located in the first vfat partition.</span>
+</pre></div>
+</div>
+</section>
+<section id="operational-modes">
+<h2><span class="section-number">24.4 </span>Operational Modes<a class="headerlink" href="#operational-modes" title="Link to this heading"></a></h2>
+<p>You can use Wic in two different modes, depending on how much control
+you need for specifying the OpenEmbedded build artifacts that are used
+for creating the image: Raw and Cooked:</p>
+<ul class="simple">
+<li><p><em>Raw Mode:</em> You explicitly specify build artifacts through Wic
+command-line arguments.</p></li>
+<li><p><em>Cooked Mode:</em> The current
+<a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> setting and image
+name are used to automatically locate and provide the build
+artifacts. You just supply a kickstart file and the name of the image
+from which to use artifacts.</p></li>
+</ul>
+<p>Regardless of the mode you use, you need to have the build artifacts
+ready and available.</p>
+<section id="raw-mode">
+<h3><span class="section-number">24.4.1 </span>Raw Mode<a class="headerlink" href="#raw-mode" title="Link to this heading"></a></h3>
+<p>Running Wic in raw mode allows you to specify all the partitions through
+the <code class="docutils literal notranslate"><span class="pre">wic</span></code> command line. The primary use for raw mode is if you have
+built your kernel outside of the Yocto Project <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>.
+In other words, you can point to arbitrary kernel, root filesystem locations,
+and so forth. Contrast this behavior with cooked mode where Wic looks in the
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> (e.g. <code class="docutils literal notranslate"><span class="pre">tmp/deploy/images/</span></code>machine).</p>
+<p>The general form of the <code class="docutils literal notranslate"><span class="pre">wic</span></code> command in raw mode is:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>create<span class="w"> </span>wks_file<span class="w"> </span>options<span class="w"> </span>...
+
+<span class="go">  Where:</span>
+
+<span class="go">     wks_file:</span>
+<span class="go">        An OpenEmbedded kickstart file.  You can provide</span>
+<span class="go">        your own custom file or use a file from a set of</span>
+<span class="go">        existing files as described by further options.</span>
+
+<span class="go">     optional arguments:</span>
+<span class="go">       -h, --help            show this help message and exit</span>
+<span class="go">       -o OUTDIR, --outdir OUTDIR</span>
+<span class="go">                             name of directory to create image in</span>
+<span class="go">       -e IMAGE_NAME, --image-name IMAGE_NAME</span>
+<span class="go">                             name of the image to use the artifacts from e.g. core-</span>
+<span class="go">                             image-sato</span>
+<span class="go">       -r ROOTFS_DIR, --rootfs-dir ROOTFS_DIR</span>
+<span class="go">                             path to the /rootfs dir to use as the .wks rootfs</span>
+<span class="go">                             source</span>
+<span class="go">       -b BOOTIMG_DIR, --bootimg-dir BOOTIMG_DIR</span>
+<span class="go">                             path to the dir containing the boot artifacts (e.g.</span>
+<span class="go">                             /EFI or /syslinux dirs) to use as the .wks bootimg</span>
+<span class="go">                             source</span>
+<span class="go">       -k KERNEL_DIR, --kernel-dir KERNEL_DIR</span>
+<span class="go">                             path to the dir containing the kernel to use in the</span>
+<span class="go">                             .wks bootimg</span>
+<span class="go">       -n NATIVE_SYSROOT, --native-sysroot NATIVE_SYSROOT</span>
+<span class="go">                             path to the native sysroot containing the tools to use</span>
+<span class="go">                             to build the image</span>
+<span class="go">       -s, --skip-build-check</span>
+<span class="go">                             skip the build check</span>
+<span class="go">       -f, --build-rootfs    build rootfs</span>
+<span class="go">       -c {gzip,bzip2,xz}, --compress-with {gzip,bzip2,xz}</span>
+<span class="go">                             compress image with specified compressor</span>
+<span class="go">       -m, --bmap            generate .bmap</span>
+<span class="go">       --no-fstab-update     Do not change fstab file.</span>
+<span class="go">       -v VARS_DIR, --vars VARS_DIR</span>
+<span class="go">                             directory with &lt;image&gt;.env files that store bitbake</span>
+<span class="go">                             variables</span>
+<span class="go">       -D, --debug           output debug information</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You do not need root privileges to run Wic. In fact, you should not
+run as root when using the utility.</p>
+</div>
+</section>
+<section id="cooked-mode">
+<h3><span class="section-number">24.4.2 </span>Cooked Mode<a class="headerlink" href="#cooked-mode" title="Link to this heading"></a></h3>
+<p>Running Wic in cooked mode leverages off artifacts in the
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>. In other words, you do not have to specify kernel or
+root filesystem locations as part of the command. All you need to provide is
+a kickstart file and the name of the image from which to use artifacts
+by using the &quot;-e&quot; option. Wic looks in the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> (e.g.
+<code class="docutils literal notranslate"><span class="pre">tmp/deploy/images/</span></code>machine) for artifacts.</p>
+<p>The general form of the <code class="docutils literal notranslate"><span class="pre">wic</span></code> command using Cooked Mode is as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>create<span class="w"> </span>wks_file<span class="w"> </span>-e<span class="w"> </span>IMAGE_NAME
+
+<span class="go">  Where:</span>
+
+<span class="go">     wks_file:</span>
+<span class="go">        An OpenEmbedded kickstart file.  You can provide</span>
+<span class="go">        your own custom file or use a file from a set of</span>
+<span class="go">        existing files provided with the Yocto Project</span>
+<span class="go">        release.</span>
+
+<span class="go">     required argument:</span>
+<span class="go">        -e IMAGE_NAME, --image-name IMAGE_NAME</span>
+<span class="go">                             name of the image to use the artifacts from e.g. core-</span>
+<span class="go">                             image-sato</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="using-an-existing-kickstart-file">
+<h2><span class="section-number">24.5 </span>Using an Existing Kickstart File<a class="headerlink" href="#using-an-existing-kickstart-file" title="Link to this heading"></a></h2>
+<p>If you do not want to create your own kickstart file, you can use an
+existing file provided by the Wic installation. As shipped, kickstart
+files can be found in the <a class="reference internal" href="../overview-manual/development-environment.html#yocto-project-source-repositories"><span class="std std-ref">I Repository del Codice Sorgente di Yocto Project</span></a> in the
+following two locations:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>meta-yocto/meta-yocto-bsp/files/wic
+openembedded-core/files/wic
+</pre></div>
+</div>
+<p>Use the following command to list the available kickstart files:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>list<span class="w"> </span>images
+<span class="go">  genericx86                                 Create an EFI disk image for genericx86*</span>
+<span class="go">  beaglebone-yocto                           Create SD card image for Beaglebone</span>
+<span class="go">  qemuriscv                                  Create qcow2 image for RISC-V QEMU machines</span>
+<span class="go">  mkefidisk                                  Create an EFI disk image</span>
+<span class="go">  qemuloongarch                              Create qcow2 image for LoongArch QEMU machines</span>
+<span class="go">  directdisk-multi-rootfs                    Create multi rootfs image using rootfs plugin</span>
+<span class="go">  directdisk                                 Create a 'pcbios' direct disk image</span>
+<span class="go">  efi-bootdisk</span>
+<span class="go">  mkhybridiso                                Create a hybrid ISO image</span>
+<span class="go">  directdisk-gpt                             Create a 'pcbios' direct disk image</span>
+<span class="go">  systemd-bootdisk                           Create an EFI disk image with systemd-boot</span>
+<span class="go">  sdimage-bootpart                           Create SD card image with a boot partition</span>
+<span class="go">  qemux86-directdisk                         Create a qemu machine 'pcbios' direct disk image</span>
+<span class="go">  directdisk-bootloader-config               Create a 'pcbios' direct disk image with custom bootloader config</span>
+</pre></div>
+</div>
+<p>When you use an existing file, you
+do not have to use the <code class="docutils literal notranslate"><span class="pre">.wks</span></code> extension. Here is an example in Raw
+Mode that uses the <code class="docutils literal notranslate"><span class="pre">directdisk</span></code> file:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>create<span class="w"> </span>directdisk<span class="w"> </span>-r<span class="w"> </span>rootfs_dir<span class="w"> </span>-b<span class="w"> </span>bootimg_dir<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-k<span class="w"> </span>kernel_dir<span class="w"> </span>-n<span class="w"> </span>native_sysroot
+</pre></div>
+</div>
+<p>Here are the actual partition language commands used in the
+<code class="docutils literal notranslate"><span class="pre">genericx86.wks</span></code> file to generate an image:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># short-description: Create an EFI disk image for genericx86*</span>
+<span class="c1"># long-description: Creates a partitioned EFI disk image for genericx86* machines</span>
+part<span class="w"> </span>/boot<span class="w"> </span>--source<span class="w"> </span>bootimg_efi<span class="w"> </span>--sourceparams<span class="o">=</span><span class="s2">"loader=grub-efi"</span><span class="w"> </span>--ondisk<span class="w"> </span>sda<span class="w"> </span>--label<span class="w"> </span>msdos<span class="w"> </span>--active<span class="w"> </span>--align<span class="w"> </span><span class="m">1024</span>
+part<span class="w"> </span>/<span class="w"> </span>--source<span class="w"> </span>rootfs<span class="w"> </span>--ondisk<span class="w"> </span>sda<span class="w"> </span>--fstype<span class="o">=</span>ext4<span class="w"> </span>--label<span class="w"> </span>platform<span class="w"> </span>--align<span class="w"> </span><span class="m">1024</span><span class="w"> </span>--use-uuid
+part<span class="w"> </span>swap<span class="w"> </span>--ondisk<span class="w"> </span>sda<span class="w"> </span>--size<span class="w"> </span><span class="m">44</span><span class="w"> </span>--label<span class="w"> </span>swap1<span class="w"> </span>--fstype<span class="o">=</span>swap
+
+bootloader<span class="w"> </span>--ptable<span class="w"> </span>gpt<span class="w"> </span>--timeout<span class="o">=</span><span class="m">5</span><span class="w"> </span>--append<span class="o">=</span><span class="s2">"rootfstype=ext4 console=ttyS0,115200 console=tty0"</span>
+</pre></div>
+</div>
+</section>
+<section id="using-the-wic-plugin-interface">
+<h2><span class="section-number">24.6 </span>Using the Wic Plugin Interface<a class="headerlink" href="#using-the-wic-plugin-interface" title="Link to this heading"></a></h2>
+<p>You can extend and specialize Wic functionality by using Wic plugins.
+This section explains the Wic plugin interface.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Wic plugins consist of &quot;source&quot; and &quot;imager&quot; plugins. Imager plugins
+are beyond the scope of this section.</p>
+</div>
+<p>Source plugins provide a mechanism to customize partition content during
+the Wic image generation process. You can use source plugins to map
+values that you specify using <code class="docutils literal notranslate"><span class="pre">--source</span></code> commands in kickstart files
+(i.e. <code class="docutils literal notranslate"><span class="pre">*.wks</span></code>) to a plugin implementation used to populate a given
+partition.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>If you use plugins that have build-time dependencies (e.g. native
+tools, bootloaders, and so forth) when building a Wic image, you need
+to specify those dependencies using the <a class="reference internal" href="../ref-manual/variables.html#term-WKS_FILE_DEPENDS"><span class="xref std std-term">WKS_FILE_DEPENDS</span></a>
+variable.</p>
+</div>
+<p>Source plugins are subclasses defined in plugin files. As shipped, the
+Yocto Project provides several plugin files. You can see the source
+plugin files that ship with the Yocto Project
+<a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/tree/scripts/lib/wic/plugins/source">here</a>.
+Each of these plugin files contains source plugins that are designed to
+populate a specific Wic image partition.</p>
+<p>Source plugins are subclasses of the <code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code> class, which is
+defined in the <code class="docutils literal notranslate"><span class="pre">openembedded-core/scripts/lib/wic/pluginbase.py</span></code> file. For example,
+the <code class="docutils literal notranslate"><span class="pre">BootimgEFIPlugin</span></code> source plugin found in the <code class="docutils literal notranslate"><span class="pre">bootimg_efi.py</span></code>
+file is a subclass of the <code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code> class, which is found in the
+<code class="docutils literal notranslate"><span class="pre">pluginbase.py</span></code> file.</p>
+<p>You can also implement source plugins in a layer outside of the Source
+Repositories (external layer). To do so, be sure that your plugin files
+are located in a directory whose path is
+<code class="docutils literal notranslate"><span class="pre">scripts/lib/wic/plugins/source/</span></code> within your external layer. When the
+plugin files are located there, the source plugins they contain are made
+available to Wic.</p>
+<p>When the Wic implementation needs to invoke a partition-specific
+implementation, it looks for the plugin with the same name as the
+<code class="docutils literal notranslate"><span class="pre">--source</span></code> parameter used in the kickstart file given to that
+partition. For example, if the partition is set up using the following
+command in a kickstart file:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>part<span class="w"> </span>/boot<span class="w"> </span>--source<span class="w"> </span>bootimg_pcbios<span class="w"> </span>--ondisk<span class="w"> </span>sda<span class="w"> </span>--label<span class="w"> </span>boot<span class="w"> </span>--active<span class="w"> </span>--align<span class="w"> </span><span class="m">1024</span>
+</pre></div>
+</div>
+<p>The methods defined as class
+members of the matching source plugin (i.e. <code class="docutils literal notranslate"><span class="pre">bootimg_pcbios</span></code>) in the
+<code class="docutils literal notranslate"><span class="pre">bootimg_pcbios.py</span></code> plugin file are used.</p>
+<p>To be more concrete, here is the corresponding plugin definition from
+the <code class="docutils literal notranslate"><span class="pre">bootimg_pcbios.py</span></code> file for the previous command along with an
+example method called by the Wic implementation when it needs to prepare
+a partition using an implementation-specific function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>             <span class="o">.</span>
+             <span class="o">.</span>
+             <span class="o">.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BootimgPcbiosPlugin</span><span class="p">(</span><span class="n">SourcePlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Create MBR boot partition and install syslinux on it.</span>
+<span class="sd">    """</span>
+
+   <span class="n">name</span> <span class="o">=</span> <span class="s1">'bootimg_pcbios'</span>
+             <span class="o">.</span>
+             <span class="o">.</span>
+             <span class="o">.</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">do_prepare_partition</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">part</span><span class="p">,</span> <span class="n">source_params</span><span class="p">,</span> <span class="n">creator</span><span class="p">,</span> <span class="n">cr_workdir</span><span class="p">,</span>
+                             <span class="n">oe_builddir</span><span class="p">,</span> <span class="n">bootimg_dir</span><span class="p">,</span> <span class="n">kernel_dir</span><span class="p">,</span>
+                             <span class="n">rootfs_dir</span><span class="p">,</span> <span class="n">native_sysroot</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Called to do the actual content population for a partition i.e. it</span>
+<span class="sd">        'prepares' the partition to be incorporated into the image.</span>
+<span class="sd">        In this case, prepare content for legacy bios boot partition.</span>
+<span class="sd">        """</span>
+             <span class="o">.</span>
+             <span class="o">.</span>
+             <span class="o">.</span>
+</pre></div>
+</div>
+<p>If a
+subclass (plugin) itself does not implement a particular function, Wic
+locates and uses the default version in the superclass. It is for this
+reason that all source plugins are derived from the <code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code>
+class.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code> class defined in the <code class="docutils literal notranslate"><span class="pre">pluginbase.py</span></code> file defines
+a set of methods that source plugins can implement or override. Any
+plugins (subclass of <code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code>) that do not implement a
+particular method inherit the implementation of the method from the
+<code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code> class. For more information, see the <code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code>
+class in the <code class="docutils literal notranslate"><span class="pre">pluginbase.py</span></code> file for details:</p>
+<p>The following list describes the methods implemented in the
+<code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code> class:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">do_prepare_partition()</span></code>: Called to populate a partition with
+actual content. In other words, the method prepares the final
+partition image that is incorporated into the disk image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do_configure_partition()</span></code>: Called before
+<code class="docutils literal notranslate"><span class="pre">do_prepare_partition()</span></code> to create custom configuration files for a
+partition (e.g. syslinux or grub configuration files).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do_install_disk()</span></code>: Called after all partitions have been
+prepared and assembled into a disk image. This method provides a hook
+to allow finalization of a disk image (e.g. writing an MBR).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do_stage_partition()</span></code>: Special content-staging hook called
+before <code class="docutils literal notranslate"><span class="pre">do_prepare_partition()</span></code>. This method is normally empty.</p>
+<p>Typically, a partition just uses the passed-in parameters (e.g. the
+unmodified value of <code class="docutils literal notranslate"><span class="pre">bootimg_dir</span></code>). However, in some cases, things
+might need to be more tailored. As an example, certain files might
+additionally need to be taken from <code class="docutils literal notranslate"><span class="pre">bootimg_dir</span> <span class="pre">+</span> <span class="pre">/boot</span></code>. This hook
+allows those files to be staged in a customized fashion.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_bitbake_var()</span></code> allows you to access non-standard variables that
+you might want to use for this behavior.</p>
+</div>
+</li>
+</ul>
+<p>You can extend the source plugin mechanism. To add more hooks, create
+more source plugin methods within <code class="docutils literal notranslate"><span class="pre">SourcePlugin</span></code> and the corresponding
+derived subclasses. The code that calls the plugin methods uses the
+<code class="docutils literal notranslate"><span class="pre">plugin.get_source_plugin_methods()</span></code> function to find the method or
+methods needed by the call. Retrieval of those methods is accomplished
+by filling up a dict with keys that contain the method names of
+interest. On success, these will be filled in with the actual methods.
+See the Wic implementation for examples and details.</p>
+</section>
+<section id="wic-examples">
+<h2><span class="section-number">24.7 </span>Wic Examples<a class="headerlink" href="#wic-examples" title="Link to this heading"></a></h2>
+<p>This section provides several examples that show how to use the Wic
+utility. All the examples assume the list of requirements in the
+&quot;<a class="reference internal" href="#requirements"><span class="std std-ref">Requisiti</span></a>&quot; section have been met. The
+examples assume the previously generated image is
+<code class="docutils literal notranslate"><span class="pre">core-image-minimal</span></code>.</p>
+<section id="generate-an-image-using-an-existing-kickstart-file">
+<h3><span class="section-number">24.7.1 </span>Generate an Image using an Existing Kickstart File<a class="headerlink" href="#generate-an-image-using-an-existing-kickstart-file" title="Link to this heading"></a></h3>
+<p>This example runs in Cooked Mode and uses the <code class="docutils literal notranslate"><span class="pre">mkefidisk</span></code> kickstart
+file:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>create<span class="w"> </span>mkefidisk<span class="w"> </span>-e<span class="w"> </span>core-image-minimal
+<span class="go">INFO: Building wic-tools...</span>
+<span class="go">          .</span>
+<span class="go">          .</span>
+<span class="go">          .</span>
+<span class="go">INFO: The new image(s) can be found here:</span>
+<span class="go">  ./mkefidisk-201804191017-sda.direct</span>
+
+<span class="go">The following build artifacts were used to create the image(s):</span>
+<span class="go">  ROOTFS_DIR:                   /home/stephano/yocto/build/tmp-glibc/work/qemux86-oe-linux/core-image-minimal/1.0-r0/rootfs</span>
+<span class="go">  BOOTIMG_DIR:                  /home/stephano/yocto/build/tmp-glibc/work/qemux86-oe-linux/core-image-minimal/1.0-r0/recipe-sysroot/usr/share</span>
+<span class="go">  KERNEL_DIR:                   /home/stephano/yocto/build/tmp-glibc/deploy/images/qemux86</span>
+<span class="go">  NATIVE_SYSROOT:               /home/stephano/yocto/build/tmp-glibc/work/i586-oe-linux/wic-tools/1.0-r0/recipe-sysroot-native</span>
+
+<span class="go">INFO: The image(s) were created using OE kickstart file:</span>
+<span class="go">  /home/stephano/yocto/openembedded-core/files/wic/mkefidisk.wks</span>
+</pre></div>
+</div>
+<p>The previous example shows the easiest way to create an image by running
+in cooked mode and supplying a kickstart file and the &quot;-e&quot; option to
+point to the existing build artifacts (the &quot;qemux86&quot; machine is used here).</p>
+<p>Once the image builds, the output provides image location, artifact use,
+and kickstart file information.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You should always verify the details provided in the output to make
+sure that the image was indeed created exactly as expected.</p>
+</div>
+<p>Continuing with the example, you can now write the image from the
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> onto a USB stick, or whatever media for which you
+built your image, and boot from the media. You can write the image by using
+<code class="docutils literal notranslate"><span class="pre">bmaptool</span></code> or <code class="docutils literal notranslate"><span class="pre">dd</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>oe-run-native<span class="w"> </span>bmaptool-native<span class="w"> </span>bmaptool<span class="w"> </span>copy<span class="w"> </span>mkefidisk-201804191017-sda.direct<span class="w"> </span>/dev/sdX
+</pre></div>
+</div>
+<p>or :</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>mkefidisk-201804191017-sda.direct<span class="w"> </span><span class="nv">of</span><span class="o">=</span>/dev/sdX
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For more information on how to use the <code class="docutils literal notranslate"><span class="pre">bmaptool</span></code>
+to flash a device with an image, see the
+&quot;<a class="reference internal" href="bmaptool.html#flashing-images-using-bmaptool"><span class="std std-ref">Flashing Images Using bmaptool</span></a>&quot;
+section.</p>
+</div>
+</section>
+<section id="using-a-modified-kickstart-file">
+<h3><span class="section-number">24.7.2 </span>Using a Modified Kickstart File<a class="headerlink" href="#using-a-modified-kickstart-file" title="Link to this heading"></a></h3>
+<p>Because partitioned image creation is driven by the kickstart file, it
+is easy to affect image creation by changing the parameters in the file.
+This next example demonstrates that through modification of the
+<code class="docutils literal notranslate"><span class="pre">directdisk-gpt</span></code> kickstart file.</p>
+<p>As mentioned earlier, you can use the command <code class="docutils literal notranslate"><span class="pre">wic</span> <span class="pre">list</span> <span class="pre">images</span></code> to
+show the list of existing kickstart files. The directory in which the
+<code class="docutils literal notranslate"><span class="pre">directdisk-gpt.wks</span></code> file resides is
+<code class="docutils literal notranslate"><span class="pre">files/wic</span></code>, which is located in
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>.
+Because available files reside in this directory, you can create and add
+your own custom files to the directory. Subsequent use of the
+<code class="docutils literal notranslate"><span class="pre">wic</span> <span class="pre">list</span> <span class="pre">images</span></code> command would then include your kickstart files.</p>
+<p>In this example, the existing <code class="docutils literal notranslate"><span class="pre">directdisk-gpt</span></code> file already does most
+of what is needed. However, for the hardware in this example, the image
+will need to boot from <code class="docutils literal notranslate"><span class="pre">sdb</span></code> instead of <code class="docutils literal notranslate"><span class="pre">sda</span></code>, which is what the
+<code class="docutils literal notranslate"><span class="pre">directdisk-gpt</span></code> kickstart file uses.</p>
+<p>The example begins by making a copy of the <code class="docutils literal notranslate"><span class="pre">directdisk-gpt.wks</span></code> file
+in the <code class="docutils literal notranslate"><span class="pre">files/wic</span></code> directory and then by changing
+the lines that specify the target disk from which to boot:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cp<span class="w"> </span>/home/stephano/yocto/openembedded-core/files/wic/directdisk-gpt.wks<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>/home/stephano/yocto/openembedded-core/files/wic/directdisksdb-gpt.wks
+</pre></div>
+</div>
+<p>Next, the example modifies the <code class="docutils literal notranslate"><span class="pre">directdisksdb-gpt.wks</span></code> file and
+changes all instances of &quot;<code class="docutils literal notranslate"><span class="pre">--ondisk</span> <span class="pre">sda</span></code>&quot; to &quot;<code class="docutils literal notranslate"><span class="pre">--ondisk</span> <span class="pre">sdb</span></code>&quot;. The
+example changes the following two lines and leaves the remaining lines
+untouched:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>part<span class="w"> </span>/boot<span class="w"> </span>--source<span class="w"> </span>bootimg_pcbios<span class="w"> </span>--ondisk<span class="w"> </span>sdb<span class="w"> </span>--label<span class="w"> </span>boot<span class="w"> </span>--active<span class="w"> </span>--align<span class="w"> </span><span class="m">1024</span>
+part<span class="w"> </span>/<span class="w"> </span>--source<span class="w"> </span>rootfs<span class="w"> </span>--ondisk<span class="w"> </span>sdb<span class="w"> </span>--fstype<span class="o">=</span>ext4<span class="w"> </span>--label<span class="w"> </span>platform<span class="w"> </span>--align<span class="w"> </span><span class="m">1024</span><span class="w"> </span>--use-uuid
+</pre></div>
+</div>
+<p>Once the lines are changed, the
+example generates the <code class="docutils literal notranslate"><span class="pre">directdisksdb-gpt</span></code> image. The command points
+the process at the <code class="docutils literal notranslate"><span class="pre">core-image-minimal</span></code> artifacts for the Next Unit of
+Computing (nuc) <a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>create<span class="w"> </span>directdisksdb-gpt<span class="w"> </span>-e<span class="w"> </span>core-image-minimal
+<span class="go">INFO: Building wic-tools...</span>
+<span class="go">           .</span>
+<span class="go">           .</span>
+<span class="go">           .</span>
+<span class="go">Initialising tasks: 100% |#######################################| Time: 0:00:01</span>
+<span class="go">NOTE: Executing SetScene Tasks</span>
+<span class="go">NOTE: Executing RunQueue Tasks</span>
+<span class="go">NOTE: Tasks Summary: Attempted 1161 tasks of which 1157 didn't need to be rerun and all succeeded.</span>
+<span class="go">INFO: Creating image(s)...</span>
+
+<span class="go">INFO: The new image(s) can be found here:</span>
+<span class="go">  ./directdisksdb-gpt-201710090938-sdb.direct</span>
+
+<span class="go">The following build artifacts were used to create the image(s):</span>
+<span class="go">  ROOTFS_DIR:                   /home/stephano/yocto/build/tmp-glibc/work/qemux86-oe-linux/core-image-minimal/1.0-r0/rootfs</span>
+<span class="go">  BOOTIMG_DIR:                  /home/stephano/yocto/build/tmp-glibc/work/qemux86-oe-linux/core-image-minimal/1.0-r0/recipe-sysroot/usr/share</span>
+<span class="go">  KERNEL_DIR:                   /home/stephano/yocto/build/tmp-glibc/deploy/images/qemux86</span>
+<span class="go">  NATIVE_SYSROOT:               /home/stephano/yocto/build/tmp-glibc/work/i586-oe-linux/wic-tools/1.0-r0/recipe-sysroot-native</span>
+
+<span class="go">INFO: The image(s) were created using OE kickstart file:</span>
+<span class="go">  /home/stephano/yocto/openembedded-core/files/wic/directdisksdb-gpt.wks</span>
+</pre></div>
+</div>
+<p>Continuing with the example, you can now directly <code class="docutils literal notranslate"><span class="pre">dd</span></code> the image to a
+USB stick, or whatever media for which you built your image, and boot
+the resulting media:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>directdisksdb-gpt-201710090938-sdb.direct<span class="w"> </span><span class="nv">of</span><span class="o">=</span>/dev/sdb
+<span class="go">140966+0 records in</span>
+<span class="go">140966+0 records out</span>
+<span class="go">72174592 bytes (72 MB, 69 MiB) copied, 78.0282 s, 925 kB/s</span>
+<span class="gp">$ </span>sudo<span class="w"> </span>eject<span class="w"> </span>/dev/sdb
+</pre></div>
+</div>
+</section>
+<section id="using-a-modified-kickstart-file-and-running-in-raw-mode">
+<h3><span class="section-number">24.7.3 </span>Using a Modified Kickstart File and Running in Raw Mode<a class="headerlink" href="#using-a-modified-kickstart-file-and-running-in-raw-mode" title="Link to this heading"></a></h3>
+<p>This next example manually specifies each build artifact (runs in Raw
+Mode) and uses a modified kickstart file. The example also uses the
+<code class="docutils literal notranslate"><span class="pre">-o</span></code> option to cause Wic to create the output somewhere other than the
+default output directory, which is the current directory:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>create<span class="w"> </span>test.wks<span class="w"> </span>-o<span class="w"> </span>/home/stephano/testwic<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>--rootfs-dir<span class="w"> </span>/home/stephano/yocto/build/tmp/work/qemux86-poky-linux/core-image-minimal/1.0-r0/rootfs<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>--bootimg-dir<span class="w"> </span>/home/stephano/yocto/build/tmp/work/qemux86-poky-linux/core-image-minimal/1.0-r0/recipe-sysroot/usr/share<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>--kernel-dir<span class="w"> </span>/home/stephano/yocto/build/tmp/deploy/images/qemux86<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>--native-sysroot<span class="w"> </span>/home/stephano/yocto/build/tmp/work/i586-poky-linux/wic-tools/1.0-r0/recipe-sysroot-native
+
+<span class="go">INFO: Creating image(s)...</span>
+
+<span class="go">INFO: The new image(s) can be found here:</span>
+<span class="go">  /home/stephano/testwic/test-201710091445-sdb.direct</span>
+
+<span class="go">The following build artifacts were used to create the image(s):</span>
+<span class="go">  ROOTFS_DIR:                   /home/stephano/yocto/build/tmp-glibc/work/qemux86-oe-linux/core-image-minimal/1.0-r0/rootfs</span>
+<span class="go">  BOOTIMG_DIR:                  /home/stephano/yocto/build/tmp-glibc/work/qemux86-oe-linux/core-image-minimal/1.0-r0/recipe-sysroot/usr/share</span>
+<span class="go">  KERNEL_DIR:                   /home/stephano/yocto/build/tmp-glibc/deploy/images/qemux86</span>
+<span class="go">  NATIVE_SYSROOT:               /home/stephano/yocto/build/tmp-glibc/work/i586-oe-linux/wic-tools/1.0-r0/recipe-sysroot-native</span>
+
+<span class="go">INFO: The image(s) were created using OE kickstart file:</span>
+<span class="go">  test.wks</span>
+</pre></div>
+</div>
+<p>For this example,
+<a class="reference internal" href="../ref-manual/variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> did not have to be
+specified since the artifact is manually
+specified.</p>
+</section>
+<section id="using-wic-to-manipulate-an-image">
+<h3><span class="section-number">24.7.4 </span>Using Wic to Manipulate an Image<a class="headerlink" href="#using-wic-to-manipulate-an-image" title="Link to this heading"></a></h3>
+<p>Wic image manipulation allows you to shorten turnaround time during
+image development. For example, you can use Wic to delete the kernel
+partition of a Wic image and then insert a newly built kernel. This
+saves you time from having to rebuild the entire image each time you
+modify the kernel.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>In order to use Wic to manipulate a Wic image as in this example,
+your development machine must have the <code class="docutils literal notranslate"><span class="pre">mtools</span></code> package installed.</p>
+</div>
+<p>The following example examines the contents of the Wic image, deletes
+the existing kernel, and then inserts a new kernel:</p>
+<ol class="arabic">
+<li><p><em>List the Partitions:</em> Use the <code class="docutils literal notranslate"><span class="pre">wic</span> <span class="pre">ls</span></code> command to list all the
+partitions in the Wic image:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>ls<span class="w"> </span>tmp/deploy/images/qemux86/core-image-minimal-qemux86.wic
+<span class="go">Num     Start        End          Size      Fstype</span>
+<span class="go"> 1       1048576     25041919     23993344  fat16</span>
+<span class="go"> 2      25165824     72157183     46991360  ext4</span>
+</pre></div>
+</div>
+<p>The previous output shows two partitions in the
+<code class="docutils literal notranslate"><span class="pre">core-image-minimal-qemux86.wic</span></code> image.</p>
+</li>
+<li><p><em>Examine a Particular Partition:</em> Use the <code class="docutils literal notranslate"><span class="pre">wic</span> <span class="pre">ls</span></code> command again
+but in a different form to examine a particular partition.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You can get command usage on any Wic command using the following
+form:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span><span class="nb">help</span><span class="w"> </span><span class="nb">command</span>
+</pre></div>
+</div>
+<p>For example, the following command shows you the various ways to
+use the <code class="docutils literal notranslate"><span class="pre">wic</span> <span class="pre">ls</span></code> command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span><span class="nb">help</span><span class="w"> </span>ls
+</pre></div>
+</div>
+</div>
+<p>The following command shows what is in partition one:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>ls<span class="w"> </span>tmp/deploy/images/qemux86/core-image-minimal-qemux86.wic:1
+<span class="go">Volume in drive : is boot</span>
+<span class="go"> Volume Serial Number is E894-1809</span>
+<span class="go">Directory for ::/</span>
+
+<span class="go">libcom32 c32    186500 2017-10-09  16:06</span>
+<span class="go">libutil  c32     24148 2017-10-09  16:06</span>
+<span class="go">syslinux cfg       220 2017-10-09  16:06</span>
+<span class="go">vesamenu c32     27104 2017-10-09  16:06</span>
+<span class="go">vmlinuz        6904608 2017-10-09  16:06</span>
+<span class="go">        5 files           7 142 580 bytes</span>
+<span class="go">                         16 582 656 bytes free</span>
+</pre></div>
+</div>
+<p>The previous output shows five files, with the
+<code class="docutils literal notranslate"><span class="pre">vmlinuz</span></code> being the kernel.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>If you see the following error, you need to update or create a
+<code class="docutils literal notranslate"><span class="pre">~/.mtoolsrc</span></code> file and be sure to have the line &quot;mtools_skip_check=1&quot;
+in the file. Then, run the Wic command again:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ERROR: _exec_cmd: /usr/bin/mdir -i /tmp/wic-parttfokuwra ::/ returned '1' instead of 0
+ output: Total number of sectors (47824) not a multiple of sectors per track (32)!
+ Add mtools_skip_check=1 to your .mtoolsrc file to skip this test
+</pre></div>
+</div>
+</div>
+</li>
+<li><p><em>Remove the Old Kernel:</em> Use the <code class="docutils literal notranslate"><span class="pre">wic</span> <span class="pre">rm</span></code> command to remove the
+<code class="docutils literal notranslate"><span class="pre">vmlinuz</span></code> file (kernel):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>rm<span class="w"> </span>tmp/deploy/images/qemux86/core-image-minimal-qemux86.wic:1/vmlinuz
+</pre></div>
+</div>
+</li>
+<li><p><em>Add In the New Kernel:</em> Use the <code class="docutils literal notranslate"><span class="pre">wic</span> <span class="pre">cp</span></code> command to add the
+updated kernel to the Wic image. Depending on how you built your
+kernel, it could be in different places. If you used <code class="docutils literal notranslate"><span class="pre">devtool</span></code> and
+an SDK to build your kernel, it resides in the <code class="docutils literal notranslate"><span class="pre">tmp/work</span></code> directory
+of the extensible SDK. If you used <code class="docutils literal notranslate"><span class="pre">make</span></code> to build the kernel, the
+kernel will be in the <code class="docutils literal notranslate"><span class="pre">workspace/sources</span></code> area.</p>
+<p>The following example assumes <code class="docutils literal notranslate"><span class="pre">devtool</span></code> was used to build the
+kernel:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>wic<span class="w"> </span>cp<span class="w"> </span>poky_sdk/tmp/work/qemux86-poky-linux/linux-yocto/4.12.12+git999-r0/linux-yocto-4.12.12+git999/arch/x86/boot/bzImage<span class="w"> </span><span class="se">\</span>
+<span class="w">         </span>build/tmp/deploy/images/qemux86/core-image-minimal-qemux86.wic:1/vmlinuz
+</pre></div>
+</div>
+<p>Once the new kernel is added back into the image, you can use the
+<code class="docutils literal notranslate"><span class="pre">dd</span></code> command or <a class="reference internal" href="bmaptool.html#flashing-images-using-bmaptool"><span class="std std-ref">bmaptool</span></a> commands
+to flash your wic image onto an SD card or USB stick and test your
+target.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">bmaptool</span></code> is generally 10 to 20 times faster than using <code class="docutils literal notranslate"><span class="pre">dd</span></code>.</p>
+</div>
+</li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

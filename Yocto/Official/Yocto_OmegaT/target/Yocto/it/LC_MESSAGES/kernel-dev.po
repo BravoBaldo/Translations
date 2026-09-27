@@ -1,0 +1,4285 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+# This file is distributed under the same license as the The Yocto Project ®
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr "Project-Id-Version: The Yocto Project ® Version: Current Development\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-27 15:30+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: it\n"
+"Language-Team: it <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../kernel-dev/advanced.rst:5
+msgid "Working with Advanced Metadata (``yocto-kernel-cache``)"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:8 ../../kernel-dev/intro.rst:8
+msgid "Overview"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:10
+msgid ""
+"In addition to supporting configuration fragments and patches, the Yocto "
+"Project kernel tools also support rich :term:`Metadata` that you can use "
+"to define complex policies and Board Support Package (BSP) support. The "
+"purpose of the Metadata and the tools that manage it is to help you "
+"manage the complexity of the configuration and sources used to support "
+"multiple BSPs and Linux kernel types."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:18
+msgid ""
+"Kernel Metadata exists in many places. One area in the :ref:`overview-"
+"manual/development-environment:yocto project source repositories` is the "
+"``yocto-kernel-cache`` Git repository. You can find this repository "
+"grouped under the \"Yocto Linux Kernel\" heading in the :yocto_git:`Yocto"
+" Project Source Repositories <>`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:24
+msgid ""
+"Kernel development tools (\"kern-tools\") are also available in the Yocto"
+" Project Source Repositories under the \"Yocto Linux Kernel\" heading in "
+"the ``yocto-kernel-tools`` Git repository. The recipe that builds these "
+"tools is ``recipes-kernel/kern-tools/kern-tools-native_git.bb`` in :term"
+":`OpenEmbedded-Core (OE-Core)`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:31
+msgid "Using Kernel Metadata in a Recipe"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:33
+msgid ""
+"As mentioned in the introduction, the Yocto Project contains kernel "
+"Metadata, which is located in the ``yocto-kernel-cache`` Git repository. "
+"This Metadata defines Board Support Packages (BSPs) that correspond to "
+"definitions in linux-yocto recipes for corresponding BSPs. A BSP consists"
+" of an aggregation of kernel policy and enabled hardware-specific "
+"features. The BSP can be influenced from within the linux-yocto recipe."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:43
+msgid ""
+"A Linux kernel recipe that contains kernel Metadata (e.g. inherits from "
+"the ``linux-yocto.inc`` file) is said to be a \"linux-yocto style\" "
+"recipe."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:46
+msgid ""
+"Every linux-yocto style recipe must define the :term:`KMACHINE` variable."
+" This variable is typically set to the same value as the :term:`MACHINE` "
+"variable, which is used by :term:`BitBake`. However, in some cases, the "
+"variable might instead refer to the underlying platform of the "
+":term:`MACHINE`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:53
+msgid ""
+"Multiple BSPs can reuse the same :term:`KMACHINE` name if they are built "
+"using the same BSP description. Multiple Corei7-based BSPs could share "
+"the same \"intel-corei7-64\" value for :term:`KMACHINE`. It is important "
+"to realize that :term:`KMACHINE` is just for kernel mapping, while "
+":term:`MACHINE` is the machine type within a BSP Layer. Even with this "
+"distinction, however, these two variables can hold the same value. See "
+"the \":ref:`kernel-dev/advanced:bsp descriptions`\" section for more "
+"information."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:61
+msgid ""
+"Every linux-yocto style recipe must also indicate the Linux kernel source"
+" repository branch used to build the Linux kernel. The :term:`KBRANCH` "
+"variable must be set to indicate the branch."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:68
+msgid ""
+"You can use the :term:`KBRANCH` value to define an alternate branch "
+"typically with a machine override as shown here from the ``meta-yocto-"
+"bsp`` layer::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:73
+msgid ""
+"The linux-yocto style recipes can optionally define the following "
+"variables:"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:76
+msgid ":term:`KERNEL_FEATURES`"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:78
+msgid ":term:`LINUX_KERNEL_TYPE`"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:80
+msgid ""
+":term:`LINUX_KERNEL_TYPE` defines the kernel type to be used in "
+"assembling the configuration. If you do not specify a "
+":term:`LINUX_KERNEL_TYPE`, it defaults to \"standard\". Together with "
+":term:`KMACHINE`, :term:`LINUX_KERNEL_TYPE` defines the search arguments "
+"used by the kernel tools to find the appropriate description within the "
+"kernel Metadata with which to build out the sources and configuration. "
+"The linux-yocto recipes define \"standard\", \"tiny\", and \"preempt-rt\""
+" kernel types. See the \":ref:`kernel-dev/advanced:kernel types`\" "
+"section for more information on kernel types."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:90
+msgid ""
+"During the build, the kern-tools search for the BSP description file that"
+" most closely matches the :term:`KMACHINE` and :term:`LINUX_KERNEL_TYPE` "
+"variables passed in from the recipe. The tools use the first BSP "
+"description they find that matches both variables. If the tools cannot "
+"find a match, they issue a warning."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:96
+msgid ""
+"The tools first search for the :term:`KMACHINE` and then for the "
+":term:`LINUX_KERNEL_TYPE`. If the tools cannot find a partial match, they"
+" will use the sources from the :term:`KBRANCH` and any configuration "
+"specified in the :term:`SRC_URI`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:101
+msgid ""
+"You can use the :term:`KERNEL_FEATURES` variable to include features "
+"(configuration fragments, patches, or both) that are not already included"
+" by the :term:`KMACHINE` and :term:`LINUX_KERNEL_TYPE` variable "
+"combination. For example, to include a feature specified as "
+"\"features/netfilter/netfilter.scc\", specify::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:110
+msgid ""
+"To include a feature called \"cfg/sound.scc\" just for the ``qemux86`` "
+"machine, specify::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:116
+msgid ""
+"The value of the entries in :term:`KERNEL_FEATURES` are dependent on "
+"their location within the kernel Metadata itself. The examples here are "
+"taken from the ``yocto-kernel-cache`` repository. Each branch of this "
+"repository contains \"features\" and \"cfg\" subdirectories at the top-"
+"level. For more information, see the \":ref:`kernel-dev/advanced:kernel "
+"metadata syntax`\" section."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:125
+msgid "Kernel Metadata Syntax"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:127
+msgid ""
+"The kernel Metadata consists of three primary types of files: ``scc`` "
+"[1]_ description files, configuration fragments, and patches. The ``scc``"
+" files define variables and include or otherwise reference any of the "
+"three file types. The description files are used to aggregate all types "
+"of kernel Metadata into what ultimately describes the sources and the "
+"configuration required to build a Linux kernel tailored to a specific "
+"machine."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:135
+msgid ""
+"The ``scc`` description files are used to define two fundamental types of"
+" kernel Metadata:"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:138 ../../kernel-dev/advanced.rst:324
+msgid "Features"
+msgstr "Caratteristiche"
+
+#: ../../kernel-dev/advanced.rst:140
+msgid "Board Support Packages (BSPs)"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:142
+msgid ""
+"Features aggregate sources in the form of patches and configuration "
+"fragments into a modular reusable unit. You can use features to implement"
+" conceptually separate kernel Metadata descriptions such as pure "
+"configuration fragments, simple patches, complex features, and kernel "
+"types. :ref:`kernel-dev/advanced:kernel types` define general kernel "
+"features and policy to be reused in the BSPs."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:149
+msgid ""
+"BSPs define hardware-specific features and aggregate them with kernel "
+"types to form the final description of what will be assembled and built."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:152
+msgid ""
+"While the kernel Metadata syntax does not enforce any logical separation "
+"of configuration fragments, patches, features or kernel types, best "
+"practices dictate a logical separation of these types of Metadata. The "
+"following Metadata file hierarchy is recommended::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:164
+msgid ""
+"The ``bsp`` directory contains the :ref:`kernel-dev/advanced:bsp "
+"descriptions`. The remaining directories all contain \"features\". "
+"Separating ``bsp`` from the rest of the structure aids conceptualizing "
+"intended usage."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:168
+msgid ""
+"Use these guidelines to help place your ``scc`` description files within "
+"the structure:"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:171
+msgid ""
+"If your file contains only configuration fragments, place the file in the"
+" ``cfg`` directory."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:174
+msgid ""
+"If your file contains only source-code fixes, place the file in the "
+"``patches`` directory."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:177
+msgid ""
+"If your file encapsulates a major feature, often combining sources and "
+"configurations, place the file in ``features`` directory."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:180
+msgid ""
+"If your file aggregates non-hardware configuration and patches in order "
+"to define a base kernel policy or major kernel type to be reused across "
+"multiple BSPs, place the file in ``ktypes`` directory."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:184
+msgid ""
+"These distinctions can easily become blurred --- especially as out-of-"
+"tree features slowly merge upstream over time. Also, remember that how "
+"the description files are placed is a purely logical organization and has"
+" no impact on the functionality of the kernel Metadata. There is no "
+"impact because all of ``cfg``, ``features``, ``patches``, and ``ktypes``,"
+" contain \"features\" as far as the kernel tools are concerned."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:191
+msgid ""
+"Paths used in kernel Metadata files are relative to base, which is either"
+" :term:`FILESEXTRAPATHS` if you are creating Metadata in :ref:`recipe-"
+"space <kernel-dev/advanced:recipe-space metadata>`, or the top level of "
+":yocto_git:`yocto-kernel-cache </yocto-kernel-cache/tree/>` if you are "
+"creating :ref:`kernel-dev/advanced:metadata outside the recipe-space`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:202
+msgid ""
+"``scc`` stands for Series Configuration Control, but the naming has less "
+"significance in the current implementation of the tooling than it had in "
+"the past. Consider ``scc`` files to be description files."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:207
+msgid "Configuration"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:209
+msgid ""
+"The simplest unit of kernel Metadata is the configuration-only feature. "
+"This feature consists of one or more Linux kernel configuration "
+"parameters in a configuration fragment file (``.cfg``) and a ``.scc`` "
+"file that describes the fragment."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:214
+msgid ""
+"As an example, consider the Symmetric Multi-Processing (SMP) fragment "
+"used with the ``linux-yocto-4.12`` kernel as defined outside of the "
+"recipe space (i.e. ``yocto-kernel-cache``). This Metadata consists of two"
+" files: ``smp.scc`` and ``smp.cfg``. You can find these files in the "
+"``cfg`` directory of the ``yocto-4.12`` branch in the ``yocto-kernel-"
+"cache`` Git repository::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:238
+msgid ""
+"You can find general information on configuration fragment files in the "
+"\":ref:`kernel-dev/common:creating configuration fragments`\" section."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:241
+msgid ""
+"Within the ``smp.scc`` file, the :term:`KFEATURE_DESCRIPTION` statement "
+"provides a short description of the fragment. Higher level kernel tools "
+"use this description."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:246
+msgid ""
+"Also within the ``smp.scc`` file, the ``kconf`` command includes the "
+"actual configuration fragment in an ``.scc`` file, and the \"hardware\" "
+"keyword identifies the fragment as being hardware enabling, as opposed to"
+" general policy, which would use the \"non-hardware\" keyword. The "
+"distinction is made for the benefit of the configuration validation "
+"tools, which warn you if a hardware fragment overrides a policy set by a "
+"non-hardware fragment."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:256
+msgid ""
+"The description file can include multiple ``kconf`` statements, one per "
+"fragment."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:259
+msgid ""
+"As described in the \":ref:`kernel-dev/common:validating configuration`\""
+" section, you can use the following BitBake command to audit your "
+"configuration::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:266
+msgid "Patches"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:268
+msgid ""
+"Patch descriptions are very similar to configuration fragment "
+"descriptions, which are described in the previous section. However, "
+"instead of a ``.cfg`` file, these descriptions work with source patches "
+"(i.e. ``.patch`` files)."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:273
+msgid ""
+"A typical patch includes a description file and the patch itself. As an "
+"example, consider the build patches used with the ``linux-yocto-4.12`` "
+"kernel as defined outside of the recipe space (i.e. ``yocto-kernel-"
+"cache``). This Metadata consists of several files: ``build.scc`` and a "
+"set of ``*.patch`` files. You can find these files in the "
+"``patches/build`` directory of the ``yocto-4.12`` branch in the ``yocto-"
+"kernel-cache`` Git repository."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:281
+msgid ""
+"The following listings show the ``build.scc`` file and part of the "
+"``modpost-mask-trivial-warnings.patch`` file::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:312
+msgid ""
+"The description file can include multiple patch statements where each "
+"statement handles a single patch. In the example ``build.scc`` file, "
+"there are five patch statements for the five patches in the directory."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:317
+msgid ""
+"You can create a typical ``.patch`` file using ``diff -Nurp`` or ``git "
+"format-patch`` commands. For information on how to create patches, see "
+"the \":ref:`kernel-dev/common:using \\`\\`devtool\\`\\` to patch the "
+"kernel`\" and \":ref:`kernel-dev/common:using traditional kernel "
+"development to patch the kernel`\" sections."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:326
+msgid ""
+"Features are complex kernel Metadata types that consist of configuration "
+"fragments, patches, and possibly other feature description files. As an "
+"example, consider the following generic listing::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:339
+msgid ""
+"This example shows how the ``patch`` and ``kconf`` commands are used as "
+"well as how an additional feature description file is included with the "
+"``include`` command."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:343
+msgid ""
+"Typically, features are less granular than configuration fragments and "
+"are more likely than configuration fragments and patches to be the types "
+"of things you want to specify in the :term:`KERNEL_FEATURES` variable of "
+"the Linux kernel recipe. See the \":ref:`kernel-dev/advanced:using kernel"
+" metadata in a recipe`\" section earlier in the manual."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:351
+msgid "Kernel Types"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:353
+msgid ""
+"A kernel type defines a high-level kernel policy by aggregating non-"
+"hardware configuration fragments with patches you want to use when "
+"building a Linux kernel of a specific type (e.g. a real-time kernel). "
+"Syntactically, kernel types are no different than features as described "
+"in the \":ref:`kernel-dev/advanced:features`\" section. The "
+":term:`LINUX_KERNEL_TYPE` variable in the kernel recipe selects the "
+"kernel type. For example, in the ``linux-yocto_4.12.bb`` kernel recipe "
+"found in ``meta/recipes-kernel/linux``, a :ref:`require <bitbake-user-"
+"manual/bitbake-user-manual-metadata:\\`\\`require\\`\\` directive>` "
+"directive includes the ``meta/recipes-kernel/linux/linux-yocto.inc`` "
+"file, which has the following statement that defines the default kernel "
+"type::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:366
+msgid ""
+"Another example would be the real-time kernel (i.e. ``linux-yocto-"
+"rt_4.12.bb``). This kernel recipe directly sets the kernel type as "
+"follows::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:374
+msgid ""
+"You can find kernel recipes in the ``meta/recipes-kernel/linux`` "
+"directory of the :ref:`overview-manual/development-environment:yocto "
+"project source repositories`. See the \":ref:`kernel-dev/advanced:using "
+"kernel metadata in a recipe`\" section for more information."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:379
+msgid ""
+"Three kernel types (\"standard\", \"tiny\", and \"preempt-rt\") are "
+"supported for Linux Yocto kernels:"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:382
+msgid ""
+"\"standard\": Includes the generic Linux kernel policy of the Yocto "
+"Project linux-yocto kernel recipes. This policy includes, among other "
+"things, which file systems, networking options, core kernel features, and"
+" debugging and tracing options are supported."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:387
+msgid ""
+"\"preempt-rt\": Applies the ``PREEMPT_RT`` patches and the configuration "
+"options required to build a real-time Linux kernel. This kernel type "
+"inherits from the \"standard\" kernel type."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:391
+msgid ""
+"\"tiny\": Defines a bare minimum configuration meant to serve as a base "
+"for very small Linux kernels. The \"tiny\" kernel type is independent "
+"from the \"standard\" configuration. Although the \"tiny\" kernel type "
+"does not currently include any source changes, it might in the future."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:397
+msgid ""
+"For any given kernel type, the Metadata is defined by the ``.scc`` (e.g. "
+"``standard.scc``). Here is a partial listing for the ``standard.scc`` "
+"file, which is found in the ``ktypes/standard`` directory of the ``yocto-"
+"kernel-cache`` Git repository::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:430
+msgid ""
+"As with any ``.scc`` file, a kernel type definition can aggregate other "
+"``.scc`` files with ``include`` commands. These definitions can also "
+"directly pull in configuration fragments and patches with the ``kconf`` "
+"and ``patch`` commands, respectively."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:437
+msgid ""
+"It is not strictly necessary to create a kernel type ``.scc`` file. The "
+"Board Support Package (BSP) file can implicitly define the kernel type "
+"using a ``define`` :term:`KTYPE` ``myktype`` line. See the \":ref"
+":`kernel-dev/advanced:bsp descriptions`\" section for more information."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:444
+msgid "BSP Descriptions"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:446
+msgid ""
+"BSP descriptions (i.e. ``*.scc`` files) combine kernel types with "
+"hardware-specific features. The hardware-specific Metadata is typically "
+"defined independently in the BSP layer, and then aggregated with each "
+"supported kernel type."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:453
+msgid ""
+"For BSPs supported by the Yocto Project, the BSP description files are "
+"located in the ``bsp`` directory of the ``yocto-kernel-cache`` repository"
+" organized under the \"Yocto Linux Kernel\" heading in the "
+":yocto_git:`Yocto Project Source Repositories <>`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:458
+msgid ""
+"This section overviews the BSP description structure, the aggregation "
+"concepts, and presents a detailed example using a BSP supported by the "
+"Yocto Project (i.e. BeagleBone Board). For complete information on BSP "
+"layer file hierarchy, see the :doc:`/bsp-manual/index`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:464
+msgid "Description Overview"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:466
+msgid ""
+"For simplicity, consider the following root BSP layer description files "
+"for the BeagleBone board. These files employ both a structure and naming "
+"convention for consistency. The naming convention for the file is as "
+"follows::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:473
+msgid ""
+"Here are some example root layer BSP filenames for the BeagleBone Board "
+"BSP, which is supported by the Yocto Project::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:480
+msgid ""
+"Each file uses the root name (i.e \"beaglebone\") BSP name followed by "
+"the kernel type."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:483
+msgid "Examine the ``beaglebone-standard.scc`` file::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:498
+msgid ""
+"Every top-level BSP description file should define the :term:`KMACHINE`, "
+":term:`KTYPE`, and :term:`KARCH` variables. These variables allow the "
+"OpenEmbedded build system to identify the description as meeting the "
+"criteria set by the recipe being built. This example supports the "
+"\"beaglebone\" machine for the \"standard\" kernel and the \"arm\" "
+"architecture."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:507
+msgid ""
+"Be aware that there is no hard link between the :term:`KTYPE` variable "
+"and a kernel type description file. Thus, if you do not have the kernel "
+"type defined in your kernel Metadata as it is here, you only need to "
+"ensure that the :term:`LINUX_KERNEL_TYPE` variable in the kernel recipe "
+"and the :term:`KTYPE` variable in the BSP description file match."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:515
+msgid ""
+"To separate your kernel policy from your hardware configuration, you "
+"include a kernel type (``ktype``), such as \"standard\". In the previous "
+"example, this is done using the following::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:521
+msgid ""
+"This file aggregates all the configuration fragments, patches, and "
+"features that make up your standard kernel policy. See the \":ref"
+":`kernel-dev/advanced:kernel types`\" section for more information."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:526
+msgid ""
+"To aggregate common configurations and features specific to the kernel "
+"for `mybsp`, use the following::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:531
+msgid "You can see that in the BeagleBone example with the following::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:535
+msgid ""
+"For information on how to break a complete ``.config`` file into the "
+"various configuration fragments, see the \":ref:`kernel-"
+"dev/common:creating configuration fragments`\" section."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:538
+msgid ""
+"Finally, if you have any configurations specific to the hardware that are"
+" not in a ``*.scc`` file, you can include them as follows::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:543
+msgid ""
+"The BeagleBone example does not include these types of configurations. "
+"However, the Malta 32-bit board does (\"mti-malta32\"). Here is the "
+"``mti-malta32-le-standard.scc`` file::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:559
+msgid "Example"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:561
+msgid ""
+"Many real-world examples are more complex. Like any other ``.scc`` file, "
+"BSP descriptions can aggregate features. Consider the Minnow BSP "
+"definition given the ``linux-yocto-4.4`` branch of the ``yocto-kernel-"
+"cache`` (i.e. ``yocto-kernel-cache/bsp/minnow/minnow.scc``)::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:589
+msgid ""
+"Although the Minnow Board BSP is unused, the Metadata remains and is "
+"being used here just as an example."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:592
+msgid ""
+"The ``minnow.scc`` description file includes a hardware configuration "
+"fragment (``minnow.cfg``) specific to the Minnow BSP as well as several "
+"more general configuration fragments and features enabling hardware found"
+" on the machine. This ``minnow.scc`` description file is then included in"
+" each of the three \"minnow\" description files for the supported kernel "
+"types (i.e. \"standard\", \"preempt-rt\", and \"tiny\"). Consider the "
+"\"minnow\" description for the \"standard\" kernel type (i.e. ``minnow-"
+"standard.scc``)::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:626
+msgid ""
+"The ``include`` command midway through the file includes the "
+"``minnow.scc`` description that defines all enabled hardware for the BSP "
+"that is common to all kernel types. Using this command significantly "
+"reduces duplication."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:630
+msgid ""
+"Now consider the \"minnow\" description for the \"tiny\" kernel type "
+"(i.e. ``minnow-tiny.scc``)::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:641
+msgid ""
+"As you might expect, the \"tiny\" description includes quite a bit less. "
+"In fact, it includes only the minimal policy defined by the \"tiny\" "
+"kernel type and the hardware-specific configuration required for booting "
+"the machine along with the most basic functionality of the system as "
+"defined in the base \"minnow\" description file."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:648
+msgid ""
+"Notice again the three critical variables: :term:`KMACHINE`, "
+":term:`KTYPE`, and :term:`KARCH`. Of these variables, only :term:`KTYPE` "
+"has changed to specify the \"tiny\" kernel type."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:655
+msgid "Kernel Metadata Location"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:657
+msgid ""
+"Kernel Metadata always exists outside of the kernel tree either defined "
+"in a kernel recipe (recipe-space) or outside of the recipe. Where you "
+"choose to define the Metadata depends on what you want to do and how you "
+"intend to work. Regardless of where you define the kernel Metadata, the "
+"syntax used applies equally."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:663
+msgid ""
+"If you are unfamiliar with the Linux kernel and only wish to apply a "
+"configuration and possibly a couple of patches provided to you by others,"
+" the recipe-space method is recommended. This method is also a good "
+"approach if you are working with Linux kernel sources you do not control "
+"or if you just do not want to maintain a Linux kernel Git repository on "
+"your own. For partial information on how you can define kernel Metadata "
+"in the recipe-space, see the \":ref:`kernel-dev/common:modifying an "
+"existing recipe`\" section."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:672
+msgid ""
+"Conversely, if you are actively developing a kernel and are already "
+"maintaining a Linux kernel Git repository of your own, you might find it "
+"more convenient to work with kernel Metadata kept outside the recipe-"
+"space. Working with Metadata in this area can make iterative development "
+"of the Linux kernel more efficient outside of the BitBake environment."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:680
+msgid "Recipe-Space Metadata"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:682
+#, python-brace-format
+msgid ""
+"When stored in recipe-space, the kernel Metadata files reside in a "
+"directory hierarchy below :term:`FILESEXTRAPATHS`. For a linux-yocto "
+"recipe or for a Linux kernel recipe derived by copying :oe_git:`meta-"
+"skeleton/recipes-kernel/linux/linux-yocto-custom.bb </openembedded-"
+"core/tree/meta-skeleton/recipes-kernel/linux/linux-yocto-custom.bb>` into"
+" your layer and modifying it, :term:`FILESEXTRAPATHS` is typically set to"
+" ``${``\\ :term:`THISDIR`\\ ``}/${``\\ :term:`PN`\\ ``}``. See the \":ref"
+":`kernel-dev/common:modifying an existing recipe`\" section for more "
+"information."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:692
+msgid ""
+"Here is an example that shows a trivial tree of kernel Metadata stored in"
+" recipe-space within a BSP layer::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:703
+msgid ""
+"When the Metadata is stored in recipe-space, you must take steps to "
+"ensure BitBake has the necessary information to decide what files to "
+"fetch and when they need to be fetched again. It is only necessary to "
+"specify the ``.scc`` files on the :term:`SRC_URI`. BitBake parses them "
+"and fetches any files referenced in the ``.scc`` files by the "
+"``include``, ``patch``, or ``kconf`` commands. Because of this, it is "
+"necessary to bump the recipe :term:`PR` value when changing the content "
+"of files not explicitly listed in the :term:`SRC_URI`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:714
+msgid ""
+"If the BSP description is in recipe space, you cannot simply list the "
+"``*.scc`` in the :term:`SRC_URI` statement. You need to use the following"
+" form from your kernel append file::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:722
+msgid ""
+"The ``type=kmeta`` attribute is significant: it adds the directory to the"
+" kernel Metadata that the tools search to *discover* the BSP description "
+"matching :term:`KMACHINE` and ``LINUX_KERNEL_TYPE``. A ``.scc`` file "
+"listed directly on :term:`SRC_URI` (for example "
+"``file://myplatform.scc``) is instead treated as a configuration fragment"
+" and is processed in both the configuration and the patch phases. Any "
+"``patch`` directives that such a fragment references, or that are reached"
+" through files it ``include``\\ s (such as an ``arch/`` or ``bsp/`` "
+"description), are then applied to the kernel source and will fail if "
+"those patches are already present in the branch. See the \":ref:`kernel-"
+"dev/advanced:patch application for bsp descriptions`\" section for the "
+"reasoning behind this."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:735
+msgid "Metadata Outside the Recipe-Space"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:737
+msgid ""
+"When stored outside of the recipe-space, the kernel Metadata files reside"
+" in a separate repository. The OpenEmbedded build system adds the "
+"Metadata to the build as a \"type=kmeta\" repository through the "
+":term:`SRC_URI` variable. As an example, consider the following "
+":term:`SRC_URI` statement from the ``linux-yocto_5.15.bb`` kernel "
+"recipe::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:747
+#, python-brace-format
+msgid ""
+"``${KMETA}``, in this context, is simply used to name the directory into "
+"which the Git fetcher places the Metadata. This behavior is no different "
+"than any multi-repository :term:`SRC_URI` statement used in a recipe "
+"(e.g. see the previous section)."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:752
+msgid ""
+"You can keep kernel Metadata in a \"kernel-cache\", which is a directory "
+"containing configuration fragments. As with any Metadata kept outside the"
+" recipe-space, you simply need to use the :term:`SRC_URI` statement with "
+"the \"type=kmeta\" attribute. Doing so makes the kernel Metadata "
+"available during the configuration phase."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:758
+msgid ""
+"If you modify the Metadata, you must not forget to update the "
+":term:`SRCREV` statements in the kernel's recipe. In particular, you need"
+" to update the ``SRCREV_meta`` variable to match the commit in the "
+"``KMETA`` branch you wish to use. Changing the data in these branches and"
+" not updating the :term:`SRCREV` statements to match will cause the build"
+" to fetch an older commit."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:766
+msgid "Patch Application for BSP Descriptions"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:768
+msgid ""
+"During the build, the kernel tools search the kernel Metadata for the BSP"
+" description that most closely matches the :term:`KMACHINE` and "
+"``LINUX_KERNEL_TYPE`` values passed in from the recipe, and use the first"
+" description they find that matches both. This is referred to as the "
+"*discovered* BSP description."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:774
+msgid ""
+"For a discovered BSP description, the tools deliberately do **not** apply"
+" the ``patch`` directives reachable from it, either directly or through "
+"any files it ``include``\\ s. The kernel source branch you are building "
+"(:term:`KBRANCH`) is assumed to already contain those commits as part of "
+"its history, so re-applying them would fail. Configuration fragments "
+"(``kconf`` directives) are always applied. In other words, a discovered "
+"BSP contributes *configuration*, not *patches*."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:782
+msgid ""
+"This is why a recipe-space BSP description must be delivered as a "
+"``type=kmeta`` directory rather than as an individual ``file://*.scc`` "
+"entry on :term:`SRC_URI` (see the \":ref:`kernel-dev/advanced:recipe-"
+"space metadata`\" section). To have your description discovered, place it"
+" in a ``type=kmeta`` directory and set :term:`KMACHINE` so the tools "
+"locate it::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:795
+msgid ""
+"Here, the ``myplatform`` directory contains the BSP description (for "
+"example ``myplatform-standard.scc``, beginning with ``define KMACHINE "
+"myplatform`` and ``define KTYPE standard``). Because the description is "
+"discovered rather than supplied as a fragment, its ``patch`` directives, "
+"and those of everything it ``include``\\ s, are inhibited, while its "
+"configuration is still applied."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:801
+msgid ""
+"If your BSP genuinely lives outside the kernel source history (the branch"
+" you build does **not** already contain the BSP commits, and the patches "
+"*must* be applied), the BSP description can opt back in to patch "
+"application by adding the following directive to the description itself::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:808
+msgid ""
+"With that directive present, the discovered BSP description is also "
+"injected into the patch phase and its ``patch`` directives are applied."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:812
+msgid "Organizing Your Source"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:814
+msgid ""
+"Many recipes based on the ``linux-yocto-custom.bb`` recipe use Linux "
+"kernel sources that have only a single branch. This type of repository "
+"structure is fine for linear development supporting a single machine and "
+"architecture. However, if you work with multiple boards and "
+"architectures, a kernel source repository with multiple branches is more "
+"efficient. For example, suppose you need a series of patches for one "
+"board to boot. Sometimes, these patches are works-in-progress or "
+"fundamentally wrong, yet they are still necessary for specific boards. In"
+" these situations, you most likely do not want to include these patches "
+"in every kernel you build (i.e. have the patches as part of the default "
+"branch). It is situations like these that give rise to multiple branches "
+"used within a Linux kernel sources Git repository."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:827
+msgid ""
+"Here are repository organization strategies maximizing source reuse, "
+"removing redundancy, and logically ordering your changes. This section "
+"presents strategies for the following cases:"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:831
+msgid ""
+"Encapsulating patches in a feature description and only including the "
+"patches in the BSP descriptions of the applicable boards."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:834
+msgid ""
+"Creating a machine branch in your kernel source repository and applying "
+"the patches on that branch only."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:837
+msgid ""
+"Creating a feature branch in your kernel source repository and merging "
+"that branch into your BSP when needed."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:840
+msgid ""
+"The approach you take is entirely up to you and depends on what works "
+"best for your development model."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:844
+msgid "Encapsulating Patches"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:846
+msgid ""
+"If you are reusing patches from an external tree and are not working on "
+"the patches, you might find the encapsulated feature to be appropriate. "
+"Given this scenario, you do not need to create any branches in the source"
+" repository. Rather, you just take the static patches you need and "
+"encapsulate them within a feature description. Once you have the feature "
+"description, you simply include that into the BSP description as "
+"described in the \":ref:`kernel-dev/advanced:bsp descriptions`\" section."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:854
+msgid ""
+"You can find information on how to create patches and BSP descriptions in"
+" the \":ref:`kernel-dev/advanced:patches`\" and \":ref:`kernel-"
+"dev/advanced:bsp descriptions`\" sections."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:859
+msgid "Machine Branches"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:861
+msgid ""
+"When you have multiple machines and architectures to support, or you are "
+"actively working on board support, it is more efficient to create "
+"branches in the repository based on individual machines. Having machine "
+"branches allows common source to remain in the development branch with "
+"any features specific to a machine stored in the appropriate machine "
+"branch. This organization method frees you from continually reintegrating"
+" your patches into a feature."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:869
+msgid ""
+"Once you have a new branch, you can set up your kernel Metadata to use "
+"the branch a couple different ways. In the recipe, you can specify the "
+"new branch as the :term:`KBRANCH` to use for the board as follows::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:875
+msgid "Another method is to use the ``branch`` command in the BSP description::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:888
+msgid ""
+"If you find yourself with numerous branches, you might consider using a "
+"hierarchical branching system similar to what the Yocto Linux Kernel Git "
+"repositories use::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:894
+msgid ""
+"If you had two kernel types, \"standard\" and \"small\" for instance, "
+"three machines, and common as ``mydir``, the branches in your Git "
+"repository might look like this::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:906
+msgid ""
+"This organization can help clarify the branch relationships. In this "
+"case, ``mydir/standard/machine_a`` includes everything in ``mydir/base`` "
+"and ``mydir/standard/base``. The \"standard\" and \"small\" branches add "
+"sources specific to those kernel types that for whatever reason are not "
+"appropriate for the other branches."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:914
+msgid ""
+"The \"base\" branches are an artifact of the way Git manages its data "
+"internally on the filesystem: Git will not allow you to use "
+"``mydir/standard`` and ``mydir/standard/machine_a`` because it would have"
+" to create a file and a directory named \"standard\"."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:920
+msgid "Feature Branches"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:922
+msgid ""
+"When you are actively developing new features, it can be more efficient "
+"to work with that feature as a branch, rather than as a set of patches "
+"that have to be regularly updated. The Yocto Project Linux kernel tools "
+"provide for this with the ``git merge`` command."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:927
+msgid ""
+"To merge a feature branch into a BSP, insert the ``git merge`` command "
+"after any ``branch`` commands::"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:942
+msgid "SCC Description File Reference"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:944
+msgid ""
+"This section provides a brief reference for the commands you can use "
+"within an SCC description file (``.scc``):"
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:947
+#, python-brace-format
+msgid ""
+"``branch [ref]``: Creates a new branch relative to the current branch "
+"(typically ``${KTYPE}``) using the currently checked-out branch, or "
+"\"ref\" if specified."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:951
+msgid ""
+"``define``: Defines variables, such as :term:`KMACHINE`, :term:`KTYPE`, "
+":term:`KARCH`, and :term:`KFEATURE_DESCRIPTION`."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:957
+msgid ""
+"``include SCC_FILE``: Includes an SCC file in the current file. The file "
+"is parsed as if you had inserted it inline."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:960
+msgid ""
+"``kconf [hardware|non-hardware] CFG_FILE``: Queues a configuration "
+"fragment for merging into the final Linux ``.config`` file."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:963
+msgid ""
+"``git merge GIT_BRANCH``: Merges the feature branch into the current "
+"branch."
+msgstr ""
+
+#: ../../kernel-dev/advanced.rst:966
+msgid "``patch PATCH_FILE``: Applies the patch to the current Git branch."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:5
+msgid "Common Tasks"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:7
+msgid ""
+"This chapter presents several common tasks you perform when you work with"
+" the Yocto Project Linux kernel. These tasks include preparing your host "
+"development system for kernel development, preparing a layer, modifying "
+"an existing recipe, patching the kernel, configuring the kernel, "
+"iterative development, working with your own sources, and incorporating "
+"out-of-tree modules."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:16
+msgid ""
+"The examples presented in this chapter work with the Yocto Project 2.4 "
+"Release and forward."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:20
+msgid "Preparing the Build Host to Work on the Kernel"
+msgstr "Preparazione dell'Host di Build per Lavorare sul Kernel."
+
+#: ../../kernel-dev/common.rst:22
+msgid ""
+"Before you can do any kernel development, you need to be sure your build "
+"host is set up to use the Yocto Project. For information on how to get "
+"set up, see the \":doc:`/dev-manual/start`\" section in the Yocto Project"
+" Development Tasks Manual."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:29
+msgid ""
+"Be sure you check out the appropriate development branch or you create "
+"your local branch by checking out a specific tag to get the desired "
+"version of Yocto Project."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:33
+msgid ""
+"Kernel development is best accomplished using :ref:`devtool <sdk-"
+"manual/extensible:using \\`\\`devtool\\`\\` in your sdk workflow>` and "
+"not through traditional kernel workflow methods. The remainder of this "
+"section provides information for both scenarios."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:39
+msgid "Getting Ready to Develop Using ``devtool``"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:41
+msgid ""
+"Follow these steps to prepare to update the kernel image using "
+"``devtool``. Completing this procedure leaves you with a clean kernel "
+"image and ready to make modifications as described in the \":ref:`kernel-"
+"dev/common:using \\`\\`devtool\\`\\` to patch the kernel`\" section:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:47
+msgid ""
+"*Initialize the Build Environment:* Follow the :doc:`/dev-manual/start` "
+"section of the Yocto Project Development Tasks Manual in order to have a "
+"ready-to-use shell that can execute ``devtool``."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:51 ../../kernel-dev/common.rst:148
+msgid ""
+"*Prepare Your local.conf File:* By default, the :term:`MACHINE` variable "
+"is set to \"qemux86-64\", which is fine if you are building for the QEMU "
+"emulator in 64-bit mode. However, if you are not, you need to set the "
+":term:`MACHINE` variable appropriately in your :ref:`structure-build-"
+"conf-local.conf` file found in the :term:`Build Directory` (i.e.  "
+"``bitbake-builds/build`` in this example)."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:58 ../../kernel-dev/common.rst:154
+msgid ""
+"Also, since you are preparing to work on the kernel image, you need to "
+"set the :term:`MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS` variable to include "
+"kernel modules."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:62 ../../kernel-dev/common.rst:159
+msgid ""
+"In this example we wish to build for qemux86 so we must set the "
+":term:`MACHINE` variable to \"qemux86\" and also add the \"kernel-"
+"modules\". As described we do this by appending to :ref:`structure-build-"
+"conf-local.conf`::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:70 ../../kernel-dev/common.rst:167
+msgid ""
+"*Create a Layer for Patches:* You need to create a layer to hold patches "
+"created for the kernel image. You can use the ``bitbake-layers create-"
+"layer`` command as follows::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:82 ../../kernel-dev/common.rst:178
+msgid ""
+"For background information on working with common and BSP layers, see the"
+" \":ref:`dev-manual/layers:understanding and creating layers`\" section "
+"in the Yocto Project Development Tasks Manual and the \":ref:`bsp-"
+"manual/bsp:bsp layers`\" section in the Yocto Project Board Support (BSP)"
+" Developer's Guide, respectively. For information on how to use the "
+"``bitbake-layers create-layer`` command to quickly set up a layer, see "
+"the \":ref:`dev-manual/layers:Creating Your Own Layer`\" section in the "
+"Yocto Project Development Tasks Manual."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:93 ../../kernel-dev/common.rst:189
+msgid ""
+"*Inform the BitBake Build Environment About Your Layer:* As directed when"
+" you created your layer, you need to add the layer to the "
+":term:`BBLAYERS` variable in the :ref:`structure-build-conf-"
+"bblayers.conf` file as follows::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:103
+msgid ""
+"*Build the Clean Image:* The final step in preparing to work on the "
+"kernel is to build an initial image using ``bitbake``::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:119
+msgid ""
+"If you were building for actual hardware and not for emulation, you could"
+" flash the image to a USB stick on ``/dev/sdd`` and boot your device. For"
+" an example that uses a Minnowboard, see the "
+":yocto_wiki:`TipsAndTricks/KernelDevelopmentWithEsdk "
+"</TipsAndTricks/KernelDevelopmentWithEsdk>` Wiki page."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:126
+msgid ""
+"At this point you have set up to start making modifications to the "
+"kernel. For a continued example, see the \":ref:`kernel-dev/common:using "
+"\\`\\`devtool\\`\\` to patch the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:132
+msgid "Getting Ready for Traditional Kernel Development"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:134
+msgid ""
+"Getting ready for traditional kernel development using the Yocto Project "
+"involves many of the same steps as described in the previous section. "
+"However, you need to establish a local copy of the kernel source since "
+"you will be editing these files."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:139
+msgid ""
+"Follow these steps to prepare to update the kernel image using "
+"traditional kernel development flow with the Yocto Project. Completing "
+"this procedure leaves you ready to make modifications to the kernel "
+"source as described in the \":ref:`kernel-dev/common:using traditional "
+"kernel development to patch the kernel`\" section:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:145
+msgid ""
+"*Initialize the BitBake Environment:* Follow the steps in the :doc:`/dev-"
+"manual/start` section of the Yocto Project Development Tasks Manual."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:199
+msgid ""
+"*Create a Local Copy of the Kernel Git Repository:* You can find Git "
+"repositories of supported Yocto Project kernels organized under \"Yocto "
+"Linux Kernel\" in the Yocto Project Source Repositories at "
+":yocto_git:`/`."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:204
+msgid ""
+"For simplicity, it is recommended that you create your copy of the kernel"
+" Git repository outside of the :term:`Source Directory`. Also, be sure "
+"you are in the ``standard/base`` branch."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:209
+msgid ""
+"The following commands show how to create a local copy of the ``linux-"
+"yocto-4.12`` kernel and be in the ``standard/base`` branch::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:224
+msgid ""
+"The ``linux-yocto-4.12`` kernel can be used with the Yocto Project 2.4 "
+"release and forward. You cannot use the ``linux-yocto-4.12`` kernel with "
+"releases prior to Yocto Project 2.4."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:229
+msgid ""
+"*Create a Local Copy of the Kernel Cache Git Repository:* For simplicity,"
+" it is recommended that you create your copy of the kernel cache Git "
+"repository outside of the :term:`Source Directory`. Also, for this "
+"example, be sure you are in the ``yocto-4.12`` branch."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:235
+msgid ""
+"The following commands show how to create a local copy of the ``yocto-"
+"kernel-cache`` and switch to the ``yocto-4.12`` branch::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:248
+msgid ""
+"At this point, you are ready to start making modifications to the kernel "
+"using traditional kernel development steps. For a continued example, see "
+"the \":ref:`kernel-dev/common:using traditional kernel development to "
+"patch the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:254
+msgid "Creating and Preparing a Layer"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:256
+msgid ""
+"If you are going to be modifying kernel recipes, it is recommended that "
+"you create and prepare your own layer in which to do your work. Your "
+"layer contains its own :term:`BitBake` append files (``.bbappend``) and "
+"provides a convenient mechanism to create your own recipe files (``.bb``)"
+" as well as store and use kernel patch files. For background information "
+"on working with layers, see the \":ref:`dev-manual/layers:understanding "
+"and creating layers`\" section in the Yocto Project Development Tasks "
+"Manual."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:267
+msgid ""
+"The Yocto Project comes with many tools that simplify tasks you need to "
+"perform. One such tool is the ``bitbake-layers create-layer`` command, "
+"which simplifies creating a new layer. See the \":ref:`dev-"
+"manual/layers:Creating Your Own Layer`\" section in the Yocto Project "
+"Development Tasks Manual for information on how to use this script to "
+"quick set up a new layer."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:274
+msgid ""
+"To better understand the layer you create for kernel development, the "
+"following section describes how to create a layer without the aid of "
+"tools. These steps assume creation of a layer named ``mylayer`` in your "
+"home directory:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:279
+msgid "*Create Structure*: Create the layer's structure::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:283
+msgid ""
+"The ``conf`` directory holds your configuration files, while the "
+"``recipes-kernel`` directory holds your append file and eventual patch "
+"files."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:287
+msgid ""
+"*Create the Layer Configuration File*: Move to the ``meta-mylayer/conf`` "
+"directory and create the ``layer.conf`` file as follows::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:302
+msgid "Notice ``mylayer`` as part of the last three statements."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:304
+msgid ""
+"*Create the Kernel Recipe Append File*: Move to the ``meta-mylayer"
+"/recipes-kernel/linux`` directory and create the kernel's append file. "
+"This example uses the ``linux-yocto-4.12`` kernel. Thus, the name of the "
+"append file is ``linux-yocto_4.12.bbappend``::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:316
+msgid ""
+"The :term:`FILESEXTRAPATHS` and :term:`SRC_URI` statements enable the "
+"OpenEmbedded build system to find patch files. For more information on "
+"using append files, see the \":ref:`dev-manual/layers:appending other "
+"layers metadata with your layer`\" section in the Yocto Project "
+"Development Tasks Manual."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:323
+msgid "Modifying an Existing Recipe"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:325
+msgid ""
+"In many cases, you can customize an existing linux-yocto recipe to meet "
+"the needs of your project. Each release of the Yocto Project provides a "
+"few Linux kernel recipes from which you can choose. These are located in "
+":term:`OpenEmbedded-Core (OE-Core)` in ``meta/recipes-kernel/linux``."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:330
+msgid "Modifying an existing recipe can consist of the following:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:332
+msgid ":ref:`kernel-dev/common:creating the append file`"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:334
+msgid ":ref:`kernel-dev/common:applying patches`"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:336
+msgid ":ref:`kernel-dev/common:changing the configuration`"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:338
+msgid ""
+"Before modifying an existing recipe, be sure that you have created a "
+"minimal, custom layer from which you can work. See the \":ref:`kernel-"
+"dev/common:creating and preparing a layer`\" section for information."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:344
+msgid "Creating the Append File"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:346
+msgid ""
+"You create this file in your custom layer. You also name it accordingly "
+"based on the linux-yocto recipe you are using. For example, if you are "
+"modifying the ``meta/recipes-kernel/linux/linux-yocto_6.1.bb`` recipe, "
+"the append file will typically be located as follows within your custom "
+"layer:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:356
+msgid ""
+"The append file should initially extend the :term:`FILESPATH` search path"
+" by prepending the directory that contains your files to the "
+":term:`FILESEXTRAPATHS` variable as follows::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:364
+#, python-brace-format
+msgid ""
+"The path ``${``\\ :term:`THISDIR`\\ ``}/${``\\ :term:`PN`\\ ``}`` expands"
+" to \"linux-yocto\" in the current directory for this example. If you add"
+" any new files that modify the kernel recipe and you have extended "
+":term:`FILESPATH` as described above, you must place the files in your "
+"layer in the following area::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:374
+msgid ""
+"If you are working on a new machine Board Support Package (BSP), be sure "
+"to refer to the :doc:`/bsp-manual/index`."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:377
+msgid ""
+"As an example, consider the following append file used by the BSPs in "
+"``meta-yocto-bsp``:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:384
+msgid ""
+"Here are the contents of this file. Be aware that the actual commit ID "
+"strings in this example listing might be different than the actual "
+"strings in the file from the ``meta-yocto-bsp`` layer upstream::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:408
+msgid ""
+"This append file contains statements used to support several BSPs that "
+"ship with the Yocto Project. The file defines machines using the "
+":term:`COMPATIBLE_MACHINE` variable and uses the :term:`KMACHINE` "
+"variable to ensure the machine name used by the OpenEmbedded build system"
+" maps to the machine name used by the Linux Yocto kernel. The file also "
+"uses the optional :term:`KBRANCH` variable to ensure the build process "
+"uses the appropriate kernel branch."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:419
+msgid ""
+"Although this particular example does not use it, the "
+":term:`KERNEL_FEATURES` variable could be used to enable features "
+"specific to the kernel. The append file points to specific commits in the"
+" :term:`OpenEmbedded-Core (OE-Core)` Git repository branches to identify "
+"the exact kernel needed to build the BSP."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:426
+msgid ""
+"One thing missing in this particular BSP, which you will typically need "
+"when developing a BSP, is the kernel configuration file (``.config``) for"
+" your BSP. When developing a BSP, you probably have a kernel "
+"configuration file or a set of kernel configuration files that, when "
+"taken together, define the kernel configuration for your BSP. You can "
+"accomplish this definition by putting the configurations in a file or a "
+"set of files inside a directory located at the same level as your "
+"kernel's append file and having the same name as the kernel's main recipe"
+" file. With all these conditions met, simply reference those files in the"
+" :term:`SRC_URI` statement in the append file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:438
+msgid ""
+"For example, suppose you had some configuration options in a file called "
+"``network_configs.cfg``. You can place that file inside a directory named"
+" ``linux-yocto`` and then add a :term:`SRC_URI` statement such as the "
+"following to the append file. When the OpenEmbedded build system builds "
+"the kernel, the configuration options are picked up and applied::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:446
+msgid ""
+"To group related configurations into multiple files, you perform a "
+"similar procedure. Here is an example that groups separate configurations"
+" specifically for Ethernet and graphics into their own files and adds the"
+" configurations by using a :term:`SRC_URI` statement like the following "
+"in your append file::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:456
+msgid ""
+"Another variable you can use in your kernel recipe append file is the "
+":term:`FILESEXTRAPATHS` variable. When you use this statement, you are "
+"extending the locations used by the OpenEmbedded system to look for files"
+" and patches as the recipe is processed."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:464
+msgid ""
+"There are other ways of grouping and defining configuration options. For "
+"example, if you are working with a local clone of the kernel repository, "
+"you could checkout the kernel's ``meta`` branch, make your changes, and "
+"then push the changes to the local bare clone of the kernel. The result "
+"is that you directly add configuration options to the ``meta`` branch for"
+" your BSP. The configuration options will likely end up in that location "
+"anyway if the BSP gets added to the Yocto Project."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:473
+msgid ""
+"In general, however, the Yocto Project maintainers take care of moving "
+"the :term:`SRC_URI`-specified configuration options to the kernel's "
+"``meta`` branch. Not only is it easier for BSP developers not to have to "
+"put those configurations in the branch, but having the maintainers do it "
+"allows them to apply 'global' knowledge about the kinds of common "
+"configuration options multiple BSPs in the tree are typically using. This"
+" allows for promotion of common configurations into common features."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:483
+msgid "Applying Patches"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:485
+msgid ""
+"If you have a single patch or a small series of patches that you want to "
+"apply to the Linux kernel source, you can do so just as you would with "
+"any other recipe. You first copy the patches to the path added to "
+":term:`FILESEXTRAPATHS` in your ``.bbappend`` file as described in the "
+"previous section, and then reference them in :term:`SRC_URI` statements."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:493
+msgid ""
+"For example, you can apply a three-patch series by adding the following "
+"lines to your linux-yocto ``.bbappend`` file in your layer::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:500
+msgid ""
+"The next time you run BitBake to build the Linux kernel, BitBake detects "
+"the change in the recipe and fetches and applies the patches before "
+"building the kernel."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:504
+msgid ""
+"For a detailed example showing how to patch the kernel using ``devtool``,"
+" see the \":ref:`kernel-dev/common:using \\`\\`devtool\\`\\` to patch the"
+" kernel`\" and \":ref:`kernel-dev/common:using traditional kernel "
+"development to patch the kernel`\" sections."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:512
+msgid "Changing the Configuration"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:514
+msgid ""
+"You can make wholesale or incremental changes to the final ``.config`` "
+"file used for the eventual Linux kernel configuration by including a "
+"``defconfig`` file and by specifying configuration fragments in the "
+":term:`SRC_URI` to be applied to that file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:520
+#, python-brace-format
+msgid ""
+"If you have a complete, working Linux kernel ``.config`` file you want to"
+" use for the configuration, as before, copy that file to the appropriate "
+"``${PN}`` directory in your layer's ``recipes-kernel/linux`` directory, "
+"and rename the copied file to \"defconfig\". Then, add the following "
+"lines to the linux-yocto ``.bbappend`` file in your layer::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:529 ../../kernel-dev/common.rst:1098
+#, python-brace-format
+msgid ""
+"The :term:`SRC_URI` tells the build system how to search for the file, "
+"while the :term:`FILESEXTRAPATHS` extends the :term:`FILESPATH` variable "
+"(search directories) to include the ``${PN}`` directory you created to "
+"hold the configuration changes."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:536
+msgid ""
+"You can also use a regular ``defconfig`` file, as generated by the :ref"
+":`ref-tasks-savedefconfig` task instead of a complete ``.config`` file. "
+"This only specifies the non-default configuration values.  You need to "
+"additionally set :term:`KCONFIG_MODE` in the linux-yocto ``.bbappend`` "
+"file in your layer::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:547 ../../kernel-dev/common.rst:1105
+msgid ""
+"The build system applies the configurations from the ``defconfig`` file "
+"before applying any subsequent configuration fragments. The final kernel "
+"configuration is a combination of the configurations in the ``defconfig``"
+" file and any configuration fragments you provide. You need to realize "
+"that if you have any configuration fragments, the build system applies "
+"these on top of and after applying the existing ``defconfig`` file "
+"configurations."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:555
+#, python-brace-format
+msgid ""
+"Generally speaking, the preferred approach is to determine the "
+"incremental change you want to make and add that as a configuration "
+"fragment. For example, if you want to add support for a basic serial "
+"console, create a file named ``8250.cfg`` in the ``${PN}`` directory with"
+" the following content (without indentation)::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:569
+msgid ""
+"Next, include this configuration fragment and extend the "
+":term:`FILESPATH` variable in your ``.bbappend`` file::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:576
+msgid ""
+"The next time you run BitBake to build the Linux kernel, BitBake detects "
+"the change in the recipe and fetches and applies the new configuration "
+"before building the kernel."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:580
+msgid ""
+"For a detailed example showing how to configure the kernel, see the "
+"\":ref:`kernel-dev/common:configuring the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:584
+msgid "Using an \"In-Tree\"  ``defconfig`` File"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:586
+msgid ""
+"It might be desirable to have kernel configuration fragment support "
+"through a ``defconfig`` file that is pulled from the kernel source tree "
+"for the configured machine. By default, the OpenEmbedded build system "
+"looks for ``defconfig`` files in the layer used for Metadata, which is "
+"\"out-of-tree\", and then configures them using the following::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:594
+msgid ""
+"If you do not want to maintain copies of ``defconfig`` files in your "
+"layer but would rather allow users to use the default configuration from "
+"the kernel tree and still be able to add configuration fragments to the "
+":term:`SRC_URI` through, for example, append files, you can direct the "
+"OpenEmbedded build system to use a ``defconfig`` file that is \"in-"
+"tree\"."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:602
+msgid ""
+"To specify an \"in-tree\" ``defconfig`` file, use the following statement"
+" form::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:607
+msgid ""
+"Here is an example that assigns the :term:`KBUILD_DEFCONFIG` variable "
+"utilizing an override for the \"raspberrypi2\" :term:`MACHINE` and "
+"provides the path to the \"in-tree\" ``defconfig`` file to be used for a "
+"Raspberry Pi 2, which is based on the Broadcom 2708/2709 chipset::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:614
+msgid ""
+"If the build system detects a statement that identifies an \"out-of-"
+"tree\" ``defconfig`` file, your :term:`KBUILD_DEFCONFIG` variable will "
+"take precedence over it."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:618
+msgid ""
+"See the :term:`KBUILD_DEFCONFIG` variable description for more "
+"information."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:623
+msgid "Using ``devtool`` to Patch the Kernel"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:625
+msgid ""
+"The steps in this procedure show you how you can patch the kernel using "
+"``devtool``."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:630
+msgid ""
+"Before attempting this procedure, be sure you have performed the steps to"
+" get ready for updating the kernel as described in the \":ref:`kernel-"
+"dev/common:getting ready to develop using ``devtool```\" section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:635 ../../kernel-dev/common.rst:780
+msgid ""
+"Patching the kernel involves changing or adding configurations to an "
+"existing kernel, changing or adding recipes to the kernel that are needed"
+" to support specific hardware features, or even altering the source code "
+"itself."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:640
+msgid ""
+"This example creates a simple patch by adding some QEMU emulator console "
+"output at boot time through ``printk`` statements in the kernel's "
+"``calibrate.c`` source code file. Applying the patch and booting the "
+"modified image causes the added messages to appear on the emulator's "
+"console. The example is a continuation of the setup procedure found in "
+"the \":ref:`kernel-dev/common:getting ready to develop using "
+"``devtool```\" Section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:647
+msgid ""
+"*Check Out the Kernel Source Files:* First you must use ``devtool`` to "
+"checkout the kernel source code in its workspace."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:652
+msgid ""
+"See this step in the \":ref:`kernel-dev/common:getting ready to develop "
+"using ``devtool```\" section for more information."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:656
+msgid "Use the following ``devtool`` command to check out the code::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:660
+msgid ""
+"*Edit the Source Files* Follow these steps to make some simple changes to"
+" the source files:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:663
+msgid ""
+"*Change the working directory*: In the previous step, the output noted "
+"where you can find the source files (e.g. ``build/workspace/sources"
+"/linux-yocto``). Change to where the kernel source code is before making "
+"your edits to the ``calibrate.c`` file::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:671
+msgid ""
+"*Edit the source file*: Edit the ``init/calibrate.c`` file to have the "
+"following changes::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:691
+msgid ""
+"*Build the Updated Kernel Source:* To build the updated kernel source, "
+"use ``devtool``::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:696
+msgid ""
+"*Create the Image With the New Kernel:* Use the ``devtool build-image`` "
+"command to create a new image that has the new kernel::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:705
+msgid ""
+"If the image you originally created resulted in a Wic file, you can use "
+"an alternate method to create the new image with the updated kernel. For "
+"an example, see the steps in the "
+":yocto_wiki:`TipsAndTricks/KernelDevelopmentWithEsdk "
+"</TipsAndTricks/KernelDevelopmentWithEsdk>` Wiki Page."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:711
+msgid ""
+"*Test the New Image:* For this example, you can run the new image using "
+"QEMU to verify your changes:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:714
+msgid ""
+"*Boot the image*: Boot the modified image in the QEMU emulator using this"
+" command::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:719
+msgid ""
+"*Verify the changes*: Log into the machine using ``root`` with no "
+"password and then use the following shell command to scroll through the "
+"console's boot output."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:727 ../../kernel-dev/common.rst:883
+msgid ""
+"You should see the results of your ``printk`` statements as part of the "
+"output when you scroll down the console window."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:731
+msgid ""
+"*Stage and commit your changes*: Change your working directory to where "
+"you modified the ``calibrate.c`` file and use these Git commands to stage"
+" and commit your changes::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:740
+msgid ""
+"*Export the Patches and Create an Append File:* To export your commits as"
+" patches and create a ``.bbappend`` file, use the following command. This"
+" example uses the previously established layer named ``meta-mylayer``::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:748
+msgid ""
+"See Step 3 of the \":ref:`kernel-dev/common:getting ready to develop "
+"using ``devtool```\" section for information on setting up this layer."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:752
+msgid ""
+"Once the command finishes, the patches and the ``.bbappend`` file are "
+"located in the ``~/meta-mylayer/recipes-kernel/linux`` directory."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:756
+msgid ""
+"*Build the Image With Your Modified Kernel:* You can now build an image "
+"that includes your kernel patches. Execute the following command from "
+"your :term:`Build Directory` in the terminal set up to run BitBake::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:765
+msgid "Using Traditional Kernel Development to Patch the Kernel"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:767
+msgid ""
+"The steps in this procedure show you how you can patch the kernel using "
+"traditional kernel development (i.e. not using ``devtool`` as described "
+"in the \":ref:`kernel-dev/common:using \\`\\`devtool\\`\\` to patch the "
+"kernel`\" section)."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:775
+msgid ""
+"Before attempting this procedure, be sure you have performed the steps to"
+" get ready for updating the kernel as described in the \":ref:`kernel-"
+"dev/common:getting ready for traditional kernel development`\" section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:785
+msgid ""
+"The example in this section creates a simple patch by adding some QEMU "
+"emulator console output at boot time through ``printk`` statements in the"
+" kernel's ``calibrate.c`` source code file. Applying the patch and "
+"booting the modified image causes the added messages to appear on the "
+"emulator's console. The example is a continuation of the setup procedure "
+"found in the \":ref:`kernel-dev/common:getting ready for traditional "
+"kernel development`\" Section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:794
+msgid ""
+"*Edit the Source Files* Prior to this step, you should have used Git to "
+"create a local copy of the repository for your kernel. Assuming you "
+"created the repository as directed in the \":ref:`kernel-"
+"dev/common:getting ready for traditional kernel development`\" section, "
+"use the following commands to edit the ``calibrate.c`` file:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:800
+msgid ""
+"*Change the working directory*: You need to locate the source files in "
+"the local copy of the kernel Git repository. Change to where the kernel "
+"source code is before making your edits to the ``calibrate.c`` file::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:807
+msgid ""
+"*Edit the source file*: Edit the ``calibrate.c`` file to have the "
+"following changes::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:827
+msgid ""
+"*Stage and Commit Your Changes:* Use standard Git commands to stage and "
+"commit the changes you just made::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:833
+msgid ""
+"If you do not stage and commit your changes, the OpenEmbedded Build "
+"System will not pick up the changes."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:837
+msgid ""
+"*Update Your local.conf File to Point to Your Source Files:* In addition "
+"to your :ref:`structure-build-conf-local.conf` file specifying to use "
+"\"kernel-modules\" and the \"qemux86\" machine, it must also point to the"
+" updated kernel source files. Add :term:`SRC_URI` and :term:`SRCREV` "
+"statements similar to the following to your :ref:`structure-build-conf-"
+"local.conf`::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:847
+msgid "Add the following to the :ref:`structure-build-conf-local.conf`::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:856
+msgid ""
+"Be sure to replace `path-to` with the pathname to your local Git "
+"repositories. Also, you must be sure to specify the correct branch and "
+"machine types. For this example, the branch is ``standard/base`` and the "
+"machine is ``qemux86``."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:861
+msgid ""
+"*Build the Image:* With the source modified, your changes staged and "
+"committed, and the :ref:`structure-build-conf-local.conf` file pointing "
+"to the kernel files, you can now use BitBake to build the image::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:868
+msgid ""
+"*Boot the image*: Boot the modified image in the QEMU emulator using this"
+" command. When prompted to login to the QEMU console, use \"root\" with "
+"no password::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:875
+msgid ""
+"*Look for Your Changes:* As QEMU booted, you might have seen your changes"
+" rapidly scroll by. If not, use these commands to see your changes:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:887
+msgid ""
+"*Generate the Patch File:* Once you are sure that your patch works "
+"correctly, you can generate a ``*.patch`` file in the kernel source "
+"repository::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:895
+msgid ""
+"*Move the Patch File to Your Layer:* In order for subsequent builds to "
+"pick up patches, you need to move the patch file you created in the "
+"previous step to your layer ``meta-mylayer``. For this example, the layer"
+" created earlier is located in your home directory as ``meta-mylayer``. "
+"When the layer was created using the ``yocto-create`` script, no "
+"additional hierarchy was created to support patches. Before moving the "
+"patch file, you need to add additional structure to your layer using the "
+"following commands::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:907
+msgid ""
+"Once you have created this hierarchy in your layer, you can move the "
+"patch file using the following command::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:913
+msgid ""
+"*Create the Append File:* Finally, you need to create the ``linux-"
+"yocto_4.12.bbappend`` file and insert statements that allow the "
+"OpenEmbedded build system to find the patch. The append file needs to be "
+"in your layer's ``recipes-kernel/linux`` directory and it must be named "
+"``linux-yocto_4.12.bbappend`` and have the following contents::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:923
+msgid ""
+"The :term:`FILESEXTRAPATHS` and :term:`SRC_URI` statements enable the "
+"OpenEmbedded build system to find the patch file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:926
+msgid ""
+"For more information on append files and patches, see the \":ref:`kernel-"
+"dev/common:creating the append file`\" and \":ref:`kernel-"
+"dev/common:applying patches`\" sections. You can also see the \":ref"
+":`dev-manual/layers:appending other layers metadata with your layer`\" "
+"section in the Yocto Project Development Tasks Manual."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:934
+msgid ""
+"To build ``core-image-minimal`` again and see the effects of your patch, "
+"you can essentially eliminate the temporary source files saved in "
+"``bitbake-builds/build/tmp/work/...`` and residual effects of the build "
+"by entering the following sequence of commands::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:947
+msgid "Configuring the Kernel"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:949
+msgid ""
+"Configuring the Yocto Project kernel consists of making sure the "
+"``.config`` file has all the right information in it for the image you "
+"are building. You can use the ``menuconfig`` tool and configuration "
+"fragments to make sure your ``.config`` file is just how you need it. You"
+" can also save known configurations in a ``defconfig`` file that the "
+"build system can use for kernel configuration."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:956
+msgid ""
+"This section describes how to use ``menuconfig``, create and use "
+"configuration fragments, and how to interactively modify your ``.config``"
+" file to create the leanest kernel configuration file possible."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:961
+msgid ""
+"For more information on kernel configuration, see the \":ref:`kernel-"
+"dev/common:changing the configuration`\" section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:965
+msgid "Using  ``menuconfig``"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:967
+msgid ""
+"The easiest way to define kernel configurations is to set them through "
+"the ``menuconfig`` tool. This tool provides an interactive method with "
+"which to set kernel configurations. For general information on "
+"``menuconfig``, see :wikipedia:`Menuconfig`."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:972
+msgid ""
+"To use the ``menuconfig`` tool in the Yocto Project development "
+"environment, you must do the following:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:975
+msgid ""
+"Because you launch ``menuconfig`` using BitBake, you must be sure to set "
+"up your environment by running the :ref:`structure-core-script` script "
+"found in the :term:`Build Directory`."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:979
+msgid ""
+"You must be sure of the state of your build's configuration in the "
+":term:`Source Directory`."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:982
+msgid "Your build host must have the following two packages installed::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:987
+msgid ""
+"The following commands initialize the BitBake environment, run the :ref"
+":`ref-tasks-kernel_configme` task, and launch ``menuconfig``. These "
+"commands assume the Source Directory's top-level folder is ``work``::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:997
+msgid ""
+"Once ``menuconfig`` comes up, its standard interface allows you to "
+"interactively examine and configure all the kernel configuration "
+"parameters. After making your changes, simply exit the tool and save your"
+" changes to create an updated version of the ``.config`` configuration "
+"file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1005
+msgid ""
+"You can use the entire ``.config`` file as the ``defconfig`` file. For "
+"information on ``defconfig`` files, see the \":ref:`kernel-"
+"dev/common:changing the configuration`\", \":ref:`kernel-dev/common:using"
+" an \"in-tree\" \\`\\`defconfig\\`\\` file`\", and \":ref:`kernel-"
+"dev/common:creating a \\`\\`defconfig\\`\\` file`\" sections."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1012
+msgid ""
+"Consider an example that configures the \"CONFIG_SMP\" setting for the "
+"``linux-yocto-4.12`` kernel."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1017
+msgid ""
+"The OpenEmbedded build system recognizes this kernel as ``linux-yocto`` "
+"through Metadata (e.g. :term:`PREFERRED_VERSION`\\ ``_linux-yocto ?= "
+"\"4.12%\"``)."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1020
+msgid ""
+"Once ``menuconfig`` launches, use the interface to navigate through the "
+"selections to find the configuration settings in which you are "
+"interested. For this example, you deselect \"CONFIG_SMP\" by clearing the"
+" \"Symmetric Multi-Processing Support\" option. Using the interface, you "
+"can find the option under \"Processor Type and Features\". To deselect "
+"\"CONFIG_SMP\", use the arrow keys to highlight \"Symmetric Multi-"
+"Processing Support\" and enter \"N\" to clear the asterisk. When you are "
+"finished, exit out and save the change."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1029
+msgid ""
+"Saving the selections updates the ``.config`` configuration file. This is"
+" the file that the OpenEmbedded build system uses to configure the kernel"
+" during the build. You can find and examine this file in the :term:`Build"
+" Directory` in ``tmp/work/``. The actual ``.config`` is located in the "
+"area where the specific kernel is built. For example, if you were "
+"building a Linux Yocto kernel based on the ``linux-yocto-4.12`` kernel "
+"and you were building a QEMU image targeted for ``x86`` architecture, the"
+" ``.config`` file would be:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1045
+msgid ""
+"The previous example directory is artificially split and many of the "
+"characters in the actual filename are omitted in order to make it more "
+"readable. Also, depending on the kernel you are using, the exact pathname"
+" might differ."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1050
+msgid ""
+"Within the ``.config`` file, you can see the kernel settings. For "
+"example, the following entry shows that symmetric multi-processor support"
+" is not set::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1056
+msgid ""
+"A good method to isolate changed configurations is to use a combination "
+"of the ``menuconfig`` tool and simple shell commands. Before changing "
+"configurations with ``menuconfig``, copy the existing ``.config`` and "
+"rename it to something else, use ``menuconfig`` to make as many changes "
+"as you want and save them, then compare the renamed configuration file "
+"against the newly created file. You can use the resulting differences as "
+"your base to create configuration fragments to permanently save in your "
+"kernel layer."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1067
+msgid ""
+"Be sure to make a copy of the ``.config`` file and do not just rename it."
+" The build system needs an existing ``.config`` file from which to work."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1071
+msgid "Creating a  ``defconfig`` File"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1073
+msgid ""
+"A ``defconfig`` file in the context of the Yocto Project is often a "
+"``.config`` file that is copied from a build or a ``defconfig`` taken "
+"from the kernel tree and moved into recipe space. You can use a "
+"``defconfig`` file to retain a known set of kernel configurations from "
+"which the OpenEmbedded build system can draw to create the final "
+"``.config`` file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1082
+msgid ""
+"Out-of-the-box, the Yocto Project never ships a ``defconfig`` or "
+"``.config`` file. The OpenEmbedded build system creates the final "
+"``.config`` file used to configure the kernel."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1086
+#, python-brace-format
+msgid ""
+"To create a ``defconfig``, start with a complete, working Linux kernel "
+"``.config`` file. Copy that file to the appropriate ``${``\\ :term:`PN`\\"
+" ``}`` directory in your layer's ``recipes-kernel/linux`` directory, and "
+"rename the copied file to \"defconfig\" (e.g. ``~/meta-mylayer/recipes-"
+"kernel/linux/linux-yocto/defconfig``). Then, add the following lines to "
+"the linux-yocto ``.bbappend`` file in your layer::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1113
+msgid ""
+"For more information on configuring the kernel, see the \":ref:`kernel-"
+"dev/common:changing the configuration`\" section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1117
+msgid "Creating Configuration Fragments"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1119
+msgid ""
+"Configuration fragments are simply kernel options that appear in a file "
+"placed where the OpenEmbedded build system can find and apply them. The "
+"build system applies configuration fragments after applying "
+"configurations from a ``defconfig`` file. Thus, the final kernel "
+"configuration is a combination of the configurations in the ``defconfig``"
+" file and then any configuration fragments you provide. The build system "
+"applies fragments on top of and after applying the existing defconfig "
+"file configurations."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1128
+msgid ""
+"Syntactically, the configuration statement is identical to what would "
+"appear in the ``.config`` file, which is in the :term:`Build Directory`."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1133
+msgid ""
+"For more information about where the ``.config`` file is located, see the"
+" example in the \":ref:`kernel-dev/common:using ``menuconfig```\" "
+"section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1138
+msgid ""
+"It is simple to create a configuration fragment. One method is to use "
+"shell commands. For example, issuing the following from the shell creates"
+" a configuration fragment file named ``my_changes.cfg`` that enables "
+"multi-processor support within the kernel and disables the FPGA "
+"Configuration Framework::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1149
+msgid ""
+"All configuration fragment files must use the ``.cfg`` extension in order"
+" for the OpenEmbedded build system to recognize them as a configuration "
+"fragment."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1153
+msgid ""
+"Another method is to create a configuration fragment using the "
+"differences between two configuration files: one previously created and "
+"saved, and one freshly created using the ``menuconfig`` tool."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1157
+msgid "To create a configuration fragment using this method, follow these steps:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1160
+msgid ""
+"*Complete a Build Through Kernel Configuration:* Complete a build at "
+"least through the kernel configuration task as follows::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1165
+msgid ""
+"This step ensures that you create a ``.config`` file from a known state. "
+"Because there are situations where your build state might become unknown,"
+" it is best to run this task prior to starting ``menuconfig``."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1170
+msgid "*Launch menuconfig:* Run the ``menuconfig`` command::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1174
+#, python-brace-format
+msgid ""
+"*Create the Configuration Fragment:* Run the ``diffconfig`` command to "
+"prepare a configuration fragment. The resulting file ``fragment.cfg`` is "
+"placed in the ``${``\\ :term:`WORKDIR`\\ ``}`` directory::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1182
+msgid ""
+"The ``diffconfig`` command creates a file that is a list of Linux kernel "
+"``CONFIG_`` assignments. See the \":ref:`kernel-dev/common:changing the "
+"configuration`\" section for additional information on how to use the "
+"output as a configuration fragment."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1189
+msgid ""
+"You can also use this method to create configuration fragments for a BSP."
+" See the \":ref:`kernel-dev/advanced:bsp descriptions`\" section for more"
+" information."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1193
+msgid ""
+"Where do you put your configuration fragment files? You can place these "
+"files in an area pointed to by :term:`SRC_URI` as directed by your :ref"
+":`structure-build-conf-bblayers.conf` file, which is located in your "
+"layer. The OpenEmbedded build system picks up the configuration and adds "
+"it to the kernel's configuration. For example, suppose you had a set of "
+"configuration options in a file called ``myconfig.cfg``. If you put that "
+"file inside a directory named ``linux-yocto`` that resides in the same "
+"directory as the kernel's append file within your layer and then add the "
+"following statements to the kernel's append file, those configuration "
+"options will be picked up and applied when the kernel is built::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1208
+msgid ""
+"As mentioned earlier, you can group related configurations into multiple "
+"files and name them all in the :term:`SRC_URI` statement as well. For "
+"example, you could group separate configurations specifically for "
+"Ethernet and graphics into their own files and add those by using a "
+":term:`SRC_URI` statement like the following in your append file::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1219
+msgid "Validating Configuration"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1221
+msgid ""
+"You can use the :ref:`ref-tasks-kernel_configcheck` task to provide "
+"configuration validation::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1227
+msgid ""
+"Running this task produces warnings for when a requested configuration "
+"does not appear in the final ``.config`` file or when you override a "
+"policy configuration in a hardware configuration fragment."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1232
+msgid ""
+"In order to run this task, you must have an existing ``.config`` file. "
+"See the \":ref:`kernel-dev/common:using ``menuconfig```\" section for "
+"information on how to create a configuration file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1236
+msgid "Here is sample output from the :ref:`ref-tasks-kernel_configcheck` task:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1293
+msgid ""
+"The previous output example has artificial line breaks to make it more "
+"readable."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1296
+msgid ""
+"The output describes the various problems that you can encounter along "
+"with where to find the offending configuration items. You can use the "
+"information in the logs to adjust your configuration files and then "
+"repeat the :ref:`ref-tasks-kernel_configme` and :ref:`ref-tasks-"
+"kernel_configcheck` tasks until they produce no warnings."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1305
+msgid ""
+"For more information on how to use the ``menuconfig`` tool, see the :ref"
+":`kernel-dev/common:using ``menuconfig``` section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1309
+msgid "Fine-Tuning the Kernel Configuration File"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1311
+msgid ""
+"You can make sure the ``.config`` file is as lean or efficient as "
+"possible by reading the output of the kernel configuration fragment "
+"audit, noting any issues, making changes to correct the issues, and then "
+"repeating."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1316
+msgid ""
+"As part of the kernel build process, the :ref:`ref-tasks-"
+"kernel_configcheck` task runs. This task validates the kernel "
+"configuration by checking the final ``.config`` file against the input "
+"files. During the check, the task produces warning messages for the "
+"following issues:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1321
+msgid "Requested options that did not make it into the final ``.config`` file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1323
+msgid "Configuration items that appear twice in the same configuration fragment."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1326
+msgid "Configuration items tagged as \"required\" that were overridden."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1328
+msgid "A board overrides a non-board specific option."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1330
+msgid ""
+"Listed options not valid for the kernel being processed. In other words, "
+"the option does not appear anywhere."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1335
+msgid ""
+"The :ref:`ref-tasks-kernel_configcheck` task can also optionally report "
+"if an option is overridden during processing."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1338
+msgid ""
+"For each output warning, a message points to the file that contains a "
+"list of the options and a pointer to the configuration fragment that "
+"defines them. Collectively, the files are the key to streamlining the "
+"configuration."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1343
+msgid "To streamline the configuration, do the following:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1345
+msgid ""
+"*Use a Working Configuration:* Start with a full configuration that you "
+"know works. Be sure the configuration builds and boots successfully. Use "
+"this configuration file as your baseline."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1349
+msgid ""
+"*Run Configure and Check Tasks:* Separately run the :ref:`ref-tasks-"
+"kernel_configme` and :ref:`ref-tasks-kernel_configcheck` tasks::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1355
+msgid ""
+"*Process the Results:* Take the resulting list of files from the :ref"
+":`ref-tasks-kernel_configcheck` task warnings and do the following:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1358
+msgid ""
+"Drop values that are redefined in the fragment but do not change the "
+"final ``.config`` file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1361
+msgid ""
+"Analyze and potentially drop values from the ``.config`` file that "
+"override required configurations."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1364
+msgid "Analyze and potentially remove non-board specific options."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1366
+msgid "Remove repeated and invalid options."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1368
+msgid ""
+"*Re-Run Configure and Check Tasks:* After you have worked through the "
+"output of the kernel configuration audit, you can re-run the :ref:`ref-"
+"tasks-kernel_configme` and :ref:`ref-tasks-kernel_configcheck` tasks to "
+"see the results of your changes. If you have more issues, you can deal "
+"with them as described in the previous step."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1374
+msgid ""
+"Iteratively working through steps two through four eventually yields a "
+"minimal, streamlined configuration file. Once you have the best "
+"``.config``, you can build the Linux Yocto kernel."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1379
+msgid "Expanding Variables"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1381
+msgid ""
+"Sometimes it is helpful to determine what a variable expands to during a "
+"build. You can examine the value of a variable by running the ``bitbake-"
+"getvar`` command::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1387
+msgid ""
+"The output of the command explains exactly how the variable is expanded "
+"and used by the :term:`OpenEmbedded Build System`."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1391
+msgid "Working with a \"Dirty\" Kernel Version String"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1393
+msgid ""
+"If you build a kernel image and the version string has a \"+\" or a "
+"\"-dirty\" at the end, it means there are uncommitted modifications in "
+"the kernel's source directory. Follow these steps to clean up the version"
+" string:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1397
+msgid ""
+"*Discover the Uncommitted Changes:* Go to the kernel's locally cloned Git"
+" repository (source directory) and use the following Git command to list "
+"the files that have been changed, added, or removed::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1403
+msgid ""
+"*Commit the Changes:* You should commit those changes to the kernel "
+"source tree regardless of whether or not you will save, export, or use "
+"the changes::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1410
+msgid ""
+"*Rebuild the Kernel Image:* Once you commit the changes, rebuild the "
+"kernel."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1413
+msgid ""
+"Depending on your particular kernel development workflow, the commands "
+"you use to rebuild the kernel might differ. For information on building "
+"the kernel image when using ``devtool``, see the \":ref:`kernel-"
+"dev/common:using \\`\\`devtool\\`\\` to patch the kernel`\" section. For "
+"information on building the kernel image when using BitBake, see the "
+"\":ref:`kernel-dev/common:using traditional kernel development to patch "
+"the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1423
+msgid "Working With Your Own Sources"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1425
+msgid ""
+"If you cannot work with one of the Linux kernel versions supported by "
+"existing linux-yocto recipes, you can still make use of the Yocto Project"
+" Linux kernel tooling by working with your own sources. When you use your"
+" own sources, you will not be able to leverage the existing kernel "
+":term:`Metadata` and stabilization work of the linux-yocto sources. "
+"However, you will be able to manage your own Metadata in the same format "
+"as the linux-yocto sources. Maintaining format compatibility facilitates "
+"converging with linux-yocto on a future, mutually-supported kernel "
+"version."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1435
+msgid ""
+"To help you use your own sources, the Yocto Project provides a :oe_git"
+":`linux-yocto custom recipe </openembedded-core/tree/meta-skeleton"
+"/recipes-kernel/linux/linux-yocto-custom.bb>` that uses ``kernel.org`` "
+"sources and the Yocto Project Linux kernel tools for managing kernel "
+"Metadata."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1440
+msgid "Here are some basic steps you can use to work with your own sources:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1442
+msgid ""
+"*Create a Copy of the Kernel Recipe:* Copy the ``linux-yocto-custom.bb`` "
+"recipe to your layer and give it a meaningful name. The name should "
+"include the version of the Yocto Linux kernel you are using (e.g. "
+"``linux-yocto-myproject_4.12.bb``, where \"4.12\" is the base version of "
+"the Linux kernel with which you would be working)."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1449
+msgid ""
+"*Create a Directory for Your Patches:* In the same directory inside your "
+"layer, create a matching directory to store your patches and "
+"configuration files (e.g. ``linux-yocto-myproject``)."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1453
+msgid ""
+"*Ensure You Have Configurations:* Make sure you have either a "
+"``defconfig`` file or configuration fragment files in your layer. When "
+"you use the ``linux-yocto-custom.bb`` recipe, you must specify a "
+"configuration. If you do not have a ``defconfig`` file, you can run the "
+"following::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1461
+msgid ""
+"After running the command, copy the resulting ``.config`` file to the "
+"``files`` directory in your layer as \"defconfig\" and then add it to the"
+" :term:`SRC_URI` variable in the recipe."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1467
+msgid ""
+"Running the ``make defconfig`` command results in the default "
+"configuration for your architecture as defined by your kernel. However, "
+"there is no guarantee that this configuration is valid for your use case,"
+" or that your board will even boot. This is particularly true for non-x86"
+" architectures."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1473
+msgid ""
+"To use non-x86 ``defconfig`` files, you need to be more specific and find"
+" one that matches your board (i.e. for arm, you look in "
+"``arch/arm/configs`` and use the one that is the best starting point for "
+"your board)."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1478
+msgid ""
+"*Edit the Recipe:* Edit the following variables in your recipe as "
+"appropriate for your project:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1481
+msgid ""
+":term:`SRC_URI`: The :term:`SRC_URI` should specify a Git repository that"
+" uses one of the supported Git fetcher protocols (i.e. ``file``, ``git``,"
+" ``http``, and so forth). The :term:`SRC_URI` variable should also "
+"specify either a ``defconfig`` file or some configuration fragment files."
+" The skeleton recipe provides an example :term:`SRC_URI` as a syntax "
+"reference."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1489
+msgid ""
+":term:`LINUX_VERSION`: The Linux kernel version you are using (e.g. "
+"\"4.12\")."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1492
+msgid ""
+":term:`LINUX_VERSION_EXTENSION`: The Linux kernel ``CONFIG_LOCALVERSION``"
+" that is compiled into the resulting kernel and visible through the "
+"``uname`` command."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1496
+msgid ":term:`SRCREV`: The commit ID from which you want to build."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1499
+msgid ""
+":term:`PR`: Treat this variable the same as you would in any other "
+"recipe. Increment the variable to indicate to the OpenEmbedded build "
+"system that the recipe has changed."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1504
+msgid ""
+":term:`PV`: The default :term:`PV` assignment is typically adequate. It "
+"combines the value of :term:`LINUX_VERSION` and the value ``+git`` which "
+"adds source control information to :term:`PKGV` later during the "
+"packaging phase."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1509
+msgid ""
+":term:`COMPATIBLE_MACHINE`: A list of the machines supported by your new "
+"recipe. This variable in the example recipe is set by default to a "
+"regular expression that matches only the empty string, \"(^$)\". This "
+"default setting triggers an explicit build failure. You must change it to"
+" match a list of the machines that your new recipe supports. For example,"
+" to support the ``qemux86`` and ``qemux86-64`` machines, use the "
+"following form::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1520
+msgid ""
+"*Customize Your Recipe as Needed:* Provide further customizations to your"
+" recipe as needed just as you would customize an existing linux-yocto "
+"recipe. See the \":ref:`ref-manual/devtool-reference:modifying an "
+"existing recipe`\" section for information."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1527
+msgid "Working with Out-of-Tree Modules"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1529
+msgid ""
+"This section describes steps to build out-of-tree modules on your target "
+"and describes how to incorporate out-of-tree modules in the build."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1533
+msgid "Building Out-of-Tree Modules on the Target"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1535
+msgid ""
+"While the traditional Yocto Project development model would be to include"
+" kernel modules as part of the normal build process, you might find it "
+"useful to build modules on the target. This could be the case if your "
+"target system is capable and powerful enough to handle the necessary "
+"compilation. Before deciding to build on your target, however, you should"
+" consider the benefits of using a proper cross-development environment "
+"from your build host."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1543
+msgid ""
+"If you want to be able to build out-of-tree modules on the target, there "
+"are some steps you need to take on the target that is running your SDK "
+"image. Briefly, the ``kernel-dev`` package is installed by default on all"
+" ``*.sdk`` images and the ``kernel-devsrc`` package is installed on many "
+"of the ``*.sdk`` images. However, you need to create some scripts prior "
+"to attempting to build the out-of-tree modules on the target that is "
+"running that image."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1551
+msgid ""
+"Prior to attempting to build the out-of-tree modules, you need to be on "
+"the target as root and you need to change to the ``/usr/src/kernel`` "
+"directory. Next, ``make`` the scripts:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1560
+msgid ""
+"Because all SDK image recipes include ``dev-pkgs``, the ``kernel-dev`` "
+"packages will be installed as part of the SDK image and the ``kernel-"
+"devsrc`` packages will be installed as part of applicable SDK images. The"
+" SDK uses the scripts when building out-of-tree modules. Once you have "
+"switched to that directory and created the scripts, you should be able to"
+" build your out-of-tree modules on the target."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1568
+msgid "Incorporating Out-of-Tree Modules"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1570
+msgid ""
+"While it is always preferable to work with sources integrated into the "
+"Linux kernel sources, if you need an external kernel module, the :oe_git"
+":`hello-mod </openembedded-core/tree/meta-skeleton/recipes-kernel/hello-"
+"mod/>` recipe is available as a template from which you can create your "
+"own out-of-tree Linux kernel module recipe."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1576
+msgid ""
+"To get started, copy this recipe to your layer and give it a meaningful "
+"name (e.g. ``mymodule_1.0.bb``). In the same directory, create a new "
+"directory named ``files`` where you can store any source files, patches, "
+"or other files necessary for building the module that do not come with "
+"the sources. Finally, update the recipe as needed for the module. "
+"Typically, you will need to set the following variables:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1583
+msgid ":term:`DESCRIPTION`"
+msgstr ":term:`DESCRIPTION`"
+
+#: ../../kernel-dev/common.rst:1585
+msgid ":term:`LICENSE* <LICENSE>`"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1587
+msgid ":term:`SRC_URI`"
+msgstr ":term:`SRC_URI`"
+
+#: ../../kernel-dev/common.rst:1589
+msgid ":term:`PV`"
+msgstr ":term:`PV`"
+
+#: ../../kernel-dev/common.rst:1591
+msgid ""
+"Depending on the build system used by the module sources, you might need "
+"to make some adjustments. For example, a typical module ``Makefile`` "
+"looks much like the one provided with the ``hello-mod`` template::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1606
+#, python-brace-format
+msgid ""
+"The important point to note here is the :term:`KERNEL_SRC` variable. The "
+":ref:`ref-classes-module` class sets this variable and the "
+":term:`KERNEL_PATH` variable to ``${STAGING_KERNEL_DIR}`` with the "
+"necessary Linux kernel build information to build modules. If your module"
+" ``Makefile`` uses a different variable, you might want to override the "
+":ref:`ref-tasks-compile` step, or create a patch to the ``Makefile`` to "
+"work with the more typical :term:`KERNEL_SRC` or :term:`KERNEL_PATH` "
+"variables."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1614
+msgid ""
+"After you have prepared your recipe, you will likely want to include the "
+"module in your images. To do this, see the documentation for the "
+"following variables in the Yocto Project Reference Manual and set one of "
+"them appropriately for your machine configuration file:"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1619
+msgid ":term:`MACHINE_ESSENTIAL_EXTRA_RDEPENDS`"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1621
+msgid ":term:`MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS`"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1623
+msgid ":term:`MACHINE_EXTRA_RDEPENDS`"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1625
+msgid ":term:`MACHINE_EXTRA_RRECOMMENDS`"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1627
+msgid ""
+"Modules are often not required for boot and can be excluded from certain "
+"build configurations. The following allows for the most flexibility::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1632
+msgid ""
+"The value is derived by appending the module filename without the ``.ko``"
+" extension to the string \"kernel-module-\"."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1636
+msgid ""
+"Because the variable is :term:`RRECOMMENDS` and not a :term:`RDEPENDS` "
+"variable, the build will not fail if this module is not available to "
+"include in the image."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1642
+msgid "Inspecting Changes and Commits"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1644
+msgid ""
+"A common question when working with a kernel is: \"What changes have been"
+" applied to this tree?\" Rather than using \"grep\" across directories to"
+" see what has changed, you can use Git to inspect or search the kernel "
+"tree. Using Git is an efficient way to see what has changed in the tree."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1650
+msgid "What Changed in a Kernel?"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1652
+msgid ""
+"Here are a few examples that show how to use Git commands to examine "
+"changes. These examples are by no means the only way to see changes."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1658
+msgid ""
+"In the following examples, unless you provide a commit range, "
+"``kernel.org`` history is blended with Yocto Project kernel changes. You "
+"can form ranges by using branch names from the kernel tree as the upper "
+"and lower commit markers with the Git commands. You can see the branch "
+"names through the web interface to the Yocto Project source repositories "
+"at :yocto_git:`/`."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1665
+msgid ""
+"To see a full range of the changes, use the ``git whatchanged`` command "
+"and specify a commit range for the branch (`commit`\\ ``..``\\ `commit`)."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1668
+msgid ""
+"Here is an example that looks at what has changed in the ``emenlow`` "
+"branch of the ``linux-yocto-3.19`` kernel. The lower commit range is the "
+"commit associated with the ``standard/base`` branch, while the upper "
+"commit range is the commit associated with the ``standard/emenlow`` "
+"branch::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1676
+msgid "To see short, one line summaries of changes use the ``git log`` command::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1680
+msgid "Use this command to see code differences for the changes::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1684
+msgid "Use this command to see the commit log messages and the text differences::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1689
+msgid ""
+"Use this command to create individual patches for each change. Here is an"
+" example that creates patch files for each commit and places them in your"
+" ``Documents`` directory::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1696
+msgid "Showing a Particular Feature or Branch Change"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1698
+msgid ""
+"Tags in the Yocto Project kernel tree divide changes for significant "
+"features or branches. The ``git show`` tag command shows changes based on"
+" a tag. Here is an example that shows ``systemtap`` changes::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1704
+msgid ""
+"You can use the ``git branch --contains`` tag command to show the "
+"branches that contain a particular feature. This command shows the "
+"branches that contain the ``systemtap`` feature::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1711
+msgid "Adding Recipe-Space Kernel Features"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1713
+msgid ""
+"You can add kernel features in the :ref:`recipe-space <kernel-"
+"dev/advanced:recipe-space metadata>` by using the :term:`KERNEL_FEATURES`"
+" variable and by specifying the feature's ``.scc`` file path in the "
+":term:`SRC_URI` statement. When you add features using this method, the "
+"OpenEmbedded build system checks to be sure the features are present. If "
+"the features are not present, the build stops. Kernel features are the "
+"last elements processed for configuring and patching the kernel. "
+"Therefore, adding features in this manner is a way to enforce specific "
+"features are present and enabled without needing to do a full audit of "
+"any other layer's additions to the :term:`SRC_URI` statement."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1726
+msgid ""
+"You add a kernel feature by providing the feature as part of the "
+":term:`KERNEL_FEATURES` variable and by providing the path to the "
+"feature's ``.scc`` file, which is relative to the root of the kernel "
+"Metadata. The OpenEmbedded build system searches all forms of kernel "
+"Metadata on the :term:`SRC_URI` statement regardless of whether the "
+"Metadata is in the \"kernel-cache\", system kernel Metadata, or a recipe-"
+"space Metadata (i.e. part of the kernel recipe). See the \":ref:`kernel-"
+"dev/advanced:kernel metadata location`\" section for additional "
+"information."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1736
+msgid ""
+"When you specify the feature's ``.scc`` file on the :term:`SRC_URI` "
+"statement, the OpenEmbedded build system adds the directory of that "
+"``.scc`` file along with all its subdirectories to the kernel feature "
+"search path. Because subdirectories are searched, you can reference a "
+"single ``.scc`` file in the :term:`SRC_URI` statement to reference "
+"multiple kernel features."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1743
+msgid ""
+"Consider the following example that adds the \"test.scc\" feature to the "
+"build."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1746
+msgid ""
+"*Create the Feature File:* Create a ``.scc`` file and locate it just as "
+"you would any other patch file, ``.cfg`` file, or fetcher item you "
+"specify in the :term:`SRC_URI` statement."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1752
+msgid ""
+"You must add the directory of the ``.scc`` file to the fetcher's search "
+"path in the same manner as you would add a ``.patch`` file."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1756
+msgid ""
+"You can create additional ``.scc`` files beneath the directory that "
+"contains the file you are adding. All subdirectories are searched during "
+"the build as potential feature directories."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1760
+msgid ""
+"Continuing with the example, suppose the \"test.scc\" feature you are "
+"adding has a ``test.scc`` file in the following directory::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1770
+msgid ""
+"In this example, the ``linux-yocto`` directory has both the feature "
+"``test.scc`` file and a similarly named configuration fragment file "
+"``test.cfg``."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1774
+msgid ""
+"*Add the Feature File to SRC_URI:* Add the ``.scc`` file to the recipe's "
+":term:`SRC_URI` statement::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1779
+msgid ""
+"The leading space before the path is important as the path is appended to"
+" the existing path."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1782
+msgid ""
+"*Specify the Feature as a Kernel Feature:* Use the "
+":term:`KERNEL_FEATURES` statement to specify the feature as a kernel "
+"feature::"
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1788
+msgid ""
+"The OpenEmbedded build system processes the kernel feature when it builds"
+" the kernel."
+msgstr ""
+
+#: ../../kernel-dev/common.rst:1793
+msgid ""
+"If other features are contained below \"test.scc\", then their "
+"directories are relative to the directory containing the ``test.scc`` "
+"file."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:5
+msgid "Advanced Kernel Concepts"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:8
+msgid "Yocto Project Kernel Development and Maintenance"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:10
+msgid ""
+"Kernels available through the Yocto Project (Yocto Linux kernels), like "
+"other kernels, are based off the Linux kernel releases from "
+"https://www.kernel.org. At the beginning of a major Linux kernel "
+"development cycle, the Yocto Project team chooses a Linux kernel based on"
+" factors such as release timing, the anticipated release timing of final "
+"upstream ``kernel.org`` versions, and Yocto Project feature requirements."
+" Typically, the Linux kernel chosen is in the final stages of development"
+" by the Linux community. In other words, the Linux kernel is in the "
+"release candidate or \"rc\" phase and has yet to reach final release. "
+"But, by being in the final stages of external development, the team knows"
+" that the ``kernel.org`` final release will clearly be within the early "
+"stages of the Yocto Project development window."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:23
+msgid ""
+"This balance allows the Yocto Project team to deliver the most up-to-date"
+" Yocto Linux kernel possible, while still ensuring that the team has a "
+"stable official release for the baseline Linux kernel version."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:28
+msgid ""
+"As implied earlier, the ultimate source for Yocto Linux kernels are "
+"released kernels from ``kernel.org``. In addition to a foundational "
+"kernel from ``kernel.org``, the available Yocto Linux kernels contain a "
+"mix of important new mainline developments, non-mainline developments "
+"(when no alternative exists), Board Support Package (BSP) developments, "
+"and custom features. These additions result in a commercially released "
+"Yocto Project Linux kernel that caters to specific embedded designer "
+"needs for targeted hardware."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:37
+msgid ""
+"You can find a web interface to the Yocto Linux kernels in the :ref"
+":`overview-manual/development-environment:yocto project source "
+"repositories` at :yocto_git:`/`. If you look at the interface, you will "
+"see to the left a grouping of Git repositories titled \"Yocto Linux "
+"Kernel\". Within this group, you will find several Linux Yocto kernels "
+"developed and included with Yocto Project releases:"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:44
+msgid ""
+"*linux-yocto-4.1:* The stable Yocto Project kernel to use with the Yocto "
+"Project Release 2.0. This kernel is based on the Linux 4.1 released "
+"kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:48
+msgid ""
+"*linux-yocto-4.4:* The stable Yocto Project kernel to use with the Yocto "
+"Project Release 2.1. This kernel is based on the Linux 4.4 released "
+"kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:52
+msgid ""
+"*linux-yocto-4.6:* A temporary kernel that is not tied to any Yocto "
+"Project release."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:55
+msgid ""
+"*linux-yocto-4.8:* The stable yocto Project kernel to use with the Yocto "
+"Project Release 2.2."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:58
+msgid ""
+"*linux-yocto-4.9:* The stable Yocto Project kernel to use with the Yocto "
+"Project Release 2.3. This kernel is based on the Linux 4.9 released "
+"kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:62
+msgid ""
+"*linux-yocto-4.10:* The default stable Yocto Project kernel to use with "
+"the Yocto Project Release 2.3. This kernel is based on the Linux 4.10 "
+"released kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:66
+msgid ""
+"*linux-yocto-4.12:* The default stable Yocto Project kernel to use with "
+"the Yocto Project Release 2.4. This kernel is based on the Linux 4.12 "
+"released kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:70
+msgid ""
+"*yocto-kernel-cache:* The ``linux-yocto-cache`` contains patches and "
+"configurations for the linux-yocto kernel tree. This repository is useful"
+" when working on the linux-yocto kernel. For more information on this "
+"\"Advanced Kernel Metadata\", see the \":doc:`/kernel-dev/advanced`\" "
+"Chapter."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:76
+msgid ""
+"*linux-yocto-dev:* A development kernel based on the latest upstream "
+"release candidate available."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:79
+msgid ""
+"Once a Yocto Linux kernel is officially released, the Yocto Project team "
+"goes into their next development cycle, or upward revision (uprev) cycle,"
+" while still continuing maintenance on the released kernel. It is "
+"important to note that the most sustainable and stable way to include "
+"feature development upstream is through a kernel uprev process. Back-"
+"porting hundreds of individual fixes and minor features from various "
+"kernel versions is not sustainable and can easily compromise quality."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:88
+msgid ""
+"During the uprev cycle, the Yocto Project team uses an ongoing analysis "
+"of Linux kernel development, BSP support, and release timing to select "
+"the best possible ``kernel.org`` Linux kernel version on which to base "
+"subsequent Yocto Linux kernel development. The team continually monitors "
+"Linux community kernel development to look for significant features of "
+"interest. The team does consider back-porting large features if they have"
+" a significant advantage. User or community demand can also trigger a "
+"back-port or creation of new functionality in the Yocto Project baseline "
+"kernel during the uprev cycle."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:98
+msgid ""
+"Generally speaking, every new Linux kernel both adds features and "
+"introduces new bugs. These consequences are the basic properties of "
+"upstream Linux kernel development and are managed by the Yocto Project "
+"team's Yocto Linux kernel development strategy. It is the Yocto Project "
+"team's policy to not back-port minor features to the released Yocto Linux"
+" kernel. They only consider back-porting significant technological jumps "
+"--- and, that is done after a complete gap analysis. The reason for this "
+"policy is that back-porting any small to medium sized change from an "
+"evolving Linux kernel can easily create mismatches, incompatibilities and"
+" very subtle errors."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:109
+msgid ""
+"The policies described in this section result in both a stable and a "
+"cutting edge Yocto Linux kernel that mixes forward ports of existing "
+"Linux kernel features and significant and critical new functionality. "
+"Forward porting Linux kernel functionality into the Yocto Linux kernels "
+"available through the Yocto Project can be thought of as a \"micro "
+"uprev\". The many \"micro uprevs\" produce a Yocto Linux kernel version "
+"with a mix of important new mainline, non-mainline, BSP developments and "
+"feature integrations. This Yocto Linux kernel gives insight into new "
+"features and allows focused amounts of testing to be done on the kernel, "
+"which prevents surprises when selecting the next major uprev. The quality"
+" of these cutting edge Yocto Linux kernels is evolving and the kernels "
+"are used in leading edge feature and BSP development."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:123
+msgid "Yocto Linux Kernel Architecture and Branching Strategies"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:125
+msgid ""
+"As mentioned earlier, a key goal of the Yocto Project is to present the "
+"developer with a kernel that has a clear and continuous history that is "
+"visible to the user. The architecture and mechanisms, in particular the "
+"branching strategies, used achieve that goal in a manner similar to "
+"upstream Linux kernel development in ``kernel.org``."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:131
+msgid ""
+"You can think of a Yocto Linux kernel as consisting of a baseline Linux "
+"kernel with added features logically structured on top of the baseline. "
+"The features are tagged and organized by way of a branching strategy "
+"implemented by the Yocto Project team using the Source Code Manager (SCM)"
+" Git."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:139
+msgid ""
+"Git is the obvious SCM for meeting the Yocto Linux kernel organizational "
+"and structural goals described in this section. Not only is Git the SCM "
+"for Linux kernel development in ``kernel.org`` but, Git continues to grow"
+" in popularity and supports many different work flows, front-ends and "
+"management techniques."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:145
+msgid ""
+"You can find documentation on Git at https://git-scm.com/doc. You can "
+"also get an introduction to Git as it applies to the Yocto Project in the"
+" \":ref:`overview-manual/development-environment:git`\" section in the "
+"Yocto Project Overview and Concepts Manual. The latter reference provides"
+" an overview of Git and presents a minimal set of Git commands that "
+"allows you to be functional using Git. You can use as much, or as little,"
+" of what Git has to offer to accomplish what you need for your project. "
+"You do not have to be a \"Git Expert\" in order to use it with the Yocto "
+"Project."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:155
+msgid ""
+"Using Git's tagging and branching features, the Yocto Project team "
+"creates kernel branches at points where functionality is no longer shared"
+" and thus, needs to be isolated. For example, board-specific "
+"incompatibilities would require different functionality and would require"
+" a branch to separate the features. Likewise, for specific kernel "
+"features, the same branching strategy is used."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:162
+msgid ""
+"This \"tree-like\" architecture results in a structure that has features "
+"organized to be specific for particular functionality, single kernel "
+"types, or a subset of kernel types. Thus, the user has the ability to see"
+" the added features and the commits that make up those features. In "
+"addition to being able to see added features, the user can also view the "
+"history of what made up the baseline Linux kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:169
+msgid ""
+"Another consequence of this strategy results in not having to store the "
+"same feature twice internally in the tree. Rather, the kernel team stores"
+" the unique differences required to apply the feature onto the kernel "
+"type in question."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:176
+msgid ""
+"The Yocto Project team strives to place features in the tree such that "
+"features can be shared by all boards and kernel types where possible. "
+"However, during development cycles or when large features are merged, the"
+" team cannot always follow this practice. In those cases, the team uses "
+"isolated branches to merge features."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:182
+msgid ""
+"BSP-specific code additions are handled in a similar manner to kernel-"
+"specific additions. Some BSPs only make sense given certain kernel types."
+" So, for these types, the team creates branches off the end of that "
+"kernel type for all of the BSPs that are supported on that kernel type. "
+"From the perspective of the tools that create the BSP branch, the BSP is "
+"really no different than a feature. Consequently, the same branching "
+"strategy applies to BSPs as it does to kernel features. So again, rather "
+"than store the BSP twice, the team only stores the unique differences for"
+" the BSP across the supported multiple kernels."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:192
+msgid ""
+"While this strategy can result in a tree with a significant number of "
+"branches, it is important to realize that from the developer's point of "
+"view, there is a linear path that travels from the baseline "
+"``kernel.org``, through a select group of features and ends with their "
+"BSP-specific commits. In other words, the divisions of the kernel are "
+"transparent and are not relevant to the developer on a day-to-day basis. "
+"From the developer's perspective, this path is the development branch. "
+"The developer does not need to be aware of the existence of any other "
+"branches at all. Of course, it can make sense to have these branches in "
+"the tree, should a person decide to explore them. For example, a "
+"comparison between two BSPs at either the commit level or at the line-by-"
+"line code ``diff`` level is now a trivial operation."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:205
+msgid "The following illustration shows the conceptual Yocto Linux kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:210
+msgid ""
+"In the illustration, the \"Kernel.org Branch Point\" marks the specific "
+"spot (or Linux kernel release) from which the Yocto Linux kernel is "
+"created. From this point forward in the tree, features and differences "
+"are organized and tagged."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:215
+msgid ""
+"The \"Yocto Project Baseline Kernel\" contains functionality that is "
+"common to every kernel type and BSP that is organized further along in "
+"the tree. Placing these common features in the tree this way means "
+"features do not have to be duplicated along individual branches of the "
+"tree structure."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:221
+msgid ""
+"From the \"Yocto Project Baseline Kernel\", branch points represent "
+"specific functionality for individual Board Support Packages (BSPs) as "
+"well as real-time kernels. The illustration represents this through three"
+" BSP-specific branches and a real-time kernel branch. Each branch "
+"represents some unique functionality for the BSP or for a real-time Yocto"
+" Linux kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:228
+msgid ""
+"In this example structure, the \"Real-time (rt) Kernel\" branch has "
+"common features for all real-time Yocto Linux kernels and contains more "
+"branches for individual BSP-specific real-time kernels. The illustration "
+"shows three branches as an example. Each branch points the way to "
+"specific, unique features for a respective real-time kernel as they apply"
+" to a given BSP."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:235
+msgid ""
+"The resulting tree structure presents a clear path of markers (or "
+"branches) to the developer that, for all practical purposes, is the Yocto"
+" Linux kernel needed for any given set of requirements."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:241
+msgid ""
+"Keep in mind the figure does not take into account all the supported "
+"Yocto Linux kernels, but rather shows a single generic kernel just for "
+"conceptual purposes. Also keep in mind that this structure represents the"
+" :ref:`overview-manual/development-environment:yocto project source "
+"repositories` that are either pulled from during the build or established"
+" on the host development system prior to the build by either cloning a "
+"particular kernel's Git repository or by downloading and unpacking a "
+"tarball."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:251
+msgid ""
+"Working with the kernel as a structured tree follows recognized community"
+" best practices. In particular, the kernel as shipped with the product, "
+"should be considered an \"upstream source\" and viewed as a series of "
+"historical and documented modifications (commits). These modifications "
+"represent the development and stabilization done by the Yocto Project "
+"kernel development team."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:258
+msgid ""
+"Because commits only change at significant release points in the product "
+"life cycle, developers can work on a branch created from the last "
+"relevant commit in the shipped Yocto Project Linux kernel. As mentioned "
+"previously, the structure is transparent to the developer because the "
+"kernel tree is left in this state after cloning and building the kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:265
+msgid "Kernel Build File Hierarchy"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:267
+msgid ""
+"Upstream storage of all the available kernel source code is one thing, "
+"while representing and using the code on your host development system is "
+"another. Conceptually, you can think of the kernel source repositories as"
+" all the source files necessary for all the supported Yocto Linux "
+"kernels. As a developer, you are just interested in the source files for "
+"the kernel on which you are working. And, furthermore, you need them "
+"available on your host system."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:275
+msgid ""
+"Kernel source code is available on your host system several different "
+"ways:"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:278
+msgid ""
+"*Files Accessed While using devtool:* ``devtool``, which is available "
+"with the Yocto Project, is the preferred method by which to modify the "
+"kernel. See the \":ref:`kernel-dev/intro:kernel modification workflow`\" "
+"section."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:282
+msgid ""
+"*Cloned Repository:* If you are working in the kernel all the time, you "
+"probably would want to set up your own local Git repository of the Yocto "
+"Linux kernel tree. For information on how to clone a Yocto Linux kernel "
+"Git repository, see the \":ref:`kernel-dev/common:preparing the build "
+"host to work on the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:289
+msgid ""
+"*Temporary Source Files from a Build:* If you just need to make some "
+"patches to the kernel using a traditional BitBake workflow (i.e. not "
+"using the ``devtool``), you can access temporary kernel source files that"
+" were extracted and used during a kernel build."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:294
+msgid ""
+"The temporary kernel source files resulting from a build using BitBake "
+"have a particular hierarchy. When you build the kernel on your "
+"development system, all files needed for the build are taken from the "
+"source repositories pointed to by the :term:`SRC_URI` variable and "
+"gathered in a temporary work area where they are subsequently used to "
+"create the unique kernel. Thus, in a sense, the process constructs a "
+"local source tree specific to your kernel from which to generate the new "
+"kernel image."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:304
+msgid ""
+"The following figure shows the temporary file structure created on your "
+"host system when you build the kernel using BitBake. This :term:`Build "
+"Directory` contains all the source files used during the build."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:312
+msgid ""
+"Again, for additional information on the Yocto Project kernel's "
+"architecture and its branching strategy, see the \":ref:`kernel-dev"
+"/concepts-appx:yocto linux kernel architecture and branching "
+"strategies`\" section. You can also reference the \":ref:`kernel-"
+"dev/common:using \\`\\`devtool\\`\\` to patch the kernel`\" and \":ref"
+":`kernel-dev/common:using traditional kernel development to patch the "
+"kernel`\" sections for detailed example that modifies the kernel."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:322
+msgid ""
+"Determining Hardware and Non-Hardware Features for the Kernel "
+"Configuration Audit Phase"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:324
+msgid ""
+"This section describes part of the kernel configuration audit phase that "
+"most developers can ignore. For general information on kernel "
+"configuration including ``menuconfig``, ``defconfig`` files, and "
+"configuration fragments, see the \":ref:`kernel-dev/common:configuring "
+"the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:330
+msgid ""
+"During this part of the audit phase, the contents of the final "
+"``.config`` file are compared against the fragments specified by the "
+"system. These fragments can be system fragments, distro fragments, or "
+"user-specified configuration elements. Regardless of their origin, the "
+"OpenEmbedded build system warns the user if a specific option is not "
+"included in the final kernel configuration."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:337
+msgid ""
+"By default, in order to not overwhelm the user with configuration "
+"warnings, the system only reports missing \"hardware\" options as they "
+"could result in a boot failure or indicate that important hardware is not"
+" available."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:342
+msgid ""
+"To determine whether or not a given option is \"hardware\" or \"non-"
+"hardware\", the kernel Metadata in ``yocto-kernel-cache`` contains files "
+"that classify individual or groups of options as either hardware or non-"
+"hardware. To better show this, consider a situation where the ``yocto-"
+"kernel-cache`` contains the following files::"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:366
+msgid "Here are explanations for the various files:"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:368
+msgid ""
+"``hardware.kcf``: Specifies a list of kernel Kconfig files that contain "
+"hardware options only."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:371
+msgid ""
+"``non-hardware.kcf``: Specifies a list of kernel Kconfig files that "
+"contain non-hardware options only."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:374
+msgid ""
+"``hardware.cfg``: Specifies a list of kernel ``CONFIG_`` options that are"
+" hardware, regardless of whether or not they are within a Kconfig file "
+"specified by a hardware or non-hardware Kconfig file (i.e. "
+"``hardware.kcf`` or ``non-hardware.kcf``)."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:379
+msgid ""
+"``non-hardware.cfg``: Specifies a list of kernel ``CONFIG_`` options that"
+" are not hardware, regardless of whether or not they are within a Kconfig"
+" file specified by a hardware or non-hardware Kconfig file (i.e. "
+"``hardware.kcf`` or ``non-hardware.kcf``)."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:384
+msgid ""
+"Here is a specific example using the ``kernel-cache/bsp/mti-"
+"malta32/hardware.cfg``::"
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:395
+msgid ""
+"The kernel configuration audit automatically detects these files (hence "
+"the names must be exactly the ones discussed here), and uses them as "
+"inputs when generating warnings about the final ``.config`` file."
+msgstr ""
+
+#: ../../kernel-dev/concepts-appx.rst:400
+msgid ""
+"A user-specified kernel Metadata repository, or recipe space feature, can"
+" use these same files to classify options that are found within its "
+"``.cfg`` files as hardware or non-hardware, to prevent the OpenEmbedded "
+"build system from producing an error or warning when an option is not in "
+"the final ``.config`` file."
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:5
+msgid "Kernel Development FAQ"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:8
+msgid "Common Questions and Solutions"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:10
+msgid "Here are some solutions for common questions."
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:13
+msgid "How do I use my own Linux kernel ``.config`` file?"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:15
+msgid ""
+"Refer to the \":ref:`kernel-dev/common:changing the configuration`\" "
+"section for information."
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:20
+msgid "How do I create configuration fragments?"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:22
+msgid ""
+"A: Refer to the \":ref:`kernel-dev/common:creating configuration "
+"fragments`\" section for information."
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:27
+msgid "How do I use my own Linux kernel sources?"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:29
+msgid ""
+"Refer to the \":ref:`kernel-dev/common:working with your own sources`\" "
+"section for information."
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:34
+msgid "How do I install/not-install the kernel image on the root filesystem?"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:36
+#, python-brace-format
+msgid ""
+"The kernel image (e.g. ``vmlinuz``) is provided by the ``kernel-image`` "
+"package. Image recipes depend on ``kernel-base``. To specify whether or "
+"not the kernel image is installed in the generated root filesystem, "
+"override ``RRECOMMENDS:${KERNEL_PACKAGE_NAME}-base`` to include or not "
+"include \"kernel-image\". See the \":ref:`dev-manual/layers:appending "
+"other layers metadata with your layer`\" section in the Yocto Project "
+"Development Tasks Manual for information on how to use an append file to "
+"override metadata."
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:47
+msgid "How do I install a specific kernel module?"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:49
+msgid ""
+"Linux kernel modules are packaged individually. To ensure a specific "
+"kernel module is included in an image, include it in the appropriate "
+"machine :term:`RRECOMMENDS` variable. These other variables are useful "
+"for installing specific modules: - "
+":term:`MACHINE_ESSENTIAL_EXTRA_RDEPENDS` - "
+":term:`MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS` - "
+":term:`MACHINE_EXTRA_RDEPENDS` - :term:`MACHINE_EXTRA_RRECOMMENDS`"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:58
+msgid ""
+"For example, set the following in the ``qemux86.conf`` file to include "
+"the ``ab123`` kernel modules with images built for the ``qemux86`` "
+"machine::"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:64
+msgid ""
+"For more information, see the \":ref:`kernel-dev/common:incorporating "
+"out-of-tree modules`\" section."
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:68
+msgid "How do I change the Linux kernel command line?"
+msgstr ""
+
+#: ../../kernel-dev/faq.rst:70
+msgid ""
+"The Linux kernel command line is typically specified in the machine "
+"config using the :term:`APPEND` variable. For example, you can add some "
+"helpful debug information doing the following::"
+msgstr ""
+
+#: ../../kernel-dev/index.rst:9
+msgid "Table of Contents"
+msgstr "Sommario"
+
+#: ../../kernel-dev/index.rst:5
+msgid "Yocto Project Linux Kernel Development Manual"
+msgstr "Manuale di Sviluppo del Kernel Linux di Yocto Project"
+
+#: ../../boilerplate.rst:8
+msgid "|project_name|"
+msgstr "|project_name|"
+
+#: ../../boilerplate.rst:9
+msgid "<docs@lists.yoctoproject.org>"
+msgstr "<docs@lists.yoctoproject.org>"
+
+#: ../../boilerplate.rst:11
+msgid ""
+"Permission is granted to copy, distribute and/or modify this document "
+"under the terms of the `Creative Commons Attribution-Share Alike 2.0 UK: "
+"England & Wales <https://creativecommons.org/licenses/by-sa/2.0/uk/>`__ "
+"as published by Creative Commons."
+msgstr "È consentito copiare, distribuire e/o modificare questo documento secondo i termini della licenza `Creative Commons Attribution-Share Alike 2.0 UK: England & Wales <https://creativecommons.org/licenses/by-sa/2.0/uk/>`__ pubblicata da Creative Commons."
+
+#: ../../boilerplate.rst:16
+msgid ""
+"To report any inaccuracies or problems with this (or any other Yocto "
+"Project) manual, or to send additions or changes, please send "
+"email/patches to the Yocto Project documentation mailing list at "
+"``docs@lists.yoctoproject.org`` or log into the `Libera Chat "
+"<https://libera.chat/>`__ ``#yocto`` channel."
+msgstr "Per segnalare eventuali inesattezze o problemi con questo manuale (o con qualsiasi altro manuale di Yocto Project), o per inviare aggiunte o modifiche, si prega di inviare un'e-mail/patch alla mailing list della documentazione di Yocto Project all'indirizzo ``docs@lists.yoctoproject.org`` o di accedere su `Libera Chat <https://libera.chat/>`__ al canale ``#yocto``."
+
+#: ../../kernel-dev/intro.rst:5
+msgid "Introduction"
+msgstr "Introduzione"
+
+#: ../../kernel-dev/intro.rst:10
+msgid ""
+"Regardless of how you intend to make use of the Yocto Project, chances "
+"are you will work with the Linux kernel. This manual covers the "
+"following:"
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:13
+msgid "how to set up your build host to support kernel development"
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:15
+msgid "coverage of the kernel development process"
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:17
+msgid "background information on the Yocto Linux kernel :term:`Metadata`"
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:19
+msgid "common tasks you can perform using the kernel tools"
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:21
+msgid ""
+"how to use the kernel Metadata needed to work with the kernel inside the "
+"Yocto Project"
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:24
+msgid ""
+"details on how the Yocto Project team develops and maintains Yocto Linux "
+"kernel Git repositories and Metadata."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:27
+msgid ""
+"Each Yocto Project release has a set of Yocto Linux kernel recipes, whose"
+" Git repositories you can view in the Yocto :yocto_git:`Source "
+"Repositories <>` under the \"Yocto Linux Kernel\" heading. New recipes "
+"for the release track the latest Linux kernel upstream developments from "
+"https://www.kernel.org and introduce newly-supported platforms. Previous "
+"recipes in the release are refreshed and supported for at least one "
+"additional Yocto Project release."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:35
+msgid ""
+"Also included is a Yocto Linux kernel development recipe (``linux-yocto-"
+"dev.bb``) should you want to work with the very latest in upstream Yocto "
+"Linux kernel development and kernel Metadata development."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:41
+msgid ""
+"For more on Yocto Linux kernels, see the \":ref:`kernel-dev/concepts-"
+"appx:yocto project kernel development and maintenance`\" section."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:45
+msgid ""
+"The Yocto Project also provides a powerful set of kernel tools for "
+"managing Yocto Linux kernel sources and configuration data. You can use "
+"these tools to make a single configuration change, apply multiple "
+"patches, or work with your own kernel sources."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:50
+msgid ""
+"In particular, the kernel tools allow you to generate configuration "
+"fragments that specify only what you must, and nothing more. "
+"Configuration fragments only need to contain the highest level visible "
+"``CONFIG`` options as presented by the Yocto Linux kernel ``menuconfig`` "
+"system. Contrast this against a complete Yocto Linux kernel ``.config`` "
+"file, which includes all the automatically selected ``CONFIG`` options. "
+"This efficiency reduces your maintenance effort and allows you to further"
+" separate your configuration in ways that make sense for your project. A "
+"common split separates policy and hardware. For example, all your kernels"
+" might support the ``proc`` and ``sys`` filesystems, but only specific "
+"boards require sound, USB, or specific drivers. Specifying these "
+"configurations individually allows you to aggregate them together as "
+"needed, but maintains them in only one place. Similar logic applies to "
+"separating source changes."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:65
+msgid ""
+"If you do not maintain your own kernel sources and need to make only "
+"minimal changes to the sources, the released recipes provide a vetted "
+"base upon which to layer your changes. Doing so allows you to benefit "
+"from the continual kernel integration and testing performed during "
+"development of the Yocto Project."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:71
+msgid ""
+"If, instead, you have a very specific Linux kernel source tree and are "
+"unable to align with one of the official Yocto Linux kernel recipes, you "
+"have a way to use the Yocto Project Linux kernel tools with your own "
+"kernel sources."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:76
+msgid ""
+"The remainder of this manual provides instructions for completing "
+"specific Linux kernel development tasks. These instructions assume you "
+"are comfortable working with :oe_wiki:`BitBake </Bitbake>` recipes and "
+"basic open-source development tools. Understanding these concepts will "
+"facilitate the process of working with the kernel recipes. If you find "
+"you need some additional background, please be sure to review and "
+"understand the following documentation:"
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:84
+msgid ":doc:`/brief-yoctoprojectqs/index` document."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:86
+msgid ":doc:`/overview-manual/index`."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:88
+msgid ""
+":ref:`devtool workflow <sdk-manual/extensible:using \\`\\`devtool\\`\\` "
+"in your sdk workflow>` as described in the Yocto Project Application "
+"Development and the Extensible Software Development Kit (eSDK) manual."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:93
+msgid ""
+"The \":ref:`dev-manual/layers:understanding and creating layers`\" "
+"section in the Yocto Project Development Tasks Manual."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:96
+msgid "The \":ref:`kernel-dev/intro:kernel modification workflow`\" section."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:99
+msgid "Kernel Modification Workflow"
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:101
+msgid ""
+"Kernel modification involves changing the Yocto Project kernel, which "
+"could involve changing configuration options as well as adding new kernel"
+" recipes. Configuration changes can be added in the form of configuration"
+" fragments, while recipe modification comes through the kernel's "
+"``recipes-kernel`` area in a kernel layer you create."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:107
+msgid ""
+"This section presents a high-level overview of the Yocto Project kernel "
+"modification workflow. The illustration and accompanying list provide "
+"general information and references for further information."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:114
+msgid ""
+"*Set up Your Host Development System to Support Development Using the "
+"Yocto Project*: See the \":doc:`/dev-manual/start`\" section in the Yocto"
+" Project Development Tasks Manual for options on how to get a build host "
+"ready to use the Yocto Project."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:119
+msgid ""
+"*Set Up Your Host Development System for Kernel Development:* It is "
+"recommended that you use ``devtool`` for kernel development. "
+"Alternatively, you can use traditional kernel development methods with "
+"the Yocto Project. Either way, there are steps you need to take to get "
+"the development environment ready."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:125
+msgid ""
+"Using ``devtool`` requires that you have a clean build of the image. For "
+"more information, see the \":ref:`kernel-dev/common:getting ready to "
+"develop using ``devtool```\" section."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:131
+msgid ""
+"Using traditional kernel development requires that you have the kernel "
+"source available in an isolated local Git repository. For more "
+"information, see the \":ref:`kernel-dev/common:getting ready for "
+"traditional kernel development`\" section."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:137
+msgid ""
+"*Make Changes to the Kernel Source Code if applicable:* Modifying the "
+"kernel does not always mean directly changing source files. However, if "
+"you have to do this, you make the changes to the files in the Yocto's "
+":term:`Build Directory` if you are using ``devtool``. For more "
+"information, see the \":ref:`kernel-dev/common:using \\`\\`devtool\\`\\` "
+"to patch the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:145
+msgid ""
+"If you are using traditional kernel development, you edit the source "
+"files in the kernel's local Git repository. For more information, see the"
+" \":ref:`kernel-dev/common:using traditional kernel development to patch "
+"the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:150
+msgid ""
+"*Make Kernel Configuration Changes if Applicable:* If your situation "
+"calls for changing the kernel's configuration, you can use "
+":ref:`menuconfig <kernel-dev/common:using \\`\\`menuconfig\\`\\`>`, which"
+" allows you to interactively develop and test the configuration changes "
+"you are making to the kernel. Saving changes you make with ``menuconfig``"
+" updates the kernel's ``.config`` file."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:160
+msgid ""
+"Try to resist the temptation to directly edit an existing ``.config`` "
+"file, which is found in the :term:`Build Directory` among the source code"
+" used for the build. Doing so, can produce unexpected results when the "
+"OpenEmbedded build system regenerates the configuration file."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:165
+msgid ""
+"Once you are satisfied with the configuration changes made using "
+"``menuconfig`` and you have saved them, you can directly compare the "
+"resulting ``.config`` file against an existing original and gather those "
+"changes into a :ref:`configuration fragment file <kernel-"
+"dev/common:creating configuration fragments>` to be referenced from "
+"within the kernel's ``.bbappend`` file."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:172
+msgid ""
+"Additionally, if you are working in a BSP layer and need to modify the "
+"BSP's kernel's configuration, you can use ``menuconfig``."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:175
+msgid ""
+"*Rebuild the Kernel Image With Your Changes:* Rebuilding the kernel image"
+" applies your changes. Depending on your target hardware, you can verify "
+"your changes on actual hardware or perhaps QEMU."
+msgstr ""
+
+#: ../../kernel-dev/intro.rst:179
+msgid ""
+"The remainder of this developer's guide covers common tasks typically "
+"used during kernel development, advanced Metadata usage, and Yocto Linux "
+"kernel maintenance concepts."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:5
+msgid "Kernel Maintenance"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:8
+msgid "Tree Construction"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:10
+msgid ""
+"This section describes construction of the Yocto Project kernel source "
+"repositories as accomplished by the Yocto Project team to create Yocto "
+"Linux kernel repositories. These kernel repositories are found under the "
+"heading \"Yocto Linux Kernel\" at :yocto_git:`/` and are shipped as part "
+"of a Yocto Project release. The team creates these repositories by "
+"compiling and executing the set of feature descriptions for every BSP and"
+" feature in the product. Those feature descriptions list all necessary "
+"patches, configurations, branches, tags, and feature divisions found in a"
+" Yocto Linux kernel. Thus, the Yocto Project Linux kernel repository (or "
+"tree) and accompanying Metadata in the ``yocto-kernel-cache`` are built."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:22
+msgid ""
+"The existence of these repositories allow you to access and clone a "
+"particular Yocto Project Linux kernel repository and use it to build "
+"images based on their configurations and features."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:26
+msgid ""
+"You can find the files used to describe all the valid features and BSPs "
+"in the Yocto Project Linux kernel in any clone of the Yocto Project Linux"
+" kernel source repository and ``yocto-kernel-cache`` Git trees. For "
+"example, the following commands clone the Yocto Project baseline Linux "
+"kernel that branches off ``linux.org`` version 4.12 and the ``yocto-"
+"kernel-cache``, which contains stores of kernel Metadata::"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:36
+msgid ""
+"For more information on how to set up a local Git repository of the Yocto"
+" Project Linux kernel files, see the \":ref:`kernel-dev/common:preparing "
+"the build host to work on the kernel`\" section."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:42
+msgid ""
+"Once you have cloned the kernel Git repository and the cache of Metadata "
+"on your local machine, you can discover the branches that are available "
+"in the repository using the following Git command::"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:48
+msgid ""
+"Checking out a branch allows you to work with a particular Yocto Linux "
+"kernel. For example, the following commands check out the "
+"\"standard/beagleboard\" branch of the Yocto Linux kernel repository and "
+"the \"yocto-4.12\" branch of the ``yocto-kernel-cache`` repository::"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:60
+msgid ""
+"Branches in the ``yocto-kernel-cache`` repository correspond to Yocto "
+"Linux kernel versions (e.g. \"yocto-4.12\", \"yocto-4.10\", "
+"\"yocto-4.9\", and so forth)."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:63
+msgid ""
+"Once you have checked out and switched to appropriate branches, you can "
+"see a snapshot of all the kernel source files used to build that "
+"particular Yocto Linux kernel for a particular board."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:67
+msgid ""
+"To see the features and configurations for a particular Yocto Linux "
+"kernel, you need to examine the ``yocto-kernel-cache`` Git repository. As"
+" mentioned, branches in the ``yocto-kernel-cache`` repository correspond "
+"to Yocto Linux kernel versions (e.g. ``yocto-4.12``). Branches contain "
+"descriptions in the form of ``.scc`` and ``.cfg`` files."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:74
+msgid ""
+"You should realize, however, that browsing your local ``yocto-kernel-"
+"cache`` repository for feature descriptions and patches is not an "
+"effective way to determine what is in a particular kernel branch. "
+"Instead, you should use Git directly to discover the changes in a branch."
+" Using Git is an efficient and flexible way to inspect changes to the "
+"kernel."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:83
+msgid ""
+"Ground up reconstruction of the complete kernel tree is an action only "
+"taken by the Yocto Project team during an active development cycle. When "
+"you create a clone of the kernel Git repository, you are simply making it"
+" efficiently available for building and development."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:88
+msgid ""
+"The following steps describe what happens when the Yocto Project Team "
+"constructs the Yocto Project kernel source Git repository (or tree) found"
+" at :yocto_git:`/` given the introduction of a new top-level kernel "
+"feature or BSP. The following actions effectively provide the Metadata "
+"and create the tree that includes the new feature, patch, or BSP:"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:95
+msgid ""
+"*Pass Feature to the OpenEmbedded Build System:* A top-level kernel "
+"feature is passed to the kernel build subsystem. Normally, this feature "
+"is a BSP for a particular kernel type."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:99
+msgid ""
+"*Locate Feature:* The file that describes the top-level feature is "
+"located by searching these system directories:"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:102
+msgid ""
+"The in-tree kernel-cache directories, which are located in the :yocto_git"
+":`yocto-kernel-cache </yocto-kernel-cache/tree/bsp>` repository organized"
+" under the \"Yocto Linux Kernel\" heading in the :yocto_git:`Yocto "
+"Project Source Repositories <>`."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:107
+msgid "Areas pointed to by :term:`SRC_URI` statements found in kernel recipes."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:109
+msgid ""
+"For a typical build, the target of the search is a feature description in"
+" an ``.scc`` file whose name follows this format (e.g. ``beaglebone-"
+"standard.scc`` and ``beaglebone-preempt-rt.scc``)::"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:115
+msgid ""
+"*Expand Feature:* Once located, the feature description is either "
+"expanded into a simple script of actions, or into an existing equivalent "
+"script that is already part of the shipped kernel."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:119
+msgid ""
+"*Append Extra Features:* Extra features are appended to the top-level "
+"feature description. These features can come from the "
+":term:`KERNEL_FEATURES` variable in recipes."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:124
+msgid ""
+"*Locate, Expand, and Append Each Feature:* Each extra feature is located,"
+" expanded and appended to the script as described in step three."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:128
+msgid ""
+"*Execute the Script:* The script is executed to produce files ``.scc`` "
+"and ``.cfg`` files in appropriate directories of the ``yocto-kernel-"
+"cache`` repository. These files are descriptions of all the branches, "
+"tags, patches and configurations that need to be applied to the base Git "
+"repository to completely create the source (build) branch for the new BSP"
+" or feature."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:135
+msgid ""
+"*Clone Base Repository:* The base repository is cloned, and the actions "
+"listed in the ``yocto-kernel-cache`` directories are applied to the tree."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:139
+msgid ""
+"*Perform Cleanup:* The Git repositories are left with the desired "
+"branches checked out and any required branching, patching and tagging has"
+" been performed."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:143
+msgid ""
+"The kernel tree and cache are ready for developer consumption to be "
+"locally cloned, configured, and built into a Yocto Project kernel "
+"specific to some target hardware."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:149
+msgid ""
+"The generated ``yocto-kernel-cache`` repository adds to the kernel as "
+"shipped with the Yocto Project release. Any add-ons and configuration "
+"data are applied to the end of an existing branch. The full repository "
+"generation that is found in the official Yocto Project kernel "
+"repositories at :yocto_git:`/` is the combination of all supported boards"
+" and configurations."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:156
+msgid ""
+"The technique the Yocto Project team uses is flexible and allows for "
+"seamless blending of an immutable history with additional patches "
+"specific to a deployment. Any additions to the kernel become an "
+"integrated part of the branches."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:161
+msgid ""
+"The full kernel tree that you see on :yocto_git:`/` is generated through "
+"repeating the above steps for all valid BSPs. The end result is a "
+"branched, clean history tree that makes up the kernel for a given "
+"release. You can see the script (``kgit-scc``) responsible for this in "
+"the :yocto_git:`yocto-kernel-tools </yocto-kernel-tools/tree/tools>` "
+"repository."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:169
+msgid ""
+"The steps used to construct the full kernel tree are the same steps that "
+"BitBake uses when it builds a kernel image."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:173
+msgid "Build Strategy"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:175
+msgid ""
+"Once you have cloned a Yocto Linux kernel repository and the cache "
+"repository (``yocto-kernel-cache``) onto your development system, you can"
+" consider the compilation phase of kernel development, which is building "
+"a kernel image. Some prerequisites are validated by the build process "
+"before compilation starts:"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:181
+msgid "The :term:`SRC_URI` points to the kernel Git repository."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:184
+msgid ""
+"A BSP build branch with Metadata exists in the ``yocto-kernel-cache`` "
+"repository. The branch is based on the Yocto Linux kernel version and has"
+" configurations and features grouped under the ``yocto-kernel-cache/bsp``"
+" directory. For example, features and configurations for the BeagleBone "
+"Board assuming a ``linux-yocto_4.12`` kernel reside in the following area"
+" of the ``yocto-kernel-cache`` repository: yocto-kernel-"
+"cache/bsp/beaglebone"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:194
+msgid ""
+"In the previous example, the \"yocto-4.12\" branch is checked out in the "
+"``yocto-kernel-cache`` repository."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:197
+msgid ""
+"The OpenEmbedded build system makes sure these conditions are satisfied "
+"before attempting compilation. Other means, however, do exist, such as "
+"bootstrapping a BSP."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:201
+msgid ""
+"Before building a kernel, the build process verifies the tree and "
+"configures the kernel by processing all of the configuration "
+"\"fragments\" specified by feature descriptions in the ``.scc`` files. As"
+" the features are compiled, associated kernel configuration fragments are"
+" noted and recorded in the series of directories in their compilation "
+"order. The fragments are migrated, pre-processed and passed to the Linux "
+"Kernel Configuration subsystem (``lkc``) as raw input in the form of a "
+"``.config`` file. The ``lkc`` uses its own internal dependency "
+"constraints to do the final processing of that information and generates "
+"the final ``.config`` file that is used during compilation."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:212
+msgid ""
+"Using the board's architecture and other relevant values from the board's"
+" template, kernel compilation is started and a kernel image is produced."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:216
+#, python-brace-format
+msgid ""
+"The other thing that you notice once you configure a kernel is that the "
+"build process generates a build tree that is separate from your kernel's "
+"local Git source repository tree. This build tree has a name that uses "
+"the following form, where ``${MACHINE}`` is the metadata name of the "
+"machine (BSP) and \"kernel_type\" is one of the Yocto Project supported "
+"kernel types (e.g. \"standard\")::"
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:225
+msgid ""
+"The existing support in the ``kernel.org`` tree achieves this default "
+"functionality."
+msgstr ""
+
+#: ../../kernel-dev/maint-appx.rst:228
+msgid ""
+"This behavior means that all the generated files for a particular machine"
+" or BSP are now in the build tree directory. The files include the final "
+"``.config`` file, all the ``.o`` files, the ``.a`` files, and so forth. "
+"Since each machine or BSP has its own separate :term:`Build Directory` in"
+" its own separate branch of the Git repository, you can easily switch "
+"between different builds."
+msgstr ""
+

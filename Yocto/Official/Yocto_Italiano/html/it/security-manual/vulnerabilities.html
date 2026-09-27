@@ -1,0 +1,520 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 Verifica delle Vulnerabilità &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="5 Creazione di un Filesystem Root di Sola Lettura" href="read-only-rootfs.html" />
+    <link rel="prev" title="3 Come Rendere le Immagini più Sicure" href="securing-images.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Sicurezza</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduzione</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-process-security.html">2 Sicurezza del Processo di Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="securing-images.html">3 Come Rendere le Immagini più Sicure</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4 Verifica delle Vulnerabilità</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vulnerabilities-in-openembedded-core-oe-core">4.1 Vulnerabilità in OpenEmbedded-Core (OE-Core)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vulnerability-check-at-build-time">4.2 Verifica delle vulnerabilità in fase di build</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixing-cve-product-name-and-version-mappings">4.3 Correzione delle mappature tra nome prodotto e versione CVE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixing-vulnerabilities-in-recipes">4.4 Correzione delle vulnerabilità nelle ricette</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-details">4.5 Dettagli di implementazione</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#linux-kernel-vulnerabilities">4.6 Vulnerabilità del kernel Linux</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#generate-cve-exclusions-py">4.6.1 <code class="docutils literal notranslate"><span class="pre">generate-cve-exclusions.py</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#improve-kernel-cve-report-py">4.6.2 <code class="docutils literal notranslate"><span class="pre">improve_kernel_cve_report.py</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="read-only-rootfs.html">5 Creazione di un Filesystem Root di Sola Lettura</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sstate-signing.html">6 Firma dello Stato Condiviso</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sicurezza di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">4 </span>Verifica delle Vulnerabilità</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/security-manual/vulnerabilities.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="checking-for-vulnerabilities">
+<h1><span class="section-number">4 </span>Verifica delle Vulnerabilità<a class="headerlink" href="#checking-for-vulnerabilities" title="Link to this heading"></a></h1>
+<section id="vulnerabilities-in-openembedded-core-oe-core">
+<h2><span class="section-number">4.1 </span>Vulnerabilità in OpenEmbedded-Core (OE-Core)<a class="headerlink" href="#vulnerabilities-in-openembedded-core-oe-core" title="Link to this heading"></a></h2>
+<p>Yocto Project dispone di un'infrastruttura per tracciare e risolvere le vulnerabilità di sicurezza note e non ancora corrette, monitorate dal database pubblico <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Common_Vulnerabilities_and_Exposures">Common Vulnerabilities and Exposures (CVE)</a>.</p>
+<p>Yocto Project mantiene un <a class="reference external" href="https://valkyrie.yocto.io/pub/non-release/patchmetrics/">elenco di vulnerabilità note</a> per i pacchetti di <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>, monitorando l'evoluzione del numero di CVE non ancora corrette e lo stato delle patch. Queste informazioni sono disponibili per la versione di sviluppo corrente e per ogni release supportata.</p>
+<p>La sicurezza è un processo, non un prodotto, e pertanto, in qualsiasi momento, diversi problemi di sicurezza potrebbero interessare <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>. Spetta ai manutentori, agli utenti, ai collaboratori e a chiunque sia interessato ai problemi indagare e, se possibile, risolverli aggiornando i componenti software a versioni più recenti o applicando patch per correggerli. Si consiglia di collaborare con i manutentori di <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> e di inviare patch per risolverli; per maggiori dettagli, consultare &quot;<a class="reference internal" href="../contributor-guide/submit-changes.html"><span class="doc">Apportare Modifiche a un Componente</span></a>&quot;.</p>
+</section>
+<section id="vulnerability-check-at-build-time">
+<h2><span class="section-number">4.2 </span>Verifica delle vulnerabilità in fase di build<a class="headerlink" href="#vulnerability-check-at-build-time" title="Link to this heading"></a></h2>
+<p>Per abilitare la verifica delle vulnerabilità di sicurezza CVE nell'immagine o nel target specifico che si sta compilando, eseguire il seguente comando dalla propria <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>bitbake-config-build<span class="w"> </span>enable-fragment<span class="w"> </span>core/yocto/sbom-cve-check
+</pre></div>
+</div>
+<p>Oppure aggiungere la seguente istruzione a un <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OE_FRAGMENTS</span> <span class="o">+=</span> <span class="s2">"core/yocto/sbom-cve-check"</span>
+</pre></div>
+</div>
+<p>Questo abiliterà la classe <a class="reference internal" href="../ref-manual/classes.html#ref-classes-sbom-cve-check"><span class="std std-ref">sbom-cve-check</span></a> e imporrà le impostazioni consigliate per il suo utilizzo.</p>
+<p>Il database CVE contiene alcune voci obsolete e incomplete che sono state ritenute non rilevanti per <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>. È possibile escludere queste voci CVE dal controllo aggiungendo la seguente istruzione:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">include</span> <span class="n">conf</span><span class="o">/</span><span class="n">distro</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">cve</span><span class="o">-</span><span class="n">extra</span><span class="o">-</span><span class="n">exclusions</span><span class="o">.</span><span class="n">inc</span>
+</pre></div>
+</div>
+<p>Con il frammento <a class="reference internal" href="../ref-manual/fragments.html#ref-fragments-core-yocto-sbom-cve-check"><span class="std std-ref">core/yocto/sbom-cve-check</span></a> abilitato, la build <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a> di un'immagine tenterà di mappare il nome della ricetta e le informazioni sulla versione di ciascun componente software compilato al database CVE e genererà report nella directory di distribuzione (<a class="reference internal" href="../ref-manual/variables.html#term-DEPLOY_DIR_IMAGE"><span class="xref std std-term">DEPLOY_DIR_IMAGE</span></a>), uno dei quali è: <code class="docutils literal notranslate"><span class="pre">tmp/deploy/images/&lt;machine&gt;/&lt;image-name&gt;-&lt;machine&gt;.rootfs.sbom-cve-check.yocto.json</span></code>, un report contenente:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Metadati relativi al componente software, come nomi e versioni</p></li>
+<li><p>Metadati relativi al problema CVE, come descrizione e collegamento NVD</p></li>
+<li><p>Per ogni componente software, un elenco di CVE che potrebbero avere un impatto su questa versione</p></li>
+<li><p>Stato di ogni CVE: <code class="docutils literal notranslate"><span class="pre">Patched</span></code>, <code class="docutils literal notranslate"><span class="pre">Unpatched</span></code> o <code class="docutils literal notranslate"><span class="pre">Ignored</span></code></p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Viene generato anche un altro report denominato <code class="docutils literal notranslate"><span class="pre">&lt;image-name&gt;-&lt;machine&gt;.rootfs.sbom-cve-check.spdx.json</span></code>: si tratta del file <a class="reference internal" href="../ref-manual/terms.html#term-SPDX"><span class="xref std std-term">SPDX</span></a> arricchito dell'immagine, contenente le stesse informazioni del punto precedente e molte più informazioni sui metadati relativi ai pacchetti inclusi nell'immagine. Per ulteriori informazioni su <a class="reference internal" href="../ref-manual/terms.html#term-SPDX"><span class="xref std std-term">SPDX</span></a>, consultare la sezione <a class="reference internal" href="../dev-manual/sbom.html"><span class="doc">Creating a Software Bill of Materials</span></a> del Manuale di Sviluppo dei Task di Yocto Project.</p>
+</div>
+<p>Ogni elemento nell'elenco <code class="docutils literal notranslate"><span class="pre">&quot;package&quot;</span></code> corrisponde a un pacchetto installato sull'immagine compilata. Ciascuno di questi pacchetti contiene un certo numero di voci CVE nella sottolista <code class="docutils literal notranslate"><span class="pre">&quot;issue&quot;</span></code>. Queste CVE possono avere i seguenti stati:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Patched</span></code> significa che è stato applicato un file di patch per risolvere il problema di sicurezza.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Unpatched</span></code> significa che non sono state applicate patch per risolvere il problema e che è necessario indagare sul problema stesso.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ignored</span></code> significa che, dopo l'analisi, si è ritenuto opportuno ignorare il problema, ad esempio perché interessa il componente software su una piattaforma di sistema operativo diversa.</p></li>
+</ul>
+<p>Ad esempio, il report per il pacchetto <code class="docutils literal notranslate"><span class="pre">glibc</span></code> si presenta così (semplificato):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"package"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glibc"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"layer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"core"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.43+git"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"products"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"product"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glibc"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"cvesInRecord"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Yes"</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"issue"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVE-2010-4756"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unpatched"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"link"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://nvd.nist.gov/vuln/detail/CVE-2010-4756"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The glob implementation in the GNU C Library (aka glibc or libc6) allows remote authenticated users to cause a denial of service (CPU and memory consumption) via crafted glob expressions that do not match any pathnames, as demonstrated by glob expressions in STAT commands to an FTP daemon, a different vulnerability than CVE-2010-2632."</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4.0"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev3"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev4"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-11-03T22:15:41.000"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"vector"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NETWORK"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"vectorString"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AV:N/AC:L/Au:S/C:N/I:N/A:P"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no-version-ranges"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Check package version"</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVE-2018-6551"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patched"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"link"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://nvd.nist.gov/vuln/detail/CVE-2018-6551"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The malloc implementation in the GNU C Library (aka glibc or libc6), from version 2.24 to 2.26 on powerpc, and only in version 2.26 on i386, did not properly handle malloc calls with arguments close to SIZE_MAX and could return a pointer to a heap region that is smaller than requested, eventually leading to heap corruption."</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7.5"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev3"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9.8"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev4"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-11-21T04:10:53.000"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"vector"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NETWORK"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"vectorString"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"version-not-in-range"</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVE-2019-1010022"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ignored"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"link"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://nvd.nist.gov/vuln/detail/CVE-2019-1010022"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may bypass stack guard protection. The component is: nptl. The attack vector is: Exploit stack buffer overflow vulnerability and use this bypass vulnerability to bypass stack guard. NOTE: Upstream comments indicate \"this is being treated as a non-security bug and no real threat."</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7.5"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev3"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9.8"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"scorev4"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-11-21T04:17:55.000"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"vector"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NETWORK"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"vectorString"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Upstream glibc maintainers dispute there is any issue and have no plans to address it further. this is being treated as a non-security bug and no real threat."</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"cpes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"cpe:2.3:*:*:glibc:2.43:*:*:*:*:*:*:*"</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In fase di compilazione, la classe <a class="reference internal" href="../ref-manual/classes.html#ref-classes-sbom-cve-check"><span class="std std-ref">sbom-cve-check</span></a> genererà anche warning relativi alle CVE <code class="docutils literal notranslate"><span class="pre">Unpatched</span></code> CVEs (quando <a class="reference internal" href="../ref-manual/variables.html#term-SBOM_CVE_CHECK_SHOW_WARNINGS"><span class="xref std std-term">SBOM_CVE_CHECK_SHOW_WARNINGS</span></a> è impostato su &quot;1&quot;):</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>WARNING: core-image-minimal-1.0-r0 do_sbom_cve_check: glibc-2.43+git: Found unpatched CVEs: CVE-2010-4756
+</pre></div>
+</div>
+</section>
+<section id="fixing-cve-product-name-and-version-mappings">
+<h2><span class="section-number">4.3 </span>Correzione delle mappature tra nome prodotto e versione CVE<a class="headerlink" href="#fixing-cve-product-name-and-version-mappings" title="Link to this heading"></a></h2>
+<p>Per default, <a class="reference internal" href="../ref-manual/classes.html#ref-classes-sbom-cve-check"><span class="std std-ref">sbom-cve-check</span></a> utilizza il nome della ricetta <a class="reference internal" href="../ref-manual/variables.html#term-BPN"><span class="xref std std-term">BPN</span></a> come nome prodotto CVE quando interroga il database CVE. Se questa mappatura contiene falsi positivi, ad esempio Alcune vulnerabilità CVE segnalate potrebbero non riguardare il componente software in questione, oppure potrebbero verificarsi falsi negativi, ad esempio alcune vulnerabilità CVE non risultano avere un impatto sulla ricetta quando invece dovrebbero. In questi casi, il problema potrebbe risiedere nella mappatura tra il nome della ricetta e il prodotto CVE. Questi problemi di mappatura possono essere risolti impostando la variabile <a class="reference internal" href="../ref-manual/variables.html#term-CVE_PRODUCT"><span class="xref std std-term">CVE_PRODUCT</span></a> all'interno della ricetta. Questa variabile definisce il nome del componente software nel <a class="reference external" href="https://nvd.nist.gov/">database CVE NIST</a> upstream.</p>
+<p>La variabile supporta l'utilizzo di nomi di fornitori e prodotti come segue:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CVE_PRODUCT</span> <span class="o">=</span> <span class="s2">"flex_project:flex westes:flex"</span>
+</pre></div>
+</div>
+<p>In questo esempio, abbiamo due possibili nomi di fornitori, <code class="docutils literal notranslate"><span class="pre">flex_project</span></code> e <code class="docutils literal notranslate"><span class="pre">westes</span></code>, con il nome del prodotto <code class="docutils literal notranslate"><span class="pre">flex</span></code>. Con questa impostazione, la ricetta <code class="docutils literal notranslate"><span class="pre">flex</span></code> viene mappata solo a questo specifico prodotto e non a prodotti di altri fornitori con lo stesso nome <code class="docutils literal notranslate"><span class="pre">flex</span></code>.</p>
+<p>Analogamente, quando la versione della ricetta <a class="reference internal" href="../ref-manual/variables.html#term-PV"><span class="xref std std-term">PV</span></a> non è compatibile con le versioni del software utilizzate dalle release dei componenti software a monte e con il database CVE, è possibile risolvere il problema utilizzando la variabile <a class="reference internal" href="../ref-manual/variables.html#term-CVE_VERSION"><span class="xref std std-term">CVE_VERSION</span></a>.</p>
+<p>Si noti che se le voci CVE nel database NVD contengono bug o informazioni mancanti o incomplete, si consiglia di correggere direttamente le informazioni nel database stesso, anziché cercare di aggirare i problemi, eventualmente per lungo tempo, nelle ricette di <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>. È possibile fornire feedback a NVD in merito alle voci CVE tramite il <a class="reference external" href="https://nvd.nist.gov/info/contact-form">modulo di contatto NVD</a>.</p>
+</section>
+<section id="fixing-vulnerabilities-in-recipes">
+<h2><span class="section-number">4.4 </span>Correzione delle vulnerabilità nelle ricette<a class="headerlink" href="#fixing-vulnerabilities-in-recipes" title="Link to this heading"></a></h2>
+<p>Supponiamo che una vulnerabilità di sicurezza CVE interessi un componente software. In tal caso, è possibile risolverla aggiornando a una versione più recente, applicando una patch o contrassegnandola come &quot;patched&quot; tramite il flag della variabile <a class="reference internal" href="../ref-manual/variables.html#term-CVE_STATUS"><span class="xref std std-term">CVE_STATUS</span></a>. Per i branch master di <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>, l'aggiornamento a una versione più recente del componente software con le correzioni è l'opzione migliore, ma è possibile applicare delle patch se le versioni non sono ancora disponibili.</p>
+<p>Per i branch stabili, è preferibile evitare incompatibilità con le API (Application Programming Interface) o le ABI (Application Binary Interface). Quando si invia un aggiornamento, è preferibile un aggiornamento a una versione minore del componente se la versione è retrocompatibile. Molti componenti software hanno versioni stabili retrocompatibili, con un esempio notevole del kernel Linux. Tuttavia, se la nuova versione introduce o potrebbe introdurre incompatibilità, è preferibile estrarre e applicare le patch.</p>
+<p>Ecco un esempio di come correggere le vulnerabilità di sicurezza CVE con i file di patch, tratto dalla ricetta <a class="extlink-oe_layerindex reference external" href="https://layers.openembedded.org/layerindex/recipe/122174">ffmpeg recipe per dunfell</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SRC_URI</span> <span class="o">=</span> <span class="s2">"https://www.ffmpeg.org/releases/$</span><span class="si">{BP}</span><span class="s2">.tar.xz </span><span class="se">\</span>
+<span class="s2">           file://mips64_cpu_detection.patch </span><span class="se">\</span>
+<span class="s2">           file://CVE-2020-12284.patch </span><span class="se">\</span>
+<span class="s2">           file://0001-libavutil-include-assembly-with-full-path-from-sourc.patch </span><span class="se">\</span>
+<span class="s2">           file://CVE-2021-3566.patch </span><span class="se">\</span>
+<span class="s2">           file://CVE-2021-38291.patch </span><span class="se">\</span>
+<span class="s2">           file://CVE-2022-1475.patch </span><span class="se">\</span>
+<span class="s2">           file://CVE-2022-3109.patch </span><span class="se">\</span>
+<span class="s2">           file://CVE-2022-3341.patch </span><span class="se">\</span>
+<span class="s2">           file://CVE-2022-48434.patch </span><span class="se">\</span>
+<span class="s2">       "</span>
+</pre></div>
+</div>
+<p>La ricetta include sia correzioni generiche che specifiche per la sicurezza. I file di patch CVE prendono il nome dalla vulnerabilità CVE che correggono.</p>
+<p>Quando si prepara il file di patch, utilizzare la patch originale dal repository upstream. Non utilizzare patch provenienti da distribuzioni diverse, a meno che non siano l'unica fonte disponibile.</p>
+<p>Modificare la patch aggiungendo i metadati relativi a OE. Seguiremo l'esempio della patch <code class="docutils literal notranslate"><span class="pre">CVE-2022-3341.patch</span></code>.</p>
+<p>Il <a class="reference external" href="https://github.com/FFmpeg/FFmpeg/commit/9cf652cef49d74afe3d454f27d49eb1a1394951e.patch/">messaggio di commit</a> originale è:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">From</span> <span class="mi">9</span><span class="n">cf652cef49d74afe3d454f27d49eb1a1394951e</span> <span class="n">Mon</span> <span class="n">Sep</span> <span class="mi">17</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2001</span>
+<span class="n">From</span><span class="p">:</span> <span class="n">Jiasheng</span> <span class="n">Jiang</span> <span class="o">&lt;</span><span class="n">jiasheng</span><span class="nd">@iscas</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">cn</span><span class="o">&gt;</span>
+<span class="n">Date</span><span class="p">:</span> <span class="n">Wed</span><span class="p">,</span> <span class="mi">23</span> <span class="n">Feb</span> <span class="mi">2022</span> <span class="mi">10</span><span class="p">:</span><span class="mi">31</span><span class="p">:</span><span class="mi">59</span> <span class="o">+</span><span class="mi">0800</span>
+<span class="n">Subject</span><span class="p">:</span> <span class="p">[</span><span class="n">PATCH</span><span class="p">]</span> <span class="n">avformat</span><span class="o">/</span><span class="n">nutdec</span><span class="p">:</span> <span class="n">Add</span> <span class="n">check</span> <span class="k">for</span> <span class="n">avformat_new_stream</span>
+
+<span class="n">Check</span> <span class="k">for</span> <span class="n">failure</span> <span class="n">of</span> <span class="n">avformat_new_stream</span><span class="p">()</span> <span class="ow">and</span> <span class="n">propagate</span>
+<span class="n">the</span> <span class="n">error</span> <span class="n">code</span><span class="o">.</span>
+
+<span class="n">Signed</span><span class="o">-</span><span class="n">off</span><span class="o">-</span><span class="n">by</span><span class="p">:</span> <span class="n">Michael</span> <span class="n">Niedermayer</span> <span class="o">&lt;</span><span class="n">michael</span><span class="nd">@niedermayer</span><span class="o">.</span><span class="n">cc</span><span class="o">&gt;</span>
+<span class="o">---</span>
+ <span class="n">libavformat</span><span class="o">/</span><span class="n">nutdec</span><span class="o">.</span><span class="n">c</span> <span class="o">|</span> <span class="mi">16</span> <span class="o">++++++++++++----</span>
+ <span class="mi">1</span> <span class="n">file</span> <span class="n">changed</span><span class="p">,</span> <span class="mi">12</span> <span class="n">insertions</span><span class="p">(</span><span class="o">+</span><span class="p">),</span> <span class="mi">4</span> <span class="n">deletions</span><span class="p">(</span><span class="o">-</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Per il corretto funzionamento di <a class="reference internal" href="../ref-manual/classes.html#ref-classes-sbom-cve-check"><span class="std std-ref">sbom-cve-check</span></a>, è necessario includere l'identificativo CVE nel tag <code class="docutils literal notranslate"><span class="pre">CVE:</span></code> del messaggio di commit del file patch, utilizzando il seguente formato:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CVE</span><span class="p">:</span> <span class="n">CVE</span><span class="o">-</span><span class="mi">2022</span><span class="o">-</span><span class="mi">3341</span>
+</pre></div>
+</div>
+<p>È inoltre necessario aggiungere il tag <code class="docutils literal notranslate"><span class="pre">Upstream-Status:</span></code> con un link alla patch originale e la firma del team che ha lavorato al backport. Eventuali modifiche alla patch originale devono essere annotate nel tag <code class="docutils literal notranslate"><span class="pre">Comments:</span></code>.</p>
+<p>Con queste informazioni aggiuntive, l'header del file patch in OE-core diventa:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">From</span> <span class="mi">9</span><span class="n">cf652cef49d74afe3d454f27d49eb1a1394951e</span> <span class="n">Mon</span> <span class="n">Sep</span> <span class="mi">17</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2001</span>
+<span class="n">From</span><span class="p">:</span> <span class="n">Jiasheng</span> <span class="n">Jiang</span> <span class="o">&lt;</span><span class="n">jiasheng</span><span class="nd">@iscas</span><span class="o">.</span><span class="n">ac</span><span class="o">.</span><span class="n">cn</span><span class="o">&gt;</span>
+<span class="n">Date</span><span class="p">:</span> <span class="n">Wed</span><span class="p">,</span> <span class="mi">23</span> <span class="n">Feb</span> <span class="mi">2022</span> <span class="mi">10</span><span class="p">:</span><span class="mi">31</span><span class="p">:</span><span class="mi">59</span> <span class="o">+</span><span class="mi">0800</span>
+<span class="n">Subject</span><span class="p">:</span> <span class="p">[</span><span class="n">PATCH</span><span class="p">]</span> <span class="n">avformat</span><span class="o">/</span><span class="n">nutdec</span><span class="p">:</span> <span class="n">Add</span> <span class="n">check</span> <span class="k">for</span> <span class="n">avformat_new_stream</span>
+
+<span class="n">Check</span> <span class="k">for</span> <span class="n">failure</span> <span class="n">of</span> <span class="n">avformat_new_stream</span><span class="p">()</span> <span class="ow">and</span> <span class="n">propagate</span>
+<span class="n">the</span> <span class="n">error</span> <span class="n">code</span><span class="o">.</span>
+
+<span class="n">Signed</span><span class="o">-</span><span class="n">off</span><span class="o">-</span><span class="n">by</span><span class="p">:</span> <span class="n">Michael</span> <span class="n">Niedermayer</span> <span class="o">&lt;</span><span class="n">michael</span><span class="nd">@niedermayer</span><span class="o">.</span><span class="n">cc</span><span class="o">&gt;</span>
+
+<span class="n">CVE</span><span class="p">:</span> <span class="n">CVE</span><span class="o">-</span><span class="mi">2022</span><span class="o">-</span><span class="mi">3341</span>
+
+<span class="n">Upstream</span><span class="o">-</span><span class="n">Status</span><span class="p">:</span> <span class="n">Backport</span> <span class="p">[</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">FFmpeg</span><span class="o">/</span><span class="n">FFmpeg</span><span class="o">/</span><span class="n">commit</span><span class="o">/</span><span class="mi">9</span><span class="n">cf652cef49d74afe3d454f27d49eb1a1394951e</span><span class="p">]</span>
+
+<span class="n">Comments</span><span class="p">:</span> <span class="n">Refreshed</span> <span class="n">Hunk</span>
+<span class="n">Signed</span><span class="o">-</span><span class="n">off</span><span class="o">-</span><span class="n">by</span><span class="p">:</span> <span class="n">Narpat</span> <span class="n">Mali</span> <span class="o">&lt;</span><span class="n">narpat</span><span class="o">.</span><span class="n">mali</span><span class="nd">@windriver</span><span class="o">.</span><span class="n">com</span><span class="o">&gt;</span>
+<span class="n">Signed</span><span class="o">-</span><span class="n">off</span><span class="o">-</span><span class="n">by</span><span class="p">:</span> <span class="n">Bhabu</span> <span class="n">Bindu</span> <span class="o">&lt;</span><span class="n">bhabu</span><span class="o">.</span><span class="n">bindu</span><span class="nd">@kpit</span><span class="o">.</span><span class="n">com</span><span class="o">&gt;</span>
+<span class="o">---</span>
+ <span class="n">libavformat</span><span class="o">/</span><span class="n">nutdec</span><span class="o">.</span><span class="n">c</span> <span class="o">|</span> <span class="mi">16</span> <span class="o">++++++++++++----</span>
+ <span class="mi">1</span> <span class="n">file</span> <span class="n">changed</span><span class="p">,</span> <span class="mi">12</span> <span class="n">insertions</span><span class="p">(</span><span class="o">+</span><span class="p">),</span> <span class="mi">4</span> <span class="n">deletions</span><span class="p">(</span><span class="o">-</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Una buona pratica consiste nell'includere l'identificativo CVE nel nome del file patch, nel messaggio di commit del file patch e, facoltativamente, nel messaggio di commit della ricetta.</p>
+<p><a class="reference internal" href="../ref-manual/classes.html#ref-classes-sbom-cve-check"><span class="std std-ref">sbom-cve-check</span></a> acquisirà quindi queste informazioni e modificherà lo stato del CVE in <code class="docutils literal notranslate"><span class="pre">Patched</span></code> nei report generati.</p>
+<p>Se l'analisi mostra che il problema CVE non ha un impatto sulla ricetta a causa della configurazione, della piattaforma, della versione o di altri motivi, il CVE può essere contrassegnato come <code class="docutils literal notranslate"><span class="pre">Ignored</span></code> utilizzando il flag della variabile <a class="reference internal" href="../ref-manual/variables.html#term-CVE_STATUS"><span class="xref std std-term">CVE_STATUS</span></a> con il motivo appropriato, che viene mappato a <code class="docutils literal notranslate"><span class="pre">Ignored</span></code>. La voce dovrebbe avere il seguente formato:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CVE_STATUS</span><span class="p">[</span><span class="n">CVE</span><span class="o">-</span><span class="mi">2016</span><span class="o">-</span><span class="mi">10642</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"cpe-incorrect: This is specific to the npm package that installs cmake, so isn't relevant to OpenEmbedded"</span>
+</pre></div>
+</div>
+<p>Come accennato in precedenza, se i dati nel database CVE sono errati, si consiglia di correggere tali problemi direttamente nel database CVE (NVD nel caso di <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>).</p>
+<p>Si noti che se sono presenti più CVE con lo stesso stato e motivo, questi possono essere condivisi utilizzando la variabile <a class="reference internal" href="../ref-manual/variables.html#term-CVE_STATUS_GROUPS"><span class="xref std std-term">CVE_STATUS_GROUPS</span></a>.</p>
+<p>Quando si analizzano le CVE, si raccomanda di:</p>
+<ul class="simple">
+<li><p>studiare le informazioni più recenti nel <a class="reference external" href="https://nvd.nist.gov/vuln/search">database CVE</a>.</p></li>
+<li><p>verificare come gli sviluppatori del componente software hanno affrontato il problema, ad esempio quale patch è stata applicata e quale release contiene la correzione.</p></li>
+<li><p>controllare cosa hanno fatto altre distribuzioni Linux, come <a class="reference external" href="https://security-tracker.debian.org/tracker/">Debian</a>, per analizzare e risolvere il problema.</p></li>
+<li><p>seguire gli avvisi di sicurezza di altre distribuzioni Linux.</p></li>
+<li><p>seguire le <a class="reference external" href="https://oss-security.openwall.org/wiki/mailing-lists">mailing list pubbliche sulla sicurezza open source</a> per discussioni e notifiche anticipate sui bug CVE e sulle release software con le relative correzioni.</p></li>
+</ul>
+</section>
+<section id="implementation-details">
+<h2><span class="section-number">4.5 </span>Dettagli di implementazione<a class="headerlink" href="#implementation-details" title="Link to this heading"></a></h2>
+<p>Poiché <a class="reference internal" href="../ref-manual/classes.html#ref-classes-sbom-cve-check"><span class="std std-ref">sbom-cve-check</span></a> è un tool esterno, la sua implementazione è descritta in dettaglio nella documentazione ufficiale: <a class="reference external" href="https://sbom-cve-check.readthedocs.io/en/latest/index.html">https://sbom-cve-check.readthedocs.io/en/latest/index.html</a></p>
+</section>
+<section id="linux-kernel-vulnerabilities">
+<h2><span class="section-number">4.6 </span>Vulnerabilità del kernel Linux<a class="headerlink" href="#linux-kernel-vulnerabilities" title="Link to this heading"></a></h2>
+<p>Dal momento che il kernel Linux è diventato un CVE Numbering Authority (CNA), i numero di CVE associato è aumentato drammaticamente. I team di sicurezza devono affrontare questi CVE per soddisfare i requisiti normativi e dei clienti. L'automazione sull'identificazione dei problemi aiuta a ridurre il carico di lavoro.</p>
+<p><a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> dispone di due script che aiutano a caratterizzare e filtrare le CVE che interessano il kernel Linux:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">openembedded-core/meta/recipes-kernel/linux/generate-cve-exclusions.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">openembedded-core/scripts/contrib/improve_kernel_cve_report.py</span></code></p></li>
+</ul>
+<section id="generate-cve-exclusions-py">
+<h3><span class="section-number">4.6.1 </span><code class="docutils literal notranslate"><span class="pre">generate-cve-exclusions.py</span></code><a class="headerlink" href="#generate-cve-exclusions-py" title="Link to this heading"></a></h3>
+<p>Quando si aggiorna una ricetta del kernel, è necessario eseguire manualmente uno script di supporto per aggiornare il <a class="reference internal" href="../ref-manual/variables.html#term-CVE_STATUS"><span class="xref std std-term">CVE_STATUS</span></a> per la ricetta del kernel. Lo script può essere utilizzato per i kernel personalizzati.</p>
+<p>Prima dobbiamo ottenere una versione aggiornata delle informazioni CVE dal <cite>CVE Project</cite>. Eseguirlo in questo modo:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/CVEProject/cvelistV5<span class="w"> </span>~/cvelistV5
+</pre></div>
+</div>
+<p>Oppure, se è stato già clonato il repository, si devono scaricare i dati più recenti:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>-C<span class="w"> </span>~/cvelistV5<span class="w"> </span>pull
+</pre></div>
+</div>
+<p>Successivamente, generare le informazioni <a class="reference internal" href="../ref-manual/variables.html#term-CVE_STATUS"><span class="xref std std-term">CVE_STATUS</span></a> per la versione desiderata del kernel:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./generate-cve-exclusions.py<span class="w"> </span>~/cvelistV5<span class="w"> </span>&lt;version&gt;<span class="w"> </span>&gt;<span class="w"> </span>cve-exclusion_&lt;kernel_version&gt;.inc
+</pre></div>
+</div>
+<p>Esempio</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/CVEProject/cvelistV5<span class="w"> </span>~/cvelistV5
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>openembedded-core/meta/recipes-kernel/linux/
+$<span class="w"> </span>./generate-cve-exclusions.py<span class="w"> </span>~/cvelistV5<span class="w"> </span><span class="m">6</span>.12.27<span class="w"> </span>&gt;<span class="w"> </span>~/meta-custom/recipes-kernel/linux/cve-exclusion_6.12.inc
+</pre></div>
+</div>
+<p>Non dimenticare di aggiornare la ricetta del kernel con:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">include</span> <span class="n">cve</span><span class="o">-</span><span class="n">exclusion_6</span><span class="mf">.12</span><span class="o">.</span><span class="n">inc</span>
+</pre></div>
+</div>
+<p>A questo punto, le informazioni CVE verranno aggiunte automaticamente al report <code class="docutils literal notranslate"><span class="pre">cve-check</span></code> o <a class="reference internal" href="../ref-manual/classes.html#ref-classes-vex"><span class="std std-ref">vex</span></a>.</p>
+</section>
+<section id="improve-kernel-cve-report-py">
+<h3><span class="section-number">4.6.2 </span><code class="docutils literal notranslate"><span class="pre">improve_kernel_cve_report.py</span></code><a class="headerlink" href="#improve-kernel-cve-report-py" title="Link to this heading"></a></h3>
+<p>Lo script <code class="docutils literal notranslate"><span class="pre">openembedded-core/scripts/contrib/improve_kernel_cve_report.py</span></code> sfrutta i metadati CVE del kernel e la variabile <a class="reference internal" href="../ref-manual/variables.html#term-SPDX_INCLUDE_COMPILED_SOURCES"><span class="xref std std-term">SPDX_INCLUDE_COMPILED_SOURCES</span></a> per aggiornare un file di report di output <code class="docutils literal notranslate"><span class="pre">.sbom-cve-check.yocto.json</span></code> (vedere la sezione <a class="reference internal" href="#vulnerability-check-at-build-time"><span class="std std-ref">Verifica delle vulnerabilità in fase di build</span></a> per i dettagli su questi file di report). Riduce i falsi positivi CVE del 70%-80% e fornisce risposte dettagliate per tutte le CVE relative al kernel analizzando i file utilizzati per la compilazione del kernel. Lo script è indipendente dal processo di compilazione e può essere eseguito al di fuori dell'ambiente <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>.</p>
+<p>Lo script utilizza l'output di <a class="reference internal" href="../ref-manual/classes.html#ref-classes-vex"><span class="std std-ref">vex</span></a> come input, insieme alle informazioni CVE del kernel Linux CNA, per arricchire il file di report con informazioni CVE aggiornate.</p>
+<p>Il nome del file può essere specificato come argomento. Facoltativamente, può anche utilizzare l'elenco dei file compilati dal kernel <a class="reference internal" href="../ref-manual/terms.html#term-SPDX"><span class="xref std std-term">SPDX</span></a> per ignorare le CVE non interessate perché i file non sono stati compilati.</p>
+<p>A tal fine, BitBake utilizza le informazioni di debug per estrarre i sorgenti utilizzati per la creazione di un binario. Pertanto, è necessario configurarlo nel kernel per estrarre i file compilati dal kernel.</p>
+<p>Se si utilizza la ricetta <code class="docutils literal notranslate"><span class="pre">linux-yocto</span></code>, abilitarla aggiungendo quanto segue in un <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a> o in un file <code class="docutils literal notranslate"><span class="pre">.bbappend</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">KERNEL_EXTRA_FEATURES</span><span class="p">:</span><span class="n">append</span> <span class="o">=</span> <span class="s2">" features/debug/debug-kernel.scc"</span>
+</pre></div>
+</div>
+<p>Oppure modificando la configurazione del kernel per includere le informazioni di debug di <cite>DWARF4</cite>.</p>
+<p>Per ulteriori informazioni, consultare la sezione <a class="reference internal" href="../kernel-dev/common.html#changing-the-configuration"><span class="std std-ref">Changing the Configuration</span></a> del Manuale di Sviluppo del Kernel Linux di Yocto Project.</p>
+<p>Nell'esempio seguente, considereremo come ricetta del kernel utilizzata <code class="docutils literal notranslate"><span class="pre">linux-yocto</span></code>. Le istruzioni si applicano anche ad altre ricette del kernel con nomi diversi.</p>
+<p>I sorgenti del kernel sono memorizzati in <code class="docutils literal notranslate"><span class="pre">tmp/pkgdata/&lt;MACHINE&gt;/debugsources/linux-yocto-debugsources.json.zstd</span></code>. Per includere le informazioni nel file <a class="reference internal" href="../ref-manual/terms.html#term-SPDX"><span class="xref std std-term">SPDX</span></a> e filtrare i file sorgente non utilizzati per la compilazione del kernel, aggiungere quanto segue in un <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SPDX_INCLUDE_COMPILED_SOURCES</span><span class="p">:</span><span class="n">pn</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">yocto</span> <span class="o">=</span> <span class="s2">"1"</span>
+</pre></div>
+</div>
+<p>Infine, salvare il file <code class="docutils literal notranslate"><span class="pre">recipe-linux-yocto.spdx.json</span></code> o il file <code class="docutils literal notranslate"><span class="pre">linux-yocto-debugsources.json.zstd</span></code> al di fuori della <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">build directory</span></a>.</p>
+<p>Il file <a class="reference internal" href="../ref-manual/terms.html#term-SPDX"><span class="xref std std-term">SPDX</span></a> si trova in <code class="docutils literal notranslate"><span class="pre">tmp/deploy/spdx/&lt;spdx_version&gt;/&lt;MACHINE&gt;/recipes/recipe-linux-yocto.spdx.json</span></code></p>
+<p>Una volta ottenuti i dati di input, è necessario clonare o scaricare le informazioni CVE più recenti da <a class="reference external" href="https://git.kernel.org">https://git.kernel.org</a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://git.kernel.org/pub/scm/linux/security/vulns.git<span class="w"> </span>~/vulns
+</pre></div>
+</div>
+<p>Oppure, se già presenti per un checkout:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>-C<span class="w"> </span>~/vulns<span class="w"> </span>pull
+</pre></div>
+</div>
+<p>Infine, eseguire lo script utilizzando uno degli esempi seguenti. I primi due esempi sono i più precisi e utilizzano il vecchio file cve-summary.json.</p>
+<ul>
+<li><p>Esempio con <code class="docutils literal notranslate"><span class="pre">--old-cve-report</span></code> come input:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>openembedded-core/scripts/contrib/improve_kernel_cve_report.py<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--spdx<span class="w"> </span>tmp/deploy/spdx/3.0.1/qemux86_64/recipes/recipe-linux-yocto.spdx.json<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--datadir<span class="w"> </span>~/vulns<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--old-cve-report<span class="w"> </span>build/tmp/deploy/images/&lt;machine&gt;/&lt;image-name&gt;-&lt;machine&gt;.rootfs.sbom-cve-check.yocto.json
+</pre></div>
+</div>
+</li>
+<li><p>Esempio con il file <code class="docutils literal notranslate"><span class="pre">--debug-sources</span></code> al posto del file del kernel SPDX:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>openembedded-core/scripts/contrib/improve_kernel_cve_report.py<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--debug-sources<span class="w"> </span>tmp/pkgdata/qemux86_64/debugsources/linux-yocto-debugsources.json.zstd<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--datadir<span class="w"> </span>~/vulns<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--old-cve-report<span class="w"> </span>build/tmp/deploy/images/&lt;machine&gt;/&lt;image-name&gt;-&lt;machine&gt;.rootfs.sbom-cve-check.yocto.json
+</pre></div>
+</div>
+</li>
+<li><p>Esempio con <code class="docutils literal notranslate"><span class="pre">--kernel-version</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python3<span class="w"> </span>openembedded-core/scripts/contrib/improve_kernel_cve_report.py<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--spdx<span class="w"> </span>tmp/deploy/spdx/3.0.1/qemux86_64/recipes/recipe-linux-yocto.spdx.json<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--kernel-version<span class="w"> </span><span class="m">6</span>.12.27<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--datadir<span class="w"> </span>~/vulns
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Esempio di output per una CVE il cui stato è stato modificato in &quot;Ignored&quot; perché i file sorgente associati alla CVE non sono stati compilati:perché i file sorgente associati alla CVE non sono stati compilati:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVE-2025-38384"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ignored"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"not-applicable-config"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In the Linux kernel, the following vulnerability has been resolved (...)"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Source code not compiled by config. {'drivers/mtd/nand/spi/core.c'}"</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Esempio di output per una CVE non inclusa nell'intervallo:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVE-2025-40017"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patched"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fixed-version"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In the Linux kernel, the following vulnerability has been resolved (...)"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"only affects 6.15 onwards"</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Esempio di output per una CVE vulnerabile:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVE-2024-58093"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unpatched"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"version-in-range"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In the Linux kernel, the following vulnerability has been resolved (...)"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Needs backporting (fixed from 6.15)"</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Esempio di output per una CVE rifiutata da Linux CNA:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CVE-2025-38380"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ignored"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rejected"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In the Linux kernel, the following vulnerability has been resolved (...)"</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Rejected by CNA"</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

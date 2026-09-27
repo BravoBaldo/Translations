@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>16 Speeding Up a Build &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="17 Limiting the Host Resources Usage" href="limiting-resources.html" />
+    <link rel="prev" title="15 Building Images for Multiple Targets With Multiconfig" href="multiconfig.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale dei Task di Sviluppo</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Il Manuale di Sviluppo dei Task di Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html">2 Setting Up to Use the Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="layers.html">3 Comprendere e Creare i Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customizing-images.html">4 Customizing Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-recipe.html">5 Scrivere una Nuova Ricetta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-machine.html">6 Adding a New Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrading-recipes.html">7 Upgrading Recipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temporary-source-code.html">8 Finding Temporary Source Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-fragments.html">9 Creating New Configuration Fragments In Your Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="poky-manual-setup.html">10 Setting Up the Poky Reference Distro Manually</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quilt.html">11 Using Quilt in Your Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development-shell.html">12 Using a Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-development-shell.html">13 Using a Python Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html">14 Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiconfig.html">15 Building Images for Multiple Targets With Multiconfig</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">16 Speeding Up a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiting-resources.html">17 Limiting the Host Resources Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html">18 Working With Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prebuilt-libraries.html">19 Working with Pre-Built Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devtool.html">20 Using the <code class="docutils literal notranslate"><span class="pre">devtool</span></code> command-line tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="x32-psabi.html">21 Using x32 psABI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gobject-introspection.html">22 Enabling GObject Introspection Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-toolchain.html">23 Optionally Using an External Toolchain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wic.html">24 Creating Partitioned Images Using Wic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bmaptool.html">25 Flashing Images Using <cite>bmaptool</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-distribution.html">26 Creating Your Own Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-template-configuration-directory.html">27 Creating a Custom Template Configuration Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disk-space.html">28 Conserving Disk Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">29 Working with Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="efficiently-fetching-sources.html">30 Efficiently Fetching Source Files During a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="init-manager.html">31 Selecting an Initialization Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device-manager.html">32 Selecting a Device Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-scm.html">33 Using an External SCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-quality.html">34 Maintaining Build Output Quality with <code class="docutils literal notranslate"><span class="pre">buildhistory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">35 Debugging Tools and Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="licenses.html">36 Working With Licenses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbom.html">37 Creating a Software Bill of Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error-reporting-tool.html">38 Using the Error Reporting Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wayland.html">39 Using Wayland and Weston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qemu.html">40 Using the Quick EMUlator (QEMU)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bblock.html">41 Locking and Unlocking Recipes Using <code class="docutils literal notranslate"><span class="pre">bblock</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sstate-mirrors-setup.html">42 Setting up a Shared State Cache Mirror</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hashequivserver.html">43 Setting up a Hash Equivalence Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sviluppo dei Task di Yocto Project</a> &raquo;</li>
+    
+    <li><span class="section-number">16 </span>Speeding Up a Build</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dev-manual/speeding-up-build.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="speeding-up-a-build">
+<h1><span class="section-number">16 </span>Speeding Up a Build<a class="headerlink" href="#speeding-up-a-build" title="Link to this heading"></a></h1>
+<p>Build time can be an issue. By default, the build system uses simple
+controls to try and maximize build efficiency. In general, the default
+settings for all the following variables result in the most efficient
+build times when dealing with single socket systems (i.e. a single CPU).
+If you have multiple CPUs, you might try increasing the default values
+to gain more speed. See the descriptions in the glossary for each
+variable for more information:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-BB_NUMBER_THREADS"><span class="xref std std-term">BB_NUMBER_THREADS</span></a>:
+The maximum number of threads BitBake simultaneously executes.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-BB_NUMBER_PARSE_THREADS"><span class="xref std std-term">BB_NUMBER_PARSE_THREADS</span></a>:
+The number of threads BitBake uses during parsing.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-PARALLEL_MAKE"><span class="xref std std-term">PARALLEL_MAKE</span></a>: Extra
+options passed to the <code class="docutils literal notranslate"><span class="pre">make</span></code> command during the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-compile"><span class="std std-ref">do_compile</span></a> task in
+order to specify parallel compilation on the local build host.</p></li>
+<li><p><a class="reference internal" href="../ref-manual/variables.html#term-PARALLEL_MAKEINST"><span class="xref std std-term">PARALLEL_MAKEINST</span></a>:
+Extra options passed to the <code class="docutils literal notranslate"><span class="pre">make</span></code> command during the
+<a class="reference internal" href="../ref-manual/tasks.html#ref-tasks-install"><span class="std std-ref">do_install</span></a> task in
+order to specify parallel installation on the local build host.</p></li>
+</ul>
+<p>As mentioned, these variables all scale to the number of processor cores
+available on the build system. For single socket systems, this
+auto-scaling ensures that the build system fundamentally takes advantage
+of potential parallel operations during the build based on the build
+machine's capabilities.</p>
+<p>Additional factors that can affect build speed are:</p>
+<ul class="simple">
+<li><p>File system type: The file system type that the build is being
+performed on can also influence performance. Using <code class="docutils literal notranslate"><span class="pre">ext4</span></code> is
+recommended as compared to <code class="docutils literal notranslate"><span class="pre">ext2</span></code> and <code class="docutils literal notranslate"><span class="pre">ext3</span></code> due to <code class="docutils literal notranslate"><span class="pre">ext4</span></code>
+improved features such as extents.</p></li>
+<li><p>Disabling the updating of access time using <code class="docutils literal notranslate"><span class="pre">noatime</span></code>: The
+<code class="docutils literal notranslate"><span class="pre">noatime</span></code> mount option prevents the build system from updating file
+and directory access times.</p></li>
+<li><p>Setting a longer commit: Using the &quot;commit=&quot; mount option increases
+the interval in seconds between disk cache writes. Changing this
+interval from the five second default to something longer increases
+the risk of data loss but decreases the need to write to the disk,
+thus increasing the build performance.</p></li>
+<li><p>Choosing the packaging backend: Of the available packaging backends,
+IPK is the fastest. Additionally, selecting a singular packaging
+backend also helps.</p></li>
+<li><p>Using <code class="docutils literal notranslate"><span class="pre">tmpfs</span></code> for <a class="reference internal" href="../ref-manual/variables.html#term-TMPDIR"><span class="xref std std-term">TMPDIR</span></a>
+as a temporary file system: While this can help speed up the build,
+the benefits are limited due to the compiler using <code class="docutils literal notranslate"><span class="pre">-pipe</span></code>. The
+build system goes to some lengths to avoid <code class="docutils literal notranslate"><span class="pre">sync()</span></code> calls into the
+file system on the principle that if there was a significant failure,
+the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> contents could easily be rebuilt.</p></li>
+<li><p>Inheriting the <a class="reference internal" href="../ref-manual/classes.html#ref-classes-rm-work"><span class="std std-ref">rm_work</span></a> class:
+Inheriting this class has shown to speed up builds due to
+significantly lower amounts of data stored in the data cache as well
+as on disk. Inheriting this class also makes cleanup of
+<a class="reference internal" href="../ref-manual/variables.html#term-TMPDIR"><span class="xref std std-term">TMPDIR</span></a> faster, at the
+expense of being easily able to dive into the source code. File
+system maintainers have recommended that the fastest way to clean up
+large numbers of files is to reformat partitions rather than delete
+files due to the linear nature of partitions. This, of course,
+assumes you structure the disk partitions and file systems in a way
+that this is practical.</p></li>
+</ul>
+<p>Aside from the previous list, you should keep some trade-offs in mind
+that can help you speed up the build:</p>
+<ul>
+<li><p>Remove items from
+<a class="reference internal" href="../ref-manual/variables.html#term-DISTRO_FEATURES"><span class="xref std std-term">DISTRO_FEATURES</span></a>
+that you might not need.</p></li>
+<li><p>Exclude debug symbols and other debug information: If you do not need
+these symbols and other debug information, disabling the <code class="docutils literal notranslate"><span class="pre">*-dbg</span></code>
+package generation can speed up the build. You can disable this
+generation by setting the
+<a class="reference internal" href="../ref-manual/variables.html#term-INHIBIT_PACKAGE_DEBUG_SPLIT"><span class="xref std std-term">INHIBIT_PACKAGE_DEBUG_SPLIT</span></a>
+variable to &quot;1&quot;.</p></li>
+<li><p>Disable static library generation for recipes derived from
+<code class="docutils literal notranslate"><span class="pre">autoconf</span></code> or <code class="docutils literal notranslate"><span class="pre">libtool</span></code>: Here is an example showing how to
+disable static libraries and still provide an override to handle
+exceptions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">STATICLIBCONF</span> <span class="o">=</span> <span class="s2">"--disable-static"</span>
+<span class="n">STATICLIBCONF</span><span class="p">:</span><span class="n">sqlite3</span><span class="o">-</span><span class="n">native</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="n">EXTRA_OECONF</span> <span class="o">+=</span> <span class="s2">"$</span><span class="si">{STATICLIBCONF}</span><span class="s2">"</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<ul class="simple">
+<li><p>Some recipes need static libraries in order to work correctly
+(e.g. <code class="docutils literal notranslate"><span class="pre">pseudo-native</span></code> needs <code class="docutils literal notranslate"><span class="pre">sqlite3-native</span></code>). Overrides,
+as in the previous example, account for these kinds of
+exceptions.</p></li>
+<li><p>Some packages have packaging code that assumes the presence of
+the static libraries. If so, you might need to exclude them as
+well.</p></li>
+</ul>
+</div>
+</li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

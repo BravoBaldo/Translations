@@ -1,0 +1,520 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6 Customizing the Extensible SDK standalone installer &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="7 Customizing the Standard SDK" href="appendix-customizing-standard.html" />
+    <link rel="prev" title="5 Obtaining the SDK" href="appendix-obtain.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduzione e Panoramica</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Build Rapida</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">Cosa sarebbe stato utile sapere sullo Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transizione a un ambiente personalizzato per lo sviluppo di sistemi</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Panoramica e Concetti</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guida per i Collaboratori</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Guida per i Collaboratori</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Manuale di Riferimento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Manuale del Board Support Package (BSP)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Manuale dei Task di Sviluppo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Manuale di Sviluppo del Kernel Linux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Manuale di Sicurezza</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Manuale di Profilazione e Tracing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Manuale di Sviluppo di Applicazioni e degli SDK</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduzione</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extensible.html">2 Using the Extensible SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="using.html">3 Using the Standard SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="working-projects.html">4 Using the SDK Toolchain Directly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix-obtain.html">5 Obtaining the SDK</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">6 Customizing the Extensible SDK standalone installer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-the-extensible-sdk">6.1 Configuring the Extensible SDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adjusting-the-extensible-sdk-to-suit-your-build-host-s-setup">6.2 Adjusting the Extensible SDK to Suit Your Build Host's Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changing-the-extensible-sdk-installer-title">6.3 Changing the Extensible SDK Installer Title</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#providing-updates-to-the-extensible-sdk-after-installation">6.4 Providing Updates to the Extensible SDK After Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changing-the-default-sdk-installation-directory">6.5 Changing the Default SDK Installation Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#providing-additional-installable-extensible-sdk-content">6.6 Providing Additional Installable Extensible SDK Content</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#minimizing-the-size-of-the-extensible-sdk-installer-download">6.7 Minimizing the Size of the Extensible SDK Installer Download</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="appendix-customizing-standard.html">7 Customizing the Standard SDK</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Manuale di Toaster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Manuale dell'Ambiente di Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">Manuale Utente di BitBake</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Riferimento sulla Sicurezza</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Riferimento di Yocto Project Security</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Informazioni sulla Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Note di Rilascio e Guide alla Migrazione</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuali delle Release</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indice della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Download della Documentazione</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Download della Documentazione</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Manuale di Sviluppo di Applicazioni Yocto Project e Software Development Kit (SDK/eSDK)</a> &raquo;</li>
+    
+    <li><span class="section-number">6 </span>Customizing the Extensible SDK standalone installer</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/sdk-manual/appendix-customizing.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="customizing-the-extensible-sdk-standalone-installer">
+<h1><span class="section-number">6 </span>Customizing the Extensible SDK standalone installer<a class="headerlink" href="#customizing-the-extensible-sdk-standalone-installer" title="Link to this heading"></a></h1>
+<p>This appendix describes customizations you can apply to the extensible
+SDK when using in the standalone installer version.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>It is also possible to use the Extensible SDK functionality directly in a
+Yocto build, avoiding separate installer artefacts. Please refer to
+&quot;<a class="reference internal" href="extensible.html#installing-the-extensible-sdk"><span class="std std-ref">Installing the Extensible SDK</span></a>&quot;</p>
+</div>
+<section id="configuring-the-extensible-sdk">
+<h2><span class="section-number">6.1 </span>Configuring the Extensible SDK<a class="headerlink" href="#configuring-the-extensible-sdk" title="Link to this heading"></a></h2>
+<p>The extensible SDK primarily consists of a pre-configured copy of the
+OpenEmbedded build system from which it was produced. Thus, the SDK's
+configuration is derived using that build system and the filters shown
+in the following list. When these filters are present, the OpenEmbedded
+build system applies them against <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> and
+<a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-auto-conf"><span class="std std-ref">build/conf/auto.conf</span></a>:</p>
+<ul>
+<li><p>Variables whose values start with &quot;/&quot; are excluded since the
+assumption is that those values are paths that are likely to be
+specific to the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Host"><span class="xref std std-term">Build Host</span></a>.</p></li>
+<li><p>Variables listed in
+<a class="reference internal" href="../ref-manual/variables.html#term-ESDK_LOCALCONF_REMOVE"><span class="xref std std-term">ESDK_LOCALCONF_REMOVE</span></a>
+are excluded. These variables are not allowed through from the
+OpenEmbedded build system configuration into the extensible SDK
+configuration. Typically, these variables are specific to the machine
+on which the build system is running and could be problematic as part
+of the extensible SDK configuration.</p>
+<p>For a list of the variables excluded by default, see the
+<a class="reference internal" href="../ref-manual/variables.html#term-ESDK_LOCALCONF_REMOVE"><span class="xref std std-term">ESDK_LOCALCONF_REMOVE</span></a>
+in the glossary of the Yocto Project Reference Manual.</p>
+</li>
+<li><p>Variables listed in
+<a class="reference internal" href="../ref-manual/variables.html#term-ESDK_LOCALCONF_ALLOW"><span class="xref std std-term">ESDK_LOCALCONF_ALLOW</span></a>
+are included. Including a variable in the value of
+<a class="reference internal" href="../ref-manual/variables.html#term-ESDK_LOCALCONF_ALLOW"><span class="xref std std-term">ESDK_LOCALCONF_ALLOW</span></a> overrides either of the previous two
+filters. The default value is blank.</p></li>
+<li><p>Classes inherited globally with <a class="reference internal" href="../ref-manual/variables.html#term-INHERIT"><span class="xref std std-term">INHERIT</span></a> that are listed in
+<a class="reference internal" href="../ref-manual/variables.html#term-ESDK_CLASS_INHERIT_DISABLE"><span class="xref std std-term">ESDK_CLASS_INHERIT_DISABLE</span></a> are disabled. Using
+<a class="reference internal" href="../ref-manual/variables.html#term-ESDK_CLASS_INHERIT_DISABLE"><span class="xref std std-term">ESDK_CLASS_INHERIT_DISABLE</span></a> to disable these classes is the typical
+method to disable classes that are problematic or unnecessary in the SDK
+context. The default value disables the <a class="reference internal" href="../ref-manual/classes.html#ref-classes-buildhistory"><span class="std std-ref">buildhistory</span></a>
+class.</p></li>
+</ul>
+<p>Additionally, the contents of <code class="docutils literal notranslate"><span class="pre">conf/sdk-extra.conf</span></code>, when present, are
+appended to the end of <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> within the produced SDK,
+without any filtering. The <code class="docutils literal notranslate"><span class="pre">sdk-extra.conf</span></code> file is particularly
+useful if you want to set a variable value just for the SDK and not the
+OpenEmbedded build system used to create the SDK.</p>
+</section>
+<section id="adjusting-the-extensible-sdk-to-suit-your-build-host-s-setup">
+<h2><span class="section-number">6.2 </span>Adjusting the Extensible SDK to Suit Your Build Host's Setup<a class="headerlink" href="#adjusting-the-extensible-sdk-to-suit-your-build-host-s-setup" title="Link to this heading"></a></h2>
+<p>In most cases, the extensible SDK defaults should work with your <a class="reference internal" href="../ref-manual/terms.html#term-Build-Host"><span class="xref std std-term">Build
+Host</span></a>'s setup. However, there are cases when you might consider making
+adjustments:</p>
+<ul>
+<li><p>If your SDK configuration inherits additional classes using the
+<a class="reference internal" href="../ref-manual/variables.html#term-INHERIT"><span class="xref std std-term">INHERIT</span></a> variable and you
+do not need or want those classes enabled in the SDK, you can
+disable them by adding them to the <a class="reference internal" href="../ref-manual/variables.html#term-ESDK_CLASS_INHERIT_DISABLE"><span class="xref std std-term">ESDK_CLASS_INHERIT_DISABLE</span></a>
+variable as described in the previous section.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The default value of <a class="reference internal" href="../ref-manual/variables.html#term-ESDK_CLASS_INHERIT_DISABLE"><span class="xref std std-term">ESDK_CLASS_INHERIT_DISABLE</span></a>
+is set using the &quot;?=&quot; operator. Consequently, you will need to
+either define the entire list by using the &quot;=&quot; operator, or you
+will need to append a value using either &quot;:append&quot; or the &quot;+=&quot;
+operator. You can learn more about these operators in the
+&quot;<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-metadata.html#basic-syntax" title="(in Bitbake Version: Current Development)"><span>Basic Syntax</span></a>&quot;
+section of the BitBake User Manual.</p>
+</div>
+</li>
+<li><p>If you have classes or recipes that add additional tasks to the
+standard build flow (i.e. the tasks execute as the recipe builds as
+opposed to being called explicitly), then you need to do one of the
+following:</p>
+<ul class="simple">
+<li><p>After ensuring the tasks are <a class="reference internal" href="../overview-manual/concepts.html#shared-state-cache"><span class="std std-ref">shared
+state</span></a> tasks (i.e. the
+output of the task is saved to and can be restored from the shared
+state cache) or ensuring the tasks are able to be produced quickly
+from a task that is a shared state task, add the task name to the
+value of
+<a class="reference internal" href="../ref-manual/variables.html#term-SDK_RECRDEP_TASKS"><span class="xref std std-term">SDK_RECRDEP_TASKS</span></a>.</p></li>
+<li><p>Disable the tasks if they are added by a class and you do not need
+the functionality the class provides in the extensible SDK. To
+disable the tasks, add the class to the <a class="reference internal" href="../ref-manual/variables.html#term-ESDK_CLASS_INHERIT_DISABLE"><span class="xref std std-term">ESDK_CLASS_INHERIT_DISABLE</span></a>
+variable as described in the previous section.</p></li>
+</ul>
+</li>
+<li><p>Generally, you want to have a shared state mirror set up so users of
+the SDK can add additional items to the SDK after installation
+without needing to build the items from source. See the
+&quot;<a class="reference internal" href="#providing-additional-installable-extensible-sdk-content"><span class="std std-ref">Providing Additional Installable Extensible SDK Content</span></a>&quot;
+section for information.</p></li>
+<li><p>If you want users of the SDK to be able to easily update the SDK, you
+need to set the
+<a class="reference internal" href="../ref-manual/variables.html#term-SDK_UPDATE_URL"><span class="xref std std-term">SDK_UPDATE_URL</span></a>
+variable. For more information, see the
+&quot;<a class="reference internal" href="#providing-updates-to-the-extensible-sdk-after-installation"><span class="std std-ref">Providing Updates to the Extensible SDK After Installation</span></a>&quot;
+section.</p></li>
+<li><p>If you have adjusted the list of files and directories that appear in
+<a class="reference internal" href="../ref-manual/variables.html#term-COREBASE"><span class="xref std std-term">COREBASE</span></a> (other than
+layers that are enabled through <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-bblayers-conf"><span class="std std-ref">build/conf/bblayers.conf</span></a>), then you must
+list these files in
+<a class="reference internal" href="../ref-manual/variables.html#term-COREBASE_FILES"><span class="xref std std-term">COREBASE_FILES</span></a> so
+that the files are copied into the SDK.</p></li>
+<li><p>If your OpenEmbedded build system setup uses a different environment
+setup script other than
+<a class="reference internal" href="../ref-manual/structure.html#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a>, then you must
+set
+<a class="reference internal" href="../ref-manual/variables.html#term-OE_INIT_ENV_SCRIPT"><span class="xref std std-term">OE_INIT_ENV_SCRIPT</span></a>
+to point to the environment setup script you use.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You must also reflect this change in the value used for the
+<a class="reference internal" href="../ref-manual/variables.html#term-COREBASE_FILES"><span class="xref std std-term">COREBASE_FILES</span></a> variable as previously described.</p>
+</div>
+</li>
+</ul>
+</section>
+<section id="changing-the-extensible-sdk-installer-title">
+<h2><span class="section-number">6.3 </span>Changing the Extensible SDK Installer Title<a class="headerlink" href="#changing-the-extensible-sdk-installer-title" title="Link to this heading"></a></h2>
+<p>You can change the displayed title for the SDK installer by setting the
+<a class="reference internal" href="../ref-manual/variables.html#term-SDK_TITLE"><span class="xref std std-term">SDK_TITLE</span></a> variable and then
+rebuilding the SDK installer. For information on how to build an SDK
+installer, see the &quot;<a class="reference internal" href="appendix-obtain.html#building-an-sdk-installer"><span class="std std-ref">Building an SDK Installer</span></a>&quot;
+section.</p>
+<p>By default, this title is derived from
+<a class="reference internal" href="../ref-manual/variables.html#term-DISTRO_NAME"><span class="xref std std-term">DISTRO_NAME</span></a> when it is
+set. If the <a class="reference internal" href="../ref-manual/variables.html#term-DISTRO_NAME"><span class="xref std std-term">DISTRO_NAME</span></a> variable is not set, the title is derived
+from the <a class="reference internal" href="../ref-manual/variables.html#term-DISTRO"><span class="xref std std-term">DISTRO</span></a> variable.</p>
+<p>The
+<a class="reference internal" href="../ref-manual/classes.html#id1"><span class="std std-ref">populate_sdk_base</span></a>
+class defines the default value of the <a class="reference internal" href="../ref-manual/variables.html#term-SDK_TITLE"><span class="xref std std-term">SDK_TITLE</span></a> variable as
+follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SDK_TITLE ??= "${@d.getVar('DISTRO_NAME') or d.getVar('DISTRO')} SDK"
+</pre></div>
+</div>
+<p>While there are several ways of changing this variable, an efficient method is
+to set the variable in your distribution's configuration file. Doing so
+creates an SDK installer title that applies across your distribution. As
+an example, assume you have your own layer for your distribution named
+&quot;meta-mydistro&quot; and you are using the same type of file hierarchy as
+does the default &quot;poky&quot; distribution. If so, you could update the
+<a class="reference internal" href="../ref-manual/variables.html#term-SDK_TITLE"><span class="xref std std-term">SDK_TITLE</span></a> variable in the
+<code class="docutils literal notranslate"><span class="pre">~/meta-mydistro/conf/distro/mydistro.conf</span></code> file using the following
+form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SDK_TITLE = "your_title"
+</pre></div>
+</div>
+</section>
+<section id="providing-updates-to-the-extensible-sdk-after-installation">
+<h2><span class="section-number">6.4 </span>Providing Updates to the Extensible SDK After Installation<a class="headerlink" href="#providing-updates-to-the-extensible-sdk-after-installation" title="Link to this heading"></a></h2>
+<p>When you make changes to your configuration or to the metadata and if
+you want those changes to be reflected in installed SDKs, you need to
+perform additional steps. These steps make it possible for anyone using
+the installed SDKs to update the installed SDKs by using the
+<code class="docutils literal notranslate"><span class="pre">devtool</span> <span class="pre">sdk-update</span></code> command:</p>
+<ol class="arabic">
+<li><p>Create a directory that can be shared over HTTP or HTTPS. You can do
+this by setting up a web server such as an <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Apache_HTTP_Server">Apache HTTP Server</a> or <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Nginx">Nginx</a> server in the cloud
+to host the directory. This directory must contain the published SDK.</p></li>
+<li><p>Set the
+<a class="reference internal" href="../ref-manual/variables.html#term-SDK_UPDATE_URL"><span class="xref std std-term">SDK_UPDATE_URL</span></a>
+variable to point to the corresponding HTTP or HTTPS URL. Setting
+this variable causes any SDK built to default to that URL and thus,
+the user does not have to pass the URL to the <code class="docutils literal notranslate"><span class="pre">devtool</span> <span class="pre">sdk-update</span></code>
+command as described in the
+&quot;<a class="reference internal" href="extensible.html#applying-updates-to-an-installed-extensible-sdk"><span class="std std-ref">Applying Updates to an Installed Extensible SDK</span></a>&quot;
+section.</p></li>
+<li><p>Build the extensible SDK normally (i.e., use the
+<code class="docutils literal notranslate"><span class="pre">bitbake</span> <span class="pre">-c</span> <span class="pre">populate_sdk_ext</span></code> imagename command).</p></li>
+<li><p>Publish the SDK using the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>oe-publish-sdk<span class="w"> </span>some_path/sdk-installer.sh<span class="w"> </span>path_to_shared_http_directory
+</pre></div>
+</div>
+<p>You must
+repeat this step each time you rebuild the SDK with changes that you
+want to make available through the update mechanism.</p>
+</li>
+</ol>
+<p>Completing the above steps allows users of the existing installed SDKs
+to simply run <code class="docutils literal notranslate"><span class="pre">devtool</span> <span class="pre">sdk-update</span></code> to retrieve and apply the latest
+updates. See the
+&quot;<a class="reference internal" href="extensible.html#applying-updates-to-an-installed-extensible-sdk"><span class="std std-ref">Applying Updates to an Installed Extensible SDK</span></a>&quot;
+section for further information.</p>
+</section>
+<section id="changing-the-default-sdk-installation-directory">
+<h2><span class="section-number">6.5 </span>Changing the Default SDK Installation Directory<a class="headerlink" href="#changing-the-default-sdk-installation-directory" title="Link to this heading"></a></h2>
+<p>When you build the installer for the Extensible SDK, the default
+installation directory for the SDK is based on the
+<a class="reference internal" href="../ref-manual/variables.html#term-DISTRO"><span class="xref std std-term">DISTRO</span></a> and
+<a class="reference internal" href="../ref-manual/variables.html#term-SDKEXTPATH"><span class="xref std std-term">SDKEXTPATH</span></a> variables from
+within the
+<a class="reference internal" href="../ref-manual/classes.html#id1"><span class="std std-ref">populate_sdk_base</span></a>
+class as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SDKEXTPATH ??= "~/${@d.getVar('DISTRO')}_sdk"
+</pre></div>
+</div>
+<p>You can
+change this default installation directory by specifically setting the
+<a class="reference internal" href="../ref-manual/variables.html#term-SDKEXTPATH"><span class="xref std std-term">SDKEXTPATH</span></a> variable.</p>
+<p>While there are several ways of setting this variable,
+the method that makes the most sense is to set the variable in your
+distribution's configuration file. Doing so creates an SDK installer
+default directory that applies across your distribution. As an example,
+assume you have your own layer for your distribution named
+&quot;meta-mydistro&quot; and you are using the same type of file hierarchy as
+does the default &quot;poky&quot; distribution. If so, you could update the
+<a class="reference internal" href="../ref-manual/variables.html#term-SDKEXTPATH"><span class="xref std std-term">SDKEXTPATH</span></a> variable in the
+<code class="docutils literal notranslate"><span class="pre">~/meta-mydistro/conf/distro/mydistro.conf</span></code> file using the following
+form:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SDKEXTPATH = "some_path_for_your_installed_sdk"
+</pre></div>
+</div>
+<p>After building your installer, running it prompts the user for
+acceptance of the some_path_for_your_installed_sdk directory as the
+default location to install the Extensible SDK.</p>
+</section>
+<section id="providing-additional-installable-extensible-sdk-content">
+<h2><span class="section-number">6.6 </span>Providing Additional Installable Extensible SDK Content<a class="headerlink" href="#providing-additional-installable-extensible-sdk-content" title="Link to this heading"></a></h2>
+<p>If you want the users of an extensible SDK you build to be able to add
+items to the SDK without requiring the users to build the items from
+source, you need to do a number of things:</p>
+<ol class="arabic">
+<li><p>Ensure the additional items you want the user to be able to install
+are already built:</p>
+<ul class="simple">
+<li><p>Build the items explicitly. You could use one or more &quot;meta&quot;
+recipes that depend on lists of other recipes.</p></li>
+<li><p>Build the &quot;world&quot; target and set
+<code class="docutils literal notranslate"><span class="pre">EXCLUDE_FROM_WORLD:pn-</span></code>recipename for the recipes you do not
+want built. See the
+<a class="reference internal" href="../ref-manual/variables.html#term-EXCLUDE_FROM_WORLD"><span class="xref std std-term">EXCLUDE_FROM_WORLD</span></a>
+variable for additional information.</p></li>
+</ul>
+</li>
+<li><p>Expose the <code class="docutils literal notranslate"><span class="pre">sstate-cache</span></code> directory produced by the build.
+Typically, you expose this directory by making it available through
+an <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Apache_HTTP_Server">Apache HTTP Server</a> or
+<a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Nginx">Nginx</a> server.</p></li>
+<li><p>Set the appropriate configuration so that the produced SDK knows how
+to find the configuration. The variable you need to set is
+<a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SSTATE_MIRRORS = "file://.* https://example.com/some_path/sstate-cache/PATH"
+</pre></div>
+</div>
+<p>You can set the <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a> variable in two different places:</p>
+<ul>
+<li><p>If the mirror value you are setting is appropriate to be set for
+both the OpenEmbedded build system that is actually building the
+SDK and the SDK itself (i.e. the mirror is accessible in both
+places or it will fail quickly on the OpenEmbedded build system
+side, and its contents will not interfere with the build), then
+you can set the variable in your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> or custom distro
+configuration file. You can then pass the variable to the SDK by
+adding the following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ESDK_LOCALCONF_ALLOW = "SSTATE_MIRRORS"
+</pre></div>
+</div>
+</li>
+<li><p>Alternatively, if you just want to set the <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a>
+variable's value for the SDK alone, create a <code class="docutils literal notranslate"><span class="pre">conf/sdk-extra.conf</span></code>
+file either in your <a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> or within any
+layer and put your <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a> setting within that file.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>This second option is the safest option should you have any
+doubts as to which method to use when setting
+<a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a></p>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="minimizing-the-size-of-the-extensible-sdk-installer-download">
+<h2><span class="section-number">6.7 </span>Minimizing the Size of the Extensible SDK Installer Download<a class="headerlink" href="#minimizing-the-size-of-the-extensible-sdk-installer-download" title="Link to this heading"></a></h2>
+<p>By default, the extensible SDK bundles the shared state artifacts for
+everything needed to reconstruct the image for which the SDK was built.
+This bundling can lead to an SDK installer file that is a Gigabyte or
+more in size. If the size of this file causes a problem, you can build
+an SDK that has just enough in it to install and provide access to the
+<code class="docutils literal notranslate"><span class="pre">devtool</span> <span class="pre">command</span></code> by setting the following in your configuration:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SDK_EXT_TYPE = "minimal"
+</pre></div>
+</div>
+<p>Setting
+<a class="reference internal" href="../ref-manual/variables.html#term-SDK_EXT_TYPE"><span class="xref std std-term">SDK_EXT_TYPE</span></a> to
+&quot;minimal&quot; produces an SDK installer that is around 35 Mbytes in size,
+which downloads and installs quickly. You need to realize, though, that
+the minimal installer does not install any libraries or tools out of the
+box. These libraries and tools must be installed either &quot;on the fly&quot; or
+through actions you perform using <code class="docutils literal notranslate"><span class="pre">devtool</span></code> or explicitly with the
+<code class="docutils literal notranslate"><span class="pre">devtool</span> <span class="pre">sdk-install</span></code> command.</p>
+<p>In most cases, when building a minimal SDK you need to also enable
+bringing in the information on a wider range of packages produced by the
+system. Requiring this wider range of information is particularly true
+so that <code class="docutils literal notranslate"><span class="pre">devtool</span> <span class="pre">add</span></code> is able to effectively map dependencies it
+discovers in a source tree to the appropriate recipes. Additionally, the
+information enables the <code class="docutils literal notranslate"><span class="pre">devtool</span> <span class="pre">search</span></code> command to return useful
+results.</p>
+<p>To facilitate this wider range of information, you would need to set the
+following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SDK_INCLUDE_PKGDATA = "1"
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="../ref-manual/variables.html#term-SDK_INCLUDE_PKGDATA"><span class="xref std std-term">SDK_INCLUDE_PKGDATA</span></a> variable for additional information.</p>
+<p>Setting the <a class="reference internal" href="../ref-manual/variables.html#term-SDK_INCLUDE_PKGDATA"><span class="xref std std-term">SDK_INCLUDE_PKGDATA</span></a> variable as shown causes the &quot;world&quot;
+target to be built so that information for all of the recipes included
+within it are available. Having these recipes available increases build
+time significantly and increases the size of the SDK installer by 30-80
+Mbytes depending on how many recipes are included in your configuration.</p>
+<p>You can use <code class="docutils literal notranslate"><span class="pre">EXCLUDE_FROM_WORLD:pn-</span></code>recipename for recipes you want
+to exclude. However, it is assumed that you would need to be building
+the &quot;world&quot; target if you want to provide additional items to the SDK.
+Consequently, building for &quot;world&quot; should not represent undue overhead
+in most cases.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>If you set
+SDK_EXT_TYPE
+to &quot;minimal&quot;, then providing a shared state mirror is mandatory so
+that items can be installed as needed. See the
+<a class="reference internal" href="#providing-additional-installable-extensible-sdk-content"><span class="std std-ref">Providing Additional Installable Extensible SDK Content</span></a>
+section for more information.</p>
+</div>
+<p>You can explicitly control whether or not to include the toolchain when
+you build an SDK by setting the
+<a class="reference internal" href="../ref-manual/variables.html#term-SDK_INCLUDE_TOOLCHAIN"><span class="xref std std-term">SDK_INCLUDE_TOOLCHAIN</span></a>
+variable to &quot;1&quot;. In particular, it is useful to include the toolchain
+when you have set <a class="reference internal" href="../ref-manual/variables.html#term-SDK_EXT_TYPE"><span class="xref std std-term">SDK_EXT_TYPE</span></a> to &quot;minimal&quot;, which by default,
+excludes the toolchain. Also, it is helpful if you are building a small
+SDK for use with an IDE or some other tool where you do not want to take
+extra steps to install a toolchain.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>
