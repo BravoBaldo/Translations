@@ -1,0 +1,993 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5 Source Directory Structure &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="6 Classes" href="classes.html" />
+    <link rel="prev" title="4 Yocto Project Releases and the Stable Release Process" href="release-process.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduction and Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Quick Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">What I wish I'd known about Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transitioning to a custom environment for systems development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Overview and Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributor Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Contributor Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuals</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="system-requirements.html">1 System Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yocto-project-supported-features.html">2 Yocto Project Supported Architectures And Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terms.html">3 Yocto Project Terms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release-process.html">4 Yocto Project Releases and the Stable Release Process</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">5 Source Directory Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#top-level-core-components">5.1 Top-Level Core Components</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bitbake">5.1.1 <code class="docutils literal notranslate"><span class="pre">bitbake/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build">5.1.2 <code class="docutils literal notranslate"><span class="pre">build/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#layers-yocto-docs">5.1.3 <code class="docutils literal notranslate"><span class="pre">layers/yocto-docs/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#layers-openembedded-core">5.1.4 <code class="docutils literal notranslate"><span class="pre">layers/openembedded-core/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#layers-meta-yocto">5.1.5 <code class="docutils literal notranslate"><span class="pre">layers/meta-yocto/</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#the-build-directory-build">5.2 The Build Directory --- <code class="docutils literal notranslate"><span class="pre">build/</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#build-buildhistory">5.2.1 <code class="docutils literal notranslate"><span class="pre">build/buildhistory/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-cache">5.2.2 <code class="docutils literal notranslate"><span class="pre">build/cache/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-conf-local-conf">5.2.3 <code class="docutils literal notranslate"><span class="pre">build/conf/local.conf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-conf-bblayers-conf">5.2.4 <code class="docutils literal notranslate"><span class="pre">build/conf/bblayers.conf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-conf-site-conf">5.2.5 <code class="docutils literal notranslate"><span class="pre">build/conf/site.conf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-conf-bblock-conf">5.2.6 <code class="docutils literal notranslate"><span class="pre">build/conf/bblock.conf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-conf-toolcfg-conf">5.2.7 <code class="docutils literal notranslate"><span class="pre">build/conf/toolcfg.conf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-conf-auto-conf">5.2.8 <code class="docutils literal notranslate"><span class="pre">build/conf/auto.conf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-downloads">5.2.9 <code class="docutils literal notranslate"><span class="pre">build/downloads/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-sstate-cache">5.2.10 <code class="docutils literal notranslate"><span class="pre">build/sstate-cache/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-tmp">5.2.11 <code class="docutils literal notranslate"><span class="pre">build/tmp/</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#the-openembedded-core-oe-core-metadata-meta">5.3 The OpenEmbedded-Core (OE-Core) Metadata --- <code class="docutils literal notranslate"><span class="pre">meta/</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#meta-classes">5.3.1 <code class="docutils literal notranslate"><span class="pre">meta/classes*/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-conf">5.3.2 <code class="docutils literal notranslate"><span class="pre">meta/conf/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-files">5.3.3 <code class="docutils literal notranslate"><span class="pre">meta/files/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-lib">5.3.4 <code class="docutils literal notranslate"><span class="pre">meta/lib/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-bsp">5.3.5 <code class="docutils literal notranslate"><span class="pre">meta/recipes-bsp/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-connectivity">5.3.6 <code class="docutils literal notranslate"><span class="pre">meta/recipes-connectivity/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-core">5.3.7 <code class="docutils literal notranslate"><span class="pre">meta/recipes-core/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-devtools">5.3.8 <code class="docutils literal notranslate"><span class="pre">meta/recipes-devtools/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-extended">5.3.9 <code class="docutils literal notranslate"><span class="pre">meta/recipes-extended/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-gnome">5.3.10 <code class="docutils literal notranslate"><span class="pre">meta/recipes-gnome/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-graphics">5.3.11 <code class="docutils literal notranslate"><span class="pre">meta/recipes-graphics/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-kernel">5.3.12 <code class="docutils literal notranslate"><span class="pre">meta/recipes-kernel/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-multimedia">5.3.13 <code class="docutils literal notranslate"><span class="pre">meta/recipes-multimedia/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-rt">5.3.14 <code class="docutils literal notranslate"><span class="pre">meta/recipes-rt/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-sato">5.3.15 <code class="docutils literal notranslate"><span class="pre">meta/recipes-sato/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-support">5.3.16 <code class="docutils literal notranslate"><span class="pre">meta/recipes-support/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-site">5.3.17 <code class="docutils literal notranslate"><span class="pre">meta/site/</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#meta-recipes-txt">5.3.18 <code class="docutils literal notranslate"><span class="pre">meta/recipes.txt</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html">6 Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tasks.html">7 Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fragments.html">8 Using Configuration Fragments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devtool-reference.html">9 <code class="docutils literal notranslate"><span class="pre">devtool</span></code> Quick Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kickstart.html">10 OpenEmbedded Kickstart (<code class="docutils literal notranslate"><span class="pre">.wks</span></code>) Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qa-checks.html">11 QA Error and Warning Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="images.html">12 Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">13 Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="variables.html">14 Variables Glossary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="varlocality.html">15 Variable Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html">16 FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resources.html">17 Contributions and Additional Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Board Support Package (BSP) Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Development Tasks Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Linux Kernel Development Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Security Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Profile and Tracing Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Application Development and SDKs Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Toaster Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Test Environment Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">BitBake User Manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Security Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Yocto Project Security Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Release Notes and Migration Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Manuals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation Downloads</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Documentation Downloads</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Yocto Project Reference Manual</a> &raquo;</li>
+    
+    <li><span class="section-number">5 </span>Source Directory Structure</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ref-manual/structure.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="source-directory-structure">
+<h1><span class="section-number">5 </span>Source Directory Structure<a class="headerlink" href="#source-directory-structure" title="Link to this heading"></a></h1>
+<p>The <a class="reference internal" href="terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a> consists of numerous files,
+directories and subdirectories; understanding their locations and
+contents is key to using the Yocto Project effectively. This chapter
+describes the Source Directory and gives information about those files
+and directories.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The OpenEmbedded build system does not support file or directory
+names that contain spaces. Be sure that the Source Directory you use
+does not contain these types of names.</p>
+</div>
+<p>For the following sections, we assume the core components of the <a class="reference internal" href="terms.html#term-Source-Directory"><span class="xref std std-term">Source
+Directory</span></a> are organized as follows:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>├── build/
+│   └── ...
+└── layers/
+    ├── bitbake/
+    ├── meta-yocto/
+    ├── openembedded-core/
+    └── yocto-docs/
+</pre></div>
+</div>
+<section id="top-level-core-components">
+<span id="structure-core"></span><h2><span class="section-number">5.1 </span>Top-Level Core Components<a class="headerlink" href="#top-level-core-components" title="Link to this heading"></a></h2>
+<p>This section describes the top-level components of the <a class="reference internal" href="terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a>.</p>
+<section id="bitbake">
+<span id="structure-core-bitbake"></span><h3><span class="section-number">5.1.1 </span><code class="docutils literal notranslate"><span class="pre">bitbake/</span></code><a class="headerlink" href="#bitbake" title="Link to this heading"></a></h3>
+<p>This directory includes a copy of BitBake for ease of use. The copy
+usually matches the current stable BitBake release from the BitBake
+project. BitBake, a <a class="reference internal" href="terms.html#term-Metadata"><span class="xref std std-term">Metadata</span></a> interpreter, reads the
+Yocto Project Metadata and runs the tasks defined by that data. Failures
+are usually caused by errors in your Metadata and not from BitBake
+itself.</p>
+<p>When you run the <code class="docutils literal notranslate"><span class="pre">bitbake</span></code> command, the main BitBake executable (which
+resides in the <code class="docutils literal notranslate"><span class="pre">bitbake/bin/</span></code> directory) starts. Sourcing the
+environment setup script (i.e. <a class="reference internal" href="#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a>) places
+the <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> and <code class="docutils literal notranslate"><span class="pre">bitbake/bin/</span></code> directories (in that order) into
+the shell's <code class="docutils literal notranslate"><span class="pre">PATH</span></code> environment variable.</p>
+<p>For more information on BitBake, see the <a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/index.html" title="(in Bitbake Version: Current Development)"><span class="xref std std-doc">BitBake User Manual</span></a>.</p>
+</section>
+<section id="build">
+<span id="structure-core-build"></span><h3><span class="section-number">5.1.2 </span><code class="docutils literal notranslate"><span class="pre">build/</span></code><a class="headerlink" href="#build" title="Link to this heading"></a></h3>
+<p>This directory contains user configuration files and the output
+generated by the OpenEmbedded build system in its standard configuration
+where the source tree is combined with the output. The <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>
+is created initially when you <code class="docutils literal notranslate"><span class="pre">source</span></code> the OpenEmbedded build environment
+setup script (i.e. <a class="reference internal" href="#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a>).</p>
+<p>It is also possible to place output and configuration files in a
+directory separate from the <a class="reference internal" href="terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a> by
+providing a directory name when you <code class="docutils literal notranslate"><span class="pre">source</span></code> the setup script. For
+information on separating output from your local Source Directory files
+(commonly described as an &quot;out of tree&quot; build), see the
+&quot;<a class="reference internal" href="#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a>&quot; section.</p>
+<p>See the &quot;<a class="reference internal" href="#structure-build"><span class="std std-ref">The Build Directory --- build/</span></a>&quot; section for details
+about the contents of the <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>.</p>
+</section>
+<section id="layers-yocto-docs">
+<span id="handbook"></span><h3><span class="section-number">5.1.3 </span><code class="docutils literal notranslate"><span class="pre">layers/yocto-docs/</span></code><a class="headerlink" href="#layers-yocto-docs" title="Link to this heading"></a></h3>
+<p>The Yocto documentation repository is hosted at <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/yocto-docs">https://git.yoctoproject.org/yocto-docs</a>.</p>
+<p>This directory holds the source for the Yocto Project documentation as
+well as templates and tools that allow you to generate PDF and HTML
+versions of the manuals. Each manual is contained in its own sub-folder;
+for example, the files for this reference manual reside in the
+<code class="docutils literal notranslate"><span class="pre">ref-manual/</span></code> directory.</p>
+<p>This directory is not mandatory for building with <a class="reference internal" href="terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a>.</p>
+</section>
+<section id="layers-openembedded-core">
+<h3><span class="section-number">5.1.4 </span><code class="docutils literal notranslate"><span class="pre">layers/openembedded-core/</span></code><a class="headerlink" href="#layers-openembedded-core" title="Link to this heading"></a></h3>
+<p>The <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> repository is hosted at
+<a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core">https://git.openembedded.org/openembedded-core</a>.</p>
+<section id="meta">
+<span id="structure-core-meta"></span><h4><span class="section-number">5.1.4.1 </span><code class="docutils literal notranslate"><span class="pre">meta/</span></code><a class="headerlink" href="#meta" title="Link to this heading"></a></h4>
+<p>This directory contains the minimal, underlying <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core
+(OE-Core)</span></a> metadata. The directory holds recipes, common classes, and machine
+configuration for strictly emulated targets (<code class="docutils literal notranslate"><span class="pre">qemux86</span></code>, <code class="docutils literal notranslate"><span class="pre">qemuarm</span></code>,
+and so forth.)</p>
+</section>
+<section id="meta-selftest">
+<span id="structure-meta-selftest"></span><h4><span class="section-number">5.1.4.2 </span><code class="docutils literal notranslate"><span class="pre">meta-selftest/</span></code><a class="headerlink" href="#meta-selftest" title="Link to this heading"></a></h4>
+<p>This directory adds additional recipes and append files used by the
+OpenEmbedded selftests to verify the behavior of the build system. You
+do not have to add this layer to your <a class="reference internal" href="#structure-build-conf-bblayers-conf"><span class="std std-ref">build/conf/bblayers.conf</span></a> file unless you
+want to run the selftests.</p>
+</section>
+<section id="meta-skeleton">
+<span id="structure-meta-skeleton"></span><h4><span class="section-number">5.1.4.3 </span><code class="docutils literal notranslate"><span class="pre">meta-skeleton/</span></code><a class="headerlink" href="#meta-skeleton" title="Link to this heading"></a></h4>
+<p>This directory contains template recipes for BSP and kernel development.</p>
+</section>
+<section id="scripts">
+<span id="structure-core-scripts"></span><h4><span class="section-number">5.1.4.4 </span><code class="docutils literal notranslate"><span class="pre">scripts/</span></code><a class="headerlink" href="#scripts" title="Link to this heading"></a></h4>
+<p>This directory contains various integration scripts that implement extra
+functionality in the Yocto Project environment (e.g. QEMU scripts). The
+<a class="reference internal" href="#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a> script prepends this directory to the
+shell's <code class="docutils literal notranslate"><span class="pre">PATH</span></code> environment variable.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">scripts</span></code> directory has useful scripts that assist in contributing
+back to the Yocto Project, such as <code class="docutils literal notranslate"><span class="pre">create-pull-request</span></code> and
+<code class="docutils literal notranslate"><span class="pre">send-pull-request</span></code>.</p>
+</section>
+<section id="oe-init-build-env">
+<span id="structure-core-script"></span><h4><span class="section-number">5.1.4.5 </span><code class="docutils literal notranslate"><span class="pre">oe-init-build-env</span></code><a class="headerlink" href="#oe-init-build-env" title="Link to this heading"></a></h4>
+<p>This script sets up the OpenEmbedded build environment. Running this
+script with the <code class="docutils literal notranslate"><span class="pre">source</span></code> command in a shell makes changes to <code class="docutils literal notranslate"><span class="pre">PATH</span></code>
+and sets other core BitBake variables based on the current working
+directory. You need to run an environment setup script before running
+BitBake commands. The script uses other scripts within the <code class="docutils literal notranslate"><span class="pre">scripts</span></code>
+directory to do the bulk of the work.</p>
+<p>When you run this script, your Yocto Project environment is set up, a
+<a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> is created, your working directory becomes the
+<a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>, and you are presented with some simple
+suggestions as to what to do next, including a list of some possible
+targets to build. Here is an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ source oe-init-build-env
+
+### Shell environment set up for builds. ###
+
+You can now run 'bitbake &lt;target&gt;'
+
+Common targets are:
+    core-image-minimal
+    core-image-sato
+    meta-toolchain
+    meta-ide-support
+
+You can also run generated QEMU images with a command like 'runqemu qemux86-64'
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>When using <a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-environment-setup.html" title="(in Bitbake Version: Current Development)"><span class="xref std std-doc">bitbake-setup</span></a>,
+this script is indirectly sourced when sourcing the <code class="docutils literal notranslate"><span class="pre">init-build-env</span></code>
+located in the <a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-environment-setup.html#term-Setup" title="(in Bitbake Version: Current Development)"><span>Setup</span></a>'s build directory. However, compared to
+<code class="docutils literal notranslate"><span class="pre">oe-init-build-env</span></code>, the bitbake-setup <code class="docutils literal notranslate"><span class="pre">init-build-env</span></code> does not take any
+argument, as it is already located in a <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>.</p>
+<p>See <a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-environment-setup.html" title="(in Bitbake Version: Current Development)"><span>Setting Up The Environment With bitbake-setup</span></a>
+for more information.</p>
+</div>
+<p>The default output of the <code class="docutils literal notranslate"><span class="pre">oe-init-build-env</span></code> script is from the
+<code class="docutils literal notranslate"><span class="pre">conf-summary.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">conf-notes.txt</span></code> files, which are found in the
+<code class="docutils literal notranslate"><span class="pre">meta/conf/templates/default</span></code> directory of <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core
+(OE-Core)</span></a>. If you design a custom distribution, you can include your own
+versions of these configuration files where you can provide a brief summary and
+detailed usage notes, such as a list of the targets defined by your
+distribution. See the
+&quot;<a class="reference internal" href="../dev-manual/custom-template-configuration-directory.html#creating-a-custom-template-configuration-directory"><span class="std std-ref">Creating a Custom Template Configuration Directory</span></a>&quot; section in the Yocto Project Development
+Tasks Manual for more information.</p>
+<p>By default, running this script without a <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> argument
+creates the <code class="docutils literal notranslate"><span class="pre">build/</span></code> directory in your current working directory. If
+you provide a <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> argument when you <code class="docutils literal notranslate"><span class="pre">source</span></code> the script,
+you direct the OpenEmbedded build system to create a <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> of
+your choice. For example, the following command creates a
+<a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> named <code class="docutils literal notranslate"><span class="pre">mybuilds/</span></code> that is outside of the
+<a class="reference internal" href="terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ source oe-init-build-env ~/mybuilds
+</pre></div>
+</div>
+<p>The OpenEmbedded build system uses the template configuration files, which
+are found by default in the <code class="docutils literal notranslate"><span class="pre">meta/conf/templates/default</span></code> directory in
+<a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>. See the
+&quot;<a class="reference internal" href="../dev-manual/custom-template-configuration-directory.html#creating-a-custom-template-configuration-directory"><span class="std std-ref">Creating a Custom Template Configuration Directory</span></a>&quot;
+section in the Yocto Project Development Tasks Manual for more
+information.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The OpenEmbedded build system does not support file or directory
+names that contain spaces. If you attempt to run the <code class="docutils literal notranslate"><span class="pre">oe-init-build-env</span></code>
+script from a <a class="reference internal" href="terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a> that contains spaces in either the
+filenames or directory names, the script returns an error indicating
+no such file or directory. Be sure to use a <a class="reference internal" href="terms.html#term-Source-Directory"><span class="xref std std-term">Source Directory</span></a> free of
+names containing spaces.</p>
+</div>
+</section>
+</section>
+<section id="layers-meta-yocto">
+<h3><span class="section-number">5.1.5 </span><code class="docutils literal notranslate"><span class="pre">layers/meta-yocto/</span></code><a class="headerlink" href="#layers-meta-yocto" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">meta-yocto</span></code> repository is hosted at <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-yocto">https://git.yoctoproject.org/meta-yocto</a>.</p>
+<section id="meta-poky">
+<span id="structure-core-meta-poky"></span><h4><span class="section-number">5.1.5.1 </span><code class="docutils literal notranslate"><span class="pre">meta-poky/</span></code><a class="headerlink" href="#meta-poky" title="Link to this heading"></a></h4>
+<p>Dependent on the <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a> metadata, this directory
+adds just enough metadata to define the Poky reference distribution.</p>
+<p>Namely, it contains the distro <a class="reference internal" href="terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a> for Poky:
+<code class="docutils literal notranslate"><span class="pre">conf/distro/poky.conf</span></code>.</p>
+</section>
+<section id="meta-yocto-bsp">
+<span id="structure-core-meta-yocto-bsp"></span><h4><span class="section-number">5.1.5.2 </span><code class="docutils literal notranslate"><span class="pre">meta-yocto-bsp/</span></code><a class="headerlink" href="#meta-yocto-bsp" title="Link to this heading"></a></h4>
+<p>This directory contains the Yocto Project reference hardware Board
+Support Packages (BSPs). For more information on BSPs, see the
+<a class="reference internal" href="../bsp-manual/index.html"><span class="doc">Yocto Project Board Support Package (BSP) Manual</span></a>.</p>
+</section>
+</section>
+</section>
+<section id="the-build-directory-build">
+<span id="structure-build"></span><h2><span class="section-number">5.2 </span>The Build Directory --- <code class="docutils literal notranslate"><span class="pre">build/</span></code><a class="headerlink" href="#the-build-directory-build" title="Link to this heading"></a></h2>
+<p>The OpenEmbedded build system creates the <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> when you run
+the build environment setup script <a class="reference internal" href="#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a>. If you do not
+give the <a class="reference internal" href="terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> a specific name when you run the setup script,
+the name defaults to <code class="docutils literal notranslate"><span class="pre">build/</span></code>.</p>
+<p>For subsequent parsing and processing, the name of the Build directory
+is available via the <a class="reference internal" href="variables.html#term-TOPDIR"><span class="xref std std-term">TOPDIR</span></a> variable.</p>
+<section id="build-buildhistory">
+<span id="structure-build-buildhistory"></span><h3><span class="section-number">5.2.1 </span><code class="docutils literal notranslate"><span class="pre">build/buildhistory/</span></code><a class="headerlink" href="#build-buildhistory" title="Link to this heading"></a></h3>
+<p>The OpenEmbedded build system creates this directory when you enable
+build history via the <a class="reference internal" href="classes.html#ref-classes-buildhistory"><span class="std std-ref">buildhistory</span></a> class file. The directory
+organizes build information into image, packages, and SDK
+subdirectories. For information on the build history feature, see the
+&quot;<a class="reference internal" href="../dev-manual/build-quality.html#maintaining-build-output-quality-with-buildhistory"><span class="std std-ref">Maintaining Build Output Quality with buildhistory</span></a>&quot;
+section in the Yocto Project Development Tasks Manual.</p>
+</section>
+<section id="build-cache">
+<span id="structure-build-cache"></span><h3><span class="section-number">5.2.2 </span><code class="docutils literal notranslate"><span class="pre">build/cache/</span></code><a class="headerlink" href="#build-cache" title="Link to this heading"></a></h3>
+<p>This directory contains several internal files used by the OpenEmbedded
+build system. The path to this directory is defined by the
+<a class="reference internal" href="variables.html#term-PERSISTENT_DIR"><span class="xref std std-term">PERSISTENT_DIR</span></a> variable.</p>
+<p>It also contains <code class="docutils literal notranslate"><span class="pre">sanity_info</span></code>, a text file keeping track of important
+build information such as the values of <a class="reference internal" href="variables.html#term-TMPDIR"><span class="xref std std-term">TMPDIR</span></a>, <a class="reference internal" href="variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a>,
+as well as the name and version of the host distribution.</p>
+<p>This directory should not be shared between builds.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The default location of the <a class="reference internal" href="../overview-manual/concepts.html#hash-equivalence"><span class="std std-ref">Hash Equivalence</span></a>
+database is this directory (when <a class="reference internal" href="variables.html#term-BB_HASHSERVE"><span class="xref std std-term">BB_HASHSERVE</span></a> is set to <code class="docutils literal notranslate"><span class="pre">auto</span></code>). If
+you need to share the <a class="reference internal" href="../overview-manual/concepts.html#hash-equivalence"><span class="std std-ref">Hash Equivalence</span></a>
+database, don't share this file and instead refer to the
+<a class="reference internal" href="../dev-manual/hashequivserver.html"><span class="doc">Setting up a Hash Equivalence Server</span></a> document of the Yocto Project Development
+Tasks Manual to setup a Hash Equivalence server.</p>
+</div>
+</section>
+<section id="build-conf-local-conf">
+<span id="structure-build-conf-local-conf"></span><h3><span class="section-number">5.2.3 </span><code class="docutils literal notranslate"><span class="pre">build/conf/local.conf</span></code><a class="headerlink" href="#build-conf-local-conf" title="Link to this heading"></a></h3>
+<p>This configuration file contains the local user configurations for the build
+environment.</p>
+<p>You could for example experiment with setting (or adding to)
+<a class="reference internal" href="variables.html#term-DISTRO_FEATURES"><span class="xref std std-term">DISTRO_FEATURES</span></a> or <a class="reference internal" href="variables.html#term-IMAGE_FEATURES"><span class="xref std std-term">IMAGE_FEATURES</span></a>, or adjust build
+configurations for specific recipes by setting the <a class="reference internal" href="variables.html#term-PACKAGECONFIG"><span class="xref std std-term">PACKAGECONFIG</span></a>
+variables for them. If you would like to publish and share changes made to this
+file, it is recommended to put them into a distro <a class="reference internal" href="terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>, or
+to create layer <a class="reference internal" href="terms.html#term-Configuration-Fragment"><span class="xref std std-term">configuration fragments</span></a> from
+changes made here.</p>
+<p>The <a class="reference internal" href="terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">OpenEmbedded Build System</span></a> can create the <a class="reference internal" href="#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file from a
+<code class="docutils literal notranslate"><span class="pre">local.conf.sample</span></code> file when you <code class="docutils literal notranslate"><span class="pre">source</span></code> the top-level build environment
+setup script <a class="reference internal" href="#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a>.</p>
+<p>The source <code class="docutils literal notranslate"><span class="pre">local.conf.sample</span></code> file used depends on the
+<a class="reference internal" href="variables.html#term-TEMPLATECONF"><span class="xref std std-term">TEMPLATECONF</span></a> script variable, which defaults to
+<a class="extlink-oecore_path reference external" href="https://git.openembedded.org/openembedded-core/tree/meta/conf/templates/default">meta/conf/templates/default</a> in <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core
+(OE-Core)</span></a>.
+Because the script variable points to the source of the
+<code class="docutils literal notranslate"><span class="pre">local.conf.sample</span></code> file, this implies that you can configure your
+build environment from any layer by setting the variable in the
+top-level build environment setup script as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TEMPLATECONF</span><span class="o">=</span><span class="n">your_layer</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">templates</span><span class="o">/</span><span class="n">your_template_name</span>
+</pre></div>
+</div>
+<p>Once the build process gets the sample
+file, it uses <code class="docutils literal notranslate"><span class="pre">sed</span></code> to substitute final
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-OEROOT"><span class="xref std std-term">OEROOT</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> values for all
+<code class="docutils literal notranslate"><span class="pre">##OEROOT##</span></code> values.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You can see how the <a class="reference internal" href="variables.html#term-TEMPLATECONF"><span class="xref std std-term">TEMPLATECONF</span></a> variable is used by looking at the
+<code class="docutils literal notranslate"><span class="pre">layers/openembedded-core/scripts/oe-setup-builddir</span></code> script in <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>.</p>
+</div>
+</section>
+<section id="build-conf-bblayers-conf">
+<span id="structure-build-conf-bblayers-conf"></span><h3><span class="section-number">5.2.4 </span><code class="docutils literal notranslate"><span class="pre">build/conf/bblayers.conf</span></code><a class="headerlink" href="#build-conf-bblayers-conf" title="Link to this heading"></a></h3>
+<p>This configuration file defines
+<a class="reference internal" href="../dev-manual/layers.html#understanding-and-creating-layers"><span class="std std-ref">layers</span></a>,
+which are directory trees, traversed (or walked) by BitBake. The
+<a class="reference internal" href="#structure-build-conf-bblayers-conf"><span class="std std-ref">build/conf/bblayers.conf</span></a> file uses the <a class="reference internal" href="variables.html#term-BBLAYERS"><span class="xref std std-term">BBLAYERS</span></a>
+variable to list the layers BitBake tries to find.</p>
+<p>The OpenEmbedded build system can create it from a <code class="docutils literal notranslate"><span class="pre">bblayers.conf.sample</span></code> file
+when you <code class="docutils literal notranslate"><span class="pre">source</span></code> the top-level build environment setup script (i.e.
+<a class="reference internal" href="#structure-core-script"><span class="std std-ref">oe-init-build-env</span></a>).</p>
+<p>As with the <a class="reference internal" href="#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file, the source <code class="docutils literal notranslate"><span class="pre">bblayers.conf.sample</span></code>
+file used depends on the <a class="reference internal" href="variables.html#term-TEMPLATECONF"><span class="xref std std-term">TEMPLATECONF</span></a> script variable, which
+defaults to <a class="extlink-oecore_path reference external" href="https://git.openembedded.org/openembedded-core/tree/meta/conf/templates/default">meta/conf/templates/default</a> . Because the script
+variable points to the source of the <code class="docutils literal notranslate"><span class="pre">bblayers.conf.sample</span></code> file, this
+implies that you can base your build from any layer by setting the
+variable in the top-level build environment setup script as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TEMPLATECONF</span><span class="o">=</span><span class="n">your_layer</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">templates</span><span class="o">/</span><span class="n">your_template_name</span>
+</pre></div>
+</div>
+<p>Once the build process gets the sample file, it uses <code class="docutils literal notranslate"><span class="pre">sed</span></code> to substitute final
+<code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-OEROOT"><span class="xref std std-term">OEROOT</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> values for all <code class="docutils literal notranslate"><span class="pre">##OEROOT##</span></code> occurrences.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>You can see how the <a class="reference internal" href="variables.html#term-TEMPLATECONF"><span class="xref std std-term">TEMPLATECONF</span></a> variable is defined by the <code class="docutils literal notranslate"><span class="pre">scripts/oe-setup-builddir</span></code>
+script in <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>.</p>
+</div>
+</section>
+<section id="build-conf-site-conf">
+<span id="structure-build-conf-site-conf"></span><h3><span class="section-number">5.2.5 </span><code class="docutils literal notranslate"><span class="pre">build/conf/site.conf</span></code><a class="headerlink" href="#build-conf-site-conf" title="Link to this heading"></a></h3>
+<p>This configuration file contains the site specific configurations for your build
+environment.</p>
+<p>You could for example edit this file to limit the number of threads used by
+<a class="reference internal" href="terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a> (<a class="reference internal" href="variables.html#term-BB_NUMBER_THREADS"><span class="xref std std-term">BB_NUMBER_THREADS</span></a>) or set the location from which you
+want to access downloaded files (<a class="reference internal" href="variables.html#term-DL_DIR"><span class="xref std std-term">DL_DIR</span></a>).</p>
+<p>This file can be shared for multiple build directories. For example,
+<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-environment-setup.html" title="(in Bitbake Version: Current Development)"><span class="xref std std-doc">bitbake-setup</span></a>
+makes the <a class="reference internal" href="#structure-build-conf-site-conf"><span class="std std-ref">build/conf/site.conf</span></a> file a symbolic link to a common
+<a class="reference internal" href="#structure-build-conf-auto-conf"><span class="std std-ref">build/conf/auto.conf</span></a> file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>├── poky-master-poky-distro_poky-machine_qemux86-64/
+│   └── build/
+│       └── conf/
+│           └── site.conf -&gt; ../../../site.conf
+├── poky-master-poky-with-sstate-distro_poky-machine_qemux86-64/
+│   └── build/
+│       └── conf/
+│           └── site.conf -&gt; ../../../site.conf
+└── site.conf
+</pre></div>
+</div>
+<p>This way, site-specific settings can be shared for multiple build
+configurations.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>For more information on how to use <code class="docutils literal notranslate"><span class="pre">bitbake-setup</span></code>, see the
+<a class="reference internal" href="../brief-yoctoprojectqs/index.html"><span class="doc">Yocto Project Quick Build</span></a> document.</p>
+</div>
+</section>
+<section id="build-conf-bblock-conf">
+<span id="structure-build-conf-bblock-conf"></span><h3><span class="section-number">5.2.6 </span><code class="docutils literal notranslate"><span class="pre">build/conf/bblock.conf</span></code><a class="headerlink" href="#build-conf-bblock-conf" title="Link to this heading"></a></h3>
+<p>This configuration file is generated by <a class="reference internal" href="../dev-manual/bblock.html"><span class="doc">bblock</span></a> and
+contains the signatures locked by <code class="docutils literal notranslate"><span class="pre">bblock</span></code>. By default, it does not exist
+and will be created upon the first invocation of <code class="docutils literal notranslate"><span class="pre">bblock</span></code>.</p>
+</section>
+<section id="build-conf-toolcfg-conf">
+<span id="structure-build-conf-toolcfg-conf"></span><h3><span class="section-number">5.2.7 </span><code class="docutils literal notranslate"><span class="pre">build/conf/toolcfg.conf</span></code><a class="headerlink" href="#build-conf-toolcfg-conf" title="Link to this heading"></a></h3>
+<p>This file contains configuration variables that are automatically modified by
+tools such as <a class="extlink-oe_git reference external" href="https://git.openembedded.org/bitbake/tree/bin/bitbake-config-build">bitbake-config-build</a>.
+This file should not be modified manually.</p>
+</section>
+<section id="build-conf-auto-conf">
+<span id="structure-build-conf-auto-conf"></span><h3><span class="section-number">5.2.8 </span><code class="docutils literal notranslate"><span class="pre">build/conf/auto.conf</span></code><a class="headerlink" href="#build-conf-auto-conf" title="Link to this heading"></a></h3>
+<p>This file is intended for use by continuous integration environments, such as the
+Yocto Project's <a class="reference internal" href="../test-manual/understand-autobuilder.html"><span class="doc">Autobuilder</span></a>. It
+should not be created or modified when running local builds.</p>
+</section>
+<section id="build-downloads">
+<span id="structure-build-downloads"></span><h3><span class="section-number">5.2.9 </span><code class="docutils literal notranslate"><span class="pre">build/downloads/</span></code><a class="headerlink" href="#build-downloads" title="Link to this heading"></a></h3>
+<p>This directory contains downloaded upstream source tarballs. You can
+reuse the directory for multiple builds or move the directory to another
+location. You can control the location of this directory through the
+<a class="reference internal" href="variables.html#term-DL_DIR"><span class="xref std std-term">DL_DIR</span></a> variable.</p>
+</section>
+<section id="build-sstate-cache">
+<span id="structure-build-sstate-cache"></span><h3><span class="section-number">5.2.10 </span><code class="docutils literal notranslate"><span class="pre">build/sstate-cache/</span></code><a class="headerlink" href="#build-sstate-cache" title="Link to this heading"></a></h3>
+<p>This directory contains the shared state cache. You can reuse the
+directory for multiple builds or move the directory to another location.
+You can control the location of this directory through the
+<a class="reference internal" href="variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a> variable.</p>
+</section>
+<section id="build-tmp">
+<span id="structure-build-tmp"></span><h3><span class="section-number">5.2.11 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/</span></code><a class="headerlink" href="#build-tmp" title="Link to this heading"></a></h3>
+<p>The OpenEmbedded build system creates and uses this directory for all
+the build system's output. The <a class="reference internal" href="variables.html#term-TMPDIR"><span class="xref std std-term">TMPDIR</span></a> variable
+points to this directory.</p>
+<p>BitBake creates this directory if it does not exist. As a last resort,
+to clean up a build and start it from scratch (other than the
+downloads), you can remove everything in the <code class="docutils literal notranslate"><span class="pre">tmp</span></code> directory or get
+rid of the directory completely. If you do, you should also completely
+remove the <code class="docutils literal notranslate"><span class="pre">build/sstate-cache</span></code> directory.</p>
+<section id="build-tmp-buildstats">
+<span id="structure-build-tmp-buildstats"></span><h4><span class="section-number">5.2.11.1 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/buildstats/</span></code><a class="headerlink" href="#build-tmp-buildstats" title="Link to this heading"></a></h4>
+<p>This directory stores the build statistics as generated by the
+<a class="reference internal" href="classes.html#ref-classes-buildstats"><span class="std std-ref">buildstats</span></a> class.</p>
+</section>
+<section id="build-tmp-cache">
+<span id="structure-build-tmp-cache"></span><h4><span class="section-number">5.2.11.2 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/cache/</span></code><a class="headerlink" href="#build-tmp-cache" title="Link to this heading"></a></h4>
+<p>When BitBake parses the metadata (recipes and configuration files), it
+caches the results in <code class="docutils literal notranslate"><span class="pre">build/tmp/cache/</span></code> to speed up future builds.
+The results are stored on a per-machine basis.</p>
+<p>During subsequent builds, BitBake checks each recipe (together with, for
+example, any files included or appended to it) to see if they have been
+modified. Changes can be detected, for example, through file
+modification time (mtime) changes and hashing of file contents. If no
+changes to the file are detected, then the parsed result stored in the
+cache is reused. If the file has changed, it is reparsed.</p>
+</section>
+<section id="build-tmp-deploy">
+<span id="structure-build-tmp-deploy"></span><h4><span class="section-number">5.2.11.3 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/deploy/</span></code><a class="headerlink" href="#build-tmp-deploy" title="Link to this heading"></a></h4>
+<p>This directory contains any &quot;end result&quot; output from the OpenEmbedded
+build process. The <a class="reference internal" href="variables.html#term-DEPLOY_DIR"><span class="xref std std-term">DEPLOY_DIR</span></a> variable points
+to this directory. For more detail on the contents of the <code class="docutils literal notranslate"><span class="pre">deploy</span></code>
+directory, see the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#images"><span class="std std-ref">Images</span></a>&quot; and
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#application-development-sdk"><span class="std std-ref">Application Development SDK</span></a>&quot; sections in the Yocto
+Project Overview and Concepts Manual.</p>
+<section id="build-tmp-deploy-deb">
+<span id="structure-build-tmp-deploy-deb"></span><h5><span class="section-number">5.2.11.3.1 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/deploy/deb/</span></code><a class="headerlink" href="#build-tmp-deploy-deb" title="Link to this heading"></a></h5>
+<p>This directory receives any <code class="docutils literal notranslate"><span class="pre">.deb</span></code> packages produced by the build
+process. The packages are sorted into feeds for different architecture
+types.</p>
+</section>
+<section id="build-tmp-deploy-rpm">
+<span id="structure-build-tmp-deploy-rpm"></span><h5><span class="section-number">5.2.11.3.2 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/deploy/rpm/</span></code><a class="headerlink" href="#build-tmp-deploy-rpm" title="Link to this heading"></a></h5>
+<p>This directory receives any <code class="docutils literal notranslate"><span class="pre">.rpm</span></code> packages produced by the build
+process. The packages are sorted into feeds for different architecture
+types.</p>
+</section>
+<section id="build-tmp-deploy-ipk">
+<span id="structure-build-tmp-deploy-ipk"></span><h5><span class="section-number">5.2.11.3.3 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/deploy/ipk/</span></code><a class="headerlink" href="#build-tmp-deploy-ipk" title="Link to this heading"></a></h5>
+<p>This directory receives <code class="docutils literal notranslate"><span class="pre">.ipk</span></code> packages produced by the build process.</p>
+</section>
+<section id="build-tmp-deploy-licenses">
+<span id="structure-build-tmp-deploy-licenses"></span><h5><span class="section-number">5.2.11.3.4 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/deploy/licenses/</span></code><a class="headerlink" href="#build-tmp-deploy-licenses" title="Link to this heading"></a></h5>
+<p>This directory receives package licensing information. For example, the
+directory contains sub-directories for <code class="docutils literal notranslate"><span class="pre">bash</span></code>, <code class="docutils literal notranslate"><span class="pre">busybox</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">glibc</span></code> (among others) that in turn contain appropriate <code class="docutils literal notranslate"><span class="pre">COPYING</span></code>
+license files with other licensing information. For information on
+licensing, see the
+&quot;<a class="reference internal" href="../dev-manual/licenses.html#maintaining-open-source-license-compliance-during-your-product-s-lifecycle"><span class="std std-ref">Maintaining Open Source License Compliance During Your Product's Lifecycle</span></a>&quot;
+section in the Yocto Project Development Tasks Manual.</p>
+</section>
+<section id="build-tmp-deploy-spdx">
+<span id="structure-build-tmp-deploy-spdx"></span><h5><span class="section-number">5.2.11.3.5 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/deploy/spdx/</span></code><a class="headerlink" href="#build-tmp-deploy-spdx" title="Link to this heading"></a></h5>
+<p>This directory contains JSON files in <a class="reference internal" href="terms.html#term-SPDX"><span class="xref std std-term">SPDX</span></a> format which are used to
+create a Software Bill of Materials (<a class="reference internal" href="terms.html#term-SBOM"><span class="xref std std-term">SBOM</span></a>), as explained in detail in
+the &quot;<a class="reference internal" href="../dev-manual/sbom.html#creating-a-software-bill-of-materials"><span class="std std-ref">Creating a Software Bill of Materials</span></a>&quot; section of
+the Yocto Project Development Tasks Manual.</p>
+</section>
+<section id="build-tmp-deploy-images">
+<span id="structure-build-tmp-deploy-images"></span><h5><span class="section-number">5.2.11.3.6 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/deploy/images/</span></code><a class="headerlink" href="#build-tmp-deploy-images" title="Link to this heading"></a></h5>
+<p>This directory is populated with the basic output objects of the build
+(think of them as the &quot;generated artifacts&quot; of the build process),
+including things like the boot loader image, kernel, root filesystem and
+more. If you want to flash the resulting image from a build onto a
+device, look here for the necessary components.</p>
+<p>Be careful when deleting files in this directory. You can safely delete
+old images from this directory (e.g. <code class="docutils literal notranslate"><span class="pre">core-image-*</span></code>). However, the
+kernel (<code class="docutils literal notranslate"><span class="pre">*zImage*</span></code>, <code class="docutils literal notranslate"><span class="pre">*uImage*</span></code>, etc.), bootloader and other
+supplementary files might be deployed here prior to building an image.
+Because these files are not directly produced from the image, if you
+delete them they will not be automatically re-created when you build the
+image again.</p>
+<p>If you do accidentally delete files here, you will need to force them to
+be re-created. In order to do that, you will need to know the target
+that produced them. For example, these commands rebuild and re-create
+the kernel files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ bitbake -c clean virtual/kernel
+$ bitbake virtual/kernel
+</pre></div>
+</div>
+</section>
+<section id="build-tmp-deploy-sdk">
+<span id="structure-build-tmp-deploy-sdk"></span><h5><span class="section-number">5.2.11.3.7 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/deploy/sdk/</span></code><a class="headerlink" href="#build-tmp-deploy-sdk" title="Link to this heading"></a></h5>
+<p>The OpenEmbedded build system creates this directory to hold toolchain
+installer scripts which, when executed, install the sysroot that matches
+your target hardware. You can find out more about these installers in
+the &quot;<a class="reference internal" href="../sdk-manual/appendix-obtain.html#building-an-sdk-installer"><span class="std std-ref">Building an SDK Installer</span></a>&quot;
+section in the Yocto Project Application Development and the Extensible
+Software Development Kit (eSDK) manual.</p>
+</section>
+</section>
+<section id="build-tmp-hosttools">
+<span id="structure-build-tmp-hosttools"></span><h4><span class="section-number">5.2.11.4 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/hosttools/</span></code><a class="headerlink" href="#build-tmp-hosttools" title="Link to this heading"></a></h4>
+<p>The OpenEmbedded build system uses this directory to create symbolic links to
+some of the host components that are allowed to be called within tasks. These
+are basic components listed in the <a class="reference internal" href="system-requirements.html#required-packages-for-the-build-host"><span class="std std-ref">Required Packages for the Build Host</span></a> section. These components are also listed in the
+<a class="reference internal" href="variables.html#term-HOSTTOOLS"><span class="xref std std-term">HOSTTOOLS</span></a> variable and are limited to this list to prevent host
+contamination.</p>
+</section>
+<section id="build-tmp-pkgdata">
+<span id="structure-build-tmp-pkgdata"></span><h4><span class="section-number">5.2.11.5 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/pkgdata/</span></code><a class="headerlink" href="#build-tmp-pkgdata" title="Link to this heading"></a></h4>
+<p>The OpenEmbedded build system uses this directory to store package metadata
+generated during the <a class="reference internal" href="tasks.html#ref-tasks-packagedata"><span class="std std-ref">do_packagedata</span></a> task. The files stored in this
+directory contain information about each output package produced by the
+OpenEmbedded build system, and are used in different ways by the build system
+such as &quot;<a class="reference internal" href="../dev-manual/debugging.html#viewing-package-information-with-oe-pkgdata-util"><span class="std std-ref">Viewing Package Information with oe-pkgdata-util</span></a>&quot;.</p>
+</section>
+<section id="build-tmp-sstate-control">
+<span id="structure-build-tmp-sstate-control"></span><h4><span class="section-number">5.2.11.6 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/sstate-control/</span></code><a class="headerlink" href="#build-tmp-sstate-control" title="Link to this heading"></a></h4>
+<p>The OpenEmbedded build system uses this directory for the shared state
+manifest files. The shared state code uses these files to record the
+files installed by each sstate task so that the files can be removed
+when cleaning the recipe or when a newer version is about to be
+installed. The build system also uses the manifests to detect and
+produce a warning when files from one task are overwriting those from
+another.</p>
+</section>
+<section id="build-tmp-sysroots-components">
+<span id="structure-build-tmp-sysroots-components"></span><h4><span class="section-number">5.2.11.7 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/sysroots-components/</span></code><a class="headerlink" href="#build-tmp-sysroots-components" title="Link to this heading"></a></h4>
+<p>This directory is the location of the sysroot contents that the task
+<a class="reference internal" href="tasks.html#ref-tasks-prepare-recipe-sysroot"><span class="std std-ref">do_prepare_recipe_sysroot</span></a>
+links or copies into the recipe-specific sysroot for each recipe listed
+in <a class="reference internal" href="variables.html#term-DEPENDS"><span class="xref std std-term">DEPENDS</span></a>. Population of this directory is
+handled through shared state, while the path is specified by the
+<a class="reference internal" href="variables.html#term-COMPONENTS_DIR"><span class="xref std std-term">COMPONENTS_DIR</span></a> variable. Apart from a few
+unusual circumstances, handling of the <code class="docutils literal notranslate"><span class="pre">sysroots-components</span></code> directory
+should be automatic, and recipes should not directly reference
+<code class="docutils literal notranslate"><span class="pre">build/tmp/sysroots-components</span></code>.</p>
+</section>
+<section id="build-tmp-sysroots">
+<span id="structure-build-tmp-sysroots"></span><h4><span class="section-number">5.2.11.8 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/sysroots/</span></code><a class="headerlink" href="#build-tmp-sysroots" title="Link to this heading"></a></h4>
+<p>Previous versions of the OpenEmbedded build system used to create a
+global shared sysroot per machine along with a native sysroot. Since
+the 2.3 version of the Yocto Project, there are sysroots in
+recipe-specific <a class="reference internal" href="variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a> directories. Thus, the
+<code class="docutils literal notranslate"><span class="pre">build/tmp/sysroots/</span></code> directory is unused.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">build/tmp/sysroots/</span></code> directory can still be populated using the
+<code class="docutils literal notranslate"><span class="pre">bitbake</span> <span class="pre">build-sysroots</span></code> command and can be used for compatibility in some
+cases. However, in general it is not recommended to populate this directory.
+Individual recipe-specific sysroots should be used.</p>
+</div>
+</section>
+<section id="build-tmp-stamps">
+<span id="structure-build-tmp-stamps"></span><h4><span class="section-number">5.2.11.9 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/stamps/</span></code><a class="headerlink" href="#build-tmp-stamps" title="Link to this heading"></a></h4>
+<p>This directory holds information that BitBake uses for accounting
+purposes to track what tasks have run and when they have run. The
+directory is sub-divided by architecture, package name, and version.
+Here is an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stamps</span><span class="o">/</span><span class="nb">all</span><span class="o">-</span><span class="n">poky</span><span class="o">-</span><span class="n">linux</span><span class="o">/</span><span class="n">distcc</span><span class="o">-</span><span class="n">config</span><span class="o">/</span><span class="mf">1.0</span><span class="o">-</span><span class="n">r0</span><span class="o">.</span><span class="n">do_build</span><span class="o">-</span><span class="mi">2</span><span class="n">fdd</span><span class="o">...</span><span class="mf">.2</span><span class="n">do</span>
+</pre></div>
+</div>
+<p>Although the files in the directory are empty of data, BitBake uses the filenames
+and timestamps for tracking purposes.</p>
+<p>For information on how BitBake uses stamp files to determine if a task
+should be rerun, see the
+&quot;<a class="reference internal" href="../overview-manual/concepts.html#stamp-files-and-the-rerunning-of-tasks"><span class="std std-ref">Stamp Files and the Rerunning of Tasks</span></a>&quot;
+section in the Yocto Project Overview and Concepts Manual.</p>
+</section>
+<section id="build-tmp-log">
+<span id="structure-build-tmp-log"></span><h4><span class="section-number">5.2.11.10 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/log/</span></code><a class="headerlink" href="#build-tmp-log" title="Link to this heading"></a></h4>
+<p>This directory contains general logs that are not otherwise placed using
+the package's <a class="reference internal" href="variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a>. Examples of logs are the output from the
+<code class="docutils literal notranslate"><span class="pre">do_check_pkg</span></code> or <code class="docutils literal notranslate"><span class="pre">do_distro_check</span></code> tasks. Running a build does not
+necessarily mean this directory is created.</p>
+</section>
+<section id="build-tmp-work">
+<span id="structure-build-tmp-work"></span><h4><span class="section-number">5.2.11.11 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/work/</span></code><a class="headerlink" href="#build-tmp-work" title="Link to this heading"></a></h4>
+<p>This directory contains architecture-specific work sub-directories for
+packages built by BitBake. All tasks execute from the appropriate work
+directory. For example, the source for a particular package is unpacked,
+patched, configured and compiled all within its own work directory.
+Within the work directory, organization is based on the package group
+and version for which the source is being compiled as defined by the
+<a class="reference internal" href="variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a>.</p>
+<p>It is worth considering the structure of a typical work directory. As an
+example, consider <code class="docutils literal notranslate"><span class="pre">linux-yocto-kernel-3.0</span></code> on the machine <code class="docutils literal notranslate"><span class="pre">qemux86</span></code>
+built within the Yocto Project. For this package, a work directory of
+<code class="docutils literal notranslate"><span class="pre">tmp/work/qemux86-poky-linux/linux-yocto/3.0+git1+&lt;.....&gt;</span></code>, referred
+to as the <a class="reference internal" href="variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a>, is created. Within this directory, the source is
+unpacked to <code class="docutils literal notranslate"><span class="pre">sources/linux-qemux86-standard-build</span></code> and then patched by Quilt.
+(See the &quot;<a class="reference internal" href="../dev-manual/quilt.html#using-quilt-in-your-workflow"><span class="std std-ref">Using Quilt in Your Workflow</span></a>&quot; section in
+the Yocto Project Development Tasks Manual for more information.) Within
+the <code class="docutils literal notranslate"><span class="pre">linux-qemux86-standard-build</span></code> directory, standard Quilt
+directories <code class="docutils literal notranslate"><span class="pre">linux-3.0/patches</span></code> and <code class="docutils literal notranslate"><span class="pre">linux-3.0/.pc</span></code> are created, and
+standard Quilt commands can be used.</p>
+<p>There are other directories generated within <a class="reference internal" href="variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a>. The most
+important directory is <code class="docutils literal notranslate"><span class="pre">WORKDIR/temp/</span></code>, which has log files for each
+task (<code class="docutils literal notranslate"><span class="pre">log.do_*.pid</span></code>) and contains the scripts BitBake runs for each
+task (<code class="docutils literal notranslate"><span class="pre">run.do_*.pid</span></code>). The <code class="docutils literal notranslate"><span class="pre">WORKDIR/image/</span></code> directory is where &quot;make
+install&quot; places its output that is then split into sub-packages within
+<code class="docutils literal notranslate"><span class="pre">WORKDIR/packages-split/</span></code>.</p>
+<section id="build-tmp-work-tunearch-recipename-version">
+<span id="structure-build-tmp-work-tunearch-recipename-version"></span><h5><span class="section-number">5.2.11.11.1 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/work/tunearch/recipename/version/</span></code><a class="headerlink" href="#build-tmp-work-tunearch-recipename-version" title="Link to this heading"></a></h5>
+<p>The recipe work directory --- <code class="docutils literal notranslate"><span class="pre">${WORKDIR}</span></code>.</p>
+<p>As described earlier in the
+&quot;<a class="reference internal" href="#structure-build-tmp-sysroots"><span class="std std-ref">build/tmp/sysroots/</span></a>&quot; section,
+beginning with the 2.3 release of the Yocto Project, the OpenEmbedded
+build system builds each recipe in its own work directory (i.e.
+<a class="reference internal" href="variables.html#term-WORKDIR"><span class="xref std std-term">WORKDIR</span></a>). The path to the work directory is
+constructed using the architecture of the given build (e.g.
+<a class="reference internal" href="variables.html#term-TUNE_PKGARCH"><span class="xref std std-term">TUNE_PKGARCH</span></a>, <a class="reference internal" href="variables.html#term-MACHINE_ARCH"><span class="xref std std-term">MACHINE_ARCH</span></a>, or &quot;allarch&quot;), the recipe
+name, and the version of the recipe (i.e.
+<a class="reference internal" href="variables.html#term-PE"><span class="xref std std-term">PE</span></a><code class="docutils literal notranslate"><span class="pre">:</span></code><a class="reference internal" href="variables.html#term-PV"><span class="xref std std-term">PV</span></a><code class="docutils literal notranslate"><span class="pre">-</span></code><a class="reference internal" href="variables.html#term-PR"><span class="xref std std-term">PR</span></a>).</p>
+<p>Here are key subdirectories within each recipe work directory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/temp</span></code>: Contains the log files of each task executed for
+this recipe, the &quot;run&quot; files for each executed task, which contain
+the code run, and a <code class="docutils literal notranslate"><span class="pre">log.task_order</span></code> file, which lists the order in
+which tasks were executed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/image</span></code>: Contains the output of the
+<a class="reference internal" href="tasks.html#ref-tasks-install"><span class="std std-ref">do_install</span></a> task, which corresponds to
+the <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-D"><span class="xref std std-term">D</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> variable in that task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/pseudo</span></code>: Contains the pseudo database and log for any
+tasks executed under pseudo for the recipe.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/sysroot-destdir</span></code>: Contains the output of the
+<a class="reference internal" href="tasks.html#ref-tasks-populate-sysroot"><span class="std std-ref">do_populate_sysroot</span></a> task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/package</span></code>: Contains the output of the
+<a class="reference internal" href="tasks.html#ref-tasks-package"><span class="std std-ref">do_package</span></a> task before the output is
+split into individual packages.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/packages-split</span></code>: Contains the output of the
+<a class="reference internal" href="tasks.html#ref-tasks-package"><span class="std std-ref">do_package</span></a> task after the output has been split into individual
+packages. There are subdirectories for each individual package created by
+the recipe.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/recipe-sysroot</span></code>: A directory populated with the target
+dependencies of the recipe. This directory looks like the target
+filesystem and contains libraries that the recipe might need to link
+against (e.g. the C library).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/recipe-sysroot-native</span></code>: A directory populated with the
+native dependencies of the recipe. This directory contains the tools
+the recipe needs to build (e.g. the compiler, Autoconf, libtool, and
+so forth).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">${WORKDIR}/build</span></code>: This subdirectory applies only to recipes that
+support builds where the source is separate from the build artifacts.
+The OpenEmbedded build system uses this directory as a separate build
+directory (i.e. <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-B"><span class="xref std std-term">B</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code>).</p></li>
+</ul>
+</section>
+</section>
+<section id="build-tmp-work-shared">
+<span id="structure-build-work-shared"></span><h4><span class="section-number">5.2.11.12 </span><code class="docutils literal notranslate"><span class="pre">build/tmp/work-shared/</span></code><a class="headerlink" href="#build-tmp-work-shared" title="Link to this heading"></a></h4>
+<p>For efficiency, the OpenEmbedded build system creates and uses this
+directory to hold recipes that share a work directory with other
+recipes. This is for example used for <code class="docutils literal notranslate"><span class="pre">gcc</span></code> and its variants (e.g.
+<code class="docutils literal notranslate"><span class="pre">gcc-cross</span></code>, <code class="docutils literal notranslate"><span class="pre">libgcc</span></code>, <code class="docutils literal notranslate"><span class="pre">gcc-runtime</span></code>, and so forth), or by the
+<a class="reference internal" href="classes.html#ref-classes-kernel"><span class="std std-ref">kernel</span></a> class to make the kernel source code and kernel build
+artifacts available to out-of-tree kernel modules or other kernel-dependent
+recipes.</p>
+<p>In practice, only a few recipes make use of the <code class="docutils literal notranslate"><span class="pre">work-shared</span></code> directory. This
+directory is especially useful for recipes that would induce a lot of storage
+space if they were to be shared with the standard <a class="reference internal" href="terms.html#term-Sysroot"><span class="xref std std-term">Sysroot</span></a> mechanism.</p>
+</section>
+</section>
+</section>
+<section id="the-openembedded-core-oe-core-metadata-meta">
+<span id="structure-meta"></span><h2><span class="section-number">5.3 </span>The OpenEmbedded-Core (OE-Core) Metadata --- <code class="docutils literal notranslate"><span class="pre">meta/</span></code><a class="headerlink" href="#the-openembedded-core-oe-core-metadata-meta" title="Link to this heading"></a></h2>
+<p>As mentioned previously, the <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>
+<a class="reference internal" href="terms.html#term-Metadata"><span class="xref std std-term">metadata</span></a> is the core of the Yocto Project. This metadata has several
+important subdivisions:</p>
+<section id="meta-classes">
+<span id="structure-meta-classes"></span><h3><span class="section-number">5.3.1 </span><code class="docutils literal notranslate"><span class="pre">meta/classes*/</span></code><a class="headerlink" href="#meta-classes" title="Link to this heading"></a></h3>
+<p>These directories contain the <code class="docutils literal notranslate"><span class="pre">*.bbclass</span></code> files. Class files are used to
+abstract common code so it can be reused by multiple packages. Every
+package inherits the <a class="reference internal" href="classes.html#ref-classes-base"><span class="std std-ref">base</span></a> file. Examples of other important
+classes are <a class="reference internal" href="classes.html#ref-classes-autotools"><span class="std std-ref">autotools*</span></a>, which in theory allows any
+Autotool-enabled package to work with the Yocto Project with minimal
+effort. Another example is <a class="reference internal" href="classes.html#ref-classes-kernel"><span class="std std-ref">kernel</span></a> that contains common code
+and functions for working with the Linux kernel. Functions like image
+generation or packaging also have their specific class files such as
+<a class="reference internal" href="classes.html#ref-classes-image"><span class="std std-ref">image</span></a>, <a class="reference internal" href="classes.html#ref-classes-rootfs"><span class="std std-ref">rootfs*</span></a> and
+<a class="reference internal" href="classes.html#ref-classes-package"><span class="std std-ref">package*.bbclass</span></a>.</p>
+<p>For reference information on classes, see the
+&quot;<a class="reference internal" href="classes.html"><span class="doc">Classes</span></a>&quot; chapter.</p>
+</section>
+<section id="meta-conf">
+<span id="structure-meta-conf"></span><h3><span class="section-number">5.3.2 </span><code class="docutils literal notranslate"><span class="pre">meta/conf/</span></code><a class="headerlink" href="#meta-conf" title="Link to this heading"></a></h3>
+<p>This directory contains the core set of configuration files that start
+from <code class="docutils literal notranslate"><span class="pre">bitbake.conf</span></code> and from which all other configuration files are
+included. See the include statements at the end of the <code class="docutils literal notranslate"><span class="pre">bitbake.conf</span></code>
+file and you will note that even <a class="reference internal" href="#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> is loaded from there.
+While <code class="docutils literal notranslate"><span class="pre">bitbake.conf</span></code> sets up the defaults, you can often override
+these by using the (<a class="reference internal" href="#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a>) file, machine file or the
+distribution configuration file.</p>
+<section id="meta-conf-machine">
+<span id="structure-meta-conf-machine"></span><h4><span class="section-number">5.3.2.1 </span><code class="docutils literal notranslate"><span class="pre">meta/conf/machine/</span></code><a class="headerlink" href="#meta-conf-machine" title="Link to this heading"></a></h4>
+<p>This directory contains all the machine configuration files. If you set
+<code class="docutils literal notranslate"><span class="pre">MACHINE</span> <span class="pre">=</span> <span class="pre">&quot;qemux86&quot;</span></code>, the OpenEmbedded build system looks for a
+<code class="docutils literal notranslate"><span class="pre">qemux86.conf</span></code> file in this directory. The <code class="docutils literal notranslate"><span class="pre">include</span></code> directory
+contains various data common to multiple machines. If you want to add
+support for a new machine to the Yocto Project, look in this directory.</p>
+</section>
+<section id="meta-conf-distro">
+<span id="structure-meta-conf-distro"></span><h4><span class="section-number">5.3.2.2 </span><code class="docutils literal notranslate"><span class="pre">meta/conf/distro/</span></code><a class="headerlink" href="#meta-conf-distro" title="Link to this heading"></a></h4>
+<p>The contents of this directory controls any distribution-specific
+configurations. For the Yocto Project, the <code class="docutils literal notranslate"><span class="pre">defaultsetup.conf</span></code> is the
+main file here. This directory includes the versions and the <a class="reference internal" href="variables.html#term-SRCDATE"><span class="xref std std-term">SRCDATE</span></a>
+definitions for applications that are configured here. An example of an
+alternative configuration might be <code class="docutils literal notranslate"><span class="pre">poky-bleeding.conf</span></code>. Although this
+file mainly inherits its configuration from Poky.</p>
+</section>
+<section id="meta-conf-machine-sdk">
+<span id="structure-meta-conf-machine-sdk"></span><h4><span class="section-number">5.3.2.3 </span><code class="docutils literal notranslate"><span class="pre">meta/conf/machine-sdk/</span></code><a class="headerlink" href="#meta-conf-machine-sdk" title="Link to this heading"></a></h4>
+<p>The OpenEmbedded build system searches this directory for configuration
+files that correspond to the value of
+<a class="reference internal" href="variables.html#term-SDKMACHINE"><span class="xref std std-term">SDKMACHINE</span></a>. By default, 32-bit and 64-bit x86
+files ship with the Yocto Project that support some SDK hosts. However,
+it is possible to extend that support to other SDK hosts by adding
+additional configuration files in this subdirectory within another
+layer.</p>
+</section>
+</section>
+<section id="meta-files">
+<span id="structure-meta-files"></span><h3><span class="section-number">5.3.3 </span><code class="docutils literal notranslate"><span class="pre">meta/files/</span></code><a class="headerlink" href="#meta-files" title="Link to this heading"></a></h3>
+<p>This directory contains common license files and several text files used
+by the build system, as well as
+<a class="reference internal" href="../dev-manual/wic.html#creating-partitioned-images-using-wic"><span class="std std-ref">Wic files</span></a>
+that define the layouts of the images produced by the build.
+The text files contain minimal device information
+and lists of files and directories with known permissions.</p>
+</section>
+<section id="meta-lib">
+<span id="structure-meta-lib"></span><h3><span class="section-number">5.3.4 </span><code class="docutils literal notranslate"><span class="pre">meta/lib/</span></code><a class="headerlink" href="#meta-lib" title="Link to this heading"></a></h3>
+<p>This directory contains OpenEmbedded Python library code used during the
+build process. It is enabled via the <code class="docutils literal notranslate"><span class="pre">addpylib</span></code> directive in
+<code class="docutils literal notranslate"><span class="pre">meta/conf/layer.conf</span></code>. For more information, see
+<a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-metadata.html#extending-python-library-code" title="(in Bitbake Version: Current Development)"><span>Extending Python Library Code</span></a>.</p>
+</section>
+<section id="meta-recipes-bsp">
+<span id="structure-meta-recipes-bsp"></span><h3><span class="section-number">5.3.5 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-bsp/</span></code><a class="headerlink" href="#meta-recipes-bsp" title="Link to this heading"></a></h3>
+<p>This directory contains anything linking to specific hardware or
+hardware configuration information such as &quot;u-boot&quot; and &quot;grub&quot;.</p>
+</section>
+<section id="meta-recipes-connectivity">
+<span id="structure-meta-recipes-connectivity"></span><h3><span class="section-number">5.3.6 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-connectivity/</span></code><a class="headerlink" href="#meta-recipes-connectivity" title="Link to this heading"></a></h3>
+<p>This directory contains libraries and applications related to
+communication with other devices.</p>
+</section>
+<section id="meta-recipes-core">
+<span id="structure-meta-recipes-core"></span><h3><span class="section-number">5.3.7 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-core/</span></code><a class="headerlink" href="#meta-recipes-core" title="Link to this heading"></a></h3>
+<p>This directory contains what is needed to build a basic working Linux
+image including commonly used dependencies.</p>
+</section>
+<section id="meta-recipes-devtools">
+<span id="structure-meta-recipes-devtools"></span><h3><span class="section-number">5.3.8 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-devtools/</span></code><a class="headerlink" href="#meta-recipes-devtools" title="Link to this heading"></a></h3>
+<p>This directory contains tools that are primarily used by the build
+system. The tools, however, can also be used on targets.</p>
+</section>
+<section id="meta-recipes-extended">
+<span id="structure-meta-recipes-extended"></span><h3><span class="section-number">5.3.9 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-extended/</span></code><a class="headerlink" href="#meta-recipes-extended" title="Link to this heading"></a></h3>
+<p>This directory contains non-essential applications that add features
+compared to the alternatives in core. You might need this directory for
+full tool functionality.</p>
+</section>
+<section id="meta-recipes-gnome">
+<span id="structure-meta-recipes-gnome"></span><h3><span class="section-number">5.3.10 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-gnome/</span></code><a class="headerlink" href="#meta-recipes-gnome" title="Link to this heading"></a></h3>
+<p>This directory contains all things related to the GTK+ application
+framework.</p>
+</section>
+<section id="meta-recipes-graphics">
+<span id="structure-meta-recipes-graphics"></span><h3><span class="section-number">5.3.11 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-graphics/</span></code><a class="headerlink" href="#meta-recipes-graphics" title="Link to this heading"></a></h3>
+<p>This directory contains X and other graphically related system
+libraries.</p>
+</section>
+<section id="meta-recipes-kernel">
+<span id="structure-meta-recipes-kernel"></span><h3><span class="section-number">5.3.12 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-kernel/</span></code><a class="headerlink" href="#meta-recipes-kernel" title="Link to this heading"></a></h3>
+<p>This directory contains the kernel and generic applications and
+libraries that have strong kernel dependencies.</p>
+</section>
+<section id="meta-recipes-multimedia">
+<span id="structure-meta-recipes-multimedia"></span><h3><span class="section-number">5.3.13 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-multimedia/</span></code><a class="headerlink" href="#meta-recipes-multimedia" title="Link to this heading"></a></h3>
+<p>This directory contains codecs and support utilities for audio, images
+and video.</p>
+</section>
+<section id="meta-recipes-rt">
+<span id="structure-meta-recipes-rt"></span><h3><span class="section-number">5.3.14 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-rt/</span></code><a class="headerlink" href="#meta-recipes-rt" title="Link to this heading"></a></h3>
+<p>This directory contains package and image recipes for using and testing
+the <code class="docutils literal notranslate"><span class="pre">PREEMPT_RT</span></code> kernel.</p>
+</section>
+<section id="meta-recipes-sato">
+<span id="structure-meta-recipes-sato"></span><h3><span class="section-number">5.3.15 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-sato/</span></code><a class="headerlink" href="#meta-recipes-sato" title="Link to this heading"></a></h3>
+<p>This directory contains the Sato demo/reference UI/UX and its associated
+applications and configuration data.</p>
+</section>
+<section id="meta-recipes-support">
+<span id="structure-meta-recipes-support"></span><h3><span class="section-number">5.3.16 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes-support/</span></code><a class="headerlink" href="#meta-recipes-support" title="Link to this heading"></a></h3>
+<p>This directory contains recipes used by other recipes, but that are not
+directly included in images (i.e. dependencies of other recipes).</p>
+</section>
+<section id="meta-site">
+<span id="structure-meta-site"></span><h3><span class="section-number">5.3.17 </span><code class="docutils literal notranslate"><span class="pre">meta/site/</span></code><a class="headerlink" href="#meta-site" title="Link to this heading"></a></h3>
+<p>This directory contains a list of cached results for various
+architectures. Because certain &quot;autoconf&quot; test results cannot be
+determined when cross-compiling due to the tests not able to run on a
+live system, the information in this directory is passed to &quot;autoconf&quot;
+for the various architectures.</p>
+</section>
+<section id="meta-recipes-txt">
+<span id="structure-meta-recipes-txt"></span><h3><span class="section-number">5.3.18 </span><code class="docutils literal notranslate"><span class="pre">meta/recipes.txt</span></code><a class="headerlink" href="#meta-recipes-txt" title="Link to this heading"></a></h3>
+<p>This file is a description of the contents of <code class="docutils literal notranslate"><span class="pre">recipes-*</span></code>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

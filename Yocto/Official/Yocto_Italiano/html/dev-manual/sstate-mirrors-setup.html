@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>42 Setting up a Shared State Cache Mirror &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="43 Setting up a Hash Equivalence Server" href="hashequivserver.html" />
+    <link rel="prev" title="41 Locking and Unlocking Recipes Using bblock" href="bblock.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduction and Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Quick Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">What I wish I'd known about Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transitioning to a custom environment for systems development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Overview and Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributor Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Contributor Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuals</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Reference Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Board Support Package (BSP) Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Development Tasks Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 The Yocto Project Development Tasks Manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="start.html">2 Setting Up to Use the Yocto Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="layers.html">3 Understanding and Creating Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customizing-images.html">4 Customizing Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-recipe.html">5 Writing a New Recipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new-machine.html">6 Adding a New Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrading-recipes.html">7 Upgrading Recipes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="temporary-source-code.html">8 Finding Temporary Source Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-fragments.html">9 Creating New Configuration Fragments In Your Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="poky-manual-setup.html">10 Setting Up the Poky Reference Distro Manually</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quilt.html">11 Using Quilt in Your Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development-shell.html">12 Using a Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-development-shell.html">13 Using a Python Development Shell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html">14 Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiconfig.html">15 Building Images for Multiple Targets With Multiconfig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="speeding-up-build.html">16 Speeding Up a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiting-resources.html">17 Limiting the Host Resources Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="libraries.html">18 Working With Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prebuilt-libraries.html">19 Working with Pre-Built Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devtool.html">20 Using the <code class="docutils literal notranslate"><span class="pre">devtool</span></code> command-line tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="x32-psabi.html">21 Using x32 psABI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gobject-introspection.html">22 Enabling GObject Introspection Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-toolchain.html">23 Optionally Using an External Toolchain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wic.html">24 Creating Partitioned Images Using Wic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bmaptool.html">25 Flashing Images Using <cite>bmaptool</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-distribution.html">26 Creating Your Own Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-template-configuration-directory.html">27 Creating a Custom Template Configuration Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="disk-space.html">28 Conserving Disk Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packages.html">29 Working with Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="efficiently-fetching-sources.html">30 Efficiently Fetching Source Files During a Build</a></li>
+<li class="toctree-l2"><a class="reference internal" href="init-manager.html">31 Selecting an Initialization Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device-manager.html">32 Selecting a Device Manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="external-scm.html">33 Using an External SCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-quality.html">34 Maintaining Build Output Quality with <code class="docutils literal notranslate"><span class="pre">buildhistory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">35 Debugging Tools and Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="licenses.html">36 Working With Licenses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbom.html">37 Creating a Software Bill of Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error-reporting-tool.html">38 Using the Error Reporting Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wayland.html">39 Using Wayland and Weston</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qemu.html">40 Using the Quick EMUlator (QEMU)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bblock.html">41 Locking and Unlocking Recipes Using <code class="docutils literal notranslate"><span class="pre">bblock</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">42 Setting up a Shared State Cache Mirror</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#use-case">42.1 Use-case</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#server-setup">42.2 Server Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#client-configuration">42.3 Client Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#going-further">42.4 Going Further</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#troubleshooting">42.5 Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="hashequivserver.html">43 Setting up a Hash Equivalence Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Linux Kernel Development Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Security Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Profile and Tracing Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Application Development and SDKs Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Toaster Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Test Environment Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">BitBake User Manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Security Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Yocto Project Security Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Release Notes and Migration Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Manuals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation Downloads</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Documentation Downloads</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Yocto Project Development Tasks Manual</a> &raquo;</li>
+    
+    <li><span class="section-number">42 </span>Setting up a Shared State Cache Mirror</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dev-manual/sstate-mirrors-setup.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="setting-up-a-shared-state-cache-mirror">
+<h1><span class="section-number">42 </span>Setting up a Shared State Cache Mirror<a class="headerlink" href="#setting-up-a-shared-state-cache-mirror" title="Link to this heading"></a></h1>
+<p>This document explains how to set up a server that hosts shared state artifacts
+that can be reused by machines connecting to the server.</p>
+<p>The concept of &quot;shared state&quot; is explained in the
+<a class="reference internal" href="../overview-manual/concepts.html#setscene-tasks-and-shared-state"><span class="std std-ref">Setscene Tasks and Shared State</span></a> section of the
+Yocto Project Overview and Concepts Manual. These artifacts are files that are
+by default placed in the shared state directory (<a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a>).</p>
+<p>This document explains how to share the content of this directory through the
+use of the <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a> variable.</p>
+<section id="use-case">
+<h2><span class="section-number">42.1 </span>Use-case<a class="headerlink" href="#use-case" title="Link to this heading"></a></h2>
+<p>The most common use-case for setting up a shared state cache mirror is usually
+when there is a dedicated machine in an infrastructure building images at a
+regular interval, thus populating a shared state cache directory frequently.
+Usually, this machine is part of a <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/CI/CD">CI/CD</a> type of
+environment.</p>
+<p>Since the shared state directory of this machine contains most of the items
+needed to accelerate a new build, it can be interesting to share it to remote
+clients connecting to the machine and fetching the artifacts over the network:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>                   +---------------------+
+                   |                     |
+        +----------+    Build Machine    +-------------+
+        |          |                     |             |
+        |          +--------+------------+             |
+        |                   |                          |
+        |                   |                          |
+        |                   |                          |
+        |                   |                          |
+        |                   |                          |
++-------v------+    +-------v------+           +-------v------+
+|              |    |              |           |              |
+|   Client 1   |    |   Client 2   |   . . .   |   Client N   |
+|              |    |              |           |              |
++--------------+    +--------------+           +--------------+
+</pre></div>
+</div>
+<p>With this kind of setup, it is assumed that:</p>
+<ul class="simple">
+<li><p>Clients connect to the server over some protocol such as HTTP. In practice,
+the protocol should be one supported by BitBake (see <a class="reference external" href="https://docs.yoctoproject.org/bitbake/dev/bitbake-user-manual/bitbake-user-manual-fetching.html" title="(in Bitbake Version: Current Development)"><span class="xref std std-doc">the supported
+fetchers</span></a>).</p></li>
+<li><p>The shared state directory (<a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a>) of the build machine is
+is read-only from the point of view of the clients.</p></li>
+<li><p>The previous points also means that clients hold their own copy of the shared
+state artifacts in their own shared state directory.</p></li>
+</ul>
+</section>
+<section id="server-setup">
+<h2><span class="section-number">42.2 </span>Server Setup<a class="headerlink" href="#server-setup" title="Link to this heading"></a></h2>
+<p>There are many ways of setting up a file hosting server. To illustrate, this
+document will use a basic HTTP server started thanks to the <code class="docutils literal notranslate"><span class="pre">http.server</span></code>
+Python module.</p>
+<p>On our build machine, we assume that the server shares the shared state from the
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>build/
+├── ...
+├── sstate-cache/
+└── ...
+</pre></div>
+</div>
+<p>With the <code class="docutils literal notranslate"><span class="pre">http.server</span></code> Python module, the server can be started as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span>-d<span class="w"> </span>.../build/sstate-cache
+<span class="go">Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...</span>
+</pre></div>
+</div>
+</section>
+<section id="client-configuration">
+<h2><span class="section-number">42.3 </span>Client Configuration<a class="headerlink" href="#client-configuration" title="Link to this heading"></a></h2>
+<p>Configuring clients to this server happens through a <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>,
+for example, the <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-site-conf"><span class="std std-ref">site.conf</span></a> file. Only
+the <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a> variable is needed to setup the connection:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SSTATE_MIRRORS</span> <span class="o">=</span> <span class="s2">"file://.* http://127.0.0.1:8000/PATH;downloadfilename=PATH"</span>
+</pre></div>
+</div>
+<p>The line above depends on your server configuration. Here, the example uses the
+local <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> IP address (the client is running on the same machine) and
+the files are served on the port 8000.</p>
+<p>With this, the client is configured to download shared state artifacts from the
+server. This will happen automatically based on the <a class="reference internal" href="../overview-manual/concepts.html#checksums-signatures"><span class="std std-ref">signatures</span></a> of the tasks which are about
+to run (so only relevant artifacts are fetched).</p>
+<p>After running a build, the local shared state directory of the client
+(configured through its <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_DIR"><span class="xref std std-term">SSTATE_DIR</span></a> variable), will be populated with the
+files downloaded from the server.</p>
+</section>
+<section id="going-further">
+<h2><span class="section-number">42.4 </span>Going Further<a class="headerlink" href="#going-further" title="Link to this heading"></a></h2>
+<ul>
+<li><p>It is recommended to setup a <a class="reference internal" href="../overview-manual/concepts.html#hash-equivalence"><span class="std std-ref">Hash Equivalence</span></a>
+service on the build machine --- running in parallel of the shared state
+mirror --- to further speed up builds. See the
+<a class="reference internal" href="hashequivserver.html"><span class="doc">Setting up a Hash Equivalence Server</span></a> section of the Yocto Project Development
+Tasks Manual for more information.</p></li>
+<li><p>If the mirror is protected behind a username and password, the
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Host"><span class="xref std std-term">build host</span></a> needs to be configured so the <a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Build-System"><span class="xref std std-term">build system</span></a> is able to download the shared state cache using
+authentication.</p>
+<p>The recommended way to do that is by setting the following parameters
+in <code class="docutils literal notranslate"><span class="pre">$HOME/.netrc</span></code> (<code class="docutils literal notranslate"><span class="pre">$HOME</span></code> being the <a class="reference internal" href="../ref-manual/terms.html#term-Build-Host"><span class="xref std std-term">build host</span></a> home
+directory):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">machine</span> <span class="n">someserver</span><span class="o">.</span><span class="n">tld</span>
+<span class="n">login</span> <span class="o">&lt;</span><span class="n">user</span><span class="o">&gt;</span>
+<span class="n">password</span> <span class="o">&lt;</span><span class="n">password</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>This file requires permissions set to <code class="docutils literal notranslate"><span class="pre">400</span></code> or <code class="docutils literal notranslate"><span class="pre">600</span></code> to prevent
+other users from reading the file:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.netrc"</span>
+</pre></div>
+</div>
+<p>Another method to configure the username and password is from the
+URL in <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a> directly, with the <code class="docutils literal notranslate"><span class="pre">user</span></code> and <code class="docutils literal notranslate"><span class="pre">pswd</span></code>
+parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>SSTATE_MIRRORS ?= "\
+    file://.* https://someserver.tld/share/sstate/PATH;user=&lt;user&gt;;pswd=&lt;password&gt;;downloadfilename=PATH \
+"
+</pre></div>
+</div>
+</li>
+<li><p>If the <a class="reference internal" href="../ref-manual/variables.html#term-BB_NO_NETWORK"><span class="xref std std-term">BB_NO_NETWORK</span></a> variable is set to &quot;1&quot; on clients as a means to
+disable any accesses to the network, the <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRROR_ALLOW_NETWORK"><span class="xref std std-term">SSTATE_MIRROR_ALLOW_NETWORK</span></a>
+variable may be used to allow the clients to fetch from the shared state
+mirror as an exception.</p></li>
+<li><p>Multiple shared state sources can be specified in the <a class="reference internal" href="../ref-manual/variables.html#term-SSTATE_MIRRORS"><span class="xref std std-term">SSTATE_MIRRORS</span></a>
+variable. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SSTATE_MIRRORS</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\</span>
+<span class="s2">   file://.* https://someserver.com/PATH;downloadfilename=PATH </span><span class="se">\</span>
+<span class="s2">   file://.* https://someotherserver.com/PATH;downloadfilename=PATH </span><span class="se">\</span>
+<span class="s2">"</span>
+</pre></div>
+</div>
+<p>The shared state artifacts will be searched on the remote locations in the
+same order as they are specified in this variable.</p>
+</li>
+<li><p>Fetching the shared state artifacts from a local directory, such as an
+<a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/Network_File_System">NFS</a>-mounted directory, is also possible
+using the <code class="docutils literal notranslate"><span class="pre">file://</span></code> fetcher:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SSTATE_MIRRORS</span> <span class="o">=</span> <span class="s2">"file://.* file:///path/to/shared-state/PATH;downloadfilename=PATH"</span>
+</pre></div>
+</div>
+</li>
+<li><p>The shared state mirror may be used in combination with GPG signatures to
+ensure the authenticity of the downloaded files. See the
+<a class="reference internal" href="../security-manual/sstate-signing.html"><span class="doc">Shared State Signing</span></a> section of the Yocto Project Security
+Manual for more information.</p></li>
+<li><p>The size of the shared state directory on the server may grow over time. The
+<a class="extlink-oecore_path reference external" href="https://git.openembedded.org/openembedded-core/tree/scripts/sstate-cache-management.py">sstate-cache-management.py</a>
+script may be used to remove duplicate files. Otherwise, removing files
+that have not been accessed for a certain period of time can be done with the
+standard <code class="docutils literal notranslate"><span class="pre">find</span></code> command, e.g. for removing files older than 2 months:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>find<span class="w"> </span>sstate-cache/<span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-atime<span class="w"> </span>+60<span class="w"> </span>-delete
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="troubleshooting">
+<h2><span class="section-number">42.5 </span>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<p>The best way to check that files are being downloaded from the server is
+probably to check the server logs. For example, using the Python <code class="docutils literal notranslate"><span class="pre">http.server</span></code>
+module, the following logs are shown:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>127.0.0.1 - - [20/Jul/2026 14:36:23] "HEAD /d1/75/sstate%3Afile%3Ax86-64-v3-oe-linux%3A5.48%3Ar0%3Ax86-64-v3%3A14%3Ad175b18b8adc9cc3003edfc62f112fd421505bc715d41f36b4d04eef05d226ad_packagedata.tar.zst HTTP/1.1" 200 -
+127.0.0.1 - - [20/Jul/2026 14:36:23] "HEAD /f4/11/sstate%3Aos-release%3Aall-oe-linux%3A1.0%3Ar0%3Aallarch%3A14%3Af411b2f27319283694ab13bf0d8965a7dd26428431418dfb7505f3d1cdd0dbfd_package_write_ipk.tar.zst HTTP/1.1" 404 -
+</pre></div>
+</div>
+<p>Some artifacts may be found (returning 200 above). Some others will not be found
+because the expected artifacts on the client is not present on the server, in
+which case the client will rebuild the task (and its dependencies).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

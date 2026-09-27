@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 Making Images More Secure &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="4 Checking for Vulnerabilities" href="vulnerabilities.html" />
+    <link rel="prev" title="2 Build Process Security" href="build-process-security.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduction and Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Quick Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">What I wish I'd known about Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transitioning to a custom environment for systems development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Overview and Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributor Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Contributor Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuals</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Reference Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Board Support Package (BSP) Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Development Tasks Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernel-dev/index.html">Linux Kernel Development Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Security Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build-process-security.html">2 Build Process Security</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3 Making Images More Secure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-considerations">3.1 General Considerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#security-flags">3.2 Security Flags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#considerations-specific-to-the-openembedded-build-system">3.3 Considerations Specific to the OpenEmbedded Build System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tools-for-hardening-your-image">3.4 Tools for Hardening Your Image</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vulnerabilities.html">4 Checking for Vulnerabilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="read-only-rootfs.html">5 Creating a Read-Only Root Filesystem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sstate-signing.html">6 Shared State Signing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Profile and Tracing Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Application Development and SDKs Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Toaster Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Test Environment Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">BitBake User Manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Security Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Yocto Project Security Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Release Notes and Migration Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Manuals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation Downloads</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Documentation Downloads</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Yocto Project Security Manual</a> &raquo;</li>
+    
+    <li><span class="section-number">3 </span>Making Images More Secure</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/security-manual/securing-images.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="making-images-more-secure">
+<h1><span class="section-number">3 </span>Making Images More Secure<a class="headerlink" href="#making-images-more-secure" title="Link to this heading"></a></h1>
+<p>When securing your image is of concern, there are steps, tools, and
+variables that you can consider to help you reach the security goals you
+need for your particular device. Not all situations are identical when
+it comes to making an image secure. Consequently, this section provides
+some guidance and suggestions for consideration when you want to make
+your image more secure.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Because the security requirements and risks are different for every
+type of device, this section cannot provide a complete reference on
+securing your custom OS. It is strongly recommended that you also
+consult other sources of information on embedded Linux system
+hardening and on security.</p>
+</div>
+<section id="general-considerations">
+<h2><span class="section-number">3.1 </span>General Considerations<a class="headerlink" href="#general-considerations" title="Link to this heading"></a></h2>
+<p>There are general considerations that help you create more secure images.
+You should consider the following suggestions to make your device
+more secure:</p>
+<ul>
+<li><p>Scan additional code you are adding to the system (e.g. application
+code) by using static analysis tools. Look for buffer overflows and
+other potential security problems.</p></li>
+<li><p>Pay particular attention to the security for any web-based
+administration interface.</p>
+<p>Web interfaces typically need to perform administrative functions and
+tend to need to run with elevated privileges. Thus, the consequences
+resulting from the interface's security becoming compromised can be
+serious. Look for common web vulnerabilities such as
+cross-site-scripting (XSS), unvalidated inputs, and so forth.</p>
+<p>As with system passwords, the default credentials for accessing a
+web-based interface should not be the same across all devices. This
+is particularly true if the interface is enabled by default as it can
+be assumed that many end-users will not change the credentials.</p>
+</li>
+<li><p>Ensure you can update the software on the device to mitigate
+vulnerabilities discovered in the future. This consideration
+especially applies when your device is network-enabled.</p></li>
+<li><p>Regularly scan and apply fixes for CVE security issues affecting
+all software components in the product, see &quot;<a class="reference internal" href="vulnerabilities.html#checking-for-vulnerabilities"><span class="std std-ref">Checking for Vulnerabilities</span></a>&quot;.</p></li>
+<li><p>Regularly update your version of <a class="reference internal" href="../ref-manual/terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a> and your layers (e.g.
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>, <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-yocto/">meta-yocto</a>,
+...), e.g. to apply updates and security fixes from stable and <a class="reference internal" href="../ref-manual/terms.html#term-LTS"><span class="xref std std-term">LTS</span></a>
+branches.</p></li>
+<li><p>Ensure you remove or disable debugging functionality before producing
+the final image. For information on how to do this, see the
+&quot;<a class="reference internal" href="#considerations-specific-to-the-openembedded-build-system"><span class="std std-ref">Considerations Specific to the OpenEmbedded Build System</span></a>&quot;
+section.</p></li>
+<li><p>Ensure you have no network services listening that are not needed.</p></li>
+<li><p>Remove any software from the image that is not needed.</p></li>
+<li><p>Enable hardware support for secure boot functionality when your
+device supports this functionality.</p></li>
+</ul>
+</section>
+<section id="security-flags">
+<h2><span class="section-number">3.2 </span>Security Flags<a class="headerlink" href="#security-flags" title="Link to this heading"></a></h2>
+<p>The Yocto Project has security flags that you can enable that help make
+your build output more secure. The security flags are in the
+<code class="docutils literal notranslate"><span class="pre">meta/conf/distro/include/security_flags.inc</span></code> file in
+<a class="reference internal" href="../ref-manual/terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Depending on the recipe, certain security flags are enabled and
+disabled by default.</p>
+</div>
+<p>Use the following line in your <a class="reference internal" href="../ref-manual/structure.html#structure-build-conf-local-conf"><span class="std std-ref">build/conf/local.conf</span></a> file or in your custom
+distro <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a> to enable the security compiler and
+linker flags for your build:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">require</span> <span class="n">conf</span><span class="o">/</span><span class="n">distro</span><span class="o">/</span><span class="n">include</span><span class="o">/</span><span class="n">security_flags</span><span class="o">.</span><span class="n">inc</span>
+</pre></div>
+</div>
+</section>
+<section id="considerations-specific-to-the-openembedded-build-system">
+<h2><span class="section-number">3.3 </span>Considerations Specific to the OpenEmbedded Build System<a class="headerlink" href="#considerations-specific-to-the-openembedded-build-system" title="Link to this heading"></a></h2>
+<p>You can take some steps that are specific to the OpenEmbedded build
+system to make your images more secure:</p>
+<ul>
+<li><p>During development, it's convenient to relax security in your builds
+and allow the use of empty passwords or root logins. This is typically
+done by adding the values &quot;allow-empty-password&quot;, &quot;allow-root-login&quot;, and
+&quot;empty-root-password&quot; to your build's image features, commonly with the
+addition of the line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">EXTRA_IMAGE_FEATURES</span> <span class="o">=</span> <span class="s2">"allow-empty-password empty-root-password allow-root-login"</span>
+</pre></div>
+</div>
+<p>to your distro <a class="reference internal" href="../ref-manual/terms.html#term-Configuration-File"><span class="xref std std-term">configuration file</span></a>, or by enabling the exactly equivalent
+configuration fragment <a class="reference internal" href="../ref-manual/fragments.html#ref-fragments-root-login-with-empty-password"><span class="std std-ref">core/yocto/root-login-with-empty-password</span></a>.</p>
+<p>If you're using either of these approaches during development,
+make sure you remove or de-activate these settings before generating
+your final production image.</p>
+</li>
+<li><p>It is possible to set a root password for the image and also to set
+passwords for any extra users you might add (e.g. administrative or
+service type users). When you set up passwords for multiple images or
+users, you should not duplicate passwords.</p>
+<p>To set up passwords, use the <a class="reference internal" href="../ref-manual/classes.html#ref-classes-extrausers"><span class="std std-ref">extrausers</span></a> class, which
+is the preferred method. For an example on how to set up both root and
+user passwords, see the &quot;<a class="reference internal" href="../ref-manual/classes.html#ref-classes-extrausers"><span class="std std-ref">extrausers</span></a>&quot; section.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>When adding extra user accounts or setting a root password, be
+cautious about setting the same password on every device. If you
+do this, and the password you have set is exposed, then every
+device is now potentially compromised. If you need this access but
+want to ensure security, consider setting a different, random
+password for each device. Typically, you do this as a separate
+step after you deploy the image onto the device.</p>
+</div>
+</li>
+<li><p>Consider enabling a Mandatory Access Control (MAC) framework such as
+SMACK or SELinux and tuning it appropriately for your device's usage.
+You can find more information in the
+<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-selinux/">meta-selinux</a> layer.</p></li>
+</ul>
+</section>
+<section id="tools-for-hardening-your-image">
+<h2><span class="section-number">3.4 </span>Tools for Hardening Your Image<a class="headerlink" href="#tools-for-hardening-your-image" title="Link to this heading"></a></h2>
+<p>The Yocto Project provides tools for making your image more secure. You
+can find these tools in the <code class="docutils literal notranslate"><span class="pre">meta-security</span></code> layer of the
+<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org">Yocto Project Source Repositories</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,533 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="it" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 Advanced Kernel Concepts &mdash; Documentazione The Yocto Project ® dev </title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/theme_overrides.css?v=2c72a4b0" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5a1fd41d"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=a56c686a"></script>
+      <script src="../_static/translations.js?v=45930005"></script>
+      <script src="../_static/switchers.js?v=9277432c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Indice" href="../genindex.html" />
+    <link rel="search" title="Cerca" href="../search.html" />
+    <link rel="next" title="5 Kernel Maintenance" href="maint-appx.html" />
+    <link rel="prev" title="3 Working with Advanced Metadata (yocto-kernel-cache)" href="advanced.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+<div id="outdated-warning" style="text-align: center; background-color: #FFBABA; color: #6A0E0E;">
+</div>
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            The Yocto Project ®
+              <img src="../_static/YoctoProject_Logo_RGB.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Cerca documenti" aria-label="Cerca documenti" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Menu di navigazione">
+              <p class="caption" role="heading"><span class="caption-text">Introduction and Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../brief-yoctoprojectqs/index.html">Quick Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../what-i-wish-id-known.html">What I wish I'd known about Yocto Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transitioning-to-a-custom-environment.html">Transitioning to a custom environment for systems development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview-manual/index.html">Overview and Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributor Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide/index.html">Contributor Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Manuals</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ref-manual/index.html">Reference Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bsp-manual/index.html">Board Support Package (BSP) Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev-manual/index.html">Development Tasks Manual</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Linux Kernel Development Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">1 Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">2 Common Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html">3 Working with Advanced Metadata (<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4 Advanced Kernel Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#yocto-project-kernel-development-and-maintenance">4.1 Yocto Project Kernel Development and Maintenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#yocto-linux-kernel-architecture-and-branching-strategies">4.2 Yocto Linux Kernel Architecture and Branching Strategies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kernel-build-file-hierarchy">4.3 Kernel Build File Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#determining-hardware-and-non-hardware-features-for-the-kernel-configuration-audit-phase">4.4 Determining Hardware and Non-Hardware Features for the Kernel Configuration Audit Phase</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="maint-appx.html">5 Kernel Maintenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html">6 Kernel Development FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../security-manual/index.html">Security Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../profile-manual/index.html">Profile and Tracing Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sdk-manual/index.html">Application Development and SDKs Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../toaster-manual/index.html">Toaster Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test-manual/index.html">Test Environment Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitbake.html">BitBake User Manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Security Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../security-reference/index.html">Yocto Project Security Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../migration-guides/index.html">Release Notes and Migration Guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Release Manuals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html">Supported Release Manuals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../releases.html#outdated-release-manuals">Outdated Release Manuals</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Indice</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Documentation Downloads</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Documentation Downloads</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Menu navigazione dispositivi mobili" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">The Yocto Project ®</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Naviga tra le pagine">
+  <ul class="wy-breadcrumbs">
+    <li>
+      <span class="doctype_switcher_placeholder">single</span>
+      <span class="version_switcher_placeholder">dev</span>
+    </li>
+    <li> &raquo;</li>
+    
+      <li><a href="index.html">Yocto Project Linux Kernel Development Manual</a> &raquo;</li>
+    
+    <li><span class="section-number">4 </span>Advanced Kernel Concepts</li>
+
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/kernel-dev/concepts-appx.rst.txt" rel="nofollow"> Visualizza sorgente pagina</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="advanced-kernel-concepts">
+<h1><span class="section-number">4 </span>Advanced Kernel Concepts<a class="headerlink" href="#advanced-kernel-concepts" title="Link to this heading"></a></h1>
+<section id="yocto-project-kernel-development-and-maintenance">
+<h2><span class="section-number">4.1 </span>Yocto Project Kernel Development and Maintenance<a class="headerlink" href="#yocto-project-kernel-development-and-maintenance" title="Link to this heading"></a></h2>
+<p>Kernels available through the Yocto Project (Yocto Linux kernels), like
+other kernels, are based off the Linux kernel releases from
+<a class="reference external" href="https://www.kernel.org">https://www.kernel.org</a>. At the beginning of a major Linux kernel
+development cycle, the Yocto Project team chooses a Linux kernel based
+on factors such as release timing, the anticipated release timing of
+final upstream <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code> versions, and Yocto Project feature
+requirements. Typically, the Linux kernel chosen is in the final stages
+of development by the Linux community. In other words, the Linux kernel
+is in the release candidate or &quot;rc&quot; phase and has yet to reach final
+release. But, by being in the final stages of external development, the
+team knows that the <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code> final release will clearly be within
+the early stages of the Yocto Project development window.</p>
+<p>This balance allows the Yocto Project team to deliver the most
+up-to-date Yocto Linux kernel possible, while still ensuring that the
+team has a stable official release for the baseline Linux kernel
+version.</p>
+<p>As implied earlier, the ultimate source for Yocto Linux kernels are
+released kernels from <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code>. In addition to a foundational
+kernel from <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code>, the available Yocto Linux kernels contain a
+mix of important new mainline developments, non-mainline developments
+(when no alternative exists), Board Support Package (BSP) developments,
+and custom features. These additions result in a commercially released
+Yocto Project Linux kernel that caters to specific embedded designer
+needs for targeted hardware.</p>
+<p>You can find a web interface to the Yocto Linux kernels in the
+<a class="reference internal" href="../overview-manual/development-environment.html#yocto-project-source-repositories"><span class="std std-ref">Yocto Project Source Repositories</span></a>
+at <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/">https://git.yoctoproject.org/</a>. If you look at the interface, you will see to
+the left a grouping of Git repositories titled &quot;Yocto Linux Kernel&quot;.
+Within this group, you will find several Linux Yocto kernels developed
+and included with Yocto Project releases:</p>
+<ul class="simple">
+<li><p><em>linux-yocto-4.1:</em> The stable Yocto Project kernel to use with
+the Yocto Project Release 2.0. This kernel is based on the Linux 4.1
+released kernel.</p></li>
+<li><p><em>linux-yocto-4.4:</em> The stable Yocto Project kernel to use with
+the Yocto Project Release 2.1. This kernel is based on the Linux 4.4
+released kernel.</p></li>
+<li><p><em>linux-yocto-4.6:</em> A temporary kernel that is not tied to any
+Yocto Project release.</p></li>
+<li><p><em>linux-yocto-4.8:</em> The stable yocto Project kernel to use with
+the Yocto Project Release 2.2.</p></li>
+<li><p><em>linux-yocto-4.9:</em> The stable Yocto Project kernel to use with
+the Yocto Project Release 2.3. This kernel is based on the Linux 4.9
+released kernel.</p></li>
+<li><p><em>linux-yocto-4.10:</em> The default stable Yocto Project kernel to
+use with the Yocto Project Release 2.3. This kernel is based on the
+Linux 4.10 released kernel.</p></li>
+<li><p><em>linux-yocto-4.12:</em> The default stable Yocto Project kernel to
+use with the Yocto Project Release 2.4. This kernel is based on the
+Linux 4.12 released kernel.</p></li>
+<li><p><em>yocto-kernel-cache:</em> The <code class="docutils literal notranslate"><span class="pre">linux-yocto-cache</span></code> contains patches
+and configurations for the linux-yocto kernel tree. This repository
+is useful when working on the linux-yocto kernel. For more
+information on this &quot;Advanced Kernel Metadata&quot;, see the
+&quot;<a class="reference internal" href="advanced.html"><span class="doc">Working with Advanced Metadata (yocto-kernel-cache)</span></a>&quot; Chapter.</p></li>
+<li><p><em>linux-yocto-dev:</em> A development kernel based on the latest
+upstream release candidate available.</p></li>
+</ul>
+<p>Once a Yocto Linux kernel is officially released, the Yocto Project team
+goes into their next development cycle, or upward revision (uprev)
+cycle, while still continuing maintenance on the released kernel. It is
+important to note that the most sustainable and stable way to include
+feature development upstream is through a kernel uprev process.
+Back-porting hundreds of individual fixes and minor features from
+various kernel versions is not sustainable and can easily compromise
+quality.</p>
+<p>During the uprev cycle, the Yocto Project team uses an ongoing analysis
+of Linux kernel development, BSP support, and release timing to select
+the best possible <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code> Linux kernel version on which to base
+subsequent Yocto Linux kernel development. The team continually monitors
+Linux community kernel development to look for significant features of
+interest. The team does consider back-porting large features if they
+have a significant advantage. User or community demand can also trigger
+a back-port or creation of new functionality in the Yocto Project
+baseline kernel during the uprev cycle.</p>
+<p>Generally speaking, every new Linux kernel both adds features and
+introduces new bugs. These consequences are the basic properties of
+upstream Linux kernel development and are managed by the Yocto Project
+team's Yocto Linux kernel development strategy. It is the Yocto Project
+team's policy to not back-port minor features to the released Yocto
+Linux kernel. They only consider back-porting significant technological
+jumps --- and, that is done after a complete gap analysis. The reason
+for this policy is that back-porting any small to medium sized change
+from an evolving Linux kernel can easily create mismatches,
+incompatibilities and very subtle errors.</p>
+<p>The policies described in this section result in both a stable and a
+cutting edge Yocto Linux kernel that mixes forward ports of existing
+Linux kernel features and significant and critical new functionality.
+Forward porting Linux kernel functionality into the Yocto Linux kernels
+available through the Yocto Project can be thought of as a &quot;micro
+uprev&quot;. The many &quot;micro uprevs&quot; produce a Yocto Linux kernel version
+with a mix of important new mainline, non-mainline, BSP developments and
+feature integrations. This Yocto Linux kernel gives insight into new
+features and allows focused amounts of testing to be done on the kernel,
+which prevents surprises when selecting the next major uprev. The
+quality of these cutting edge Yocto Linux kernels is evolving and the
+kernels are used in leading edge feature and BSP development.</p>
+</section>
+<section id="yocto-linux-kernel-architecture-and-branching-strategies">
+<h2><span class="section-number">4.2 </span>Yocto Linux Kernel Architecture and Branching Strategies<a class="headerlink" href="#yocto-linux-kernel-architecture-and-branching-strategies" title="Link to this heading"></a></h2>
+<p>As mentioned earlier, a key goal of the Yocto Project is to present the
+developer with a kernel that has a clear and continuous history that is
+visible to the user. The architecture and mechanisms, in particular the
+branching strategies, used achieve that goal in a manner similar to
+upstream Linux kernel development in <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code>.</p>
+<p>You can think of a Yocto Linux kernel as consisting of a baseline Linux
+kernel with added features logically structured on top of the baseline.
+The features are tagged and organized by way of a branching strategy
+implemented by the Yocto Project team using the Source Code Manager
+(SCM) Git.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<ul class="simple">
+<li><p>Git is the obvious SCM for meeting the Yocto Linux kernel
+organizational and structural goals described in this section. Not
+only is Git the SCM for Linux kernel development in <code class="docutils literal notranslate"><span class="pre">kernel.org</span></code>
+but, Git continues to grow in popularity and supports many
+different work flows, front-ends and management techniques.</p></li>
+<li><p>You can find documentation on Git at <a class="reference external" href="https://git-scm.com/doc">https://git-scm.com/doc</a>. You can
+also get an introduction to Git as it applies to the Yocto Project in the
+&quot;<a class="reference internal" href="../overview-manual/development-environment.html#git"><span class="std std-ref">Git</span></a>&quot; section in the Yocto Project
+Overview and Concepts Manual. The latter reference provides an
+overview of Git and presents a minimal set of Git commands that
+allows you to be functional using Git. You can use as much, or as
+little, of what Git has to offer to accomplish what you need for
+your project. You do not have to be a &quot;Git Expert&quot; in order to use
+it with the Yocto Project.</p></li>
+</ul>
+</div>
+<p>Using Git's tagging and branching features, the Yocto Project team
+creates kernel branches at points where functionality is no longer
+shared and thus, needs to be isolated. For example, board-specific
+incompatibilities would require different functionality and would
+require a branch to separate the features. Likewise, for specific kernel
+features, the same branching strategy is used.</p>
+<p>This &quot;tree-like&quot; architecture results in a structure that has features
+organized to be specific for particular functionality, single kernel
+types, or a subset of kernel types. Thus, the user has the ability to
+see the added features and the commits that make up those features. In
+addition to being able to see added features, the user can also view the
+history of what made up the baseline Linux kernel.</p>
+<p>Another consequence of this strategy results in not having to store the
+same feature twice internally in the tree. Rather, the kernel team
+stores the unique differences required to apply the feature onto the
+kernel type in question.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>The Yocto Project team strives to place features in the tree such
+that features can be shared by all boards and kernel types where
+possible. However, during development cycles or when large features
+are merged, the team cannot always follow this practice. In those
+cases, the team uses isolated branches to merge features.</p>
+</div>
+<p>BSP-specific code additions are handled in a similar manner to
+kernel-specific additions. Some BSPs only make sense given certain
+kernel types. So, for these types, the team creates branches off the end
+of that kernel type for all of the BSPs that are supported on that
+kernel type. From the perspective of the tools that create the BSP
+branch, the BSP is really no different than a feature. Consequently, the
+same branching strategy applies to BSPs as it does to kernel features.
+So again, rather than store the BSP twice, the team only stores the
+unique differences for the BSP across the supported multiple kernels.</p>
+<p>While this strategy can result in a tree with a significant number of
+branches, it is important to realize that from the developer's point of
+view, there is a linear path that travels from the baseline
+<code class="docutils literal notranslate"><span class="pre">kernel.org</span></code>, through a select group of features and ends with their
+BSP-specific commits. In other words, the divisions of the kernel are
+transparent and are not relevant to the developer on a day-to-day basis.
+From the developer's perspective, this path is the development branch.
+The developer does not need to be aware of the existence of
+any other branches at all. Of course, it can make sense to have these
+branches in the tree, should a person decide to explore them. For
+example, a comparison between two BSPs at either the commit level or at
+the line-by-line code <code class="docutils literal notranslate"><span class="pre">diff</span></code> level is now a trivial operation.</p>
+<p>The following illustration shows the conceptual Yocto Linux kernel.</p>
+<a class="reference internal image-reference" href="../_images/kernel-architecture-overview.png"><img alt="../_images/kernel-architecture-overview.png" src="../_images/kernel-architecture-overview.png" style="width: 100%;" />
+</a>
+<p>In the illustration, the &quot;Kernel.org Branch Point&quot; marks the specific
+spot (or Linux kernel release) from which the Yocto Linux kernel is
+created. From this point forward in the tree, features and differences
+are organized and tagged.</p>
+<p>The &quot;Yocto Project Baseline Kernel&quot; contains functionality that is
+common to every kernel type and BSP that is organized further along in
+the tree. Placing these common features in the tree this way means
+features do not have to be duplicated along individual branches of the
+tree structure.</p>
+<p>From the &quot;Yocto Project Baseline Kernel&quot;, branch points represent
+specific functionality for individual Board Support Packages (BSPs) as
+well as real-time kernels. The illustration represents this through
+three BSP-specific branches and a real-time kernel branch. Each branch
+represents some unique functionality for the BSP or for a real-time
+Yocto Linux kernel.</p>
+<p>In this example structure, the &quot;Real-time (rt) Kernel&quot; branch has common
+features for all real-time Yocto Linux kernels and contains more
+branches for individual BSP-specific real-time kernels. The illustration
+shows three branches as an example. Each branch points the way to
+specific, unique features for a respective real-time kernel as they
+apply to a given BSP.</p>
+<p>The resulting tree structure presents a clear path of markers (or
+branches) to the developer that, for all practical purposes, is the
+Yocto Linux kernel needed for any given set of requirements.</p>
+<div class="admonition note">
+<p class="admonition-title">Nota</p>
+<p>Keep in mind the figure does not take into account all the supported
+Yocto Linux kernels, but rather shows a single generic kernel just
+for conceptual purposes. Also keep in mind that this structure
+represents the
+<a class="reference internal" href="../overview-manual/development-environment.html#yocto-project-source-repositories"><span class="std std-ref">Yocto Project Source Repositories</span></a>
+that are either pulled from during the build or established on the
+host development system prior to the build by either cloning a
+particular kernel's Git repository or by downloading and unpacking a
+tarball.</p>
+</div>
+<p>Working with the kernel as a structured tree follows recognized
+community best practices. In particular, the kernel as shipped with the
+product, should be considered an &quot;upstream source&quot; and viewed as a
+series of historical and documented modifications (commits). These
+modifications represent the development and stabilization done by the
+Yocto Project kernel development team.</p>
+<p>Because commits only change at significant release points in the product
+life cycle, developers can work on a branch created from the last
+relevant commit in the shipped Yocto Project Linux kernel. As mentioned
+previously, the structure is transparent to the developer because the
+kernel tree is left in this state after cloning and building the kernel.</p>
+</section>
+<section id="kernel-build-file-hierarchy">
+<h2><span class="section-number">4.3 </span>Kernel Build File Hierarchy<a class="headerlink" href="#kernel-build-file-hierarchy" title="Link to this heading"></a></h2>
+<p>Upstream storage of all the available kernel source code is one thing,
+while representing and using the code on your host development system is
+another. Conceptually, you can think of the kernel source repositories
+as all the source files necessary for all the supported Yocto Linux
+kernels. As a developer, you are just interested in the source files for
+the kernel on which you are working. And, furthermore, you need them
+available on your host system.</p>
+<p>Kernel source code is available on your host system several different
+ways:</p>
+<ul class="simple">
+<li><p><em>Files Accessed While using devtool:</em> <code class="docutils literal notranslate"><span class="pre">devtool</span></code>, which is
+available with the Yocto Project, is the preferred method by which to
+modify the kernel. See the &quot;<a class="reference internal" href="intro.html#kernel-modification-workflow"><span class="std std-ref">Kernel Modification Workflow</span></a>&quot; section.</p></li>
+<li><p><em>Cloned Repository:</em> If you are working in the kernel all the time,
+you probably would want to set up your own local Git repository of
+the Yocto Linux kernel tree. For information on how to clone a Yocto
+Linux kernel Git repository, see the
+&quot;<a class="reference internal" href="common.html#preparing-the-build-host-to-work-on-the-kernel"><span class="std std-ref">Preparing the Build Host to Work on the Kernel</span></a>&quot;
+section.</p></li>
+<li><p><em>Temporary Source Files from a Build:</em> If you just need to make some
+patches to the kernel using a traditional BitBake workflow (i.e. not
+using the <code class="docutils literal notranslate"><span class="pre">devtool</span></code>), you can access temporary kernel source files
+that were extracted and used during a kernel build.</p></li>
+</ul>
+<p>The temporary kernel source files resulting from a build using BitBake
+have a particular hierarchy. When you build the kernel on your
+development system, all files needed for the build are taken from the
+source repositories pointed to by the
+<a class="reference internal" href="../ref-manual/variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a> variable and gathered
+in a temporary work area where they are subsequently used to create the
+unique kernel. Thus, in a sense, the process constructs a local source
+tree specific to your kernel from which to generate the new kernel
+image.</p>
+<p>The following figure shows the temporary file structure created on your
+host system when you build the kernel using BitBake. This
+<a class="reference internal" href="../ref-manual/terms.html#term-Build-Directory"><span class="xref std std-term">Build Directory</span></a> contains all the source files used during the build.</p>
+<a class="reference internal image-reference" href="../_images/kernel-overview-2-generic.png"><img alt="../_images/kernel-overview-2-generic.png" class="align-center" src="../_images/kernel-overview-2-generic.png" style="width: 70%;" />
+</a>
+<p>Again, for additional information on the Yocto Project kernel's
+architecture and its branching strategy, see the
+&quot;<a class="reference internal" href="#yocto-linux-kernel-architecture-and-branching-strategies"><span class="std std-ref">Yocto Linux Kernel Architecture and Branching Strategies</span></a>&quot;
+section. You can also reference the
+&quot;<a class="reference internal" href="common.html#using-devtool-to-patch-the-kernel"><span class="std std-ref">Using devtool to Patch the Kernel</span></a>&quot;
+and
+&quot;<a class="reference internal" href="common.html#using-traditional-kernel-development-to-patch-the-kernel"><span class="std std-ref">Using Traditional Kernel Development to Patch the Kernel</span></a>&quot;
+sections for detailed example that modifies the kernel.</p>
+</section>
+<section id="determining-hardware-and-non-hardware-features-for-the-kernel-configuration-audit-phase">
+<h2><span class="section-number">4.4 </span>Determining Hardware and Non-Hardware Features for the Kernel Configuration Audit Phase<a class="headerlink" href="#determining-hardware-and-non-hardware-features-for-the-kernel-configuration-audit-phase" title="Link to this heading"></a></h2>
+<p>This section describes part of the kernel configuration audit phase that
+most developers can ignore. For general information on kernel
+configuration including <code class="docutils literal notranslate"><span class="pre">menuconfig</span></code>, <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> files, and
+configuration fragments, see the
+&quot;<a class="reference internal" href="common.html#configuring-the-kernel"><span class="std std-ref">Configuring the Kernel</span></a>&quot; section.</p>
+<p>During this part of the audit phase, the contents of the final
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file are compared against the fragments specified by the
+system. These fragments can be system fragments, distro fragments, or
+user-specified configuration elements. Regardless of their origin, the
+OpenEmbedded build system warns the user if a specific option is not
+included in the final kernel configuration.</p>
+<p>By default, in order to not overwhelm the user with configuration
+warnings, the system only reports missing &quot;hardware&quot; options as they
+could result in a boot failure or indicate that important hardware is
+not available.</p>
+<p>To determine whether or not a given option is &quot;hardware&quot; or
+&quot;non-hardware&quot;, the kernel Metadata in <code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> contains
+files that classify individual or groups of options as either hardware
+or non-hardware. To better show this, consider a situation where the
+<code class="docutils literal notranslate"><span class="pre">yocto-kernel-cache</span></code> contains the following files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">drm</span><span class="o">-</span><span class="n">psb</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">kgdb</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">ktypes</span><span class="o">/</span><span class="n">base</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">bsp</span><span class="o">/</span><span class="n">mti</span><span class="o">-</span><span class="n">malta32</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">bsp</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">ppc32</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">bsp</span><span class="o">/</span><span class="n">qemuarma9</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">bsp</span><span class="o">/</span><span class="n">mti</span><span class="o">-</span><span class="n">malta64</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">bsp</span><span class="o">/</span><span class="n">arm</span><span class="o">-</span><span class="n">versatile</span><span class="o">-</span><span class="mi">926</span><span class="n">ejs</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">bsp</span><span class="o">/</span><span class="n">common</span><span class="o">-</span><span class="n">pc</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">bsp</span><span class="o">/</span><span class="n">common</span><span class="o">-</span><span class="n">pc</span><span class="o">-</span><span class="mi">64</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">rfkill</span><span class="o">/</span><span class="n">non</span><span class="o">-</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">ktypes</span><span class="o">/</span><span class="n">base</span><span class="o">/</span><span class="n">non</span><span class="o">-</span><span class="n">hardware</span><span class="o">.</span><span class="n">cfg</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">aufs</span><span class="o">/</span><span class="n">non</span><span class="o">-</span><span class="n">hardware</span><span class="o">.</span><span class="n">kcf</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">ocf</span><span class="o">/</span><span class="n">non</span><span class="o">-</span><span class="n">hardware</span><span class="o">.</span><span class="n">kcf</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">ktypes</span><span class="o">/</span><span class="n">base</span><span class="o">/</span><span class="n">non</span><span class="o">-</span><span class="n">hardware</span><span class="o">.</span><span class="n">kcf</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">ktypes</span><span class="o">/</span><span class="n">base</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">kcf</span>
+<span class="n">yocto</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">cache</span><span class="o">/</span><span class="n">bsp</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">ppc32</span><span class="o">/</span><span class="n">hardware</span><span class="o">.</span><span class="n">kcf</span>
+</pre></div>
+</div>
+<p>Here are explanations for the various files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hardware.kcf</span></code>: Specifies a list of kernel Kconfig files that
+contain hardware options only.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">non-hardware.kcf</span></code>: Specifies a list of kernel Kconfig files that
+contain non-hardware options only.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hardware.cfg</span></code>: Specifies a list of kernel <code class="docutils literal notranslate"><span class="pre">CONFIG_</span></code> options that
+are hardware, regardless of whether or not they are within a Kconfig
+file specified by a hardware or non-hardware Kconfig file (i.e.
+<code class="docutils literal notranslate"><span class="pre">hardware.kcf</span></code> or <code class="docutils literal notranslate"><span class="pre">non-hardware.kcf</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">non-hardware.cfg</span></code>: Specifies a list of kernel <code class="docutils literal notranslate"><span class="pre">CONFIG_</span></code> options
+that are not hardware, regardless of whether or not they are within a
+Kconfig file specified by a hardware or non-hardware Kconfig file
+(i.e. <code class="docutils literal notranslate"><span class="pre">hardware.kcf</span></code> or <code class="docutils literal notranslate"><span class="pre">non-hardware.kcf</span></code>).</p></li>
+</ul>
+<p>Here is a specific example using the
+<code class="docutils literal notranslate"><span class="pre">kernel-cache/bsp/mti-malta32/hardware.cfg</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CONFIG_SERIAL_8250</span>
+<span class="n">CONFIG_SERIAL_8250_CONSOLE</span>
+<span class="n">CONFIG_SERIAL_8250_NR_UARTS</span>
+<span class="n">CONFIG_SERIAL_8250_PCI</span>
+<span class="n">CONFIG_SERIAL_CORE</span>
+<span class="n">CONFIG_SERIAL_CORE_CONSOLE</span>
+<span class="n">CONFIG_VGA_ARB</span>
+</pre></div>
+</div>
+<p>The kernel configuration audit automatically detects
+these files (hence the names must be exactly the ones discussed here),
+and uses them as inputs when generating warnings about the final
+<code class="docutils literal notranslate"><span class="pre">.config</span></code> file.</p>
+<p>A user-specified kernel Metadata repository, or recipe space feature,
+can use these same files to classify options that are found within its
+<code class="docutils literal notranslate"><span class="pre">.cfg</span></code> files as hardware or non-hardware, to prevent the OpenEmbedded
+build system from producing an error or warning when an option is not in
+the final <code class="docutils literal notranslate"><span class="pre">.config</span></code> file.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  <hr/>
+  <div role="contentinfo">
+    <p> A Linux Foundation Collaborative Project.
+        <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
+        <br>Linux&reg; is a registered trademark of Linus Torvalds.
+        <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
+        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+    </p>
+  </div>
+</footer>
+
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(false);
+      });
+  </script> 
+
+</body>
+</html>
