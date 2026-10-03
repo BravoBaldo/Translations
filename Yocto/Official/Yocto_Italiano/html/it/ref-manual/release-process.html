@@ -26,7 +26,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Indice" href="../genindex.html" />
     <link rel="search" title="Cerca" href="../search.html" />
-    <link rel="next" title="5 Source Directory Structure" href="structure.html" />
+    <link rel="next" title="5 Struttura della Directory Sorgente" href="structure.html" />
     <link rel="prev" title="3 Terminologia di Yocto Project" href="terms.html" /> 
 </head>
 
@@ -79,15 +79,15 @@
 <li class="toctree-l3"><a class="reference internal" href="#stable-release-process">4.4 Iter per il Rilascio Stabile</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#stable-lts-patch-acceptance-policies">4.5 Politiche di Accettazione delle Patch per le Release Stabili/LTS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#stable-point-release-upgrades">4.6 Aggiornamenti a Release Stabili</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#criteria-for-qualifying-upstreams">4.6.1 Criteria for Qualifying Upstreams</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#how-stable-release-regexes-work">4.6.2 How Stable Release Regexes Work</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#criteria-for-qualifying-upstreams">4.6.1 Criteri per l'Approvazione degli Upstream</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-stable-release-regexes-work">4.6.2 Come Funzionano le Espressioni Regolari per le Release Stabili</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#long-term-support-releases">4.7 Long Term Support Releases</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#testing-and-quality-assurance">4.8 Testing and Quality Assurance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#long-term-support-releases">4.7 Versioni con Supporto a Lungo Termine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-and-quality-assurance">4.8 Test e Garanzia di Qualità</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="structure.html">5 Source Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">5 Struttura della Directory Sorgente</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classes.html">6 Classi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tasks.html">7 I Task</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fragments.html">8 Using Configuration Fragments</a></li>
@@ -197,12 +197,12 @@
 <section id="development-cycle">
 <span id="ref-yp-development-cycle"></span><h2><span class="section-number">4.2 </span>Ciclo di Sviluppo<a class="headerlink" href="#development-cycle" title="Link to this heading"></a></h2>
 <p>Come spiegato nella precedente sezione <a class="reference internal" href="#major-and-minor-release-cadence"><span class="std std-ref">Cadenza dei Rilasci Major e Minor</span></a>, una nuova release viene rilasciata ogni sei mesi.</p>
-<p>Durante questo periodo di sei mesi, Yocto Project rilascia quattro release &quot;Milestone&quot; che rappresentano punti di riferimento distinti. Le release milestone vengono testate attraverso il processo <a class="reference internal" href="#testing-and-quality-assurance"><span class="std std-ref">Testing and Quality Assurance</span></a>, che aiuta a individuare i problemi prima del rilascio effettivo.</p>
+<p>Durante questo periodo di sei mesi, Yocto Project rilascia quattro release &quot;Milestone&quot; che rappresentano punti di riferimento distinti. Le release milestone vengono testate attraverso il processo <a class="reference internal" href="#testing-and-quality-assurance"><span class="std std-ref">Test e Garanzia di Qualità</span></a>, che aiuta a individuare i problemi prima del rilascio effettivo.</p>
 <p>L'intervallo di tempo tra le release milestone può variare, ma in genere sono distribuite uniformemente durante questo periodo di sei mesi.</p>
 <p>Queste release milestone sono contrassegnate da una &quot;M&quot; maiuscola dopo il nome della release futura. Ad esempio, le release milestone &quot;6.1M1&quot;, &quot;6.1M2&quot; e &quot;6.1M3&quot; vengono rilasciate prima della release &quot;6.1&quot; vera e propria.</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>La quarta milestone (M4) non viene effettivamente rilasciata e annunciata, ma rappresenta un momento in cui il team di Controllo Qualità avvia il processo di <a class="reference internal" href="#testing-and-quality-assurance"><span class="std std-ref">Testing and Quality Assurance</span></a> prima di etichettare e rilasciare la versione finale.</p>
+<p>La quarta milestone (M4) non viene effettivamente rilasciata e annunciata, ma rappresenta un momento in cui il team di Controllo Qualità avvia il processo di <a class="reference internal" href="#testing-and-quality-assurance"><span class="std std-ref">Test e Garanzia di Qualità</span></a> prima di etichettare e rilasciare la versione finale.</p>
 </div>
 <p>Dopo la terza release (M3), Yocto Project entra in <strong>Feature Freeze</strong>. Ciò significa che i manutentori di <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>, <a class="reference internal" href="terms.html#term-BitBake"><span class="xref std std-term">BitBake</span></a> e altri repository centrali smettono di accettare modifiche significative sul branch &quot;master&quot;. Le modifiche che possono essere accettate sono piccoli aggiornamenti ai componenti principali e correzioni di bug/sicurezza.</p>
 <p>Durante il periodo di Feature Freeze, viene creato e gestito separatamente un nuovo branch [ramo] per testare le nuove funzionalità e i miglioramenti ricevuti dai collaboratori, ma queste modifiche verranno integrate nel branch master solo dopo il rilascio della release.</p>
@@ -258,185 +258,79 @@
 <span id="ref-stable-point-release-upgrades"></span><h2><span class="section-number">4.6 </span>Aggiornamenti a Release Stabili<a class="headerlink" href="#stable-point-release-upgrades" title="Link to this heading"></a></h2>
 <p>Alcuni progetti upstream mantengono branch stabili che includono solo correzioni di bug e patch di sicurezza, in modo simile alla politica di rilascio stabile di Yocto Project. Per le ricette che seguono tali progetti upstream, è possibile eseguire <em>stable point release upgrades</em> [aggiornamenti a release stabili] (ad esempio, l'aggiornamento dalla versione 1.0.2 alla 1.0.3) anziché accettare solo patch retroportate. Questo è il meccanismo alla base della politica &quot;accettabili: aggiornamenti di versione che seguono una serie stabile upstream&quot; descritta sopra.</p>
 <section id="criteria-for-qualifying-upstreams">
-<h3><span class="section-number">4.6.1 </span>Criteria for Qualifying Upstreams<a class="headerlink" href="#criteria-for-qualifying-upstreams" title="Link to this heading"></a></h3>
-<p>Setting <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> for a recipe means that certain
-version upgrades can be confidently treated as stable point upgrades under
-OpenEmbedded's criteria. The
-<a class="reference internal" href="../dev-manual/upgrading-recipes.html#using-the-auto-upgrade-helper-auh"><span class="std std-ref">Automated Upgrade Helper (AUH)</span></a>
-will then automatically send patches to upgrade recipes with this variable
-set during stable releases.</p>
+<h3><span class="section-number">4.6.1 </span>Criteri per l'Approvazione degli Upstream<a class="headerlink" href="#criteria-for-qualifying-upstreams" title="Link to this heading"></a></h3>
+<p>Impostando <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> per una ricetta, determinati aggiornamenti di versione possono essere considerati con sicurezza come aggiornamenti stabili secondo i criteri di OpenEmbedded. L'<a class="reference internal" href="../dev-manual/upgrading-recipes.html#using-the-auto-upgrade-helper-auh"><span class="std std-ref">Automated Upgrade Helper (AUH)</span></a> invierà automaticamente le patch per aggiornare le ricette con questa variabile impostata durante le release stabili.</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>Patches to upgrade recipes without this variable may still be submitted
-for stable branches, but the barrier for acceptance is high. The commit
-message needs to justify that the version upgrade follows our stable
-branch policy or that there is an exceptional reason for taking the
-upgrade.</p>
+<p>È comunque possibile inviare patch per aggiornare ricette senza questa variabile per i branch stabili, ma la soglia di accettazione è elevata. Il messaggio di commit deve giustificare che l'aggiornamento di versione segue la nostra politica per i branch stabili o che esiste un motivo eccezionale per effettuare l'aggiornamento.</p>
 </div>
-<p>A recipe may have <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> set based on the
-following criteria:</p>
+<p>Una ricetta può avere <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> impostato in base ai seguenti criteri:</p>
 <ol class="arabic simple">
-<li><p><strong>Upstream stable branches exist</strong> --- the upstream project maintains
-branches named with a stable version component, and there is evidence
-that these branches only collect bug-fix and security-fix changes
-(no new features or ABI/API breakage). For example, util-linux version
-<code class="docutils literal notranslate"><span class="pre">2.41.3</span></code> has three parts in its version and upstream has branches like
-<code class="docutils literal notranslate"><span class="pre">stable/v2.41</span></code> with two parts. This demonstrates that bumps in the
-third part (e.g. <code class="docutils literal notranslate"><span class="pre">2.41.3</span></code> to <code class="docutils literal notranslate"><span class="pre">2.41.4</span></code>) are stable point releases.
-Similarly, systemd maintains <code class="docutils literal notranslate"><span class="pre">stable/v259-stable</span></code>.</p></li>
+<li><p><strong>Esistono rami [branch] stabili upstream</strong> --- il progetto upstream mantiene rami denominati con un componente di versione stabile, ed esiste la prova che questi rami raccolgono solo correzioni di bug e aggiornamenti di sicurezza (nessuna nuova funzionalità o modifica di ABI/API). Ad esempio, la versione <code class="docutils literal notranslate"><span class="pre">2.41.3</span></code> di util-linux ha tre parti nella sua versione e upstream ha rami come <code class="docutils literal notranslate"><span class="pre">stable/v2.41</span></code> con due parti. Ciò dimostra che gli incrementi nella terza parte (ad esempio da <code class="docutils literal notranslate"><span class="pre">2.41.3</span></code> a <code class="docutils literal notranslate"><span class="pre">2.41.4</span></code>) sono release stabili. Allo stesso modo, systemd mantiene <code class="docutils literal notranslate"><span class="pre">stable/v259-stable</span></code>.</p></li>
 </ol>
-<p>And at least one of the following:</p>
+<p>E almeno uno dei seguenti:</p>
 <ol class="arabic simple" start="2">
-<li><p><strong>Upstream maintainer confirmation</strong> --- the upstream project's maintainer
-explicitly confirms that a bump in a certain part of the version is
-bug-fix only.</p></li>
-<li><p><strong>Clear historical or common-sense evidence</strong> --- the project's change
-history clearly shows that a certain class of version bump is bug-fix
-only, or it is widely understood convention. For example, openssh's
-<code class="docutils literal notranslate"><span class="pre">p</span></code> suffix increments (<code class="docutils literal notranslate"><span class="pre">10.2p1</span></code> to <code class="docutils literal notranslate"><span class="pre">10.2p2</span></code>) and kmod's patch-level
-bumps are historically bug-fix only releases.</p></li>
+<li><p><strong>Conferma del manutentore upstream</strong> --- il manutentore del progetto upstream conferma esplicitamente che un incremento in una determinata parte della versione riguarda solo la correzione di bug.</p></li>
+<li><p><strong>Prove storiche o di buon senso inequivocabili</strong> --- la cronologia delle modifiche del progetto mostra chiaramente che una determinata classe di aggiornamenti di versione riguarda solo la correzione di bug, oppure è una convenzione ampiamente riconosciuta. Ad esempio, gli incrementi del suffisso <code class="docutils literal notranslate"><span class="pre">p</span></code> di openssh (da <code class="docutils literal notranslate"><span class="pre">10.2p1</span></code> a <code class="docutils literal notranslate"><span class="pre">10.2p2</span></code>) e gli aggiornamenti di livello di patch di kmod sono storicamente rilasci che riguardano solo la correzione di bug.</p></li>
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>Patches to set <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> are sent against the
-master branch first and follow the normal review process. Once accepted on
-master they may be backported to stable release branches. Exceptions may be
-made when necessary, e.g. setting <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> on
-a stable branch for a recipe which has since been removed on master.</p>
+<p>Le patch per impostare <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> vengono inviate prima al ramo master e seguono il normale processo di revisione. Una volta accettate su master, possono essere retroportate ai rami di rilascio stabili. Possono essere fatte delle eccezioni quando necessario, ad esempio impostando <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> su un ramo stabile per una ricetta che è stata successivamente rimossa su master.</p>
 </div>
 </section>
 <section id="how-stable-release-regexes-work">
-<h3><span class="section-number">4.6.2 </span>How Stable Release Regexes Work<a class="headerlink" href="#how-stable-release-regexes-work" title="Link to this heading"></a></h3>
-<p>The stable point upgrade mechanism uses a <em>filter regex</em> to constrain the
-upstream version check so that only versions within the same stable series
-are considered. When a recipe sets <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a>, the
-version-checking infrastructure in BitBake's fetchers (git, wget, crate)
-applies that regex to filter discovered upstream versions. Only versions
-matching the regex are considered as upgrade candidates.</p>
-<p>For example, if a recipe is currently at version <code class="docutils literal notranslate"><span class="pre">1.4.2</span></code> and the regex is
-<code class="docutils literal notranslate"><span class="pre">^1\.4(\.\d+)*$</span></code>, then version <code class="docutils literal notranslate"><span class="pre">1.4.7</span></code> would be a valid upgrade candidate
-but <code class="docutils literal notranslate"><span class="pre">1.5.0</span></code> would not.</p>
-<p>For recipes whose version uses a dot-separated scheme, the
-<a class="reference internal" href="classes.html#ref-classes-upstream-stable-release-point"><span class="std std-ref">upstream-stable-release-point</span></a> class can automatically
-generate this regex. For other versioning schemes, set
-<a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> directly in the recipe.</p>
+<h3><span class="section-number">4.6.2 </span>Come Funzionano le Espressioni Regolari per le Release Stabili<a class="headerlink" href="#how-stable-release-regexes-work" title="Link to this heading"></a></h3>
+<p>Il meccanismo di aggiornamento a punto stabile utilizza un <em>filter regex</em> [espressione regolare di filtro] per limitare il controllo della versione upstream, in modo che vengano considerate solo le versioni appartenenti alla stessa serie stabile. Quando una ricetta imposta <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a>, l'infrastruttura di controllo della versione nei fetcher di BitBake (git, wget, crate) applica tale espressione regolare per filtrare le versioni upstream rilevate. Solo le versioni che corrispondono all'espressione regolare vengono considerate come potenziali aggiornamenti.</p>
+<p>Ad esempio, se una ricetta è attualmente alla versione <code class="docutils literal notranslate"><span class="pre">1.4.2</span></code> e l'espressione regolare è <code class="docutils literal notranslate"><span class="pre">^1\.4(\.\d+)*$</span></code>, la versione <code class="docutils literal notranslate"><span class="pre">1.4.7</span></code> sarebbe una valida candidata all'aggiornamento, mentre la versione <code class="docutils literal notranslate"><span class="pre">1.5.0</span></code> non lo sarebbe.</p>
+<p>Per le ricette la cui versione utilizza uno schema separato da punti, la classe <a class="reference internal" href="classes.html#ref-classes-upstream-stable-release-point"><span class="std std-ref">upstream-stable-release-point</span></a> può generare automaticamente questa espressione regolare. Per altri schemi di versioning, impostare <a class="reference internal" href="variables.html#term-UPSTREAM_STABLE_RELEASE_REGEX"><span class="xref std std-term">UPSTREAM_STABLE_RELEASE_REGEX</span></a> direttamente nella ricetta.</p>
 </section>
 </section>
 <section id="long-term-support-releases">
-<span id="ref-long-term-support-releases"></span><h2><span class="section-number">4.7 </span>Long Term Support Releases<a class="headerlink" href="#long-term-support-releases" title="Link to this heading"></a></h2>
-<p>While stable releases are supported for a duration of seven months,
-some specific ones are now supported for a longer period by the Yocto
-Project, and are called Long Term Support (<a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a>) releases.</p>
-<p>When significant issues are found, <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> releases allow to publish
-fixes not only for the current stable release, but also to the
-<a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> releases that are still supported. Older stable releases which
-have reached their End of Life (EOL) won't receive such updates.</p>
-<p>This started with version 3.1 (&quot;Dunfell&quot;), released in April 2020, which
-the project initially committed to supporting for two years, but this duration
-was later extended to four years.</p>
-<p>A new <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> release is made every two years and is supported for four
-years. This offers more stability to project users and leaves more time to
-upgrade to the following <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> release.</p>
-<p>The currently supported <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> releases are:</p>
+<span id="ref-long-term-support-releases"></span><h2><span class="section-number">4.7 </span>Versioni con Supporto a Lungo Termine<a class="headerlink" href="#long-term-support-releases" title="Link to this heading"></a></h2>
+<p>Mentre le versioni stabili sono supportate per una durata di sette mesi, alcune versioni specifiche sono ora supportate per un periodo più lungo da Yocto Project e sono chiamate versioni Long Term Support (<a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a>).</p>
+<p>Quando vengono rilevati problemi significativi, le versioni <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> consentono di pubblicare correzioni non solo per la versione stabile corrente, ma anche per le versioni <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> ancora supportate. Le versioni stabili più vecchie che hanno raggiunto la fine del loro ciclo di vita [End of Life] (EOL) non riceveranno tali aggiornamenti.</p>
+<p>Questo è iniziato con la versione 3.1 (&quot;Dunfell&quot;), rilasciata nell'aprile 2020, che il progetto inizialmente si era impegnato a supportare per due anni, ma questa durata è stata successivamente estesa a quattro anni.</p>
+<p>Una nuova versione <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> viene rilasciata ogni due anni ed è supportata per quattro anni. Questo offre maggiore stabilità agli utenti del progetto e lascia più tempo per l'aggiornamento alla successiva versione <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a>.</p>
+<p>Le versioni <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> attualmente supportate sono:</p>
 <ul class="simple">
-<li><p>Version 6.0 (&quot;Wrynose&quot;), released in May 2026 and supported until April 2030.</p></li>
-<li><p>Version 5.0 (&quot;Scarthgap&quot;), released in April 2024 and supported until April 2028.</p></li>
+<li><p>Versione 6.0 (&quot;Wrynose&quot;), rilasciata a maggio 2026 e supportata fino ad aprile 2030.</p></li>
+<li><p>Versione 5.0 (&quot;Scarthgap&quot;), rilasciata ad aprile 2024 e supportata fino ad aprile 2028.</p></li>
 </ul>
-<p>See <a class="extlink-yocto_wiki reference external" href="https://wiki.yoctoproject.org/wiki/Stable_Release_and_LTS">https://wiki.yoctoproject.org/wiki/Stable_Release_and_LTS</a> for details about the management
-of stable and <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> releases.</p>
-<p>This documentation was built for the Blacksail release.</p>
+<p>Consultare <a class="extlink-yocto_wiki reference external" href="https://wiki.yoctoproject.org/wiki/Stable_Release_and_LTS">https://wiki.yoctoproject.org/wiki/Stable_Release_and_LTS</a> per i dettagli sulla gestione delle versioni stabili e <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a>.</p>
+<p>Questa documentazione è stata creata per la versione Blacksail.</p>
 <a class="reference internal image-reference" href="../_images/releases.svg"><img alt="../_images/releases.svg" src="../_images/releases.svg" style="width: 100%;" />
 </a>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>In some circumstances, a layer can be created by the community in order to
-add a specific feature or support a new version of some package for an <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a>
-release. This is called a <a class="reference internal" href="terms.html#term-Mixin"><span class="xref std std-term">Mixin</span></a> layer. These are thin and specific
-purpose layers which can be stacked with an <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> release to &quot;mix&quot; a specific
-feature into that build. These are created on an as-needed basis and
-maintained by the people who need them.</p>
-<p>Policies on testing these layers depend on how widespread their usage is and
-determined on a case-by-case basis. You can find some <a class="reference internal" href="terms.html#term-Mixin"><span class="xref std std-term">Mixin</span></a> layers in the
-<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-lts-mixins">meta-lts-mixins</a> repository. While the Yocto
-Project provides hosting for those repositories, it does not provide
-testing on them. Other <a class="reference internal" href="terms.html#term-Mixin"><span class="xref std std-term">Mixin</span></a> layers may be released elsewhere by the wider
-community.</p>
+<p>In alcuni casi, la community può creare un layer per aggiungere una funzionalità specifica o supportare una nuova versione di un pacchetto per una versione <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a>. Questo viene chiamato layer <a class="reference internal" href="terms.html#term-Mixin"><span class="xref std std-term">Mixin</span></a>. Si tratta di layer sottili e specifici che possono essere sovrapposti a una release <a class="reference internal" href="terms.html#term-LTS"><span class="xref std std-term">LTS</span></a> per &quot;integrare&quot; una funzionalità specifica in quella build. Vengono creati in base alle necessità e gestiti da chi ne ha bisogno.</p>
+<p>Le politiche di test di questi layer dipendono dalla loro diffusione e vengono determinate caso per caso. È possibile trovare alcuni layer <a class="reference internal" href="terms.html#term-Mixin"><span class="xref std std-term">Mixin</span></a> nel repository <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-lts-mixins">meta-lts-mixins</a>. Sebbene il Yocto Project fornisca l'hosting per questi repository, non si occupa del loro test. Altri layer <a class="reference internal" href="terms.html#term-Mixin"><span class="xref std std-term">Mixin</span></a> potrebbero essere rilasciati altrove dalla community.</p>
 </div>
 </section>
 <section id="testing-and-quality-assurance">
-<h2><span class="section-number">4.8 </span>Testing and Quality Assurance<a class="headerlink" href="#testing-and-quality-assurance" title="Link to this heading"></a></h2>
-<p>Part of the Yocto Project development and release process is quality
-assurance through the execution of test strategies. Test strategies
-provide the Yocto Project team a way to ensure a release is validated.
-Additionally, because the test strategies are visible to you as a
-developer, you can validate your projects. This section overviews the
-available test infrastructure used in the Yocto Project. For information
-on how to run available tests on your projects, see the
-&quot;<a class="reference internal" href="../test-manual/runtime-testing.html#performing-automated-runtime-testing"><span class="std std-ref">Performing Automated Runtime Testing</span></a>&quot;
-section in the Yocto Project Test Environment Manual.</p>
-<p>The QA/testing infrastructure is woven into the project to the point
-where core developers take some of it for granted. The infrastructure
-consists of the following pieces:</p>
+<h2><span class="section-number">4.8 </span>Test e Garanzia di Qualità<a class="headerlink" href="#testing-and-quality-assurance" title="Link to this heading"></a></h2>
+<p>Parte del processo di sviluppo e rilascio di Yocto Project è la garanzia di qualità attraverso l'esecuzione di strategie di test. Le strategie di test forniscono al team di Yocto Project un modo per garantire che una release sia valida. Inoltre, poiché le strategie di test sono visibili agli sviluppatori, è possibile validare i propri progetti. Questa sezione fornisce una panoramica dell'infrastruttura di test disponibile utilizzata in Yocto Project. Per informazioni su come eseguire i test disponibili sui propri progetti, consultare la sezione &quot;<a class="reference internal" href="../test-manual/runtime-testing.html#performing-automated-runtime-testing"><span class="std std-ref">Performing Automated Runtime Testing</span></a>&quot; nel Manuale dell'Ambiente di Test di Yocto Project.</p>
+<p>L'infrastruttura di QA/testing è talmente integrata nel progetto che gli sviluppatori principali la danno per scontata. L'infrastruttura è composta dai seguenti elementi:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">bitbake-selftest</span></code>: A standalone command that runs unit tests on
-key pieces of BitBake and its fetchers.</p></li>
-<li><p><a class="reference internal" href="classes.html#ref-classes-sanity"><span class="std std-ref">sanity</span></a>: This automatically
-included class checks the build environment for missing tools (e.g.
-<code class="docutils literal notranslate"><span class="pre">gcc</span></code>) or common misconfigurations such as
-<a class="reference internal" href="variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> set incorrectly.</p></li>
-<li><p><a class="reference internal" href="classes.html#ref-classes-insane"><span class="std std-ref">insane</span></a>: This class checks the
-generated output from builds for sanity. For example, if building for
-an ARM target, did the build produce ARM binaries. If, for example,
-the build produced PPC binaries then there is a problem.</p></li>
-<li><p><a class="reference internal" href="classes.html#ref-classes-testimage"><span class="std std-ref">testimage</span></a>: This class
-performs runtime testing of images after they are built. The tests
-are usually used with <a class="reference internal" href="../dev-manual/qemu.html"><span class="doc">QEMU</span></a>
-to boot the images and check the combined runtime result boot
-operation and functions. However, the test can also use the IP
-address of a machine to test.</p></li>
-<li><p><a class="reference internal" href="../test-manual/ptest.html#testing-packages-with-ptest"><span class="std std-ref">ptest</span></a>:
-Runs tests against packages produced during the build for a given
-piece of software. The test allows the packages to be run within a
-target image.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">oe-selftest</span></code>: Tests combinations of BitBake invocations. These tests
-operate outside the OpenEmbedded build system itself. The
-<code class="docutils literal notranslate"><span class="pre">oe-selftest</span></code> can run all tests by default or can run selected
-tests or test suites.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bitbake-selftest</span></code>: Un comando standalone che esegue unit test su componenti chiave di BitBake e sui suoi fetcher.</p></li>
+<li><p><a class="reference internal" href="classes.html#ref-classes-sanity"><span class="std std-ref">sanity</span></a>: Questa classe, inclusa automaticamente, verifica la presenza di strumenti mancanti nell'ambiente di build (ad esempio <code class="docutils literal notranslate"><span class="pre">gcc</span></code>) o di errori di configurazione comuni, come ad esempio un parametro <a class="reference internal" href="variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> impostato in modo errato.</p></li>
+<li><p><a class="reference internal" href="classes.html#ref-classes-insane"><span class="std std-ref">insane</span></a>: Questa classe verifica la validità dell'output generato dalle build. Ad esempio, se la build è destinata a un target ARM, controlla se sono stati prodotti binari ARM. Se, ad esempio, la build produce binari PPC, allora c'è un problema.</p></li>
+<li><p><a class="reference internal" href="classes.html#ref-classes-testimage"><span class="std std-ref">testimage</span></a>: Questa classe esegue test a runtime sulle immagini dopo la loro creazione. I test vengono solitamente utilizzati con <a class="reference internal" href="../dev-manual/qemu.html"><span class="doc">QEMU</span></a> per avviare le immagini e verificare il risultato combinato dell'avvio e le relative funzionalità. Tuttavia, il test può anche utilizzare l'indirizzo IP di una macchina.</p></li>
+<li><p><a class="reference internal" href="../test-manual/ptest.html#testing-packages-with-ptest"><span class="std std-ref">ptest</span></a>: Esegue test sui pacchetti prodotti durante la compilazione di un determinato software. Il test consente di eseguire i pacchetti all'interno di un'immagine target.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oe-selftest</span></code>: Testa combinazioni di invocazioni di BitBake. Questi test operano al di fuori del sistema di compilazione di OpenEmbedded. <code class="docutils literal notranslate"><span class="pre">oe-selftest</span></code> può eseguire tutti i test per default oppure test o suite di test selezionati.</p></li>
 </ul>
-<p>Originally, much of this testing was done manually. However, significant
-effort has been made to automate the tests so that more people can use
-them and the Yocto Project development team can run them faster and more
-efficiently.</p>
-<p>The Yocto Project's main <a class="extlink-yocto_ab reference external" href="https://autobuilder.yoctoproject.org">Autobuilder</a> publicly tests each Yocto
-Project release's code in the <a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core">openembedded-core</a>,
-<a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-yocto">meta-yocto</a> and <a class="extlink-oe_git reference external" href="https://git.openembedded.org/bitbake">bitbake</a> repositories. The
-testing occurs for both the current state of the &quot;master&quot; branch and also for
-submitted patches. Testing for submitted patches usually occurs
-in the &quot;master-next&quot; branch in the <a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core">openembedded-core</a>, <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-yocto">meta-yocto</a> and
-<a class="extlink-oe_git reference external" href="https://git.openembedded.org/bitbake">bitbake</a> repository.</p>
+<p>In origine, gran parte di questi test veniva eseguita manualmente. Tuttavia, sono stati compiuti sforzi significativi per automatizzare i test in modo che più persone possano utilizzarli e il team di sviluppo di Yocto Project possa eseguirli più velocemente ed efficientemente.</p>
+<p>Il principale strumento di compilazione automatica (<a class="extlink-yocto_ab reference external" href="https://autobuilder.yoctoproject.org">Autobuilder</a>) di Yocto Project testa pubblicamente il codice di ogni release di Yocto Project nei repository <a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core">openembedded-core</a>, <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-yocto">meta-yocto</a> e <a class="extlink-oe_git reference external" href="https://git.openembedded.org/bitbake">bitbake</a>. I test vengono eseguiti sia per lo stato corrente del branch &quot;master&quot; sia per le patch inviate. I test per le patch inviate vengono solitamente eseguiti nel ramo &quot;master-next&quot; nei repository <a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core">openembedded-core</a>, <a class="extlink-yocto_git reference external" href="https://git.yoctoproject.org/meta-yocto">meta-yocto</a> e <a class="extlink-oe_git reference external" href="https://git.openembedded.org/bitbake">bitbake</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>You can find all these branches in the
-<a class="reference internal" href="../overview-manual/development-environment.html#yocto-project-source-repositories"><span class="std std-ref">I Repository del Codice Sorgente di Yocto Project</span></a>.</p>
+<p>È possibile trovare tutti questi rami in <a class="reference internal" href="../overview-manual/development-environment.html#yocto-project-source-repositories"><span class="std std-ref">I Repository del Codice Sorgente di Yocto Project</span></a>.</p>
 </div>
-<p>Testing within these public branches ensures in a publicly visible way
-that all of the main supposed architectures and recipes in OE-Core
-successfully build and behave properly.</p>
-<p>Various features such as <code class="docutils literal notranslate"><span class="pre">multilib</span></code>, sub architectures (e.g. <code class="docutils literal notranslate"><span class="pre">x32</span></code>,
-<code class="docutils literal notranslate"><span class="pre">poky-tiny</span></code>, <code class="docutils literal notranslate"><span class="pre">musl</span></code>, <code class="docutils literal notranslate"><span class="pre">no-x11</span></code> and so forth),
-<code class="docutils literal notranslate"><span class="pre">bitbake-selftest</span></code>, and <code class="docutils literal notranslate"><span class="pre">oe-selftest</span></code> are tested as part of the QA
-process of a release. Complete testing and validation for a release
-takes the Autobuilder workers several hours.</p>
+<p>I test all'interno di questi rami pubblici garantiscono, in modo visibile a tutti, che tutte le principali architetture e ricette previste in OE-Core vengano compilate e funzionino correttamente.</p>
+<p>Varie funzionalità, come <code class="docutils literal notranslate"><span class="pre">multilib</span></code>, le sottoarchitetture (ad esempio <code class="docutils literal notranslate"><span class="pre">x32</span></code>, <code class="docutils literal notranslate"><span class="pre">poky-tiny</span></code>, <code class="docutils literal notranslate"><span class="pre">musl</span></code>, <code class="docutils literal notranslate"><span class="pre">no-x11</span></code> e così via), <code class="docutils literal notranslate"><span class="pre">bitbake-selftest</span></code> e <code class="docutils literal notranslate"><span class="pre">oe-selftest</span></code>, vengono testate come parte del processo di controllo qualità di una release. Il test e la validazione completi di una release richiedono diverse ore ai worker di Autobuilder.</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>The Autobuilder workers are non-homogeneous, which means regular
-testing across a variety of Linux distributions occurs. The
-Autobuilder is limited to only testing QEMU-based setups and not real
-hardware.</p>
+<p>I worker di Autobuilder non sono omogenei, il che significa che vengono eseguiti regolarmente test su una varietà di distribuzioni Linux. Autobuilder è limitato al test di configurazioni basate su QEMU e non di hardware reale.</p>
 </div>
-<p>Finally, in addition to the Autobuilder's tests, the Yocto Project QA
-team also performs testing on a variety of platforms, which includes
-actual hardware, to ensure expected results.</p>
+<p>Infine, oltre ai test di Autobuilder, il team di controllo qualità di Yocto Project esegue test anche su diverse piattaforme, incluso hardware reale, per garantire i risultati attesi.</p>
 </section>
 </section>
 
@@ -450,7 +344,7 @@ actual hardware, to ensure expected results.</p>
         <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
         <br>Linux&reg; is a registered trademark of Linus Torvalds.
         <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
-        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+        <br>Last updated on ott 03, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
     </p>
   </div>
 </footer>

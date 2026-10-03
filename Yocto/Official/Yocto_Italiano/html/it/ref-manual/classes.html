@@ -27,7 +27,7 @@
     <link rel="index" title="Indice" href="../genindex.html" />
     <link rel="search" title="Cerca" href="../search.html" />
     <link rel="next" title="7 I Task" href="tasks.html" />
-    <link rel="prev" title="5 Source Directory Structure" href="structure.html" /> 
+    <link rel="prev" title="5 Struttura della Directory Sorgente" href="structure.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -73,7 +73,7 @@
 <li class="toctree-l2"><a class="reference internal" href="yocto-project-supported-features.html">2 Architetture e Funzionalità Supportate da Yocto Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="terms.html">3 Terminologia di Yocto Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release-process.html">4 Rilasci di Yocto Project e Iter dei Rilasci Stabili</a></li>
-<li class="toctree-l2"><a class="reference internal" href="structure.html">5 Source Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">5 Struttura della Directory Sorgente</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">6 Classi</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#allarch">6.1 <code class="docutils literal notranslate"><span class="pre">allarch</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#archiver">6.2 <code class="docutils literal notranslate"><span class="pre">archiver</span></code></a></li>
@@ -340,141 +340,56 @@
              
   <section id="classes">
 <h1><span class="section-number">6 </span>Classi<a class="headerlink" href="#classes" title="Link to this heading"></a></h1>
-<p>Class files are used to abstract common functionality and share it
-amongst multiple recipe (<code class="docutils literal notranslate"><span class="pre">.bb</span></code>) files. To use a class file, you simply
-make sure the recipe inherits the class. In most cases, when a recipe
-inherits a class it is enough to enable its features. There are cases,
-however, where in the recipe you might need to set variables or override
-some default behavior. A class can also be inherited globally (in every recipe)
-with the <a class="reference internal" href="variables.html#term-INHERIT"><span class="xref std std-term">INHERIT</span></a> variable.</p>
-<p>Any <a class="reference internal" href="terms.html#term-Metadata"><span class="xref std std-term">Metadata</span></a> usually found in a recipe can also be
-placed in a class file. Class files are identified by the extension
-<code class="docutils literal notranslate"><span class="pre">.bbclass</span></code> and are usually placed in one of the following subdirectories
-of a <a class="reference internal" href="terms.html#term-Layer"><span class="xref std std-term">layer</span></a>:</p>
+<p>I file di classe vengono utilizzati per astrarre funzionalità comuni e condividerle tra più file di ricetta (<code class="docutils literal notranslate"><span class="pre">.bb</span></code>). Per utilizzare un file di classe, è sufficiente assicurarsi che la ricetta erediti la classe. Nella maggior parte dei casi, quando una ricetta eredita una classe, è sufficiente per abilitarne le funzionalità. Tuttavia, in alcuni casi potrebbe essere necessario impostare delle variabili o sovrascrivere alcuni comportamenti predefiniti all'interno della ricetta. Una classe può anche essere ereditata globalmente (in ogni ricetta) tramite la variabile <a class="reference internal" href="variables.html#term-INHERIT"><span class="xref std std-term">INHERIT</span></a>.</p>
+<p>Qualsiasi <a class="reference internal" href="terms.html#term-Metadata"><span class="xref std std-term">Metadata</span></a> che si trova solitamente in una ricetta può essere inserito anche in un file di classe. I file di classe sono identificati dall'estensione <code class="docutils literal notranslate"><span class="pre">.bbclass</span></code> e si trovano solitamente in una delle seguenti sottocartelle di un <a class="reference internal" href="terms.html#term-Layer"><span class="xref std std-term">layer</span></a>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">classes-recipe/</span></code> - classes intended to be inherited by recipes
-individually</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">classes-global/</span></code> - classes intended to be inherited globally</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">classes/</span></code> - classes whose usage context is not clearly defined</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">classes-recipe/</span></code> - classi destinate a essere ereditate singolarmente dalle ricette</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">classes-global/</span></code> - classi destinate a essere ereditate globalmente</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">classes/</span></code> - classi il cui contesto di utilizzo non è chiaramente definito</p></li>
 </ul>
 </div></blockquote>
-<p>Class files can also be pointed to by
-<a class="reference internal" href="variables.html#term-BUILDDIR"><span class="xref std std-term">BUILDDIR</span></a> (e.g. <code class="docutils literal notranslate"><span class="pre">build/</span></code>) in the same way as
-<code class="docutils literal notranslate"><span class="pre">.conf</span></code> files in the <code class="docutils literal notranslate"><span class="pre">conf</span></code> directory. Class files are searched for
-in <a class="reference internal" href="variables.html#term-BBPATH"><span class="xref std std-term">BBPATH</span></a> using the same method by which <code class="docutils literal notranslate"><span class="pre">.conf</span></code>
-files are searched.</p>
-<p>This chapter discusses only the most useful and important classes. Other
-classes do exist within the <code class="docutils literal notranslate"><span class="pre">meta/classes*</span></code> directories of
-<a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>. You can refer to the <code class="docutils literal notranslate"><span class="pre">.bbclass</span></code> files
-directly for more information.</p>
+<p>I file di classe possono anche essere indicati tramite <a class="reference internal" href="variables.html#term-BUILDDIR"><span class="xref std std-term">BUILDDIR</span></a> (ad esempio <code class="docutils literal notranslate"><span class="pre">build/</span></code>) nello stesso modo dei file <code class="docutils literal notranslate"><span class="pre">build/``nella</span> <span class="pre">directory</span> <span class="pre">``conf</span></code>. I file di classe vengono cercati in <a class="reference internal" href="variables.html#term-BBPATH"><span class="xref std std-term">BBPATH</span></a> utilizzando lo stesso metodo impiegato per la ricerca dei file <code class="docutils literal notranslate"><span class="pre">.conf</span></code>.</p>
+<p>Questo capitolo tratta solo le classi più utili e importanti. Esistono altre classi all'interno delle directory <code class="docutils literal notranslate"><span class="pre">meta/classes*</span></code> di <a class="reference internal" href="terms.html#term-OpenEmbedded-Core-OE-Core"><span class="xref std std-term">OpenEmbedded-Core (OE-Core)</span></a>. Per ulteriori informazioni, è possibile consultare direttamente i file <code class="docutils literal notranslate"><span class="pre">.bbclass</span></code>.</p>
 <section id="allarch">
 <span id="ref-classes-allarch"></span><h2><span class="section-number">6.1 </span><code class="docutils literal notranslate"><span class="pre">allarch</span></code><a class="headerlink" href="#allarch" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="#ref-classes-allarch"><span class="std std-ref">allarch</span></a> class is inherited by recipes that do not produce
-architecture-specific output. The class disables functionality that is
-normally needed for recipes that produce executable binaries (such as
-building the cross-compiler and a C library as pre-requisites, and
-splitting out of debug symbols during packaging).</p>
+<p>La classe <a class="reference internal" href="#ref-classes-allarch"><span class="std std-ref">allarch</span></a> viene ereditata dalle ricette che non producono output specifici per un'architettura. Questa classe disabilita le funzionalità normalmente necessarie per le ricette che producono binari eseguibili (come la compilazione del cross-compilatore e di una libreria C come prerequisiti e la separazione dei simboli di debug durante la fase di packaging).</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>Unlike some distro recipes (e.g. Debian), OpenEmbedded recipes that
-produce packages that depend on tunings through use of the
-<a class="reference internal" href="variables.html#term-RDEPENDS"><span class="xref std std-term">RDEPENDS</span></a> and
-<a class="reference internal" href="variables.html#term-TUNE_PKGARCH"><span class="xref std std-term">TUNE_PKGARCH</span></a> variables, should never be
-configured for all architectures using <a class="reference internal" href="#ref-classes-allarch"><span class="std std-ref">allarch</span></a>. This is the case
-even if the recipes do not produce architecture-specific output.</p>
-<p>Configuring such recipes for all architectures causes the
-<a class="reference internal" href="tasks.html#ref-tasks-package-write-deb"><span class="std std-ref">do_package_write_*</span></a> tasks to
-have different signatures for the machines with different tunings.
-Additionally, unnecessary rebuilds occur every time an image for a
-different <a class="reference internal" href="variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> is built even when the recipe never changes.</p>
+<p>A differenza di alcune ricette di distribuzione (ad esempio Debian), le ricette di OpenEmbedded che producono pacchetti dipendenti da ottimizzazioni tramite l'uso delle variabili <a class="reference internal" href="variables.html#term-RDEPENDS"><span class="xref std std-term">RDEPENDS</span></a> e <a class="reference internal" href="variables.html#term-TUNE_PKGARCH"><span class="xref std std-term">TUNE_PKGARCH</span></a> non devono mai essere configurate per tutte le architetture utilizzando <a class="reference internal" href="#ref-classes-allarch"><span class="std std-ref">allarch</span></a>. Questo accade anche se le ricette non producono output specifici per un'architettura.</p>
+<p>Configurare tali ricette per tutte le architetture fa sì che i task <a class="reference internal" href="tasks.html#ref-tasks-package-write-deb"><span class="std std-ref">do_package_write_*</span></a> abbiano firme diverse per le macchine con configurazioni diverse. Inoltre, si verificano ricompilazioni non necessarie ogni volta che viene creata un'immagine per una <a class="reference internal" href="variables.html#term-MACHINE"><span class="xref std std-term">MACHINE</span></a> diversa, anche quando la ricetta non cambia mai.</p>
 </div>
-<p>By default, all recipes inherit the <a class="reference internal" href="#ref-classes-base"><span class="std std-ref">base</span></a> and
-<a class="reference internal" href="#ref-classes-package"><span class="std std-ref">package</span></a> classes, which enable
-functionality needed for recipes that produce executable output. If your
-recipe, for example, only produces packages that contain configuration
-files, media files, or scripts (e.g. Python and Perl), then it should
-inherit the <a class="reference internal" href="#ref-classes-allarch"><span class="std std-ref">allarch</span></a> class.</p>
+<p>Per default, tutte le ricette ereditano le classi <a class="reference internal" href="#ref-classes-base"><span class="std std-ref">base</span></a> e <a class="reference internal" href="#ref-classes-package"><span class="std std-ref">package</span></a>, che abilitano le funzionalità necessarie per le ricette che producono output eseguibile. Se la ricetta, ad esempio, produce solo pacchetti contenenti file di configurazione, file multimediali o script (ad esempio Python e Perl), allora dovrebbe ereditare la classe <a class="reference internal" href="#ref-classes-allarch"><span class="std std-ref">allarch</span></a>.</p>
 </section>
 <section id="archiver">
 <span id="ref-classes-archiver"></span><h2><span class="section-number">6.2 </span><code class="docutils literal notranslate"><span class="pre">archiver</span></code><a class="headerlink" href="#archiver" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="#ref-classes-archiver"><span class="std std-ref">archiver</span></a> class supports releasing source code and other
-materials with the binaries.</p>
-<p>For more details on the source <a class="reference internal" href="#ref-classes-archiver"><span class="std std-ref">archiver</span></a>, see the
-&quot;<a class="reference internal" href="../dev-manual/licenses.html#maintaining-open-source-license-compliance-during-your-product-s-lifecycle"><span class="std std-ref">Maintaining Open Source License Compliance During Your Product's Lifecycle</span></a>&quot;
-section in the Yocto Project Development Tasks Manual. You can also see
-the <a class="reference internal" href="variables.html#term-ARCHIVER_MODE"><span class="xref std std-term">ARCHIVER_MODE</span></a> variable for information
-about the variable flags (varflags) that help control archive creation.</p>
+<p>La classe <a class="reference internal" href="#ref-classes-archiver"><span class="std std-ref">archiver</span></a> supporta il rilascio del codice sorgente e di altri materiali insieme ai file binari.</p>
+<p>Per maggiori dettagli sulla classe sorgente <a class="reference internal" href="#ref-classes-archiver"><span class="std std-ref">archiver</span></a>, consultare la sezione &quot;<a class="reference internal" href="../dev-manual/licenses.html#maintaining-open-source-license-compliance-during-your-product-s-lifecycle"><span class="std std-ref">Maintaining Open Source License Compliance During Your Product's Lifecycle</span></a>&quot; nel Manuale di Sviluppo dei Task di Yocto Project. È inoltre possibile consultare la variabile <a class="reference internal" href="variables.html#term-ARCHIVER_MODE"><span class="xref std std-term">ARCHIVER_MODE</span></a> per informazioni sui flag variabili (varflags) che consentono di controllare la creazione dell'archivio.</p>
 </section>
 <section id="autotools">
 <span id="ref-classes-autotools"></span><h2><span class="section-number">6.3 </span><code class="docutils literal notranslate"><span class="pre">autotools*</span></code><a class="headerlink" href="#autotools" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools*</span></a> classes support packages built with the
-<a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/GNU_Autotools">GNU Autotools</a>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">autoconf</span></code>, <code class="docutils literal notranslate"><span class="pre">automake</span></code>, and <code class="docutils literal notranslate"><span class="pre">libtool</span></code> packages bring
-standardization. This class defines a set of tasks (e.g. <code class="docutils literal notranslate"><span class="pre">configure</span></code>,
-<code class="docutils literal notranslate"><span class="pre">compile</span></code> and so forth) that work for all Autotooled packages. It
-should usually be enough to define a few standard variables and then
-simply <code class="docutils literal notranslate"><span class="pre">inherit</span> <span class="pre">autotools</span></code>. These classes can also work with software
-that emulates Autotools. For more information, see the
-&quot;<a class="reference internal" href="../dev-manual/new-recipe.html#building-an-autotooled-package"><span class="std std-ref">Building an Autotooled Package</span></a>&quot; section
-in the Yocto Project Development Tasks Manual.</p>
-<p>By default, the <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools*</span></a> classes use out-of-tree builds (i.e.
-<code class="docutils literal notranslate"><span class="pre">autotools.bbclass</span></code> building with <code class="docutils literal notranslate"><span class="pre">B</span> <span class="pre">!=</span> <span class="pre">S</span></code>).</p>
-<p>If the software being built by a recipe does not support using
-out-of-tree builds, you should have the recipe inherit the
-<a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools-brokensep</span></a> class. The <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools-brokensep</span></a> class behaves
-the same as the <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools*</span></a> class but builds with <a class="reference internal" href="variables.html#term-B"><span class="xref std std-term">B</span></a>
-== <a class="reference internal" href="variables.html#term-S"><span class="xref std std-term">S</span></a>. This method is useful when out-of-tree build
-support is either not present or is broken.</p>
+<p>Le classi <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools*</span></a> supportano i pacchetti creati con <a class="extlink-wikipedia reference external" href="https://en.wikipedia.org/wiki/GNU_Autotools">GNU Autotools</a>.</p>
+<p>I pacchetti <code class="docutils literal notranslate"><span class="pre">autoconf</span></code>, <code class="docutils literal notranslate"><span class="pre">automake</span></code> e <code class="docutils literal notranslate"><span class="pre">libtool</span></code> introducono la standardizzazione. Questa classe definisce un insieme di task (ad esempio <code class="docutils literal notranslate"><span class="pre">configure</span></code>, <code class="docutils literal notranslate"><span class="pre">compile</span></code> e così via) che funzionano per tutti i pacchetti creati con Autotools. Di solito è sufficiente definire alcune variabili standard e poi semplicemente <code class="docutils literal notranslate"><span class="pre">ereditare</span> <span class="pre">autotools</span></code>. Queste classi possono funzionare anche con software che emula Autotools. Per ulteriori informazioni, consultare la sezione &quot;<a class="reference internal" href="../dev-manual/new-recipe.html#building-an-autotooled-package"><span class="std std-ref">Building an Autotooled Package</span></a>&quot; nel Manuale di Sviluppo dei Task di Yocto Project.</p>
+<p>Per default, le classi <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools*</span></a> utilizzano build out-of-tree (ovvero, <code class="docutils literal notranslate"><span class="pre">autotools.bbclass</span></code> viene compilato con <code class="docutils literal notranslate"><span class="pre">B</span> <span class="pre">!=</span> <span class="pre">S</span></code>).</p>
+<p>Se il software compilato da una ricetta non supporta l'utilizzo di build out-of-tree, è necessario che la ricetta erediti la classe <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools-brokensep</span></a>. La classe <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools-brokensep</span></a> si comporta allo stesso modo della classe <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools*</span></a>, ma compila con <a class="reference internal" href="variables.html#term-B"><span class="xref std std-term">B</span></a> == <a class="reference internal" href="variables.html#term-S"><span class="xref std std-term">S</span></a>. Questo metodo è utile quando il supporto per le build out-of-tree non è presente o è difettoso.</p>
 <div class="admonition note">
 <p class="admonition-title">Nota</p>
-<p>It is recommended that out-of-tree support be fixed and used if at
-all possible.</p>
+<p>Si raccomanda di correggere e utilizzare il supporto per le build out-of-tree, se possibile.</p>
 </div>
-<p>It's useful to have some idea of how the tasks defined by the
-<a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools*</span></a> classes work and what they do behind the scenes.</p>
+<p>È utile avere un'idea di come funzionano i task definite dalle classi <a class="reference internal" href="#ref-classes-autotools"><span class="std std-ref">autotools*</span></a> e cosa fanno dietro le quinte.</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="tasks.html#ref-tasks-configure"><span class="std std-ref">do_configure</span></a> --- regenerates the
-configure script (using <code class="docutils literal notranslate"><span class="pre">autoreconf</span></code>) and then launches it with a
-standard set of arguments used during cross-compilation. You can pass
-additional parameters to <code class="docutils literal notranslate"><span class="pre">configure</span></code> through the <a class="reference internal" href="variables.html#term-EXTRA_OECONF"><span class="xref std std-term">EXTRA_OECONF</span></a>
-or <a class="reference internal" href="variables.html#term-PACKAGECONFIG_CONFARGS"><span class="xref std std-term">PACKAGECONFIG_CONFARGS</span></a>
-variables.</p></li>
-<li><p><a class="reference internal" href="tasks.html#ref-tasks-compile"><span class="std std-ref">do_compile</span></a> --- runs <code class="docutils literal notranslate"><span class="pre">make</span></code> with
-arguments that specify the compiler and linker. You can pass
-additional arguments through the <a class="reference internal" href="variables.html#term-EXTRA_OEMAKE"><span class="xref std std-term">EXTRA_OEMAKE</span></a> variable.</p></li>
-<li><p><a class="reference internal" href="tasks.html#ref-tasks-install"><span class="std std-ref">do_install</span></a> --- runs <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> and
-passes in <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-D"><span class="xref std std-term">D</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> as <code class="docutils literal notranslate"><span class="pre">DESTDIR</span></code>.</p></li>
+<li><p><a class="reference internal" href="tasks.html#ref-tasks-configure"><span class="std std-ref">do_configure</span></a> --- rigenera lo script di configurazione (utilizzando <code class="docutils literal notranslate"><span class="pre">autoreconf</span></code>) e lo avvia con un set standard di argomenti utilizzati durante la compilazione incrociata. È possibile passare parametri aggiuntivi a <code class="docutils literal notranslate"><span class="pre">configure</span></code> tramite le variabili <a class="reference internal" href="variables.html#term-EXTRA_OECONF"><span class="xref std std-term">EXTRA_OECONF</span></a> o <a class="reference internal" href="variables.html#term-PACKAGECONFIG_CONFARGS"><span class="xref std std-term">PACKAGECONFIG_CONFARGS</span></a>.</p></li>
+<li><p><a class="reference internal" href="tasks.html#ref-tasks-compile"><span class="std std-ref">do_compile</span></a> --- esegue <code class="docutils literal notranslate"><span class="pre">make</span></code> con argomenti che specificano il compilatore e il linker. È possibile passare argomenti aggiuntivi tramite la variabile <a class="reference internal" href="variables.html#term-EXTRA_OEMAKE"><span class="xref std std-term">EXTRA_OEMAKE</span></a>.</p></li>
+<li><p><a class="reference internal" href="tasks.html#ref-tasks-install"><span class="std std-ref">do_install</span></a> --- esegue <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> e passa in <code class="docutils literal notranslate"><span class="pre">${</span></code><a class="reference internal" href="variables.html#term-D"><span class="xref std std-term">D</span></a><code class="docutils literal notranslate"><span class="pre">}</span></code> come <code class="docutils literal notranslate"><span class="pre">DESTDIR</span></code>.</p></li>
 </ul>
 </section>
 <section id="barebox">
 <span id="ref-classes-barebox"></span><h2><span class="section-number">6.4 </span><code class="docutils literal notranslate"><span class="pre">barebox</span></code><a class="headerlink" href="#barebox" title="Link to this heading"></a></h2>
-<p>The <a class="reference internal" href="#ref-classes-barebox"><span class="std std-ref">barebox</span></a> class manages building the barebox bootloader.</p>
-<p>If a file named <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> is included in the <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>, it will be
-copied to <code class="docutils literal notranslate"><span class="pre">.config</span></code> in the build directory and used as the barebox
-configuration.
-Instead of providing a <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> file, you can set <a class="reference internal" href="variables.html#term-BAREBOX_CONFIG"><span class="xref std std-term">BAREBOX_CONFIG</span></a>
-to a defconfig provided by the barebox source tree.
-If neither <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> nor <a class="reference internal" href="variables.html#term-BAREBOX_CONFIG"><span class="xref std std-term">BAREBOX_CONFIG</span></a> is specified, the class
-will raise an error.</p>
-<p>The <a class="reference internal" href="#ref-classes-barebox"><span class="std std-ref">barebox</span></a> class supports config fragments and internally
-includes the <a class="reference internal" href="#ref-classes-cml1"><span class="std std-ref">cml1</span></a> class to provide <a class="reference external" href="https://docs.kernel.org/kbuild/kconfig-language.html">Kconfig</a> support for
-barebox, enabling tasks such as <a class="reference internal" href="tasks.html#ref-tasks-menuconfig"><span class="std std-ref">do_menuconfig</span></a> and
-<a class="reference internal" href="tasks.html#ref-tasks-diffconfig"><span class="std std-ref">do_diffconfig</span></a>.</p>
-<p>The generated barebox binaries are deployed to
-<a class="reference internal" href="variables.html#term-DEPLOY_DIR_IMAGE"><span class="xref std std-term">DEPLOY_DIR_IMAGE</span></a> as well as installed to <code class="docutils literal notranslate"><span class="pre">BAREBOX_INSTALL_PATH</span></code>
-(<code class="docutils literal notranslate"><span class="pre">/boot</span></code> by default) making them part of the recipe's base package.
-This setup supports both using the barebox binaries as independent artifacts
-and installing them into a rootfs.
-<a class="reference internal" href="variables.html#term-BAREBOX_BINARY"><span class="xref std std-term">BAREBOX_BINARY</span></a> can be used to select a distinct binary to deploy and
-install.
-If <code class="docutils literal notranslate"><span class="pre">barebox</span></code> is set as the <a class="reference internal" href="variables.html#term-EFI_PROVIDER"><span class="xref std std-term">EFI_PROVIDER</span></a>, the class will leverage
-<a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/tree/meta/conf/image-uefi.conf">conf/image-uefi.conf</a>
-to define the default installation paths and naming conventions.</p>
-<p>The compiled-in barebox environment can be extended by adding environment files
-to the <code class="docutils literal notranslate"><span class="pre">BAREBOX_ENV_DIR</span></code>.
-The <code class="docutils literal notranslate"><span class="pre">BAREBOX_FIRMWARE_DIR</span></code> variable allows you to specify the firmware blob
-search directory, enabling loading of additional firmware like TF-A or OP-TEE.</p>
+<p>La classe <a class="reference internal" href="#ref-classes-barebox"><span class="std std-ref">barebox</span></a> gestisce la compilazione del bootloader barebox.</p>
+<p>Se un file denominato <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> è incluso in <a class="reference internal" href="variables.html#term-SRC_URI"><span class="xref std std-term">SRC_URI</span></a>, verrà copiato in <code class="docutils literal notranslate"><span class="pre">.config</span></code> nella directory di build e utilizzato come configurazione barebox. Invece di fornire un file <code class="docutils literal notranslate"><span class="pre">defconfig</span></code>, è possibile impostare <a class="reference internal" href="variables.html#term-BAREBOX_CONFIG"><span class="xref std std-term">BAREBOX_CONFIG</span></a> con un file defconfig fornito dall'albero dei sorgenti di barebox. Se non vengono specificati né <code class="docutils literal notranslate"><span class="pre">defconfig</span></code> né <a class="reference internal" href="variables.html#term-BAREBOX_CONFIG"><span class="xref std std-term">BAREBOX_CONFIG</span></a>, la classe genererà un errore.</p>
+<p>La classe <a class="reference internal" href="#ref-classes-barebox"><span class="std std-ref">barebox</span></a> supporta i frammenti di configurazione e include internamente la classe <a class="reference internal" href="#ref-classes-cml1"><span class="std std-ref">cml1</span></a> per fornire il supporto a <a class="reference external" href="https://docs.kernel.org/kbuild/kconfig-language.html">Kconfig</a> per barebox, abilitando i task come <a class="reference internal" href="tasks.html#ref-tasks-menuconfig"><span class="std std-ref">do_menuconfig</span></a> e <a class="reference internal" href="tasks.html#ref-tasks-diffconfig"><span class="std std-ref">do_diffconfig</span></a>.</p>
+<p>I binari barebox generati vengono distribuiti in <a class="reference internal" href="variables.html#term-DEPLOY_DIR_IMAGE"><span class="xref std std-term">DEPLOY_DIR_IMAGE</span></a> e installati in <code class="docutils literal notranslate"><span class="pre">BAREBOX_INSTALL_PATH</span></code> (<code class="docutils literal notranslate"><span class="pre">/boot</span></code> per default), diventando così parte del pacchetto base della ricetta. Questa configurazione supporta sia l'utilizzo dei binari barebox come artefatti indipendenti, sia la loro installazione in un rootfs. <a class="reference internal" href="variables.html#term-BAREBOX_BINARY"><span class="xref std std-term">BAREBOX_BINARY</span></a> può essere utilizzato per selezionare un binario distinto da distribuire e installare. Se <code class="docutils literal notranslate"><span class="pre">barebox</span></code> è impostato come <a class="reference internal" href="variables.html#term-EFI_PROVIDER"><span class="xref std std-term">EFI_PROVIDER</span></a>, la classe utilizzerà <a class="extlink-oe_git reference external" href="https://git.openembedded.org/openembedded-core/tree/meta/conf/image-uefi.conf">conf/image-uefi.conf</a> per definire i percorsi di installazione predefiniti e le convenzioni di denominazione.</p>
+<p>L'ambiente barebox compilato può essere esteso aggiungendo file di ambiente a <code class="docutils literal notranslate"><span class="pre">BAREBOX_ENV_DIR</span></code>. La variabile <code class="docutils literal notranslate"><span class="pre">BAREBOX_FIRMWARE_DIR</span></code> consente di specificare la directory di ricerca dei blob del firmware, abilitando il caricamento di firmware aggiuntivi come TF-A o OP-TEE.</p>
 </section>
 <section id="base">
 <span id="ref-classes-base"></span><h2><span class="section-number">6.5 </span><code class="docutils literal notranslate"><span class="pre">base</span></code><a class="headerlink" href="#base" title="Link to this heading"></a></h2>
@@ -3430,7 +3345,7 @@ Compatible layers, see the <a class="reference internal" href="../dev-manual/lay
         <br> All Rights Reserved. Linux Foundation&reg; and Yocto Project&reg; are registered trademarks of the Linux Foundation.
         <br>Linux&reg; is a registered trademark of Linus Torvalds.
         <br>&copy; Copyright 2010-2026, The Linux Foundation, CC-BY-SA-2.0-UK license
-        <br>Last updated on set 27, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
+        <br>Last updated on ott 03, 2026 from the <a href="https://git.yoctoproject.org/yocto-docs/">yocto-docs</a> git repository<span class="docs_meta_info_placeholder"></span>.
     </p>
   </div>
 </footer>
